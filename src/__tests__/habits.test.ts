@@ -1,6 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { parseEntry } from '@domain/checkins/entries';
+import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
+import { balanceDays } from '@domain/habits/balance';
+import { URGE_POINTS, Urge, mergeUrges, parseUrges } from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 import {
   Habit,
@@ -287,5 +290,43 @@ describe('editing habits', () => {
     expect(parsePrice('€ 5')).toBe(5);
     expect(parsePrice('3.333')).toBe(3.33);
     expect(parsePrice('')).toBeUndefined();
+  });
+});
+
+describe('urges', () => {
+  const urge = (outcome: 'passed' | 'gaveIn', at: string): Urge => ({
+    date: '2026-10-01',
+    habitId: 'cigarettes',
+    outcome,
+    recordedAt: `2026-10-01T${at}.000Z`,
+  });
+
+  it('count as light points only when they passed', () => {
+    const days = balanceDays(
+      [],
+      PRESET_HABITS,
+      ['2026-10-01'],
+      [urge('passed', '09:00:00'), urge('gaveIn', '10:00:00')],
+    );
+    expect(days[0]).toMatchObject({ light: URGE_POINTS, heavy: 0, net: URGE_POINTS, logged: true });
+  });
+
+  it('never take points away when you had one', () => {
+    const [day] = balanceDays([], PRESET_HABITS, ['2026-10-01'], [urge('gaveIn', '10:00:00')]);
+    expect(day.net).toBe(0);
+  });
+
+  it('merge without duplicates and parse safely', () => {
+    const a = urge('passed', '09:00:00');
+    expect(mergeUrges([a], [a, urge('gaveIn', '10:00:00')])).toHaveLength(2);
+    expect(parseUrges([a, { ...a, outcome: 'nope' }, 'x', { ...a, date: 'bad' }])).toEqual([a]);
+    expect(parseUrges(undefined)).toEqual([]);
+  });
+
+  it('survive an export round trip, and older files import without them', () => {
+    const a = urge('passed', '09:00:00');
+    expect(parseExport(serializeExport([], PRESET_HABITS, [a])).urges).toEqual([a]);
+    const v2 = JSON.stringify({ format: 'mood-tracker-export', version: 2, exportedAt: '', entries: [] });
+    expect(parseExport(v2).urges).toEqual([]);
   });
 });

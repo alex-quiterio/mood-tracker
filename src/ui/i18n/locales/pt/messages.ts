@@ -172,6 +172,23 @@ export const messages: Omit<Messages, 'voices'> = {
     guidedOut: 'E expira devagar…',
     guidedCount: (n, total) => `Respiração ${n} de ${total}`,
   },
+  urge: {
+    button: '🌊 Senti vontade',
+    pickTitle: 'Que vontade?',
+    breatheTitle: (habit: string) => `Surfa a onda: ${habit}`,
+    breatheHint:
+      'As vontades sobem, atingem o pico e descem, normalmente em poucos minutos. Respira e vê-la passar.',
+    outcomeTitle: 'E agora?',
+    outcomeHint: 'Qualquer resposta serve. Fizeste uma pausa, e isso conta.',
+    letPass: 'Deixei passar',
+    hadOne: 'Cedi',
+    passedTitle: 'Deixaste passar 🌱',
+    passedBody: (points: number) => `É uma vitória: +${points} no teu equilíbrio desta semana.`,
+    hadOneTitle: 'Registado, sem culpa',
+    hadOneBody:
+      'Regista no próximo check-in para a contagem ficar certa. Da próxima vez podes tentar de novo.',
+    done: 'Concluir',
+  },
   reminders: {
     title: 'Lembretes diários',
     channel: 'Lembretes de registo',

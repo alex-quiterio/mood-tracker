@@ -2,12 +2,14 @@ import { Entry } from '@domain/checkins/types';
 import { addDays, lastNDays } from '@domain/shared/dates';
 
 import { Habit, HabitLog, weightOf } from './habits';
+import { URGE_POINTS, Urge, passedOn } from './urges';
 
 /**
  * The balance between light and heavy. Light points: each good habit (its
  * weight, plus 1 per extra option picked, up to +2), each habit logged at zero
  * (+1), and a note on what you did instead (+2), because choosing differently is
- * the heart of the loop. Heavy points: each dose times its habit's weight.
+ * the heart of the loop, and each urge that passed (+2). Heavy points: each dose
+ * times its habit's weight.
  */
 export const ZERO_POINTS = 1;
 export const INSTEAD_POINTS = 2;
@@ -39,7 +41,12 @@ export function checkInPoints(log: HabitLog | undefined, habits: Habit[]): Point
 
 export type BalanceDay = Points & { date: string; net: number; logged: boolean };
 
-export function balanceDays(entries: Entry[], habits: Habit[], days: string[]): BalanceDay[] {
+export function balanceDays(
+  entries: Entry[],
+  habits: Habit[],
+  days: string[],
+  urges: Urge[] = [],
+): BalanceDay[] {
   return days.map((date) => {
     const logs = entries.filter((e) => e.date === date && e.habits);
     const points = logs.reduce(
@@ -49,7 +56,15 @@ export function balanceDays(entries: Entry[], habits: Habit[], days: string[]): 
       },
       { light: 0, heavy: 0 },
     );
-    return { date, ...points, net: points.light - points.heavy, logged: logs.length > 0 };
+    const passed = passedOn(urges, date);
+    const light = points.light + passed * URGE_POINTS;
+    return {
+      date,
+      light,
+      heavy: points.heavy,
+      net: light - points.heavy,
+      logged: logs.length > 0 || passed > 0,
+    };
   });
 }
 
@@ -76,9 +91,14 @@ export type WeekBalance = {
   verdict: Verdict | null;
 };
 
-export function weekBalance(entries: Entry[], habits: Habit[], today: string): WeekBalance {
-  const days = balanceDays(entries, habits, lastNDays(7, today));
-  const previous = balanceDays(entries, habits, lastNDays(7, addDays(today, -7)));
+export function weekBalance(
+  entries: Entry[],
+  habits: Habit[],
+  today: string,
+  urges: Urge[] = [],
+): WeekBalance {
+  const days = balanceDays(entries, habits, lastNDays(7, today), urges);
+  const previous = balanceDays(entries, habits, lastNDays(7, addDays(today, -7)), urges);
   const light = days.reduce((s, d) => s + d.light, 0);
   const heavy = days.reduce((s, d) => s + d.heavy, 0);
   return {

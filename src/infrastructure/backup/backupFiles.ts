@@ -5,18 +5,20 @@ import * as Sharing from 'expo-sharing';
 import { localDate } from '@domain/shared/dates';
 import { ImportedData, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { Habit } from '@domain/habits/habits';
+import { Urge } from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 
 /** Writes all entries (and habit definitions) to a JSON file and opens the share sheet to save it elsewhere. */
 export async function exportEntries(
   entries: Entry[],
   habits: Habit[],
+  urges: Urge[],
   text: { dialogTitle: string; unavailable: string },
 ): Promise<void> {
   const file = new File(Paths.cache, `mood-tracker-${localDate()}.json`);
   if (file.exists) file.delete();
   file.create();
-  file.write(serializeExport(entries, habits));
+  file.write(serializeExport(entries, habits, urges));
 
   if (!(await Sharing.isAvailableAsync())) throw new Error(text.unavailable);
   await Sharing.shareAsync(file.uri, {

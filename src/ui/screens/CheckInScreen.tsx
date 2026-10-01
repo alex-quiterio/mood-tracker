@@ -23,7 +23,8 @@ import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLivePreview } from '@ui/hooks/useLivePreview';
 import { PauseOrb } from '@ui/practice/PauseOrb';
 import { PracticeModal } from '@ui/practice/PracticeModal';
-import { Habit } from '@domain/habits/habits';
+import { Habit, activeHabits } from '@domain/habits/habits';
+import { UrgeModal } from '@ui/habits/UrgeModal';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { SlotCard, Tracking } from '@ui/checkin/SlotCard';
 import { useVoice } from '@ui/theme/voiceContext';
@@ -50,6 +51,8 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
   const [practicing, setPracticing] = useState(false);
+  const [urging, setUrging] = useState(false);
+  const reduceHabits = activeHabits(habits, 'reduce');
   const liveUnlocks = useLivePreview(previewUnlocks, tracking.unlocks, store.entries);
   const liveSteps = useLivePreview(previewSteps, tracking.steps, store.entries);
   const voice = useVoice();
@@ -105,6 +108,10 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
         </View>
 
         <QuoteCard date={today} />
+
+        {reduceHabits.length > 0 && (
+          <Button title={m.urge.button} variant="secondary" onPress={() => setUrging(true)} />
+        )}
 
         {date === today && <LiveCounts counts={liveCounts} today={today} />}
 
@@ -176,6 +183,12 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
       <MoodBurst burst={burst} />
       <BreathingModal visible={breathing} onClose={() => setBreathing(false)} />
       <PracticeModal visible={practicing} onClose={() => setPracticing(false)} />
+      <UrgeModal
+        visible={urging}
+        habits={reduceHabits}
+        onRecord={(urge) => store.addUrge(urge).catch(() => {})}
+        onClose={() => setUrging(false)}
+      />
     </View>
   );
 }

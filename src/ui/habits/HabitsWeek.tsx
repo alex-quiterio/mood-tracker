@@ -4,6 +4,7 @@ import { Card } from '@ui/components/Card';
 import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
+import { Urge } from '@domain/habits/urges';
 import { habitWeek, totalSavings } from '@domain/habits/insights';
 import { describeHabitWeek } from '@ui/i18n/habits';
 import { formatDecimal } from '@ui/i18n/format';
@@ -15,7 +16,9 @@ import { BalanceBoard } from './BalanceBoard';
 import { SavingsJar } from './SavingsJar';
 
 /** The weekly habits view: balance, savings, and what went right. */
-export function HabitsWeek({ entries, habits, today }: { entries: Entry[]; habits: Habit[]; today: string }) {
+type Props = { entries: Entry[]; urges: Urge[]; habits: Habit[]; today: string };
+
+export function HabitsWeek({ entries, urges, habits, today }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
@@ -28,7 +31,7 @@ export function HabitsWeek({ entries, habits, today }: { entries: Entry[]; habit
 
   return (
     <View style={styles.root}>
-      <BalanceBoard week={weekBalance(entries, habits, today)} />
+      <BalanceBoard week={weekBalance(entries, habits, today, urges)} />
       <SavingsJar
         week={totalSavings(entries, habits, addDays(today, -6), today)}
         total={totalSavings(entries, habits)}

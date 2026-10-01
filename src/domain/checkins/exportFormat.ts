@@ -1,4 +1,5 @@
 import { Habit, parseHabits } from '@domain/habits/habits';
+import { Urge, parseUrges } from '@domain/habits/urges';
 
 import { parseEntry } from './entries';
 import { Entry } from './types';
@@ -14,8 +15,9 @@ export class ExportError extends Error {
 
 /** The backup file format. Versioned: keep older versions importable. */
 const FORMAT = 'mood-tracker-export';
-// v2 adds habit definitions, so logged habits keep their names on another phone. v1 still imports.
-const VERSION = 2;
+// v2 adds habit definitions, so logged habits keep their names on another phone.
+// v3 adds urges. Older versions still import.
+const VERSION = 3;
 
 type ExportFile = {
   format: typeof FORMAT;
@@ -23,17 +25,24 @@ type ExportFile = {
   exportedAt: string;
   entries: Entry[];
   habits?: Habit[];
+  urges?: Urge[];
 };
 
-export type ImportedData = { entries: Entry[]; habits: Habit[] };
+export type ImportedData = { entries: Entry[]; habits: Habit[]; urges: Urge[] };
 
-export function serializeExport(entries: Entry[], habits: Habit[], now: Date = new Date()): string {
+export function serializeExport(
+  entries: Entry[],
+  habits: Habit[],
+  urges: Urge[] = [],
+  now: Date = new Date(),
+): string {
   const file: ExportFile = {
     format: FORMAT,
     version: VERSION,
     exportedAt: now.toISOString(),
     entries,
     habits,
+    urges,
   };
   return JSON.stringify(file, null, 2);
 }
@@ -57,6 +66,10 @@ export function parseExport(text: string): ImportedData {
   if (entries.some((e) => e === null)) {
     throw new ExportError('invalid');
   }
-  // v1 files have no habit definitions.
-  return { entries: entries as Entry[], habits: Array.isArray(file.habits) ? parseHabits(file.habits) : [] };
+  // v1 files have no habit definitions, and files before v3 have no urges.
+  return {
+    entries: entries as Entry[],
+    habits: Array.isArray(file.habits) ? parseHabits(file.habits) : [],
+    urges: parseUrges(file.urges),
+  };
 }

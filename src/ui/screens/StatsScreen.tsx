@@ -168,7 +168,7 @@ export function StatsScreen({
       <Text style={styles.hint}>{m.stats.reflectHint}</Text>
 
       <Text style={styles.sectionTitle}>{m.stats.habits}</Text>
-      <HabitsWeek entries={store.entries} habits={habits} today={today} />
+      <HabitsWeek entries={store.entries} urges={store.urges} habits={habits} today={today} />
 
       <Text style={styles.sectionTitle}>{m.stats.history}</Text>
       <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} habits={habits} />

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { mergeEntries, removeEntry, upsertEntry } from '@domain/checkins/entries';
+import { Urge, addUrge as withUrge, mergeUrges } from '@domain/habits/urges';
+import { loadUrges, saveUrges } from '@infrastructure/storage/urgesRepository';
 import { loadEntries, migrateEntries, saveEntries } from '@infrastructure/storage/entriesRepository';
 import { Entry, Slot } from '@domain/checkins/types';
 
@@ -8,7 +10,9 @@ import { Entry, Slot } from '@domain/checkins/types';
 export function useEntries() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [urges, setUrges] = useState<Urge[]>([]);
   const latest = useRef<Entry[]>([]);
+  const latestUrges = useRef<Urge[]>([]);
 
   useEffect(() => {
     loadEntries()
@@ -16,6 +20,11 @@ export function useEntries() {
       .then((stored) => {
         latest.current = stored;
         setEntries(stored);
+      })
+      .then(() => loadUrges())
+      .then((stored) => {
+        latestUrges.current = stored;
+        setUrges(stored);
       })
       .finally(() => setLoaded(true));
   }, []);
@@ -36,7 +45,21 @@ export function useEntries() {
     [commit],
   );
 
-  return { entries, loaded, save, remove, importEntries };
+  const commitUrges = useCallback(async (next: Urge[]) => {
+    latestUrges.current = next;
+    setUrges(next);
+    await saveUrges(next);
+  }, []);
+  const addUrge = useCallback(
+    (urge: Urge) => commitUrges(withUrge(latestUrges.current, urge)),
+    [commitUrges],
+  );
+  const importUrges = useCallback(
+    (incoming: Urge[]) => commitUrges(mergeUrges(latestUrges.current, incoming)),
+    [commitUrges],
+  );
+
+  return { entries, urges, loaded, save, remove, importEntries, addUrge, importUrges };
 }
 
 export type EntriesStore = ReturnType<typeof useEntries>;

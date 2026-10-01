@@ -116,7 +116,7 @@ function DataSettings({ store, settings }: Props) {
 
   const doExport = async () => {
     try {
-      await exportEntries(store.entries, settings.settings.habits, {
+      await exportEntries(store.entries, settings.settings.habits, store.urges, {
         dialogTitle: m.settings.shareDialog,
         unavailable: m.backupErrors.unavailable,
       });
@@ -130,6 +130,7 @@ function DataSettings({ store, settings }: Props) {
       const incoming = await pickImportFile();
       if (!incoming) return;
       await store.importEntries(incoming.entries);
+      await store.importUrges(incoming.urges);
       await settings.update({ habits: mergeHabits(settings.settings.habits, incoming.habits) });
       Alert.alert(m.settings.importDone, m.settings.importDoneBody(incoming.entries.length));
     } catch (e) {

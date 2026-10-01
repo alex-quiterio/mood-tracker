@@ -200,6 +200,21 @@ export type Messages = {
     guidedOut: string;
     guidedCount: (n: number, total: number) => string;
   };
+  urge: {
+    button: string;
+    pickTitle: string;
+    breatheTitle: (habit: string) => string;
+    breatheHint: string;
+    outcomeTitle: string;
+    outcomeHint: string;
+    letPass: string;
+    hadOne: string;
+    passedTitle: string;
+    passedBody: (points: number) => string;
+    hadOneTitle: string;
+    hadOneBody: string;
+    done: string;
+  };
   reminders: {
     title: string;
     channel: string;

@@ -88,7 +88,7 @@ export function BreathSession({
           : m.practice.breathOf(breath, breaths, formatClock(total - (now - startedAt) / 1000))}
       </Text>
       <View style={styles.actions}>
-        <Button title={done ? 'Close' : 'Stop'} variant="secondary" onPress={onClose} />
+        <Button title={done ? m.common.close : m.common.stop} variant="secondary" onPress={onClose} />
       </View>
     </View>
   );

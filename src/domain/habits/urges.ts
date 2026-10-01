@@ -1,9 +1,13 @@
-import { isValidDate } from '@domain/shared/dates';
+import type { Slot } from '@domain/checkins/types';
+import { isValidDate, slotForTime } from '@domain/shared/dates';
+
+import { MAX_DOSES, type HabitLog } from './habits';
 
 /**
  * An urge to do a habit to reduce, and what happened after the pause. Letting it
  * pass is a win (light points); having one is simply noted, with no blame and no
- * points taken away. Doses are still logged in the check-in, so an urge never adds one.
+ * points taken away. It does set a minimum for that habit's doses in the check-in
+ * of the same time of day, so the count stays honest.
  */
 
 export type UrgeOutcome = 'passed' | 'gaveIn';
@@ -48,3 +52,22 @@ export function parseUrge(value: unknown): Urge | null {
 /** Stored urges; anything that isn't valid is dropped. */
 export const parseUrges = (value: unknown): Urge[] =>
   Array.isArray(value) ? value.map(parseUrge).filter((u): u is Urge => u !== null) : [];
+
+/** Doses per habit that can't be logged lower: each urge that took the best of you, in that slot. */
+export function urgeFloors(urges: Urge[], date: string, slot: Slot): Record<string, number> {
+  const floors: Record<string, number> = {};
+  for (const u of urges) {
+    if (u.date !== date || u.outcome !== 'gaveIn' || slotForTime(new Date(u.recordedAt)) !== slot) continue;
+    floors[u.habitId] = Math.min(MAX_DOSES, (floors[u.habitId] ?? 0) + 1);
+  }
+  return floors;
+}
+
+/** Raises doses to their floors, logging habits that weren't logged yet. */
+export function applyUrgeFloors(log: HabitLog, floors: Record<string, number>): HabitLog {
+  const doses = { ...log.doses };
+  for (const [id, floor] of Object.entries(floors)) {
+    if ((doses[id]?.count ?? 0) < floor) doses[id] = { ...doses[id], count: floor };
+  }
+  return { ...log, doses };
+}

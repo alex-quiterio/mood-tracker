@@ -3,7 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { parseEntry } from '@domain/checkins/entries';
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { balanceDays } from '@domain/habits/balance';
-import { URGE_POINTS, Urge, mergeUrges, parseUrges } from '@domain/habits/urges';
+import { URGE_POINTS, Urge, applyUrgeFloors, mergeUrges, parseUrges, urgeFloors } from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 import {
   Habit,
@@ -314,6 +314,27 @@ describe('urges', () => {
   it('never take points away when you had one', () => {
     const [day] = balanceDays([], PRESET_HABITS, ['2026-10-01'], [urge('gaveIn', '10:00:00')]);
     expect(day.net).toBe(0);
+  });
+
+  it('set a minimum dose for the slot they happened in', () => {
+    const morning = (at: string) => ({
+      ...urge('gaveIn', at),
+      recordedAt: new Date(2026, 9, 1, 9).toISOString(),
+    });
+    const urges = [
+      morning('a'),
+      morning('b'),
+      { ...urge('passed', 'c'), recordedAt: morning('c').recordedAt },
+    ];
+    const floors = urgeFloors(urges, '2026-10-01', 'morning');
+    expect(floors).toEqual({ cigarettes: 2 });
+    expect(urgeFloors(urges, '2026-10-01', 'evening')).toEqual({});
+    const low = applyUrgeFloors({ doses: { cigarettes: { count: 1, approx: true } }, did: [] }, floors);
+    expect(low.doses.cigarettes).toEqual({ count: 2, approx: true });
+    expect(
+      applyUrgeFloors({ doses: { cigarettes: { count: 5 } }, did: [] }, floors).doses.cigarettes.count,
+    ).toBe(5);
+    expect(applyUrgeFloors({ doses: {}, did: [] }, floors).doses.cigarettes.count).toBe(2);
   });
 
   it('merge without duplicates and parse safely', () => {

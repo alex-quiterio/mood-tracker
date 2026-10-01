@@ -186,8 +186,10 @@ export const messages: Omit<Messages, 'voices'> = {
     passedTitle: 'You let it pass 🌱',
     passedBody: (points: number) => `That is a win: +${points} on your balance this week.`,
     hadOneTitle: 'Noted, no blame',
-    hadOneBody: 'Log it in your next check-in so your count stays true. Next time you can try again.',
+    hadOneBody:
+      'It counts as at least one in the check-in for that part of the day. Next time you can try again.',
     done: 'Done',
+    floorHint: (n: number) => `At least ${n}: you noted it with the urge button`,
   },
   reminders: {
     title: 'Daily reminders',

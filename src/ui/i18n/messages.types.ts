@@ -214,6 +214,7 @@ export type Messages = {
     hadOneTitle: string;
     hadOneBody: string;
     done: string;
+    floorHint: (n: number) => string;
   };
   reminders: {
     title: string;

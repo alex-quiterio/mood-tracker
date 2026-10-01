@@ -186,8 +186,9 @@ export const messages: Omit<Messages, 'voices'> = {
     passedBody: (points: number) => `É uma vitória: +${points} no teu equilíbrio desta semana.`,
     hadOneTitle: 'Registado, sem culpa',
     hadOneBody:
-      'Regista no próximo check-in para a contagem ficar certa. Da próxima vez podes tentar de novo.',
+      'Conta como pelo menos uma no check-in dessa parte do dia. Da próxima vez podes tentar de novo.',
     done: 'Concluir',
+    floorHint: (n: number) => `Pelo menos ${n}: registaste no botão da vontade`,
   },
   reminders: {
     title: 'Lembretes diários',

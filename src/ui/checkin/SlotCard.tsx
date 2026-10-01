@@ -6,6 +6,7 @@ import { Sleep, isEmptySleep, sameSleep } from '@domain/checkins/sleep';
 import { Entry, Mood, Slot } from '@domain/checkins/types';
 import { EMPTY_LOG, Habit, HabitLog, cleanLog, isWin, sameLog } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
+import { applyUrgeFloors, urgeFloors } from '@domain/habits/urges';
 import { describeSignals } from '@ui/i18n/describeSignals';
 import { withSteps } from '@infrastructure/signals/steps';
 import { withUnlocks } from '@infrastructure/signals/unlocks';
@@ -53,7 +54,10 @@ export function SlotCard({
   const { m, locale } = useLocale();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
-  const [habitLog, setHabitLog] = useState<HabitLog>(entry?.habits ?? EMPTY_LOG);
+  const floors = urgeFloors(store.urges, date, slot);
+  const [draftLog, setHabitLog] = useState<HabitLog>(entry?.habits ?? EMPTY_LOG);
+  // Urges that took the best of you are a minimum for the doses.
+  const habitLog = applyUrgeFloors(draftLog, floors);
   // Only the morning check-in asks about last night.
   const asksSleep = slot === 'morning';
   const [sleep, setSleep] = useState<Sleep>(entry?.sleep ?? {});
@@ -139,7 +143,7 @@ export function SlotCard({
         multiline
       />
       {asksSleep && <SleepLogger sleep={sleep} onChange={setSleep} />}
-      <HabitLogger habits={habits} log={habitLog} onChange={setHabitLog} />
+      <HabitLogger habits={habits} log={habitLog} floors={floors} onChange={setHabitLog} />
       <Button
         title={entry ? m.common.update : m.common.save}
         onPress={save}

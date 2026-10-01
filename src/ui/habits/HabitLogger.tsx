@@ -13,13 +13,19 @@ import { RoundButton } from '@ui/components/RoundButton';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { useLocale } from '@ui/i18n/LocaleContext';
 
-type Props = { habits: Habit[]; log: HabitLog; onChange: (log: HabitLog) => void };
+type Props = {
+  habits: Habit[];
+  log: HabitLog;
+  /** Doses that can't go lower, from urges that took the best of you. */
+  floors: Record<string, number>;
+  onChange: (log: HabitLog) => void;
+};
 
 /**
  * Habits for one check-in: doses of the ones to reduce (start unlogged, so 0 is a
  * real answer), good habits to tick, and what you did instead.
  */
-export function HabitLogger({ habits, log, onChange }: Props) {
+export function HabitLogger({ habits, log, floors, onChange }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m } = useLocale();
@@ -30,7 +36,7 @@ export function HabitLogger({ habits, log, onChange }: Props) {
   const setDose = (id: string, count: number | null) => {
     const doses = { ...log.doses };
     if (count === null) delete doses[id];
-    else doses[id] = { ...doses[id], count: Math.max(0, Math.min(MAX_DOSES, count)) };
+    else doses[id] = { ...doses[id], count: Math.max(floors[id] ?? 0, Math.min(MAX_DOSES, count)) };
     onChange({ ...log, doses });
   };
   const toggleApprox = (id: string) => {
@@ -51,9 +57,12 @@ export function HabitLogger({ habits, log, onChange }: Props) {
         const dose = log.doses[h.id];
         return (
           <View key={h.id} style={styles.doseRow}>
-            <Text style={styles.doseName}>
-              {h.emoji} {h.name}
-            </Text>
+            <View style={styles.doseLabel}>
+              <Text style={styles.doseName}>
+                {h.emoji} {h.name}
+              </Text>
+              {floors[h.id] > 0 && <Text style={styles.floorHint}>{m.urge.floorHint(floors[h.id])}</Text>}
+            </View>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={m.habits.roughlyA11y(!!dose?.approx)}
@@ -67,7 +76,7 @@ export function HabitLogger({ habits, log, onChange }: Props) {
               label="−"
               accessibilityLabel={m.habits.fewer(h.unit || h.name)}
               onPress={() => setDose(h.id, dose ? dose.count - 1 : 0)}
-              disabled={dose?.count === 0}
+              disabled={(dose?.count ?? 0) <= (floors[h.id] ?? 0) && !!dose}
             />
             <Pressable
               onLongPress={() => setDose(h.id, null)}
@@ -148,7 +157,9 @@ const makeStyles = (c: Palette) =>
       marginTop: spacing(2),
     },
     doseRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
-    doseName: { flex: 1, fontSize: 15, color: c.text },
+    doseLabel: { flex: 1 },
+    doseName: { fontSize: 15, color: c.text },
+    floorHint: { fontSize: 11, color: c.muted },
     approx: {
       paddingHorizontal: spacing(2),
       paddingVertical: 2,

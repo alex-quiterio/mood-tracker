@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { stepCounter } from '../../modules/step-counter/index';
-import { unlockStats } from '../../modules/unlock-stats/index';
+import { stepCounter } from '../../modules/step-counter';
+import { unlockStats } from '../../modules/unlock-stats';
 
 // In tests (like Expo Go) the native modules are missing; every call must fall back safely.
 describe('native modules without native code', () => {

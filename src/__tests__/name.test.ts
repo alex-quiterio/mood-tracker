@@ -1,11 +1,10 @@
 import { describe, expect, it, jest } from '@jest/globals';
+import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 
-import { greetingText } from '../checkin/moments';
-import { NAME_MAX_LENGTH, cleanName } from '../data/storage';
+import { greetingText } from '../domain/checkins/moments';
+import { NAME_MAX_LENGTH, cleanName } from '../domain/settings/settings';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
+jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 
 describe('name', () => {
   it('is trimmed, shortened, and empty when not a string', () => {

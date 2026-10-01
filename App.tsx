@@ -11,18 +11,19 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { stepCounter } from './modules/step-counter/index';
-import { localDate } from './src/data/dates';
-import { configureNotificationHandler } from './src/reminders/schedule';
-import { NamePrompt } from './src/components/NamePrompt';
-import { scheduleReminders } from './src/reminders/schedule';
-import { CheckInScreen } from './src/screens/CheckInScreen';
-import { SettingsScreen } from './src/screens/SettingsScreen';
-import { StatsScreen } from './src/screens/StatsScreen';
-import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from './src/theme/theme';
-import { EntriesStore, useEntries } from './src/hooks/useEntries';
-import { SettingsStore, useSettings } from './src/hooks/useSettings';
-import { VoiceContext, activeVoice } from './src/voices/voices';
+import { stepCounter } from './modules/step-counter';
+import { localDate } from './src/domain/shared/dates';
+import { configureNotificationHandler } from './src/infrastructure/notifications/reminders';
+import { NamePrompt } from './src/ui/components/NamePrompt';
+import { scheduleReminders } from './src/infrastructure/notifications/reminders';
+import { CheckInScreen } from './src/ui/screens/CheckInScreen';
+import { SettingsScreen } from './src/ui/screens/SettingsScreen';
+import { StatsScreen } from './src/ui/screens/StatsScreen';
+import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from './src/ui/theme/theme';
+import { EntriesStore, useEntries } from './src/ui/hooks/useEntries';
+import { SettingsStore, useSettings } from './src/ui/hooks/useSettings';
+import { activeVoice } from './src/domain/voices/voices';
+import { VoiceContext } from './src/ui/theme/voiceContext';
 
 configureNotificationHandler();
 

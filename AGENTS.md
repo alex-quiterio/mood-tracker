@@ -28,31 +28,39 @@ Run lint and typecheck before declaring any task done.
 - Personal Android mood tracker, sideloaded (no Play Store). See README.md for the spec.
 - No backend and no API keys. All data stays on the device (AsyncStorage). Claude integration is a plain-text prompt sent through the share sheet.
 - Keep dependencies minimal. Navigation is a three-tab state switch in `App.tsx`; do not add Expo Router or React Navigation unless the screen count grows.
-- Dates are local `YYYY-MM-DD` (see `src/data/dates.ts`), never UTC.
-- The export file format (`src/data/backup.ts`) is versioned; keep old versions importable.
+- Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
+- The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
-- Voices (`src/voices/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/voices/quotes.ts`) must be verbatim from public-domain translations, with chapter and translator in `source`; never add quotes from memory.
+- Voices (`src/domain/voices/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) must be verbatim from public-domain translations, with chapter and translator in `source`; never add quotes from memory.
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
-- `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/signals/windowedCount.ts`. Same optional-module rule as above.
+- `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/domain/signals/windowedCount.ts`. Same optional-module rule as above.
 
 ## Project layout
 
-Put new code in the folder for its area; don't add loose files to `src/`.
+Domain-driven, in three layers. Put new code in the right layer and area; don't add loose files to `src/`. `src/__tests__/architecture.test.ts` enforces the layer rules.
 
 ```
-App.tsx               tabs, providers, name prompt
-modules/              local native modules (Kotlin): unlock-stats, step-counter
+App.tsx                      composition root: providers, tabs, name prompt
+modules/                     local native modules (Kotlin): unlock-stats, step-counter
 src/
-  data/               entries, dates, stats, storage + migrations, backup format
-  signals/            phone signals counted per check-in window (unlocks, steps)
-  voices/             voices, their default quotes, the Claude reflection prompt
-  theme/              palettes, per-voice tones, theme context
-  reminders/          notification scheduling and reminder time windows
-  checkin/            greeting, streak and save-moment logic
-  hooks/              React state hooks (entries, settings, live previews)
-  components/         reusable UI
-  screens/            one file per tab; settings sections in screens/settings/
-  __tests__/          Jest tests for the pure logic
+  domain/                    pure model and rules. No React, React Native, Expo, storage or UI imports.
+    checkins/                Entry, Mood, Slot; entries, stats, streak, moments, export format, migrations
+    signals/                 counting a signal over a check-in window; formatting and describing counts
+    voices/                  voices, default quotes, the Claude reflection prompt
+    reminders/               reminder time windows and messages
+    settings/                Settings model, defaults, parsing, theme modes
+    shared/                  local dates
+  infrastructure/            adapters to the outside world; never imports ui/
+    storage/                 AsyncStorage repositories: entries (with migrations), settings, checkpoints
+    signals/                 unlocks and steps: native modules + checkpoints wired into the domain counter
+    notifications/           scheduling reminders with expo-notifications
+    backup/                  writing and reading export files
+  ui/                        React Native
+    theme/                   palettes, per-voice tones, theme and voice contexts
+    hooks/                   state hooks (entries, settings, live previews)
+    components/              reusable UI
+    screens/                 one file per tab; settings sections in screens/settings/
+  __tests__/                 Jest tests
 ```
 
 ## Building with EAS

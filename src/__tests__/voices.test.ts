@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildReflectionPrompt } from '../voices/prompt';
-import { DEFAULT_QUOTES } from '../voices/quotes';
-import { weeklyStats } from '../data/stats';
-import { Entry, MOODS, SLOTS } from '../data/types';
+import { buildReflectionPrompt } from '../domain/voices/prompt';
+import { DEFAULT_QUOTES } from '../domain/voices/quotes';
+import { weeklyStats } from '../domain/checkins/stats';
+import { Entry, MOODS, SLOTS } from '../domain/checkins/types';
 import {
   VOICES,
   VOICE_IDS,
@@ -11,7 +11,7 @@ import {
   formatQuotesText,
   parseQuotesText,
   quoteOfTheDay,
-} from '../voices/voices';
+} from '../domain/voices/voices';
 
 const entry: Entry = { date: '2026-10-01', slot: 'morning', mood: 2, recordedAt: '2026-10-01T08:00:00.000Z' };
 

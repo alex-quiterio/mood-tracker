@@ -1,15 +1,11 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
-import { parseExport, serializeExport } from '../data/backup';
-import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '../data/dates';
-import { mergeEntries, parseEntry, upsertEntry } from '../data/entries';
-import { buildReflectionPrompt } from '../voices/prompt';
-import { weeklyStats } from '../data/stats';
-import { Entry } from '../data/types';
-
-jest.mock('expo-document-picker', () => ({}));
-jest.mock('expo-file-system', () => ({}));
-jest.mock('expo-sharing', () => ({}));
+import { parseExport, serializeExport } from '../domain/checkins/exportFormat';
+import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '../domain/shared/dates';
+import { mergeEntries, parseEntry, upsertEntry } from '../domain/checkins/entries';
+import { buildReflectionPrompt } from '../domain/voices/prompt';
+import { weeklyStats } from '../domain/checkins/stats';
+import { Entry } from '../domain/checkins/types';
 
 const entry = (
   date: string,

@@ -1,0 +1,74 @@
+import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '../reminders/times';
+import { Quote, VOICE_IDS, VoiceId } from '../voices/voices';
+
+export const THEMES = ['light', 'dim', 'dark'] as const;
+export type ThemeName = (typeof THEMES)[number];
+
+export const THEME_LABEL: Record<ThemeName, string> = {
+  light: 'Light',
+  dim: 'Dim',
+  dark: 'Dark',
+};
+
+export const NAME_MAX_LENGTH = 40;
+
+export type Settings = {
+  /** What the app calls you. Empty until you've told it. */
+  name: string;
+  remindersEnabled: boolean;
+  reminderTimes: ReminderTimes;
+  theme: ThemeName;
+  trackUnlocks: boolean;
+  trackSteps: boolean;
+  voice: VoiceId;
+  /** Per-voice quotes that replace the defaults. */
+  customQuotes: Partial<Record<VoiceId, Quote[]>>;
+};
+
+export const DEFAULT_SETTINGS: Settings = {
+  name: '',
+  remindersEnabled: false,
+  reminderTimes: DEFAULT_REMINDER_TIMES,
+  theme: 'light',
+  trackUnlocks: false,
+  trackSteps: false,
+  voice: 'plain',
+  customQuotes: {},
+};
+
+/** Settings from stored JSON; anything missing or invalid falls back to its default. */
+export function parseSettings(value: unknown): Settings {
+  const stored = (typeof value === 'object' && value !== null ? value : {}) as Partial<Settings>;
+  return {
+    name: cleanName(stored.name),
+    remindersEnabled: stored.remindersEnabled === true,
+    reminderTimes: parseReminderTimes(stored.reminderTimes),
+    theme: THEMES.includes(stored.theme as ThemeName) ? (stored.theme as ThemeName) : DEFAULT_SETTINGS.theme,
+    trackUnlocks: stored.trackUnlocks === true,
+    trackSteps: stored.trackSteps === true,
+    voice: VOICE_IDS.includes(stored.voice as VoiceId) ? (stored.voice as VoiceId) : DEFAULT_SETTINGS.voice,
+    customQuotes: parseCustomQuotes(stored.customQuotes),
+  };
+}
+
+/** Trims and shortens a name; anything that isn't a string becomes empty. */
+export function cleanName(value: unknown): string {
+  return typeof value === 'string' ? value.trim().slice(0, NAME_MAX_LENGTH) : '';
+}
+
+function parseCustomQuotes(value: unknown): Partial<Record<VoiceId, Quote[]>> {
+  if (typeof value !== 'object' || value === null) return {};
+  const result: Partial<Record<VoiceId, Quote[]>> = {};
+  for (const id of VOICE_IDS) {
+    const list = (value as Record<string, unknown>)[id];
+    if (!Array.isArray(list)) continue;
+    const quotes = list.filter(
+      (q): q is Quote =>
+        typeof q?.text === 'string' &&
+        q.text.trim() !== '' &&
+        (q.source === undefined || typeof q.source === 'string'),
+    );
+    if (quotes.length > 0) result[id] = quotes;
+  }
+  return result;
+}

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { dropBrokenStepCounts, loadEntries, migrateEntries, saveEntries } from '../data/storage';
-import { Entry } from '../data/types';
+import { dropBrokenStepCounts } from '../domain/checkins/migrations';
+import { loadEntries, migrateEntries, saveEntries } from '../infrastructure/storage/entriesRepository';
+import { Entry } from '../domain/checkins/types';
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
-);
+jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 
 const plain: Entry = { date: '2026-10-01', slot: 'morning', mood: 3, recordedAt: '2026-10-01T08:00:00.000Z' };
 const broken: Entry = {

@@ -5,7 +5,7 @@ import { dayOfMonth, weekdayShort } from '../dates';
 import { buildReflectionPrompt } from '../prompt';
 import { formatSteps, formatStepsShort } from '../steps';
 import { formatAverage, weeklyStats } from '../stats';
-import { Palette, moodColors, onMoodColor, spacing, useThemedStyles } from '../theme';
+import { Palette, spacing, useColors, useThemedStyles } from '../theme';
 import { SLOTS } from '../types';
 import { useVoice } from '../voices';
 import { EntriesStore } from '../useEntries';
@@ -14,6 +14,7 @@ type Props = { store: EntriesStore };
 
 export function StatsScreen({ store }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const c = useColors();
   const voice = useVoice();
   const stats = weeklyStats(store.entries);
 
@@ -59,7 +60,7 @@ export function StatsScreen({ store }: Props) {
               return (
                 <View
                   key={slot}
-                  style={[styles.cell, styles.moodCell, e && { backgroundColor: moodColors[e.mood] }]}
+                  style={[styles.cell, styles.moodCell, e && { backgroundColor: c.moodColors[e.mood] }]}
                   accessibilityLabel={`${day.date} ${slot}: ${
                     e
                       ? `mood ${e.mood}${e.unlocks === undefined ? '' : `, ${e.unlocks} unlocks`}${
@@ -173,8 +174,8 @@ const makeStyles = (c: Palette) =>
       borderRadius: 8,
       backgroundColor: c.background,
     },
-    moodText: { color: onMoodColor },
-    cellSignal: { color: onMoodColor, fontSize: 11, marginTop: 2, opacity: 0.8 },
+    moodText: { color: c.onMood },
+    cellSignal: { color: c.onMood, fontSize: 11, marginTop: 2, opacity: 0.8 },
     emptyText: { color: c.muted },
     averageRow: {
       marginTop: spacing(1),

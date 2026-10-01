@@ -16,7 +16,7 @@ import { exportEntries, pickImportFile } from '../backup';
 import { Button } from '../components/Button';
 import { scheduleReminders } from '../reminders';
 import { NAME_MAX_LENGTH, cleanName, saveUnlockCheckpoint } from '../storage';
-import { Palette, THEMES, THEME_LABEL, palettes, spacing, useColors, useThemedStyles } from '../theme';
+import { Palette, THEMES, THEME_LABEL, paletteFor, spacing, useColors, useThemedStyles } from '../theme';
 import { EntriesStore } from '../useEntries';
 import { SettingsStore } from '../useSettings';
 import { ReminderSettings } from './ReminderSettings';
@@ -61,7 +61,7 @@ export function SettingsScreen({ store, settings }: Props) {
         <View style={styles.themeRow} accessibilityRole="radiogroup">
           {THEMES.map((name) => {
             const selected = name === theme;
-            const preview = palettes[name];
+            const preview = paletteFor(name, settings.settings.voice);
             return (
               <Pressable
                 key={name}

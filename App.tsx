@@ -19,7 +19,7 @@ import { scheduleReminders } from './src/reminders';
 import { CheckInScreen } from './src/screens/CheckInScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
-import { Palette, ThemeContext, palettes, spacing, useColors, useThemedStyles } from './src/theme';
+import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from './src/theme';
 import { EntriesStore, useEntries } from './src/useEntries';
 import { SettingsStore, useSettings } from './src/useSettings';
 import { VoiceContext, activeVoice } from './src/voices';
@@ -50,13 +50,15 @@ export default function App() {
   const settings = useSettings();
   const { voice: voiceId, customQuotes } = settings.settings;
   const voice = useMemo(() => activeVoice(voiceId, customQuotes), [voiceId, customQuotes]);
+  const { theme } = settings.settings;
+  const palette = useMemo(() => paletteFor(theme, voiceId), [theme, voiceId]);
 
   // Hold off until the saved theme is known, so the app doesn't flash the default one.
   if (!settings.loaded) return null;
 
   return (
     <SafeAreaProvider>
-      <ThemeContext.Provider value={palettes[settings.settings.theme]}>
+      <ThemeContext.Provider value={palette}>
         <VoiceContext.Provider value={voice}>
           <Shell store={store} settings={settings} />
         </VoiceContext.Provider>
@@ -133,6 +135,7 @@ const makeStyles = (c: Palette) =>
       color: c.text,
       paddingHorizontal: spacing(4),
       paddingTop: spacing(3),
+      ...c.heading,
     },
     content: { flex: 1 },
     tabBar: {

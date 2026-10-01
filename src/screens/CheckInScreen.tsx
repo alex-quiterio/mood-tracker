@@ -11,7 +11,7 @@ import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../
 import { NOTE_MAX_LENGTH, entryKey } from '../entries';
 import { burstEmojis, greetingFor, greetingText, offersBreathing, streakLabel } from '../moments';
 import { currentStreak, weeklyStats } from '../stats';
-import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
+import { Palette, spacing, useColors, useThemedStyles } from '../theme';
 import { Entry, Mood, SLOTS, Slot } from '../types';
 import { describeSignals } from '../signals';
 import { formatSteps, previewSteps, withSteps } from '../steps';
@@ -207,7 +207,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, onSaved }:
         <View style={styles.cardHeader}>
           <Text style={styles.slotTitle}>{voice.slotLabels[slot]}</Text>
           {entry ? (
-            <View style={[styles.badge, { backgroundColor: moodColors[entry.mood] }]}>
+            <View style={[styles.badge, { backgroundColor: c.moodColors[entry.mood] }]}>
               <Text style={styles.badgeText}>
                 {voice.moodEmoji[entry.mood]} {voice.moodLabels[entry.mood]}
               </Text>
@@ -274,7 +274,7 @@ const makeStyles = (c: Palette) =>
       justifyContent: 'space-between',
       gap: spacing(2),
     },
-    greeting: { fontSize: 17, color: c.text, fontWeight: '500' },
+    greeting: { fontSize: 17, color: c.text, fontWeight: '500', ...c.heading },
     streak: {
       backgroundColor: c.surface,
       borderColor: c.border,
@@ -319,9 +319,9 @@ const makeStyles = (c: Palette) =>
     },
     cardOpen: { borderColor: c.accent },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    slotTitle: { fontSize: 18, fontWeight: '600', color: c.text },
+    slotTitle: { fontSize: 18, fontWeight: '600', color: c.text, ...c.heading },
     muted: { color: c.muted },
-    badgeText: { color: onMoodColor },
+    badgeText: { color: c.onMood },
     badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
     notePreview: { color: c.muted },
     unlocks: { color: c.muted, fontSize: 13 },

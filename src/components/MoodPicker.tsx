@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Palette, moodColors, onMoodColor, spacing, useThemedStyles } from '../theme';
+import { Palette, spacing, useColors, useThemedStyles } from '../theme';
 import { MOODS, Mood } from '../types';
 import { useVoice } from '../voices';
 
@@ -11,6 +11,7 @@ type Props = {
 
 export function MoodPicker({ value, onChange }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const c = useColors();
   const voice = useVoice();
   return (
     <View style={styles.row}>
@@ -25,7 +26,7 @@ export function MoodPicker({ value, onChange }: Props) {
             onPress={() => onChange(mood)}
             style={[
               styles.option,
-              selected && { backgroundColor: moodColors[mood], borderColor: onMoodColor },
+              selected && { backgroundColor: c.moodColors[mood], borderColor: c.onMood },
             ]}
           >
             <Text style={styles.emoji}>{voice.moodEmoji[mood]}</Text>
@@ -51,5 +52,5 @@ const makeStyles = (c: Palette) =>
     },
     emoji: { fontSize: 26 },
     number: { fontSize: 12, color: c.muted, marginTop: 2 },
-    numberSelected: { color: onMoodColor },
+    numberSelected: { color: c.onMood },
   });

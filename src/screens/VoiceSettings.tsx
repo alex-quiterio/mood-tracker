@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../components/Button';
 import { DEFAULT_QUOTES } from '../quotes';
-import { Palette, spacing, useColors, useThemedStyles } from '../theme';
+import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '../theme';
 import { MOODS } from '../types';
 import { SettingsStore } from '../useSettings';
 import { VOICES, VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText, useVoice } from '../voices';
@@ -66,6 +66,9 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
                   onPress={() => settings.update({ voice: id })}
                   style={[styles.option, selected && styles.optionSelected]}
                 >
+                  <View
+                    style={[styles.dot, { backgroundColor: paletteFor(settings.settings.theme, id).accent }]}
+                  />
                   <View style={styles.optionText}>
                     <Text style={[styles.optionName, selected && styles.optionNameSelected]}>{v.name}</Text>
                     <Text style={styles.optionTagline}>{v.tagline}</Text>
@@ -189,6 +192,7 @@ const makeStyles = (c: Palette) =>
     },
     optionSelected: { borderColor: c.accent },
     optionText: { flex: 1 },
+    dot: { width: 14, height: 14, borderRadius: 7 },
     optionName: { fontSize: 16, color: c.text },
     optionNameSelected: { fontWeight: '700' },
     optionTagline: { fontSize: 13, color: c.muted, marginTop: 2 },

@@ -38,14 +38,20 @@ npm run lint
 
 ## Installing on your phone
 
-Build an APK in the cloud with EAS (free tier), then download it on the phone and install it (allow "install unknown apps" for your browser):
+The **Android APK** GitHub Action builds a release APK on every push to `main`:
 
-```bash
-npx eas-cli@latest login
-npx eas-cli@latest build --platform android --profile preview
-```
+1. Open the latest run under the repo's **Actions** tab and download the `mood-tracker-apk` artifact. Or push a tag like `v1.0.0` to get the APK attached to a GitHub release.
+2. Open the APK on your phone and allow "install unknown apps" for the browser or file manager when asked.
 
-Or build locally with Android Studio installed: `npx expo run:android --variant release`.
+New builds install over old ones and keep your data, as long as the signing key stays the same. By default the APK uses the Expo template's debug key, which is fine for personal sideloading. For your own key, add these repo secrets and the workflow signs with it:
+
+- `ANDROID_KEYSTORE_BASE64`: `base64 -i release.jks`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+
+Switching keys means uninstalling first, which deletes your data. Export a backup before you switch.
+
+To build locally instead you need Android Studio: `npx expo run:android --variant release`.
 
 ## Out of scope for v1
 

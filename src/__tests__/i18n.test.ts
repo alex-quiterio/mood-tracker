@@ -22,7 +22,7 @@ import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
 import { VOICE_IDS } from '@domain/voices/voices';
 import { VOICES, activeVoice, localizeVoice } from '@ui/voices/voices';
-import { VOICES_PT } from '@ui/voices/voices.pt';
+import { VOICES_PT } from '@ui/voices/locales/pt';
 
 describe('locale', () => {
   it('maps any Portuguese to pt-PT and everything else to English', () => {

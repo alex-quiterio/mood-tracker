@@ -1,6 +1,6 @@
 import type { VoiceId } from '@domain/voices/voices';
 
-import type { VoiceText } from './voices';
+import type { VoiceText } from '@ui/voices/voices.types';
 
 /** Each voice in European Portuguese. Quotes stay as published (see quotes.ts). */
 export const VOICES_PT: Record<VoiceId, VoiceText> = {

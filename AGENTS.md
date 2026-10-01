@@ -31,7 +31,7 @@ Run lint and typecheck before declaring any task done.
 - Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
 - The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
-- All user-facing text lives in the presentation layer: `src/ui/i18n/locales/en.ts` and `pt.ts` (European Portuguese: telemóvel, ecrã, registo, tu). Both catalogues are typed as `Messages` (`src/ui/i18n/messages.types.ts`), so adding an English string without its Portuguese is a type error, and a test flags Portuguese left identical to English. The domain returns values (a verdict kind, a change in points, a milestone amount) and `ui/i18n` turns them into words; infrastructure adapters receive translated text as arguments. The UI gets `{ m, locale }` from `useLocale()`. Voices' wording is in `src/ui/voices/` (English and `voices.pt.ts`); quotes are never translated.
+- All user-facing text lives in the presentation layer: `src/ui/i18n/locales/en.ts` and `pt.ts` (European Portuguese: telemóvel, ecrã, registo, tu). Both catalogues are typed as `Messages` (`src/ui/i18n/messages.types.ts`), so adding an English string without its Portuguese is a type error, and a test flags Portuguese left identical to English. The domain returns values (a verdict kind, a change in points, a milestone amount) and `ui/i18n` turns them into words; infrastructure adapters receive translated text as arguments. The UI gets `{ m, locale }` from `useLocale()`. Voices' wording is in `src/ui/voices/locales/` (`en.ts` defines every voice, `pt.ts` translates its words; both follow `voices.types.ts`); quotes are never translated.
 - Habits aim for good feedback loops: lead with wins (zeros, good habits, what you did instead), never let savings go negative, never use red or blame. Habit data only goes into the Claude prompt when `habitsInPrompt` is on.
 - Voices are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and `QUOTES_LICENSE` says for each voice why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
@@ -64,7 +64,7 @@ src/
     backup/                  writing and reading export files
   ui/                        presentation
     i18n/                    the Messages type (messages.types.ts), catalogues (locales/en.ts, locales/pt.ts), formatting, and formatters from domain values to words
-    voices/                  each voice's wording (English and voices.pt.ts), emojis and save bursts
+    voices/                  the Voice type (voices.types.ts), each voice's wording (locales/en.ts, locales/pt.ts), save bursts
     reflection/              the Claude prompt, a document written in the user's language
     theme/                   palettes, per-voice tones, theme and voice contexts
     hooks/                   state hooks (entries, settings, live previews)

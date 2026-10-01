@@ -19,7 +19,7 @@ import { MOODS } from '@domain/checkins/types';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText } from '@domain/voices/voices';
-import { VOICES, localizeVoice } from '@ui/voices/voices';
+import { voiceFor } from '@ui/voices/voices';
 import { useVoice } from '@ui/theme/voiceContext';
 
 /** Pick a voice, and edit the quotes it shows. */
@@ -57,7 +57,7 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
           <Text style={styles.body}>{m.voiceSettings.body}</Text>
           <View style={styles.list} accessibilityRole="radiogroup">
             {VOICE_IDS.map((id) => {
-              const v = localizeVoice(VOICES[id], locale);
+              const v = voiceFor(id, locale);
               const selected = id === voice.id;
               return (
                 <Pressable

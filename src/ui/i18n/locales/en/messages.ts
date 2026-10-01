@@ -1,7 +1,7 @@
 import type { Messages } from '@ui/i18n/messages.types';
 
 /** English. */
-export const en: Messages = {
+export const messages: Omit<Messages, 'voices'> = {
   common: {
     cancel: 'Cancel',
     save: 'Save',

@@ -25,25 +25,3 @@ export type Entry = {
   /** Habits logged with this check-in: doses since the last one, habits grown, what you did instead. */
   habits?: HabitLog;
 };
-
-export const MOOD_EMOJI: Record<Mood, string> = {
-  1: '😞',
-  2: '🙁',
-  3: '😐',
-  4: '🙂',
-  5: '😄',
-};
-
-export const MOOD_LABEL: Record<Mood, string> = {
-  1: 'Very low',
-  2: 'Low',
-  3: 'Okay',
-  4: 'Good',
-  5: 'Very good',
-};
-
-export const SLOT_LABEL: Record<Slot, string> = {
-  morning: 'Morning',
-  afternoon: 'Afternoon',
-  evening: 'Evening',
-};

@@ -21,8 +21,8 @@ import { formatSteps } from '@ui/i18n/signals';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
 import { VOICE_IDS } from '@domain/voices/voices';
-import { VOICES, activeVoice, localizeVoice } from '@ui/voices/voices';
-import { VOICES_PT } from '@ui/voices/locales/pt';
+import { VOICES, VOICE_STYLES, activeVoice, voiceFor } from '@ui/voices/voices';
+import { voices as VOICES_PT } from '@ui/i18n/locales/pt/voices';
 
 describe('locale', () => {
   it('maps any Portuguese to pt-PT and everything else to English', () => {
@@ -96,7 +96,12 @@ describe('the Portuguese catalogue', () => {
     const english = new Map(leaves(en));
     const untranslated = leaves(pt).filter(
       ([path, text]) =>
-        text !== '' && text === english.get(path) && !SAME_IN_BOTH.has(path) && /[a-z]{3}/i.test(text),
+        text !== '' &&
+        text === english.get(path) &&
+        !SAME_IN_BOTH.has(path) &&
+        // Voice names are proper names (Rumi, Kabir…), the same in both languages.
+        !/^voices\.\w+\.name$/.test(path) &&
+        /[a-z]{3}/i.test(text),
     );
     expect(untranslated).toEqual([]);
   });
@@ -119,11 +124,11 @@ describe('voices in Portuguese', () => {
   });
 
   it('keeps emojis, colours and quotes as they are', () => {
-    const v = localizeVoice(VOICES.marcus, 'pt-PT');
+    const v = voiceFor('marcus', 'pt-PT');
     expect(v.name).toBe('Marco Aurélio');
-    expect(v.moodEmoji).toBe(VOICES.marcus.moodEmoji);
+    expect(v.moodEmoji).toBe(VOICE_STYLES.marcus.moodEmoji);
     expect(activeVoice('marcus', {}, 'pt-PT').quotes).toBe(DEFAULT_QUOTES.marcus);
-    expect(localizeVoice(VOICES.marcus, 'en')).toBe(VOICES.marcus);
+    expect(voiceFor('marcus', 'en')).toEqual(VOICES.marcus);
   });
 });
 
@@ -159,7 +164,7 @@ describe('the Claude prompt in Portuguese', () => {
   };
   const prompt = buildReflectionPrompt(
     weeklyStats([entry], '2026-10-01'),
-    localizeVoice(VOICES.buddha, 'pt-PT'),
+    voiceFor('buddha', 'pt-PT'),
     null,
     'pt-PT',
   );

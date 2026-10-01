@@ -1,3 +1,6 @@
+import type { VoiceId } from '@domain/voices/voices';
+import type { VoiceText } from '@ui/voices/voices.types';
+
 /**
  * The shape of the app's text: every locale (see ./locales) provides exactly these
  * entries, so a missing translation is a type error. Entries that depend on a number
@@ -339,4 +342,6 @@ export type Messages = {
     insteadNote: (note: string) => string;
     answerIn: string;
   };
+  /** Each voice's words; its emojis and bursts don't change with the language. */
+  voices: Record<VoiceId, VoiceText>;
 };

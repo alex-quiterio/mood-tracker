@@ -1,22 +1,18 @@
-import { MOOD_EMOJI, MOOD_LABEL, SLOT_LABEL } from '@domain/checkins/types';
 import { VoiceId } from '@domain/voices/voices';
-import { Voice } from '@ui/voices/voices.types';
+import { VoiceText } from '@ui/voices/voices.types';
 
-/** Every voice in English: the source wording, plus the emojis and bursts that don't change with language. */
-export const VOICES: Record<VoiceId, Voice> = {
+/** Each voice's words in English. Emojis and bursts live with the voice styles (ui/voices). */
+export const voices: Record<VoiceId, VoiceText> = {
   plain: {
-    id: 'plain',
     name: 'Plain',
     tagline: 'Simple and direct',
-    moodLabels: MOOD_LABEL,
-    moodEmoji: MOOD_EMOJI,
-    slotLabels: SLOT_LABEL,
+    moodLabels: { 1: 'Very low', 2: 'Low', 3: 'Okay', 4: 'Good', 5: 'Very good' },
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'Add a note (optional)',
       afternoon: 'Add a note (optional)',
       evening: 'Add a note (optional)',
     },
-    burst: { high: ['✨', '🎉', '💛'], mid: ['✨', '🌱'] },
     comfort: 'That sounds like a heavy moment. Take three slow breaths with me?',
     breathDone: 'That’s it. Be gentle with yourself 🌿',
     claude: {
@@ -26,18 +22,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   laoTzu: {
-    id: 'laoTzu',
     name: 'Lao Tzu',
     tagline: 'Flow like water',
     moodLabels: { 1: 'Muddy water', 2: 'Choppy', 3: 'Flowing', 4: 'Clear stream', 5: 'Still lake' },
-    moodEmoji: { 1: '🌫️', 2: '🌊', 3: '🍃', 4: '💧', 5: '🪷' },
     slotLabels: { morning: 'Dawn', afternoon: 'Noon', evening: 'Dusk' },
     notePrompts: {
       morning: 'What can you leave undone today?',
       afternoon: 'Where are you forcing things?',
       evening: 'What did you let go of today?',
     },
-    burst: { high: ['🪷', '💧', '✨'], mid: ['🍃'] },
     comfort: 'Muddy water clears when it is left still. Rest here for three slow breaths?',
     breathDone: 'The water settles on its own 🌊',
     claude: {
@@ -48,18 +41,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   marcus: {
-    id: 'marcus',
     name: 'Marcus Aurelius',
     tagline: 'Mind what is yours to control',
     moodLabels: { 1: 'Disturbed', 2: 'Unsettled', 3: 'Steady', 4: 'Composed', 5: 'Tranquil' },
-    moodEmoji: { 1: '🌩️', 2: '🌥️', 3: '⚖️', 4: '🌅', 5: '🏛️' },
     slotLabels: { morning: 'Morning', afternoon: 'Midday', evening: 'Evening' },
     notePrompts: {
       morning: 'What might you meet today, and how will you meet it?',
       afternoon: 'What here is within your control?',
       evening: 'What did you do well today? Where did you fall short?',
     },
-    burst: { high: ['🏛️', '🌅', '✨'], mid: ['⚖️'] },
     comfort:
       'Even an emperor had hard days, and wrote to himself through them. Pause for three slow breaths?',
     breathDone: 'Begin again, as often as you need 🌅',
@@ -71,18 +61,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   seneca: {
-    id: 'seneca',
     name: 'Seneca',
     tagline: 'Letters to a friend',
     moodLabels: { 1: 'Storm-tossed', 2: 'Restless', 3: 'Even', 4: 'At ease', 5: 'Serene' },
-    moodEmoji: { 1: '🌧️', 2: '🍂', 3: '🕯️', 4: '📜', 5: '☀️' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'How will you spend today’s hours?',
       afternoon: 'What are you dreading that hasn’t happened?',
       evening: 'What did today teach you?',
     },
-    burst: { high: ['☀️', '📜', '✨'], mid: ['🕯️'] },
     comfort: 'A hard hour is easier shared. Write to yourself as to a friend, after three slow breaths?',
     breathDone: 'Be the friend you would write to ✉️',
     claude: {
@@ -93,18 +80,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   rumi: {
-    id: 'rumi',
     name: 'Rumi',
     tagline: 'Every feeling is a guest',
     moodLabels: { 1: 'Night of longing', 2: 'Aching', 3: 'Searching', 4: 'Warm', 5: 'Ecstatic' },
-    moodEmoji: { 1: '🌑', 2: '🥀', 3: '🕯️', 4: '🌹', 5: '🌞' },
     slotLabels: { morning: 'Dawn', afternoon: 'Day', evening: 'Night' },
     notePrompts: {
       morning: 'What has arrived in you this morning?',
       afternoon: 'What is your heart reaching for?',
       evening: 'What did today’s feelings come to show you?',
     },
-    burst: { high: ['🌹', '🌞', '✨'], mid: ['🕯️'] },
     comfort: 'Even this feeling is a visitor. Sit with it for three slow breaths?',
     breathDone: 'Let the visitor rest a while 🕯️',
     claude: {
@@ -115,18 +99,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   kabir: {
-    id: 'kabir',
     name: 'Kabir',
     tagline: 'Plain words, open heart',
     moodLabels: { 1: 'Lost in fog', 2: 'Heavy', 3: 'Listening', 4: 'Singing', 5: 'In bloom' },
-    moodEmoji: { 1: '🌫️', 2: '🌧️', 3: '🪔', 4: '🎶', 5: '🌸' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What will you listen for today?',
       afternoon: 'What are you searching for far away that is already near?',
       evening: 'What was simple and true today?',
     },
-    burst: { high: ['🌸', '🎶', '✨'], mid: ['🪔'] },
     comfort: 'What you are looking for is nearer than your breath. Three slow breaths?',
     breathDone: 'Simple, and near 🪔',
     claude: {
@@ -137,18 +118,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   patanjali: {
-    id: 'patanjali',
     name: 'Patanjali',
     tagline: 'Still the waves of the mind',
     moodLabels: { 1: 'Turbulent', 2: 'Restless', 3: 'Settling', 4: 'Clear', 5: 'Still' },
-    moodEmoji: { 1: '🌪️', 2: '🌊', 3: '🍃', 4: '🔆', 5: '🧘' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What is your intention for practice today?',
       afternoon: 'What is the mind holding on to right now?',
       evening: 'Where did you meet today with steadiness and ease?',
     },
-    burst: { high: ['🧘', '🔆', '✨'], mid: ['🍃'] },
     comfort: 'The waves of the mind rise and fall. Watch three slow breaths?',
     breathDone: 'Steady and at ease 🧘',
     claude: {
@@ -159,18 +137,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   lorde: {
-    id: 'lorde',
     name: 'Audre Lorde',
     tagline: 'Feeling is a way of knowing',
     moodLabels: { 1: 'Depleted', 2: 'Guarded', 3: 'Present', 4: 'Grounded', 5: 'Alive' },
-    moodEmoji: { 1: '🌧️', 2: '🛡️', 3: '🕯️', 4: '🌳', 5: '🔥' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What do you need to care for yourself today?',
       afternoon: 'What is your body telling you right now?',
       evening: 'What did you say today, and what did you leave unsaid?',
     },
-    burst: { high: ['🔥', '🌳', '✨'], mid: ['🕯️'] },
     comfort: 'Caring for yourself is not a luxury. Three slow breaths, just for you?',
     breathDone: 'You are worth this care 🕯️',
     claude: {
@@ -181,18 +156,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   capra: {
-    id: 'capra',
     name: 'Fritjof Capra',
     tagline: 'Everything is connected',
     moodLabels: { 1: 'Disconnected', 2: 'Tangled', 3: 'Balanced', 4: 'Flowing', 5: 'In resonance' },
-    moodEmoji: { 1: '🍂', 2: '🌀', 3: '🌿', 4: '🌐', 5: '✨' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What are you connected to today?',
       afternoon: 'What patterns are you part of right now?',
       evening: 'How did your day ripple out to others?',
     },
-    burst: { high: ['🌐', '🌿', '✨'], mid: ['🌿'] },
     comfort: 'You are part of a larger web, even now. Three slow breaths?',
     breathDone: 'Connected, breath by breath 🌿',
     claude: {
@@ -203,18 +175,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   jesus: {
-    id: 'jesus',
     name: 'Jesus',
     tagline: 'Enough for today',
     moodLabels: { 1: 'Weary', 2: 'Troubled', 3: 'At rest', 4: 'Hopeful', 5: 'Joyful' },
-    moodEmoji: { 1: '🌊', 2: '🌧️', 3: '🕯️', 4: '🌾', 5: '🕊️' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What is enough for today?',
       afternoon: 'Who could use your kindness right now?',
       evening: 'What are you grateful for tonight?',
     },
-    burst: { high: ['🕊️', '🌾', '✨'], mid: ['🕯️'] },
     comfort: 'Come away and rest a while. Three slow breaths?',
     breathDone: 'Peace be with you 🕊️',
     claude: {
@@ -225,18 +194,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   muhammad: {
-    id: 'muhammad',
     name: 'Muhammad',
     tagline: 'Patience, gratitude and mercy',
     moodLabels: { 1: 'Burdened', 2: 'Restless', 3: 'Patient', 4: 'Grateful', 5: 'At peace' },
-    moodEmoji: { 1: '🌑', 2: '🌒', 3: '🌓', 4: '🌔', 5: '🌕' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What intention do you set for today?',
       afternoon: 'Where do you need patience right now?',
       evening: 'What are you thankful for today?',
     },
-    burst: { high: ['🌙', '⭐', '✨'], mid: ['⭐'] },
     comfort: 'With hardship comes ease. Three slow breaths?',
     breathDone: 'Peace be upon you 🌙',
     claude: {
@@ -247,18 +213,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   buddha: {
-    id: 'buddha',
     name: 'Buddha',
     tagline: 'The mind at peace',
     moodLabels: { 1: 'Clouded', 2: 'Agitated', 3: 'Mindful', 4: 'Content', 5: 'Serene' },
-    moodEmoji: { 1: '☁️', 2: '🌬️', 3: '🍃', 4: '🌳', 5: '🪷' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What will you pay attention to today?',
       afternoon: 'What are you holding on to right now?',
       evening: 'Where did you meet yourself with kindness today?',
     },
-    burst: { high: ['🪷', '🌳', '✨'], mid: ['🍃'] },
     comfort: 'This too is passing. Three mindful breaths?',
     breathDone: 'Just this breath 🪷',
     claude: {
@@ -269,18 +232,15 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 
   shiva: {
-    id: 'shiva',
     name: 'Shiva',
     tagline: 'Stillness that transforms',
     moodLabels: { 1: 'Scattered', 2: 'Turbulent', 3: 'Centered', 4: 'Still', 5: 'Radiant' },
-    moodEmoji: { 1: '🌫️', 2: '⛈️', 3: '🏔️', 4: '🌙', 5: '🔱' },
-    slotLabels: SLOT_LABEL,
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
     notePrompts: {
       morning: 'What are you ready to let go of today?',
       afternoon: 'Where can you be still within the movement?',
       evening: 'What ended today, and what began?',
     },
-    burst: { high: ['🔱', '🌙', '✨'], mid: ['🏔️'] },
     comfort: 'Even storms pass over the mountain. Three slow breaths?',
     breathDone: 'Still as the mountain 🏔️',
     claude: {

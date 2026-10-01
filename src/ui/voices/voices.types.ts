@@ -25,7 +25,10 @@ export type Voice = {
   claude: { intro: string; ask: string };
 };
 
-/** The words of a voice that change with the language; emojis, colours and quotes don't. */
+/** What a voice looks like in every language: its emojis and save bursts. */
+export type VoiceStyle = Pick<Voice, 'id' | 'moodEmoji' | 'burst'>;
+
+/** The words of a voice, provided by each locale (ui/i18n/locales); emojis, colours and quotes don't change. */
 export type VoiceText = Pick<
   Voice,
   'name' | 'tagline' | 'moodLabels' | 'slotLabels' | 'notePrompts' | 'comfort' | 'breathDone' | 'claude'

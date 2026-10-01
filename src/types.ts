@@ -12,6 +12,10 @@ export type Entry = {
   note?: string;
   /** ISO 8601 timestamp of when the entry was saved. */
   recordedAt: string;
+  /** Phone unlocks since the previous check-in, captured when a live check-in is first saved. */
+  unlocks?: number;
+  /** ISO 8601 start of the window `unlocks` covers. */
+  unlocksFrom?: string;
 };
 
 export const MOOD_EMOJI: Record<Mood, string> = {

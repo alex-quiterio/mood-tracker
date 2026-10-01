@@ -7,11 +7,12 @@ import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../
 import { NOTE_MAX_LENGTH, entryKey } from '../entries';
 import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
 import { Entry, MOOD_EMOJI, MOOD_LABEL, Mood, SLOTS, SLOT_LABEL, Slot } from '../types';
+import { formatUnlocksSince, withUnlocks } from '../unlocks';
 import { EntriesStore } from '../useEntries';
 
-type Props = { store: EntriesStore };
+type Props = { store: EntriesStore; trackUnlocks: boolean };
 
-export function CheckInScreen({ store }: Props) {
+export function CheckInScreen({ store, trackUnlocks }: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
@@ -67,6 +68,7 @@ export function CheckInScreen({ store }: Props) {
             open={openSlot === slot}
             onOpen={() => setOpenSlot(slot)}
             store={store}
+            trackUnlocks={trackUnlocks}
           />
         );
       })}
@@ -81,9 +83,10 @@ type SlotCardProps = {
   open: boolean;
   onOpen: () => void;
   store: EntriesStore;
+  trackUnlocks: boolean;
 };
 
-function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
+function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks }: SlotCardProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
@@ -92,14 +95,15 @@ function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
   const save = async () => {
     if (mood === null) return;
     const trimmed = note.trim();
+    const now = new Date();
     try {
-      await store.save({
-        date,
-        slot,
-        mood,
-        ...(trimmed ? { note: trimmed } : {}),
-        recordedAt: new Date().toISOString(),
-      });
+      const next = await withUnlocks(
+        { date, slot, mood, ...(trimmed ? { note: trimmed } : {}), recordedAt: now.toISOString() },
+        entry,
+        trackUnlocks,
+        now,
+      );
+      await store.save(next);
     } catch (e) {
       Alert.alert('Could not save', String(e));
     }
@@ -131,6 +135,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
             {entry.note}
           </Text>
         ) : null}
+        {entry?.unlocks !== undefined && <UnlockLine entry={entry} />}
       </Pressable>
     );
   }
@@ -160,6 +165,15 @@ function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
         </Pressable>
       )}
     </View>
+  );
+}
+
+function UnlockLine({ entry }: { entry: Entry }) {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <Text style={styles.unlocks}>
+      📱 {entry.unlocks} {entry.unlocks === 1 ? 'unlock' : 'unlocks'} since {formatUnlocksSince(entry)}
+    </Text>
   );
 }
 
@@ -196,6 +210,7 @@ const makeStyles = (c: Palette) =>
     badgeText: { color: onMoodColor },
     badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
     notePreview: { color: c.muted },
+    unlocks: { color: c.muted, fontSize: 13 },
     noteInput: {
       minHeight: 64,
       borderWidth: 1,

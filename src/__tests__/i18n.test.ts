@@ -4,7 +4,7 @@ import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 import { PRESET_HABITS } from '@domain/habits/habits';
 import { localizeHabit } from '@ui/i18n/habits';
-import { en } from '@ui/i18n/en';
+import { en } from '@ui/i18n/locales/en';
 import {
   formatDecimal,
   formatEuros,
@@ -16,7 +16,7 @@ import {
 } from '@ui/i18n/format';
 import { localeFor, resolveLocale } from '@domain/settings/language';
 import { messages } from '@ui/i18n/messages';
-import { pt } from '@ui/i18n/pt';
+import { pt } from '@ui/i18n/locales/pt';
 import { formatSteps } from '@ui/i18n/signals';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';

@@ -4,6 +4,7 @@ import { parseEntry } from '@domain/checkins/entries';
 import { clampSleepHours, isEmptySleep, parseSleep, sameSleep, sleepWeek } from '@domain/checkins/sleep';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
+import { LOCK_AFTER_MS, shouldLockOnReturn } from '@domain/settings/lock';
 import { formatHours } from '@ui/i18n/format';
 import { describeSleep, promptSleepText } from '@ui/i18n/sleep';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
@@ -96,5 +97,17 @@ describe('sleep in words', () => {
     expect(buildReflectionPrompt(weeklyStats([entry(today, 'morning', 3)], today))).not.toMatch(
       /slept|Sleep/,
     );
+  });
+});
+
+describe('app lock', () => {
+  const away = Date.UTC(2026, 9, 1, 9, 0);
+
+  it('locks again after a minute away, only when on', () => {
+    expect(shouldLockOnReturn(true, away, away + LOCK_AFTER_MS)).toBe(true);
+    expect(shouldLockOnReturn(true, away, away + LOCK_AFTER_MS - 1)).toBe(false);
+    expect(shouldLockOnReturn(false, away, away + 10 * LOCK_AFTER_MS)).toBe(false);
+    expect(shouldLockOnReturn(true, null, away)).toBe(false);
+    expect(LOCK_AFTER_MS).toBe(60_000);
   });
 });

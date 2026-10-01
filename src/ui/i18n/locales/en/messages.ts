@@ -306,6 +306,16 @@ export const messages: Omit<Messages, 'voices'> = {
     moreHours: 'Half an hour more',
     perNight: 'Sleep per night',
   },
+  lock: {
+    title: 'App lock',
+    body: 'Asks for your fingerprint, face or phone PIN when you open the app, and again after a minute away. The app is also hidden in recent apps, and screenshots are blocked.',
+    unavailable: 'Set up a screen lock (PIN, pattern or fingerprint) in your phone settings first.',
+    prompt: 'Unlock Mood Tracker',
+    lockedTitle: 'Mood Tracker is locked',
+    lockedBody: 'Your check-ins and notes are private.',
+    unlock: 'Unlock',
+    confirmTitle: 'Confirm it’s you',
+  },
   /** The Claude prompt. Claude answers in the language it's asked in. */
   prompt: {
     intro: (first: string, last: string) =>

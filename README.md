@@ -15,6 +15,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Voices**: 13 voices (Lao Tzu, Marcus Aurelius, Rumi, Buddha…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day.
 - **Pause**: counted breathing, or a focus timer that ends with a bell.
 - **Optional**: reminders, phone unlock counts (needs Usage access), and steps (needs Physical activity).
+- **App lock** (optional): fingerprint, face or phone PIN on opening and after a minute away. The app is hidden in recent apps while it's on.
 - **Backup**: export or import a JSON file in Settings. Uninstalling deletes your data, so export now and then.
 
 ## Development

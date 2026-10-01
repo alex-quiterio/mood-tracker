@@ -307,6 +307,17 @@ export const messages: Omit<Messages, 'voices'> = {
     moreHours: 'Mais meia hora',
     perNight: 'Sono por noite',
   },
+  lock: {
+    title: 'Bloqueio da app',
+    body: 'Pede a tua impressão digital, rosto ou PIN do telemóvel ao abrir a app, e de novo após um minuto fora. A app também fica escondida nas apps recentes e as capturas de ecrã são bloqueadas.',
+    unavailable:
+      'Primeiro define um bloqueio de ecrã (PIN, padrão ou impressão digital) nas definições do telemóvel.',
+    prompt: 'Desbloquear o Mood Tracker',
+    lockedTitle: 'O Mood Tracker está bloqueado',
+    lockedBody: 'Os teus registos e notas são privados.',
+    unlock: 'Desbloquear',
+    confirmTitle: 'Confirma que és tu',
+  },
   prompt: {
     intro: (first, last) => `Aqui estão os meus registos de humor da última semana (${first} a ${last}).`,
     scale:

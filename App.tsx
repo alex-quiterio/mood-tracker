@@ -15,7 +15,10 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { stepCounter } from '@modules/step-counter';
 import { localDate } from '@domain/shared/dates';
 import { configureNotificationHandler } from '@infrastructure/notifications/handler';
+import { LockScreen } from '@ui/components/LockScreen';
 import { NamePrompt } from '@ui/components/NamePrompt';
+import { useAppLock } from '@ui/hooks/useAppLock';
+import { setScreenPrivacy } from '@infrastructure/security/screenPrivacy';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
 import { reminderMessages } from '@ui/i18n/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';
@@ -86,6 +89,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const today = useToday();
   const [tab, setTab] = useState<TabKey>('checkin');
   const { m, locale } = useLocale();
+  const lock = useAppLock(settings.settings.appLock, { prompt: m.lock.prompt, cancel: m.common.cancel });
   // Untouched preset habits show in the app's language.
   const habits = useMemo(
     () => localizeHabits(settings.settings.habits, locale),
@@ -118,6 +122,20 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     if (trackSteps) stepCounter.subscribe().catch(() => {});
   }, [trackSteps]);
   const tracking = useMemo(() => ({ unlocks: trackUnlocks, steps: trackSteps }), [trackUnlocks, trackSteps]);
+
+  // Keep the recent-apps preview blank while the lock is on.
+  useEffect(() => {
+    setScreenPrivacy(settings.settings.appLock);
+  }, [settings.settings.appLock]);
+
+  if (lock.locked) {
+    return (
+      <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+        <StatusBar style={c.isDark ? 'light' : 'dark'} />
+        <LockScreen onUnlock={lock.unlock} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>

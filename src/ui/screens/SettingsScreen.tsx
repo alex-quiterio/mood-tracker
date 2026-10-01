@@ -14,6 +14,7 @@ import { useLocale } from '@ui/i18n/LocaleContext';
 import { Palette, THEMES, paletteFor, spacing, useThemedStyles } from '@ui/theme/theme';
 
 import { HabitSettings } from './settings/HabitSettings';
+import { LockSettings } from './settings/LockSettings';
 import { NameSettings } from './settings/NameSettings';
 import { ReminderSettings } from './settings/ReminderSettings';
 import { StepSettings } from './settings/StepSettings';
@@ -36,6 +37,7 @@ export function SettingsScreen({ store, settings }: Props) {
       <ReminderSettings settings={settings} />
       <UnlockSettings settings={settings} />
       <StepSettings settings={settings} />
+      <LockSettings settings={settings} />
       <DataSettings store={store} settings={settings} />
       <Text style={styles.version}>
         {m.settings.version(

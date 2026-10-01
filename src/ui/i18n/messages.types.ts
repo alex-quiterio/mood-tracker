@@ -357,6 +357,16 @@ export type Messages = {
     moreHours: string;
     perNight: string;
   };
+  lock: {
+    title: string;
+    body: string;
+    unavailable: string;
+    prompt: string;
+    lockedTitle: string;
+    lockedBody: string;
+    unlock: string;
+    confirmTitle: string;
+  };
   /** Each voice's words; its emojis and bursts don't change with the language. */
   voices: Record<VoiceId, VoiceText>;
 };

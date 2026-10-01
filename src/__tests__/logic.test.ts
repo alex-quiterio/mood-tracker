@@ -140,7 +140,11 @@ describe('weekly stats and prompt', () => {
 describe('export format', () => {
   it('round-trips entries and habit definitions', () => {
     const entries = [entry('2026-10-01', 'morning', 3, undefined, 'ok')];
-    expect(parseExport(serializeExport(entries, PRESET_HABITS))).toEqual({ entries, habits: PRESET_HABITS, urges: [] });
+    expect(parseExport(serializeExport(entries, PRESET_HABITS))).toEqual({
+      entries,
+      habits: PRESET_HABITS,
+      urges: [],
+    });
   });
 
   it('still imports version 1 files, which have no habits', () => {

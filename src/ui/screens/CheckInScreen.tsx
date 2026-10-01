@@ -29,14 +29,23 @@ import { useVoice } from '@ui/theme/voiceContext';
 
 export type Tracking = { unlocks: boolean; steps: boolean };
 
-type Props = { store: EntriesStore; tracking: Tracking; name: string };
+type Props = {
+  store: EntriesStore;
+  tracking: Tracking;
+  name: string;
+  /** Opens on this day instead of today, e.g. from the calendar. */
+  initialDate?: string;
+};
 
-export function CheckInScreen({ store, tracking, name }: Props) {
+export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
-  const [date, setDate] = useState(today);
-  const [openSlot, setOpenSlot] = useState<Slot>(slotForTime());
+  const [date, setDate] = useState(initialDate && days.includes(initialDate) ? initialDate : today);
+  const firstEmptySlot = (day: string) =>
+    SLOTS.find((s) => !store.entries.some((e) => e.date === day && e.slot === s)) ?? 'morning';
+  // Today opens the slot for the current time; past days open their first empty slot.
+  const [openSlot, setOpenSlot] = useState<Slot>(date === today ? slotForTime() : firstEmptySlot(date));
   const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
@@ -76,9 +85,7 @@ export function CheckInScreen({ store, tracking, name }: Props) {
 
   const selectDate = (next: string) => {
     setDate(next);
-    // Today opens the slot for the current time; past days open the first empty slot.
-    const firstEmpty = SLOTS.find((s) => !store.entries.some((e) => e.date === next && e.slot === s));
-    setOpenSlot(next === today ? slotForTime() : (firstEmpty ?? 'morning'));
+    setOpenSlot(next === today ? slotForTime() : firstEmptySlot(next));
   };
 
   return (

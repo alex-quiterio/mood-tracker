@@ -1,6 +1,7 @@
 import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@ui/components/Button';
+import { HistoryCalendar } from '@ui/components/HistoryCalendar';
 import { dayOfMonth, weekdayShort } from '@domain/shared/dates';
 import { buildReflectionPrompt } from '@domain/voices/prompt';
 import { formatSteps, formatStepsShort } from '@domain/signals/format';
@@ -10,9 +11,9 @@ import { SLOTS } from '@domain/checkins/types';
 import { useVoice } from '@ui/theme/voiceContext';
 import { EntriesStore } from '@ui/hooks/useEntries';
 
-type Props = { store: EntriesStore };
+type Props = { store: EntriesStore; today: string; onEditDay: (date: string) => void };
 
-export function StatsScreen({ store }: Props) {
+export function StatsScreen({ store, today, onEditDay }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
@@ -124,6 +125,9 @@ export function StatsScreen({ store }: Props) {
       <Text style={styles.hint}>
         Builds a text summary of this week and opens the share sheet. Send it to the Claude app.
       </Text>
+
+      <Text style={styles.sectionTitle}>History</Text>
+      <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} />
     </ScrollView>
   );
 }
@@ -185,4 +189,5 @@ const makeStyles = (c: Palette) =>
     },
     averageText: { fontWeight: '700', color: c.text },
     hint: { color: c.muted, textAlign: 'center', fontSize: 13 },
+    sectionTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: spacing(2), ...c.heading },
   });

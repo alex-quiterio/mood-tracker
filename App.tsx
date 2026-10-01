@@ -73,6 +73,12 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const c = useColors();
   const today = useToday();
   const [tab, setTab] = useState<TabKey>('checkin');
+  // A day picked in the calendar; the check-in screen opens on it.
+  const [checkInDay, setCheckInDay] = useState<{ date: string; key: number } | null>(null);
+  const editDay = (date: string) => {
+    setCheckInDay((d) => ({ date, key: (d?.key ?? 0) + 1 }));
+    setTab('checkin');
+  };
   // "Not now" hides the name prompt until the next launch.
   const [nameSkipped, setNameSkipped] = useState(false);
   const { name, remindersEnabled, reminderTimes } = settings.settings;
@@ -99,8 +105,16 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
         ) : (
           // Keyed on the date so screens reset to "today" after midnight.
           <View key={today} style={styles.content}>
-            {tab === 'checkin' && <CheckInScreen store={store} tracking={tracking} name={name} />}
-            {tab === 'stats' && <StatsScreen store={store} />}
+            {tab === 'checkin' && (
+              <CheckInScreen
+                key={checkInDay?.key ?? 0}
+                store={store}
+                tracking={tracking}
+                name={name}
+                initialDate={checkInDay?.date}
+              />
+            )}
+            {tab === 'stats' && <StatsScreen store={store} today={today} onEditDay={editDay} />}
             {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}
           </View>
         )}

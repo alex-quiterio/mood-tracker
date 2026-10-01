@@ -83,4 +83,10 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" mood-tracker-*.apk --generate-notes --title "$GITHUB_REF_NAME"
+        # Uploads to the release if one was already created by hand for this tag.
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" mood-tracker-*.apk --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" mood-tracker-*.apk --generate-notes --title "$GITHUB_REF_NAME"
+          fi

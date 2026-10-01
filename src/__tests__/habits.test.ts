@@ -14,6 +14,10 @@ import {
   isWin,
   sameLog,
   toggleOption,
+  updateHabit,
+  addOption,
+  removeOption,
+  parsePrice,
 } from '@domain/habits/habits';
 import { burstEmojis } from '@domain/checkins/moments';
 import { VOICES } from '@domain/voices/voices';
@@ -261,5 +265,33 @@ describe('wins', () => {
     expect(burstEmojis(VOICES.plain, 5, true)).toContain('🌱');
     expect(burstEmojis(VOICES.plain, 2, true)).toEqual(['🌱']);
     expect(burstEmojis(VOICES.plain, 2, false)).toEqual([]);
+  });
+});
+
+describe('editing habits', () => {
+  it('updates one habit only', () => {
+    const next = updateHabit(PRESET_HABITS, 'drinks', { usualPerDay: 3, archived: true });
+    expect(next.find((h) => h.id === 'drinks')).toMatchObject({ usualPerDay: 3, archived: true });
+    expect(next.filter((h) => h.id !== 'drinks')).toEqual(PRESET_HABITS.filter((h) => h.id !== 'drinks'));
+  });
+
+  it('adds and removes options with unique ids', () => {
+    const making = PRESET_HABITS.find((h) => h.id === 'making')!;
+    const withGarden = addOption(making, ' Gardening ', '🌻');
+    expect(withGarden.options!.at(-1)).toEqual({ id: 'gardening', label: 'Gardening', emoji: '🌻' });
+    expect(addOption(withGarden, 'Gardening', '').options!.at(-1)).toEqual({
+      id: 'gardening-2',
+      label: 'Gardening',
+      emoji: '•',
+    });
+    expect(addOption(making, '   ', '🌻')).toBe(making);
+    expect(removeOption(withGarden, 'gardening').options).toEqual(making.options);
+  });
+
+  it('reads prices typed with a comma or a dot', () => {
+    expect(parsePrice('0,55')).toBe(0.55);
+    expect(parsePrice('€ 5')).toBe(5);
+    expect(parsePrice('3.333')).toBe(3.33);
+    expect(parsePrice('')).toBeUndefined();
   });
 });

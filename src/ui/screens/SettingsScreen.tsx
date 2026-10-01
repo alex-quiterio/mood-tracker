@@ -29,6 +29,7 @@ import {
 } from '@ui/theme/theme';
 import { EntriesStore } from '@ui/hooks/useEntries';
 import { SettingsStore } from '@ui/hooks/useSettings';
+import { HabitSettings } from './settings/HabitSettings';
 import { ReminderSettings } from './settings/ReminderSettings';
 import { StepSettings } from './settings/StepSettings';
 import { VoiceSettings } from './settings/VoiceSettings';
@@ -100,6 +101,8 @@ export function SettingsScreen({ store, settings }: Props) {
       </View>
 
       <VoiceSettings settings={settings} />
+
+      <HabitSettings settings={settings} />
 
       <ReminderSettings settings={settings} />
 

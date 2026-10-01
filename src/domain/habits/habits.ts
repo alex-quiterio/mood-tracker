@@ -210,3 +210,36 @@ export function createHabit(existing: Habit[], name: string, emoji: string, kind
     unit: kind === 'reduce' ? clean.toLowerCase() : '',
   };
 }
+
+/** Changes one habit, keeping the rest of the list as it is. */
+export const updateHabit = (habits: Habit[], id: string, patch: Partial<Omit<Habit, 'id'>>): Habit[] =>
+  habits.map((h) => (h.id === id ? { ...h, ...patch } : h));
+
+export const OPTION_LABEL_MAX_LENGTH = 24;
+
+/** Adds an option to a habit to grow, with an id that doesn't clash. */
+export function addOption(habit: Habit, label: string, emoji: string): Habit {
+  const clean = label.trim().slice(0, OPTION_LABEL_MAX_LENGTH);
+  if (!clean) return habit;
+  const options = habit.options ?? [];
+  const base =
+    clean
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'option';
+  let id = base;
+  for (let n = 2; options.some((o) => o.id === id); n++) id = `${base}-${n}`;
+  return { ...habit, options: [...options, { id, label: clean, emoji: emoji.trim() || '•' }] };
+}
+
+/** Removes an option; past check-ins keep it in their log. */
+export const removeOption = (habit: Habit, optionId: string): Habit => ({
+  ...habit,
+  options: (habit.options ?? []).filter((o) => o.id !== optionId),
+});
+
+/** Parses a price typed in the settings ("0,55" or "0.55"); undefined clears it. */
+export function parsePrice(text: string): number | undefined {
+  const n = Number(text.replace(',', '.').replace(/[^\d.]/g, ''));
+  return text.trim() === '' || !Number.isFinite(n) ? undefined : Math.round(n * 100) / 100;
+}

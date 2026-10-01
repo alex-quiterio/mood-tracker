@@ -3,7 +3,13 @@ import { WeeklyStats, formatAverage } from '@domain/checkins/stats';
 import { SLOTS } from '@domain/checkins/types';
 import { Habit } from '@domain/habits/habits';
 import { checkInPoints } from '@domain/habits/balance';
-import { promptHabitText } from '@domain/habits/insights';
+import {
+  formatEuros,
+  habitWeek,
+  promptHabitText,
+  promptHabitWeek,
+  totalSavings,
+} from '@domain/habits/insights';
 
 import { VOICES, Voice } from './voices';
 
@@ -62,12 +68,38 @@ export function buildReflectionPrompt(
     `Averages: ${averages}; overall ${formatAverage(stats.overallAverage)}.`,
     ...(hasUnlocks ? [`Average phone unlocks between check-ins: ${Math.round(stats.unlockAverage!)}.`] : []),
     ...(hasSteps ? [`Average steps between check-ins: ${Math.round(stats.stepAverage!)}.`] : []),
-    ...(hasHabits
-      ? [
-          `Habit balance this week: ${balance.light} light points (good habits, zeros, doing something else instead) vs ${balance.heavy} heavy points (doses). I want to grow good feedback loops, so please notice what helped.`,
-        ]
-      : []),
+    ...(hasHabits ? habitSummary(stats, habits!, balance) : []),
     '',
     ask,
   ].join('\n');
+}
+
+/** The week's habits for Claude: per-habit wins, moods with and without, savings, and what helped. */
+function habitSummary(
+  stats: WeeklyStats,
+  habits: Habit[],
+  balance: { light: number; heavy: number },
+): string[] {
+  const entries = stats.days.flatMap((d) => SLOTS.flatMap((s) => d.entries[s] ?? []));
+  const today = stats.days[stats.days.length - 1].date;
+  const lines = habitWeek(entries, habits, today)
+    .filter((w) => w.logged > 0)
+    .map((w) => {
+      const moods =
+        w.moodWithNone !== null && w.moodWithSome !== null
+          ? ` (mood with none ${w.moodWithNone.toFixed(1)}, with some ${w.moodWithSome.toFixed(1)})`
+          : '';
+      return `- ${promptHabitWeek(w)}${moods}`;
+    });
+  const saved = totalSavings(entries, habits);
+  const instead = entries.flatMap((e) => (e.habits?.instead ? [`"${e.habits.instead}"`] : []));
+  return [
+    '',
+    'Habits this week (I log them with each check-in; "about" means from memory):',
+    ...lines,
+    `Balance: ${balance.light} light points (good habits, zeros, doing something else instead) vs ${balance.heavy} heavy points (doses).`,
+    ...(saved > 0 ? [`Money kept by having less than usual: ${formatEuros(saved)}.`] : []),
+    ...(instead.length ? [`What I did instead: ${instead.join(', ')}.`] : []),
+    'I want to grow good feedback loops, not shame. Please notice which good habits or "instead" choices went with better moods, and suggest one small swap for next week.',
+  ];
 }

@@ -109,6 +109,13 @@ export function describeHabitWeek(w: HabitWeek): string {
   return `${habit.emoji} None in ${w.wins} of ${w.logged} check-ins · ${w.total} ${habit.unit} in all`;
 }
 
+/** One habit's week for the Claude prompt, in plain words. */
+export function promptHabitWeek(w: HabitWeek): string {
+  const { habit } = w;
+  if (habit.kind === 'grow') return `${habit.name}: done in ${w.wins} of ${w.logged} check-ins`;
+  return `${habit.name}: none in ${w.wins} of ${w.logged} check-ins, ${w.total} ${habit.unit} in all`;
+}
+
 /** A check-in's habits as short text, e.g. "🚬 2≈ · 🍺 0 · 💧 🚶". */
 export function describeLog(log: HabitLog | undefined, habits: Habit[]): string {
   if (!log) return '';

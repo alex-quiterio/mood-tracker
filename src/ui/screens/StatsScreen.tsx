@@ -1,4 +1,4 @@
-import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, Share, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Button } from '@ui/components/Button';
 import { HistoryCalendar } from '@ui/components/HistoryCalendar';
@@ -19,9 +19,17 @@ type Props = {
   onEditDay: (date: string) => void;
   habits: Habit[];
   habitsInPrompt: boolean;
+  onHabitsInPromptChange: (include: boolean) => void;
 };
 
-export function StatsScreen({ store, today, onEditDay, habits, habitsInPrompt }: Props) {
+export function StatsScreen({
+  store,
+  today,
+  onEditDay,
+  habits,
+  habitsInPrompt,
+  onHabitsInPromptChange,
+}: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
@@ -129,6 +137,16 @@ export function StatsScreen({ store, today, onEditDay, habits, habitsInPrompt }:
         )}
       </View>
 
+      <View style={styles.promptRow}>
+        <Text style={styles.promptLabel}>Include my habits</Text>
+        <Switch
+          value={habitsInPrompt}
+          onValueChange={onHabitsInPromptChange}
+          trackColor={{ true: c.accent, false: c.border }}
+          thumbColor={c.surface}
+          accessibilityLabel="Include habits in the Claude prompt"
+        />
+      </View>
       <Button title="Reflect with Claude" onPress={reflect} disabled={stats.logged === 0} />
       <Text style={styles.hint}>
         Builds a text summary of this week and opens the share sheet. Send it to the Claude app.
@@ -200,5 +218,7 @@ const makeStyles = (c: Palette) =>
     },
     averageText: { fontWeight: '700', color: c.text },
     hint: { color: c.muted, textAlign: 'center', fontSize: 13 },
+    promptRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    promptLabel: { color: c.text, fontSize: 15 },
     sectionTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: spacing(2), ...c.heading },
   });

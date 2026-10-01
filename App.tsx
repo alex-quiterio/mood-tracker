@@ -122,6 +122,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 onEditDay={editDay}
                 habits={settings.settings.habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
+                onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
             )}
             {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}

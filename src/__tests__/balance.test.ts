@@ -121,6 +121,12 @@ describe('habits in the Claude prompt', () => {
     }),
   ];
 
+  it('mention money kept when usual amounts are set', () => {
+    const habits = PRESET_HABITS.map((h) => (h.id === 'cigarettes' ? { ...h, usualPerDay: 10 } : h));
+    const prompt = buildReflectionPrompt(weeklyStats(withHabits, today), VOICES.plain, habits);
+    expect(prompt).toContain('Money kept by having less than usual: €4.40.');
+  });
+
   it('stay out unless you turn them on', () => {
     const prompt = buildReflectionPrompt(weeklyStats(withHabits, today));
     expect(prompt).not.toMatch(/cigarettes|habit|tea and a book/);
@@ -129,8 +135,12 @@ describe('habits in the Claude prompt', () => {
   it('come with doses, good habits, instead notes and the balance when on', () => {
     const prompt = buildReflectionPrompt(weeklyStats(withHabits, today), VOICES.plain, PRESET_HABITS);
     expect(prompt).toContain('habits: about 2 cigarettes; did: walk; instead: "tea and a book"');
-    expect(prompt).toContain('Habit balance this week: 4 light points');
+    expect(prompt).toContain('Balance: 4 light points');
     expect(prompt).toContain('2 heavy points');
+    expect(prompt).toContain('- Cigarettes: none in 0 of 1 check-ins, 2 cigarettes in all');
+    expect(prompt).toContain('- Walk: done in 1 of 1 check-ins');
+    expect(prompt).toContain('What I did instead: "tea and a book".');
+    expect(prompt).toContain('suggest one small swap');
     expect(prompt).toContain('my habits and what I did instead');
   });
 });

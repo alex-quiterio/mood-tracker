@@ -17,6 +17,8 @@ import {
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { dayOfMonth, parseLocalDate } from '@domain/shared/dates';
 import { describeSignals } from '@domain/signals/describe';
+import { Habit } from '@domain/habits/habits';
+import { describeLog } from '@domain/habits/insights';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { useVoice } from '@ui/theme/voiceContext';
 
@@ -29,10 +31,11 @@ type Props = {
   today: string;
   /** Opens a day on the check-in screen; only offered for the last week. */
   onEditDay: (date: string) => void;
+  habits: Habit[];
 };
 
 /** Six months of check-ins, a month at a time. The last week can be edited; older days are read-only. */
-export function HistoryCalendar({ entries, today, onEditDay }: Props) {
+export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [month, setMonth] = useState<MonthRef>(monthOf(today));
@@ -99,7 +102,7 @@ export function HistoryCalendar({ entries, today, onEditDay }: Props) {
         </View>
       ))}
 
-      <DayDetail entries={entries} date={selected} today={today} onEditDay={onEditDay} />
+      <DayDetail entries={entries} date={selected} today={today} onEditDay={onEditDay} habits={habits} />
       <Text style={styles.hint}>
         Shows the last {HISTORY_MONTHS} months. Only the last {EDITABLE_DAYS} days can be edited.
       </Text>
@@ -112,11 +115,13 @@ function DayDetail({
   date,
   today,
   onEditDay,
+  habits,
 }: {
   entries: Entry[];
   date: string;
   today: string;
   onEditDay: (date: string) => void;
+  habits: Habit[];
 }) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
@@ -143,6 +148,10 @@ function DayDetail({
                   </Text>
                 </View>
                 {e.note ? <Text style={styles.note}>{e.note}</Text> : null}
+                {e.habits && describeLog(e.habits, habits) ? (
+                  <Text style={styles.signal}>{describeLog(e.habits, habits)}</Text>
+                ) : null}
+                {e.habits?.instead ? <Text style={styles.instead}>🌱 {e.habits.instead}</Text> : null}
                 {describeSignals(e).map((line) => (
                   <Text key={line} style={styles.signal}>
                     {line}
@@ -225,6 +234,7 @@ const makeStyles = (c: Palette) =>
     badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
     note: { color: c.text },
     signal: { color: c.muted, fontSize: 12 },
+    instead: { color: c.accent, fontSize: 12 },
     empty: { color: c.muted, paddingTop: spacing(1) },
     readOnly: { color: c.muted, fontSize: 13, textAlign: 'center' },
     hint: { color: c.muted, fontSize: 12, textAlign: 'center', marginTop: spacing(2) },

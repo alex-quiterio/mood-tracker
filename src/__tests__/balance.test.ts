@@ -1,0 +1,136 @@
+import { describe, expect, it } from '@jest/globals';
+
+import {
+  INSTEAD_POINTS,
+  ZERO_POINTS,
+  balanceDays,
+  checkInPoints,
+  compareWithLastWeek,
+  formatPoints,
+  verdictFor,
+  weekBalance,
+} from '@domain/habits/balance';
+import { Entry } from '@domain/checkins/types';
+import { PRESET_HABITS, weightOf } from '@domain/habits/habits';
+import { weeklyStats } from '@domain/checkins/stats';
+import { buildReflectionPrompt } from '@domain/voices/prompt';
+import { VOICES } from '@domain/voices/voices';
+
+const today = '2026-10-01';
+const entry = (date: string, habits: Entry['habits'], slot: Entry['slot'] = 'morning'): Entry => ({
+  date,
+  slot,
+  mood: 3,
+  recordedAt: `${date}T08:00:00.000Z`,
+  habits,
+});
+
+describe('check-in points', () => {
+  it('weigh doses as heavy and zeros, good habits and instead notes as light', () => {
+    const log = {
+      doses: { cigarettes: { count: 3 }, drinks: { count: 2 }, weed: { count: 0 } },
+      did: ['walk', 'friend'],
+      instead: 'called my sister',
+    };
+    // heavy: 3 × 1 + 2 × 2 = 7 · light: zero weed 1 + walk 2 + friend 3 + instead 2 = 8
+    expect(checkInPoints(log, PRESET_HABITS)).toEqual({ light: 8, heavy: 7 });
+    expect(ZERO_POINTS + 2 + 3 + INSTEAD_POINTS).toBe(8);
+  });
+
+  it('give a small bonus for extra options, capped', () => {
+    const log = (n: number) => ({
+      doses: {},
+      did: ['making'],
+      chosen: { making: ['cooking', 'drawing', 'dancing', 'music'].slice(0, n) },
+    });
+    expect(checkInPoints(log(1), PRESET_HABITS).light).toBe(2);
+    expect(checkInPoints(log(2), PRESET_HABITS).light).toBe(3);
+    expect(checkInPoints(log(4), PRESET_HABITS).light).toBe(4);
+  });
+
+  it('still count archived habits so history keeps its score', () => {
+    const habits = PRESET_HABITS.map((h) => ({ ...h, archived: true }));
+    expect(checkInPoints({ doses: { cigarettes: { count: 2 } }, did: [] }, habits)).toEqual({
+      light: 0,
+      heavy: 2,
+    });
+  });
+
+  it('ignore unknown habits and missing logs', () => {
+    expect(checkInPoints({ doses: { gone: { count: 5 } }, did: ['gone'] }, PRESET_HABITS)).toEqual({
+      light: 0,
+      heavy: 0,
+    });
+    expect(checkInPoints(undefined, PRESET_HABITS)).toEqual({ light: 0, heavy: 0 });
+  });
+
+  it('use default weights when none are set', () => {
+    expect(weightOf({ id: 'x', name: 'X', emoji: '•', kind: 'reduce', unit: 'x' })).toBe(1);
+    expect(weightOf({ id: 'y', name: 'Y', emoji: '•', kind: 'grow', unit: '' })).toBe(2);
+  });
+});
+
+describe('week balance', () => {
+  const entries = [
+    entry('2026-09-30', { doses: { cigarettes: { count: 4 } }, did: [] }),
+    entry('2026-09-30', { doses: { cigarettes: { count: 0 } }, did: ['walk'] }, 'evening'),
+    entry(today, { doses: {}, did: ['friend'], instead: 'tea' }),
+    entry('2026-09-22', { doses: { drinks: { count: 3 } }, did: [] }), // the week before
+  ];
+
+  it('adds up days and compares with last week', () => {
+    const week = weekBalance(entries, PRESET_HABITS, today);
+    expect(week.days).toHaveLength(7);
+    expect(week.days.at(-2)).toMatchObject({ date: '2026-09-30', light: 3, heavy: 4, net: -1, logged: true });
+    expect(week.days.at(-1)).toMatchObject({ light: 5, heavy: 0, net: 5 });
+    expect(week).toMatchObject({ light: 8, heavy: 4, net: 4, previousNet: -6 });
+    expect(week.verdict).toEqual({ label: 'Leaning light', emoji: '🌱' });
+  });
+
+  it('marks unlogged days and has no comparison without last week', () => {
+    const days = balanceDays([], PRESET_HABITS, ['2026-10-01']);
+    expect(days[0]).toEqual({ date: '2026-10-01', light: 0, heavy: 0, net: 0, logged: false });
+    expect(weekBalance([], PRESET_HABITS, today)).toMatchObject({ previousNet: null, verdict: null });
+  });
+});
+
+describe('words', () => {
+  it('are kind at every tilt', () => {
+    expect(verdictFor(9, 1)?.label).toBe('Flourishing');
+    expect(verdictFor(5, 5)?.label).toBe('In balance');
+    expect(verdictFor(1, 9)?.label).toMatch(/every light point counts/);
+    expect(verdictFor(0, 0)).toBeNull();
+  });
+
+  it('frame the comparison gently', () => {
+    expect(compareWithLastWeek(4, -6)).toBe('+10 lighter than last week');
+    expect(compareWithLastWeek(-2, 3)).toBe('-5 vs last week — tomorrow is a fresh start');
+    expect(compareWithLastWeek(1, 1)).toBe('Same as last week');
+    expect(compareWithLastWeek(1, null)).toBeNull();
+    expect(formatPoints(3)).toBe('+3');
+    expect(formatPoints(-2)).toBe('-2');
+  });
+});
+
+describe('habits in the Claude prompt', () => {
+  const withHabits = [
+    entry(today, {
+      doses: { cigarettes: { count: 2, approx: true } },
+      did: ['walk'],
+      instead: 'tea and a book',
+    }),
+  ];
+
+  it('stay out unless you turn them on', () => {
+    const prompt = buildReflectionPrompt(weeklyStats(withHabits, today));
+    expect(prompt).not.toMatch(/cigarettes|habit|tea and a book/);
+  });
+
+  it('come with doses, good habits, instead notes and the balance when on', () => {
+    const prompt = buildReflectionPrompt(weeklyStats(withHabits, today), VOICES.plain, PRESET_HABITS);
+    expect(prompt).toContain('habits: about 2 cigarettes; did: walk; instead: "tea and a book"');
+    expect(prompt).toContain('Habit balance this week: 4 light points');
+    expect(prompt).toContain('2 heavy points');
+    expect(prompt).toContain('my habits and what I did instead');
+  });
+});

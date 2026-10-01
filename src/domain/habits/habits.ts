@@ -24,7 +24,14 @@ export type Habit = {
   usualPerDay?: number;
   /** Habits to grow can offer choices; doing the habit means picking at least one. */
   options?: HabitOption[];
+  /**
+   * Balance points: per dose for habits to reduce (heavy), per check-in done for
+   * habits to grow (light). Defaults to 1 and 2.
+   */
+  weight?: number;
 };
+
+export const weightOf = (h: Habit) => h.weight ?? (h.kind === 'reduce' ? 1 : 2);
 
 /**
  * Default prices are Dutch averages for 2026, editable per habit:
@@ -40,18 +47,20 @@ export const PRESET_HABITS: Habit[] = [
     kind: 'reduce',
     unit: 'cigarettes',
     pricePerDose: 0.55,
+    weight: 1,
   },
-  { id: 'weed', name: 'Weed', emoji: '🌿', kind: 'reduce', unit: 'joints', pricePerDose: 5 },
-  { id: 'drinks', name: 'Drinks', emoji: '🍺', kind: 'reduce', unit: 'drinks', pricePerDose: 3 },
-  { id: 'water', name: 'Water', emoji: '💧', kind: 'grow', unit: '' },
-  { id: 'walk', name: 'Walk', emoji: '🚶', kind: 'grow', unit: '' },
-  { id: 'friend', name: 'Connect with a friend', emoji: '🤝', kind: 'grow', unit: '' },
+  { id: 'weed', name: 'Weed', emoji: '🌿', kind: 'reduce', unit: 'joints', pricePerDose: 5, weight: 2 },
+  { id: 'drinks', name: 'Drinks', emoji: '🍺', kind: 'reduce', unit: 'drinks', pricePerDose: 3, weight: 2 },
+  { id: 'water', name: 'Water', emoji: '💧', kind: 'grow', unit: '', weight: 1 },
+  { id: 'walk', name: 'Walk', emoji: '🚶', kind: 'grow', unit: '', weight: 2 },
+  { id: 'friend', name: 'Connect with a friend', emoji: '🤝', kind: 'grow', unit: '', weight: 3 },
   {
     id: 'making',
     name: 'Time doing something',
     emoji: '🛠️',
     kind: 'grow',
     unit: '',
+    weight: 2,
     options: [
       { id: 'cooking', label: 'Cooking', emoji: '🍳' },
       { id: 'cleaning', label: 'Cleaning', emoji: '🧹' },
@@ -165,6 +174,7 @@ export function parseHabits(value: unknown): Habit[] {
       (h.archived === undefined || typeof h.archived === 'boolean') &&
       (h.pricePerDose === undefined || (typeof h.pricePerDose === 'number' && h.pricePerDose >= 0)) &&
       (h.usualPerDay === undefined || (typeof h.usualPerDay === 'number' && h.usualPerDay >= 0)) &&
+      (h.weight === undefined || (typeof h.weight === 'number' && h.weight >= 0)) &&
       (h.options === undefined ||
         (Array.isArray(h.options) &&
           h.options.every(

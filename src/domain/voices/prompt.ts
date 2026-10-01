@@ -1,6 +1,10 @@
 import { weekdayShort } from '@domain/shared/dates';
 import { WeeklyStats, formatAverage } from '@domain/checkins/stats';
 import { SLOTS } from '@domain/checkins/types';
+import { Habit } from '@domain/habits/habits';
+import { checkInPoints } from '@domain/habits/balance';
+import { promptHabitText } from '@domain/habits/insights';
+
 import { VOICES, Voice } from './voices';
 
 /**
@@ -10,6 +14,8 @@ import { VOICES, Voice } from './voices';
 export function buildReflectionPrompt(
   stats: WeeklyStats,
   voice: Pick<Voice, 'claude'> = VOICES.plain,
+  /** Habit data is sensitive: only included when the user turned it on. */
+  habits: Habit[] | null = null,
 ): string {
   const first = stats.days[0].date;
   const last = stats.days[stats.days.length - 1].date;
@@ -20,17 +26,29 @@ export function buildReflectionPrompt(
       if (!e) return `  ${slot}: not logged`;
       const unlocks = e.unlocks === undefined ? '' : `, ${e.unlocks} phone unlocks since previous check-in`;
       const steps = e.steps === undefined ? '' : `, ${e.steps} steps since previous check-in`;
-      return `  ${slot}: ${e.mood}/5${unlocks}${steps}${e.note ? ` — "${e.note}"` : ''}`;
+      const habitText = habits && e.habits ? `; habits: ${promptHabitText(e.habits, habits)}` : '';
+      return `  ${slot}: ${e.mood}/5${unlocks}${steps}${e.note ? ` — "${e.note}"` : ''}${habitText}`;
     });
     return [`${weekdayShort(day.date)} ${day.date}`, ...slotLines].join('\n');
   });
 
   const hasUnlocks = stats.unlockAverage !== null;
   const hasSteps = stats.stepAverage !== null;
+  const logs = habits ? stats.days.flatMap((d) => SLOTS.flatMap((s) => d.entries[s]?.habits ?? [])) : [];
+  const hasHabits = habits !== null && logs.length > 0;
+  const balance = logs.reduce(
+    (sum, log) => {
+      const p = checkInPoints(log, habits ?? []);
+      return { light: sum.light + p.light, heavy: sum.heavy + p.heavy };
+    },
+    { light: 0, heavy: 0 },
+  );
   const averages = SLOTS.map((s) => `${s} ${formatAverage(stats.slotAverages[s])}`).join(', ');
 
   const signals =
-    (hasUnlocks ? 'how often I unlocked my phone, ' : '') + (hasSteps ? 'how much I walked, ' : '');
+    (hasUnlocks ? 'how often I unlocked my phone, ' : '') +
+    (hasSteps ? 'how much I walked, ' : '') +
+    (hasHabits ? 'my habits and what I did instead, ' : '');
   const ask = voice.claude.ask.replace('{signals}', signals);
 
   return [
@@ -44,6 +62,11 @@ export function buildReflectionPrompt(
     `Averages: ${averages}; overall ${formatAverage(stats.overallAverage)}.`,
     ...(hasUnlocks ? [`Average phone unlocks between check-ins: ${Math.round(stats.unlockAverage!)}.`] : []),
     ...(hasSteps ? [`Average steps between check-ins: ${Math.round(stats.stepAverage!)}.`] : []),
+    ...(hasHabits
+      ? [
+          `Habit balance this week: ${balance.light} light points (good habits, zeros, doing something else instead) vs ${balance.heavy} heavy points (doses). I want to grow good feedback loops, so please notice what helped.`,
+        ]
+      : []),
     '',
     ask,
   ].join('\n');

@@ -115,7 +115,15 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 habits={settings.settings.habits}
               />
             )}
-            {tab === 'stats' && <StatsScreen store={store} today={today} onEditDay={editDay} />}
+            {tab === 'stats' && (
+              <StatsScreen
+                store={store}
+                today={today}
+                onEditDay={editDay}
+                habits={settings.settings.habits}
+                habitsInPrompt={settings.settings.habitsInPrompt}
+              />
+            )}
             {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}
           </View>
         )}

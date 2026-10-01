@@ -2,6 +2,8 @@ import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@ui/components/Button';
 import { HistoryCalendar } from '@ui/components/HistoryCalendar';
+import { Habit } from '@domain/habits/habits';
+import { HabitsWeek } from '@ui/habits/HabitsWeek';
 import { dayOfMonth, weekdayShort } from '@domain/shared/dates';
 import { buildReflectionPrompt } from '@domain/voices/prompt';
 import { formatSteps, formatStepsShort } from '@domain/signals/format';
@@ -11,9 +13,15 @@ import { SLOTS } from '@domain/checkins/types';
 import { useVoice } from '@ui/theme/voiceContext';
 import { EntriesStore } from '@ui/hooks/useEntries';
 
-type Props = { store: EntriesStore; today: string; onEditDay: (date: string) => void };
+type Props = {
+  store: EntriesStore;
+  today: string;
+  onEditDay: (date: string) => void;
+  habits: Habit[];
+  habitsInPrompt: boolean;
+};
 
-export function StatsScreen({ store, today, onEditDay }: Props) {
+export function StatsScreen({ store, today, onEditDay, habits, habitsInPrompt }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
@@ -22,7 +30,7 @@ export function StatsScreen({ store, today, onEditDay }: Props) {
   const reflect = async () => {
     try {
       // Opens Android's share sheet; pick the Claude app. No API calls involved.
-      await Share.share({ message: buildReflectionPrompt(stats, voice) });
+      await Share.share({ message: buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null) });
     } catch (e) {
       Alert.alert('Could not open the share sheet', String(e));
     }
@@ -126,8 +134,11 @@ export function StatsScreen({ store, today, onEditDay }: Props) {
         Builds a text summary of this week and opens the share sheet. Send it to the Claude app.
       </Text>
 
+      <Text style={styles.sectionTitle}>Habits</Text>
+      <HabitsWeek entries={store.entries} habits={habits} today={today} />
+
       <Text style={styles.sectionTitle}>History</Text>
-      <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} />
+      <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} habits={habits} />
     </ScrollView>
   );
 }

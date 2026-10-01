@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
 import {
   EDITABLE_DAYS,
   HISTORY_MONTHS,
@@ -45,7 +46,7 @@ export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
   const next = shiftMonth(month, 1);
 
   return (
-    <View style={styles.card}>
+    <Card style={styles.card}>
       <View style={styles.header}>
         <ArrowButton
           label="‹"
@@ -102,7 +103,7 @@ export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
 
       <DayDetail entries={entries} date={selected} today={today} onEditDay={onEditDay} habits={habits} />
       <Text style={styles.hint}>{m.calendar.hint(HISTORY_MONTHS, EDITABLE_DAYS)}</Text>
-    </View>
+    </Card>
   );
 }
 
@@ -194,14 +195,7 @@ function ArrowButton({
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    card: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(3),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(1),
-    },
+    card: { padding: spacing(3), gap: spacing(1) },
     header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing(2) },
     month: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
     arrow: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },

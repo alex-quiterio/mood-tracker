@@ -15,6 +15,9 @@ import {
   weightOf,
 } from '@domain/habits/habits';
 import { Button } from '@ui/components/Button';
+import { Card } from '@ui/components/Card';
+import { Chip } from '@ui/components/Chip';
+import { Stepper } from '@ui/components/Stepper';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
@@ -31,7 +34,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
   const tracked = habits.filter((h) => !h.archived);
 
   return (
-    <View style={styles.section}>
+    <Card>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded }}
@@ -78,7 +81,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
           </View>
         </>
       )}
-    </View>
+    </Card>
   );
 }
 
@@ -182,17 +185,14 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
               <Text style={styles.fieldLabel}>{m.habitSettings.options}</Text>
               <View style={styles.chips}>
                 {(shown.options ?? []).map((o) => (
-                  <Pressable
+                  <Chip
                     key={o.id}
+                    selected={false}
+                    role="button"
                     onPress={() => onReplace(removeOption(habit, o.id))}
-                    style={styles.chip}
-                    accessibilityRole="button"
                     accessibilityLabel={m.habitSettings.removeOption(o.label)}
-                  >
-                    <Text style={styles.chipText}>
-                      {o.emoji} {o.label} ×
-                    </Text>
-                  </Pressable>
+                    label={`${o.emoji} ${o.label} ×`}
+                  />
                 ))}
               </View>
               <View style={styles.row}>
@@ -262,17 +262,12 @@ function NewHabit({ onAdd }: { onAdd: (name: string, emoji: string, kind: HabitK
       </View>
       <View style={styles.row}>
         {(['grow', 'reduce'] as const).map((k) => (
-          <Pressable
+          <Chip
             key={k}
+            selected={kind === k}
             onPress={() => setKind(k)}
-            style={[styles.chip, kind === k && styles.chipOn]}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: kind === k }}
-          >
-            <Text style={[styles.chipText, kind === k && styles.chipTextOn]}>
-              {k === 'grow' ? m.habitSettings.toGrow : m.habitSettings.toReduce}
-            </Text>
-          </Pressable>
+            label={k === 'grow' ? m.habitSettings.toGrow : m.habitSettings.toReduce}
+          />
         ))}
         <View style={styles.flex} />
         <Button
@@ -299,42 +294,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Stepper({ value, max, onChange }: { value: number; max: number; onChange: (n: number) => void }) {
-  const styles = useThemedStyles(makeStyles);
-  const { m } = useLocale();
-  return (
-    <View style={styles.row}>
-      <Pressable
-        style={styles.step}
-        onPress={() => onChange(Math.max(0, value - 1))}
-        disabled={value <= 0}
-        accessibilityLabel={m.common.less}
-      >
-        <Text style={styles.stepText}>−</Text>
-      </Pressable>
-      <Text style={styles.stepValue}>{value}</Text>
-      <Pressable
-        style={styles.step}
-        onPress={() => onChange(Math.min(max, value + 1))}
-        disabled={value >= max}
-        accessibilityLabel={m.common.more}
-      >
-        <Text style={styles.stepText}>+</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    section: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     flex: { flex: 1 },
     header: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
@@ -362,30 +323,7 @@ const makeStyles = (c: Palette) =>
     },
     emojiInput: { width: 52, textAlign: 'center' },
     numberInput: { width: 96 },
-    step: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: c.border,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: c.background,
-    },
-    stepText: { fontSize: 18, lineHeight: 20, color: c.accent, fontWeight: '600' },
-    stepValue: { minWidth: 28, textAlign: 'center', fontSize: 16, fontWeight: '700', color: c.text },
     options: { gap: spacing(2) },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
-    chip: {
-      paddingHorizontal: spacing(3),
-      paddingVertical: spacing(1.5),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: c.border,
-      backgroundColor: c.background,
-    },
-    chipOn: { backgroundColor: c.accent, borderColor: c.accent },
-    chipText: { color: c.text, fontSize: 13 },
-    chipTextOn: { color: c.accentText, fontWeight: '600' },
     newHabit: { borderTopWidth: 1, borderTopColor: c.border, paddingTop: spacing(3), gap: spacing(2) },
   });

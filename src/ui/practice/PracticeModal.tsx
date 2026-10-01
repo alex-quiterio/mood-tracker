@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Chip } from '@ui/components/Chip';
+import { Card } from '@ui/components/Card';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -55,7 +57,7 @@ export function PracticeModal({ visible, onClose }: { visible: boolean; onClose:
           <ScrollView contentContainerStyle={styles.menu}>
             <Text style={styles.title}>{m.practice.title}</Text>
 
-            <View style={styles.card}>
+            <Card>
               <Text style={styles.cardTitle}>{m.practice.countBreaths}</Text>
               <Chips
                 options={BREATH_PATTERNS.map((p) => ({ key: p.id, label: m.practice.patterns[p.id].name }))}
@@ -72,9 +74,9 @@ export function PracticeModal({ visible, onClose }: { visible: boolean; onClose:
                 title={m.practice.startFor(formatClock(breathSessionSeconds(pattern, breaths)))}
                 onPress={() => setRunning({ kind: 'breath', pattern, breaths })}
               />
-            </View>
+            </Card>
 
-            <View style={styles.card}>
+            <Card>
               <Text style={styles.cardTitle}>{m.practice.focus}</Text>
               <Chips
                 options={FOCUS_OBJECTS.map((o) => ({ key: o.id, label: m.practice.objects[o.id].name }))}
@@ -91,7 +93,7 @@ export function PracticeModal({ visible, onClose }: { visible: boolean; onClose:
                 title={m.practice.start}
                 onPress={() => setRunning({ kind: 'focus', minutes, object })}
               />
-            </View>
+            </Card>
 
             <Text style={styles.footnote}>{m.practice.footnote}</Text>
             <Button title={m.practice.back} variant="secondary" onPress={close} />
@@ -112,20 +114,9 @@ function Chips({ options, selected, onSelect }: ChipsProps) {
   const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.chips} accessibilityRole="radiogroup">
-      {options.map((o) => {
-        const isSelected = o.key === selected;
-        return (
-          <Pressable
-            key={o.key}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: isSelected }}
-            onPress={() => onSelect(o.key)}
-            style={[styles.chip, isSelected && styles.chipSelected]}
-          >
-            <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>{o.label}</Text>
-          </Pressable>
-        );
-      })}
+      {options.map((o) => (
+        <Chip key={o.key} label={o.label} selected={o.key === selected} onPress={() => onSelect(o.key)} />
+      ))}
     </View>
   );
 }
@@ -135,27 +126,8 @@ const makeStyles = (c: Palette) =>
     root: { flex: 1, backgroundColor: c.background },
     menu: { padding: spacing(4), gap: spacing(4) },
     title: { fontSize: 26, fontWeight: '700', color: c.text, ...c.heading },
-    card: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     cardTitle: { fontSize: 18, fontWeight: '600', color: c.text, ...c.heading },
     body: { color: c.muted, lineHeight: 20 },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
-    chip: {
-      paddingHorizontal: spacing(3),
-      paddingVertical: spacing(2),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: c.border,
-      backgroundColor: c.background,
-    },
-    chipSelected: { backgroundColor: c.accent, borderColor: c.accent },
-    chipText: { color: c.text },
-    chipTextSelected: { color: c.accentText, fontWeight: '600' },
     footnote: { color: c.muted, fontSize: 13, textAlign: 'center' },
   });

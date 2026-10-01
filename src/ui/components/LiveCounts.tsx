@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { formatSince } from '@domain/signals/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -21,7 +22,7 @@ export function LiveCounts({ counts, today }: { counts: LiveCount[]; today: stri
   if (counts.length === 0) return null;
 
   return (
-    <View style={styles.card}>
+    <Card style={styles.card}>
       {counts.map((c, i) => (
         <View
           key={c.unit}
@@ -38,20 +39,13 @@ export function LiveCounts({ counts, today }: { counts: LiveCount[]; today: stri
           <Text style={styles.subtitle}>{c.usual ?? m.checkin.savedWithNext}</Text>
         </View>
       ))}
-    </View>
+    </Card>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    card: {
-      flexDirection: 'row',
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      paddingVertical: spacing(3),
-      borderWidth: 1,
-      borderColor: c.border,
-    },
+    card: { flexDirection: 'row', paddingVertical: spacing(3), paddingHorizontal: 0, gap: 0 },
     block: { flex: 1, paddingHorizontal: spacing(4) },
     divider: { borderLeftWidth: 1, borderLeftColor: c.border },
     valueRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },

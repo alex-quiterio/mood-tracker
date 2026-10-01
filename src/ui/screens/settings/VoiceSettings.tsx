@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@ui/components/Button';
+import { Card } from '@ui/components/Card';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
 import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { MOODS } from '@domain/checkins/types';
@@ -39,7 +40,7 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
   const usingCustom = (customQuotes[voice.id]?.length ?? 0) > 0;
 
   return (
-    <View style={styles.section}>
+    <Card>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded }}
@@ -107,7 +108,7 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
         settings={settings}
         onClose={() => setEditing(false)}
       />
-    </View>
+    </Card>
   );
 }
 
@@ -174,14 +175,6 @@ function QuoteEditor({ visible, voiceId, settings, onClose }: EditorProps) {
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    section: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
     header: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
     headerText: { flex: 1 },

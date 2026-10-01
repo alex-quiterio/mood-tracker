@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
 import { BreathingModal } from '@ui/components/BreathingModal';
 import { QuoteCard } from '@ui/components/QuoteCard';
 import { Button } from '@ui/components/Button';
@@ -117,7 +118,7 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
         {date === today && <LiveCounts counts={liveCounts} today={today} />}
 
         {offerBreath && (
-          <View style={styles.comfort}>
+          <Card accent>
             <Text style={styles.comfortText}>{voice.comfort}</Text>
             <View style={styles.comfortActions}>
               <View style={styles.flex}>
@@ -133,7 +134,7 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
                 <Button title={m.common.notNow} variant="secondary" onPress={() => setOfferBreath(false)} />
               </View>
             </View>
-          </View>
+          </Card>
         )}
 
         <View style={styles.dayStrip}>
@@ -271,7 +272,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, on
     sameLog(entry.habits, habitLog);
 
   return (
-    <View style={[styles.card, styles.cardOpen]}>
+    <Card accent>
       <View style={styles.cardHeader}>
         <Text style={styles.slotTitle}>{voice.slotLabels[slot]}</Text>
         {mood !== null && <Text style={styles.muted}>{voice.moodLabels[mood]}</Text>}
@@ -297,7 +298,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, on
           <Text style={styles.removeText}>{m.checkin.removeLink}</Text>
         </Pressable>
       )}
-    </View>
+    </Card>
   );
 }
 
@@ -343,14 +344,6 @@ const makeStyles = (c: Palette) =>
       paddingVertical: spacing(1),
     },
     streakText: { color: c.text, fontSize: 13, fontWeight: '600' },
-    comfort: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.accent,
-      gap: spacing(3),
-    },
     comfortText: { color: c.text, fontSize: 15, lineHeight: 21 },
     comfortActions: { flexDirection: 'row', gap: spacing(2) },
     dayStrip: { flexDirection: 'row', gap: spacing(1), marginBottom: spacing(1) },
@@ -376,7 +369,6 @@ const makeStyles = (c: Palette) =>
       borderColor: c.border,
       gap: spacing(3),
     },
-    cardOpen: { borderColor: c.accent },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     slotTitle: { fontSize: 18, fontWeight: '600', color: c.text, ...c.heading },
     muted: { color: c.muted },

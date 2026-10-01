@@ -1,13 +1,7 @@
 import { unlockStats } from '@modules/unlock-stats';
 import { loadUnlockCheckpoint, saveUnlockCheckpoint } from '@infrastructure/storage/checkpoints';
 import { Entry } from '@domain/checkins/types';
-import {
-  CountPreview,
-  WindowedCounter,
-  previewCount,
-  windowStart,
-  withCount,
-} from '@domain/signals/windowedCount';
+import { WindowedCounter, previewCount, windowStart, withCount } from '@domain/signals/windowedCount';
 
 export { isLiveCheckIn } from '@domain/signals/windowedCount';
 

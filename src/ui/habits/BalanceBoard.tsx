@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
 import { WeekBalance, compareWithLastWeek, formatPoints } from '@domain/habits/balance';
 import { weekdayShort } from '@domain/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -30,15 +31,15 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
 
   if (!week.days.some((d) => d.logged)) {
     return (
-      <View style={styles.card}>
+      <Card>
         <Text style={styles.title}>{m.balance.title}</Text>
         <Text style={styles.muted}>{m.balance.empty}</Text>
-      </View>
+      </Card>
     );
   }
 
   return (
-    <View style={styles.card}>
+    <Card>
       <View style={styles.heroRow}>
         <View style={styles.flex}>
           <Text style={styles.title}>{m.balance.title}</Text>
@@ -106,7 +107,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
           ? m.balance.dayDetail(day(picked.date), picked.light, picked.heavy, formatPoints(picked.net))
           : (comparison ?? m.balance.tapDay)}
       </Text>
-    </View>
+    </Card>
   );
 }
 
@@ -122,14 +123,6 @@ function Legend({ color, label }: { color: string; label: string }) {
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    card: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     flex: { flex: 1 },
     title: { fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
     muted: { color: c.muted, fontSize: 13 },

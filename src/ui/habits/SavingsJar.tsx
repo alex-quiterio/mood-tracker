@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
 import { Habit } from '@domain/habits/habits';
 import { formatEuros, savingsMilestone } from '@domain/habits/insights';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
@@ -16,7 +17,7 @@ export function SavingsJar({ week, total, habits }: Props) {
   const { reached, next, progress } = savingsMilestone(total, locale);
 
   return (
-    <View style={styles.card}>
+    <Card style={styles.card}>
       <View style={styles.jar} accessibilityLabel={m.savings.jarA11y(Math.round(progress * 100))}>
         <View style={[styles.fill, { height: `${Math.round(Math.min(1, progress) * 100)}%` }]} />
         <Text style={styles.jarEmoji}>🫙</Text>
@@ -40,22 +41,13 @@ export function SavingsJar({ week, total, habits }: Props) {
           <Text style={styles.body}>{m.savings.setUsual}</Text>
         )}
       </View>
-    </View>
+    </Card>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    card: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing(4),
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-    },
+    card: { flexDirection: 'row', alignItems: 'center', gap: spacing(4) },
     jar: {
       width: 56,
       height: 72,

@@ -3,8 +3,9 @@ import { Alert, AppState, Linking, PermissionsAndroid, StyleSheet, Switch, Text,
 
 import { stepCounter } from '@modules/step-counter';
 import { Button } from '@ui/components/Button';
+import { Card } from '@ui/components/Card';
 import { startStepRecording } from '@infrastructure/signals/steps';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
+import { Palette, useColors, useThemedStyles } from '@ui/theme/theme';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { Messages } from '@domain/i18n/messages';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -65,7 +66,7 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
   };
 
   return (
-    <View style={styles.section}>
+    <Card>
       <View style={styles.switchRow}>
         <Text style={styles.title}>{m.stepSettings.title}</Text>
         <Switch
@@ -87,20 +88,12 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
           />
         </>
       )}
-    </View>
+    </Card>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    section: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
     body: { color: c.muted, lineHeight: 20 },

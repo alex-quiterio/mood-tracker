@@ -8,6 +8,8 @@ import {
   activeHabits,
   toggleOption,
 } from '@domain/habits/habits';
+import { Chip } from '@ui/components/Chip';
+import { RoundButton } from '@ui/components/RoundButton';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { useLocale } from '@ui/i18n/LocaleContext';
 
@@ -61,9 +63,9 @@ export function HabitLogger({ habits, log, onChange }: Props) {
             >
               <Text style={[styles.approxText, dose?.approx && styles.approxTextOn]}>{m.habits.roughly}</Text>
             </Pressable>
-            <Step
+            <RoundButton
               label="−"
-              hint={m.habits.fewer(h.unit || h.name)}
+              accessibilityLabel={m.habits.fewer(h.unit || h.name)}
               onPress={() => setDose(h.id, dose ? dose.count - 1 : 0)}
               disabled={dose?.count === 0}
             />
@@ -78,9 +80,9 @@ export function HabitLogger({ habits, log, onChange }: Props) {
                 {!dose ? '–' : dose.count === 0 ? '🌱' : dose.count}
               </Text>
             </Pressable>
-            <Step
+            <RoundButton
               label="+"
-              hint={m.habits.moreOf(h.unit || h.name)}
+              accessibilityLabel={m.habits.moreOf(h.unit || h.name)}
               onPress={() => setDose(h.id, (dose?.count ?? 0) + 1)}
             />
           </View>
@@ -93,9 +95,10 @@ export function HabitLogger({ habits, log, onChange }: Props) {
           .filter((h) => !h.options?.length)
           .map((h) => (
             <Chip
+              role="checkbox"
               key={h.id}
               label={`${h.emoji} ${h.name}`}
-              on={log.did.includes(h.id)}
+              selected={log.did.includes(h.id)}
               onPress={() => toggleDid(h.id)}
             />
           ))}
@@ -110,9 +113,10 @@ export function HabitLogger({ habits, log, onChange }: Props) {
             <View style={styles.chips}>
               {h.options!.map((o) => (
                 <Chip
+                  role="checkbox"
                   key={o.id}
                   label={`${o.emoji} ${o.label}`}
-                  on={log.chosen?.[h.id]?.includes(o.id) ?? false}
+                  selected={log.chosen?.[h.id]?.includes(o.id) ?? false}
                   onPress={() => onChange(toggleOption(log, h.id, o.id))}
                 />
               ))}
@@ -129,46 +133,6 @@ export function HabitLogger({ habits, log, onChange }: Props) {
         maxLength={INSTEAD_MAX_LENGTH}
       />
     </View>
-  );
-}
-
-function Step({
-  label,
-  hint,
-  onPress,
-  disabled,
-}: {
-  label: string;
-  hint: string;
-  onPress: () => void;
-  disabled?: boolean;
-}) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={hint}
-      onPress={onPress}
-      disabled={disabled}
-      hitSlop={6}
-      style={({ pressed }) => [styles.step, (pressed || disabled) && styles.dimmed]}
-    >
-      <Text style={styles.stepText}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: on }}
-      onPress={onPress}
-      style={[styles.chip, on && styles.chipOn]}
-    >
-      <Text style={[styles.chipText, on && styles.chipTextOn]}>{label}</Text>
-    </Pressable>
   );
 }
 
@@ -196,32 +160,9 @@ const makeStyles = (c: Palette) =>
     approxText: { fontSize: 11, color: c.muted },
     approxTextOn: { color: c.accentText },
     hidden: { opacity: 0 },
-    step: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: c.border,
-      backgroundColor: c.background,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    stepText: { fontSize: 18, lineHeight: 20, color: c.accent, fontWeight: '600' },
-    dimmed: { opacity: 0.35 },
     countBox: { width: 34, alignItems: 'center' },
     count: { fontSize: 17, fontWeight: '700', color: c.text, fontVariant: ['tabular-nums'] },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
-    chip: {
-      paddingHorizontal: spacing(3),
-      paddingVertical: spacing(1.5),
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: c.border,
-      backgroundColor: c.background,
-    },
-    chipOn: { backgroundColor: c.accent, borderColor: c.accent },
-    chipText: { color: c.text, fontSize: 14 },
-    chipTextOn: { color: c.accentText, fontWeight: '600' },
     optionGroup: { gap: spacing(1.5) },
     optionTitle: { fontSize: 14, color: c.text },
     instead: {

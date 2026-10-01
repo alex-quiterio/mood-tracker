@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
+import { RoundButton } from '@ui/components/RoundButton';
 import {
   disableReminders,
   enableReminders,
@@ -54,7 +56,7 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
   };
 
   return (
-    <View style={styles.section}>
+    <Card>
       <View style={styles.switchRow}>
         <Text style={styles.title}>{m.reminders.title}</Text>
         <Switch
@@ -73,9 +75,9 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
               <Text style={styles.slot}>{m.slots[slot]}</Text>
               <Text style={styles.range}>{formatRange(slot)}</Text>
             </View>
-            <StepButton
+            <RoundButton
               label="−"
-              hint={m.reminders.earlier(m.slots[slot])}
+              accessibilityLabel={m.reminders.earlier(m.slots[slot])}
               disabled={!canShift(slot, time, -1)}
               onPress={() => shift(slot, -1)}
             />
@@ -85,55 +87,21 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
             >
               {formatTime(time)}
             </Text>
-            <StepButton
+            <RoundButton
               label="+"
-              hint={m.reminders.later(m.slots[slot])}
+              accessibilityLabel={m.reminders.later(m.slots[slot])}
               disabled={!canShift(slot, time, 1)}
               onPress={() => shift(slot, 1)}
             />
           </View>
         );
       })}
-    </View>
-  );
-}
-
-function StepButton({
-  label,
-  hint,
-  disabled,
-  onPress,
-}: {
-  label: string;
-  hint: string;
-  disabled: boolean;
-  onPress: () => void;
-}) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={hint}
-      disabled={disabled}
-      onPress={onPress}
-      hitSlop={6}
-      style={({ pressed }) => [styles.stepButton, (pressed || disabled) && styles.dimmed]}
-    >
-      <Text style={styles.stepText}>{label}</Text>
-    </Pressable>
+    </Card>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    section: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
     timeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
@@ -149,16 +117,4 @@ const makeStyles = (c: Palette) =>
       fontVariant: ['tabular-nums'],
     },
     timeOff: { color: c.muted },
-    stepButton: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      borderWidth: 1,
-      borderColor: c.border,
-      backgroundColor: c.background,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    stepText: { fontSize: 20, lineHeight: 22, color: c.accent, fontWeight: '600' },
-    dimmed: { opacity: 0.35 },
   });

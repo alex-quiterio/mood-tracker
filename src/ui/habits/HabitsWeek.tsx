@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@ui/components/Card';
 import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
@@ -32,7 +33,7 @@ export function HabitsWeek({ entries, habits, today }: { entries: Entry[]; habit
         total={totalSavings(entries, habits)}
         habits={habits}
       />
-      <View style={styles.card}>
+      <Card>
         {week.map((w) => (
           <View key={w.habit.id} style={styles.line}>
             <Text style={styles.text}>{describeHabitWeek(w, locale)}</Text>
@@ -56,7 +57,7 @@ export function HabitsWeek({ entries, habits, today }: { entries: Entry[]; habit
             ))}
           </View>
         )}
-      </View>
+      </Card>
     </View>
   );
 }
@@ -64,14 +65,6 @@ export function HabitsWeek({ entries, habits, today }: { entries: Entry[]; habit
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     root: { gap: spacing(3) },
-    card: {
-      backgroundColor: c.surface,
-      borderRadius: 16,
-      padding: spacing(4),
-      borderWidth: 1,
-      borderColor: c.border,
-      gap: spacing(3),
-    },
     line: { gap: 2 },
     text: { color: c.text, fontSize: 14 },
     muted: { color: c.muted, fontSize: 12 },

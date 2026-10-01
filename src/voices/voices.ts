@@ -3,7 +3,17 @@ import { createContext, useContext } from 'react';
 import { DEFAULT_QUOTES } from './quotes';
 import { MOOD_EMOJI, MOOD_LABEL, Mood, SLOT_LABEL, Slot } from '../data/types';
 
-export const VOICE_IDS = ['plain', 'laoTzu', 'marcus', 'seneca', 'rumi', 'kabir', 'patanjali'] as const;
+export const VOICE_IDS = [
+  'plain',
+  'laoTzu',
+  'marcus',
+  'seneca',
+  'rumi',
+  'kabir',
+  'patanjali',
+  'lorde',
+  'capra',
+] as const;
 export type VoiceId = (typeof VOICE_IDS)[number];
 
 export type Quote = { text: string; source?: string };
@@ -30,6 +40,8 @@ export type Voice = {
   breathDone: string;
   /** Claude prompt: who to reflect as, and what to ask for. */
   claude: { intro: string; ask: string };
+  /** Why a voice has no built-in quotes, e.g. the author's work is still under copyright. */
+  quotesNote?: string;
 };
 
 export const VOICES: Record<VoiceId, Voice> = {
@@ -185,6 +197,54 @@ export const VOICES: Record<VoiceId, Voice> = {
         'Reflect on my week in the spirit of the Yoga Sutras of Patanjali: patient and non-judgmental, treating each mood as a movement of the mind to observe.',
       ask: 'What patterns do you notice ({signals}the notes, the time of day)? Gently point out where steady practice (abhyasa) helped and where letting go (vairagya) might. Suggest one small practice for next week. Keep it short.',
     },
+  },
+
+  lorde: {
+    id: 'lorde',
+    name: 'Audre Lorde',
+    tagline: 'Feeling is a way of knowing',
+    moodLabels: { 1: 'Depleted', 2: 'Guarded', 3: 'Present', 4: 'Grounded', 5: 'Alive' },
+    moodEmoji: { 1: '🌧️', 2: '🛡️', 3: '🕯️', 4: '🌳', 5: '🔥' },
+    slotLabels: SLOT_LABEL,
+    notePrompts: {
+      morning: 'What do you need to care for yourself today?',
+      afternoon: 'What is your body telling you right now?',
+      evening: 'What did you say today, and what did you leave unsaid?',
+    },
+    burst: { high: ['🔥', '🌳', '✨'], mid: ['🕯️'] },
+    comfort: 'Caring for yourself is not a luxury. Three slow breaths, just for you?',
+    breathDone: 'You are worth this care 🕯️',
+    claude: {
+      intro:
+        'Reflect on my week in the spirit of Audre Lorde: direct, warm and unflinching, treating my feelings as a source of knowledge and caring for myself as necessary, not indulgent.',
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Name what my feelings might be telling me, plainly and without softening it into nothing. Suggest one small act of self-care for next week. Keep it short.',
+    },
+    quotesNote:
+      'Audre Lorde’s writing is still under copyright, so this voice has no built-in quotes. Add lines you love with “Edit quotes”.',
+  },
+
+  capra: {
+    id: 'capra',
+    name: 'Fritjof Capra',
+    tagline: 'Everything is connected',
+    moodLabels: { 1: 'Disconnected', 2: 'Tangled', 3: 'Balanced', 4: 'Flowing', 5: 'In resonance' },
+    moodEmoji: { 1: '🍂', 2: '🌀', 3: '🌿', 4: '🌐', 5: '✨' },
+    slotLabels: SLOT_LABEL,
+    notePrompts: {
+      morning: 'What are you connected to today?',
+      afternoon: 'What patterns are you part of right now?',
+      evening: 'How did your day ripple out to others?',
+    },
+    burst: { high: ['🌐', '🌿', '✨'], mid: ['🌿'] },
+    comfort: 'You are part of a larger web, even now. Three slow breaths?',
+    breathDone: 'Connected, breath by breath 🌿',
+    claude: {
+      intro:
+        'Reflect on my week in the spirit of Fritjof Capra: as a systems thinker, seeing my moods as part of a web of relationships, rhythms and feedback loops.',
+      ask: 'What patterns and feedback loops do you notice ({signals}the notes, the time of day, how one part of my day shapes the next)? Suggest one small change that could ripple through the whole system next week. Keep it short.',
+    },
+    quotesNote:
+      'Fritjof Capra’s books are still under copyright, so this voice has no built-in quotes. Add lines you love with “Edit quotes”.',
   },
 };
 

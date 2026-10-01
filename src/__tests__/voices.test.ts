@@ -24,7 +24,9 @@ describe('voices', () => {
     expect(v.claude.ask.match(/\{signals\}/g)).toHaveLength(1);
   });
 
-  it.each(VOICE_IDS.filter((id) => id !== 'plain'))('%s has sourced default quotes', (id) => {
+  const withQuotes = VOICE_IDS.filter((id) => id !== 'plain' && !VOICES[id].quotesNote);
+
+  it.each(withQuotes)('%s has sourced default quotes', (id) => {
     expect(DEFAULT_QUOTES[id].length).toBeGreaterThanOrEqual(5);
     for (const q of DEFAULT_QUOTES[id]) {
       expect(q.text.length).toBeLessThanOrEqual(220);
@@ -47,6 +49,13 @@ describe('voices', () => {
     expect(prompt).toContain(
       'What patterns do you notice (time of day, days of the week, anything in the notes)?',
     );
+  });
+});
+
+describe('voices without built-in quotes', () => {
+  it.each(VOICE_IDS.filter((id) => VOICES[id].quotesNote))('%s explains why and has none', (id) => {
+    expect(DEFAULT_QUOTES[id]).toEqual([]);
+    expect(VOICES[id].quotesNote).toMatch(/copyright/);
   });
 });
 

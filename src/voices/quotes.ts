@@ -210,4 +210,8 @@ export const DEFAULT_QUOTES: Record<VoiceId, Quote[]> = {
       source: `Yoga Sutras, II.47 (${JOHNSTON})`,
     },
   ],
+
+  // Still under copyright: no built-in quotes (see each voice's quotesNote).
+  lorde: [],
+  capra: [],
 };

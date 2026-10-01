@@ -82,7 +82,7 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
           <View style={styles.quotesRow}>
             <Text style={styles.body}>
               {voice.quotes.length === 0
-                ? 'No quotes yet for this voice.'
+                ? (voice.quotesNote ?? 'No quotes yet for this voice.')
                 : `${voice.quotes.length} quotes · ${usingCustom ? 'your own' : 'defaults'}`}
             </Text>
           </View>

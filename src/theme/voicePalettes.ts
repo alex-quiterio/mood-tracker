@@ -244,6 +244,80 @@ export const VOICE_LOOKS: Record<Exclude<VoiceId, 'plain'>, VoiceLook> = {
     moodColors: { 1: '#CDB8AD', 2: '#DCC4B3', 3: '#E9D8BC', 4: '#F1CDC8', 5: '#F3BECB' },
     heading: { fontFamily: 'serif' },
   },
+  // Bold and warm: deep berry on earth tones; moods grow from rain to fire.
+  lorde: {
+    modes: {
+      light: {
+        background: '#F6EFE9',
+        surface: '#FFFFFF',
+        text: '#1F1418',
+        muted: '#6E5A62',
+        border: '#E6D7D3',
+        accent: '#9E1F4F',
+        accentText: '#FFFFFF',
+        danger: '#A3261E',
+      },
+      dim: {
+        background: '#33282C',
+        surface: '#3F3237',
+        text: '#F5EDEF',
+        muted: '#C6B3BA',
+        border: '#57474D',
+        accent: '#F09BB9',
+        accentText: '#1F1418',
+        danger: '#FFB4AB',
+      },
+      dark: {
+        background: '#120C0E',
+        surface: '#1D1417',
+        text: '#F0E6E9',
+        muted: '#A6939A',
+        border: '#2E2226',
+        accent: '#E886A9',
+        accentText: '#120C0E',
+        danger: '#FF8A80',
+      },
+    },
+    moodColors: { 1: '#C2B4BC', 2: '#D3C0C4', 3: '#E6D3C2', 4: '#C9D8A6', 5: '#F2B17A' },
+    heading: {},
+  },
+  // Forest, leaf and sky: the web of life; moods move from fallen leaves to open sky.
+  capra: {
+    modes: {
+      light: {
+        background: '#EFF3EE',
+        surface: '#FFFFFF',
+        text: '#14211B',
+        muted: '#5B6A62',
+        border: '#D5DFD6',
+        accent: '#2F6B4F',
+        accentText: '#FFFFFF',
+        danger: '#A3261E',
+      },
+      dim: {
+        background: '#26332E',
+        surface: '#313F39',
+        text: '#EBF2EE',
+        muted: '#B0C2B8',
+        border: '#465850',
+        accent: '#8FD3B0',
+        accentText: '#14211B',
+        danger: '#FFB4AB',
+      },
+      dark: {
+        background: '#0B1310',
+        surface: '#141E1A',
+        text: '#E4EEE9',
+        muted: '#90A399',
+        border: '#22302A',
+        accent: '#6CC59B',
+        accentText: '#0B1310',
+        danger: '#FF8A80',
+      },
+    },
+    moodColors: { 1: '#C3BBA8', 2: '#C2C8D6', 3: '#B9D9B6', 4: '#9FD3C9', 5: '#A9C8F0' },
+    heading: {},
+  },
 };
 
 export { ON_MOOD };

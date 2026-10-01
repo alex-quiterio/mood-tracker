@@ -1,25 +1,25 @@
 import { unlockStats } from '../modules/unlock-stats';
-import { localDate, slotForTime, weekdayShort } from './dates';
+import { localDate, weekdayShort } from './dates';
 import { loadUnlockCheckpoint, saveUnlockCheckpoint } from './storage';
-import { Entry, Slot } from './types';
+import { Entry } from './types';
+import { CountPreview, WindowedCounter, previewCount, windowStart, withCount } from './windowedCount';
+
+export { isLiveCheckIn } from './windowedCount';
 
 /** Android keeps usage events for roughly a week; older windows would undercount. */
 const MAX_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
-/** A live check-in is today's entry for the slot matching the current time. Only those get unlock counts. */
-export function isLiveCheckIn(date: string, slot: Slot, now: Date): boolean {
-  return date === localDate(now) && slot === slotForTime(now);
-}
+const unlockCounter: WindowedCounter = {
+  countKey: 'unlocks',
+  fromKey: 'unlocksFrom',
+  maxWindowMs: MAX_WINDOW_MS,
+  loadCheckpoint: () => loadUnlockCheckpoint(),
+  saveCheckpoint: (at) => saveUnlockCheckpoint(at),
+  count: (start, end) => unlockStats.countUnlocks(start, end),
+};
 
-/**
- * Where the unlock window starts: the last checkpoint, or the start of today when
- * there is none. Null when the checkpoint is too old for the event log to cover.
- */
-export function unlockWindowStart(checkpoint: Date | null, now: Date): Date | null {
-  if (!checkpoint) return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (now.getTime() - checkpoint.getTime() > MAX_WINDOW_MS) return null;
-  return checkpoint;
-}
+export const unlockWindowStart = (checkpoint: Date | null, now: Date) =>
+  windowStart(checkpoint, now, MAX_WINDOW_MS);
 
 /** "21:00" when `from` is on `day`, otherwise "Tue 21:00". */
 export function formatSince(from: Date, day: string): string {
@@ -32,48 +32,15 @@ export function formatUnlocksSince(entry: Pick<Entry, 'date' | 'unlocksFrom'>): 
   return entry.unlocksFrom ? formatSince(new Date(entry.unlocksFrom), entry.date) : '';
 }
 
-export type UnlockPreview = { count: number; from: Date };
+export type UnlockPreview = CountPreview;
 
 /** Unlocks so far in the current window, i.e. what the next live check-in would record. */
-export async function previewUnlocks(now: Date = new Date()): Promise<UnlockPreview | null> {
-  try {
-    const from = unlockWindowStart(await loadUnlockCheckpoint(), now);
-    if (!from) return null;
-    const count = await unlockStats.countUnlocks(from, now);
-    return count === null ? null : { count, from };
-  } catch {
-    return null;
-  }
-}
+export const previewUnlocks = (now: Date = new Date()) => previewCount(unlockCounter, now);
 
-/**
- * Adds the unlock count to an entry being saved. Edits keep the count from the
- * first save (even with tracking off), so re-saving never shrinks its window.
- * Never throws: a failed count just leaves the entry without one.
- */
-export async function withUnlocks(
+/** Adds the unlock count to an entry being saved; see `withCount`. */
+export const withUnlocks = (
   entry: Entry,
   existing: Entry | undefined,
   trackUnlocks: boolean,
   now: Date = new Date(),
-): Promise<Entry> {
-  if (existing?.unlocks !== undefined) {
-    return { ...entry, unlocks: existing.unlocks, unlocksFrom: existing.unlocksFrom };
-  }
-  if (!trackUnlocks || !isLiveCheckIn(entry.date, entry.slot, now)) return entry;
-  try {
-    const start = unlockWindowStart(await loadUnlockCheckpoint(), now);
-    if (!start) {
-      // Too long since the last count to trust the log; start fresh from now.
-      await saveUnlockCheckpoint(now);
-      return entry;
-    }
-    const count = await unlockStats.countUnlocks(start, now);
-    // No usage access: keep the checkpoint so the count resumes once access is back.
-    if (count === null) return entry;
-    await saveUnlockCheckpoint(now);
-    return { ...entry, unlocks: count, unlocksFrom: start.toISOString() };
-  } catch {
-    return entry;
-  }
-}
+) => withCount(unlockCounter, entry, existing, trackUnlocks, now);

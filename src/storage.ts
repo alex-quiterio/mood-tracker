@@ -8,7 +8,9 @@ import { Entry } from './types';
 const ENTRIES_KEY = 'mood-tracker:entries:v1';
 const SETTINGS_KEY = 'mood-tracker:settings:v1';
 const UNLOCK_CHECKPOINT_KEY = 'mood-tracker:unlock-checkpoint:v1';
-const STEP_CHECKPOINT_KEY = 'mood-tracker:step-checkpoint:v1';
+// v2: a timestamp. v1 held a raw sensor reading from 1.2.0 and is ignored.
+const STEP_CHECKPOINT_KEY = 'mood-tracker:step-checkpoint:v2';
+const STEPS_V2_MIGRATION_KEY = 'mood-tracker:migration:steps-v2';
 
 export type Settings = {
   remindersEnabled: boolean;
@@ -85,21 +87,33 @@ export async function saveUnlockCheckpoint(at: Date): Promise<void> {
   await AsyncStorage.setItem(UNLOCK_CHECKPOINT_KEY, at.toISOString());
 }
 
-/** The step counter reading at the last count; the next live check-in counts from here. */
-export type StepCheckpoint = { steps: number; bootTime: number; at: string };
-
-export async function loadStepCheckpoint(): Promise<StepCheckpoint | null> {
+/** When steps were last counted up to; the next live check-in counts from here. */
+export async function loadStepCheckpoint(): Promise<Date | null> {
   const raw = await AsyncStorage.getItem(STEP_CHECKPOINT_KEY);
-  if (!raw) return null;
-  const v = JSON.parse(raw) as Partial<StepCheckpoint>;
-  const valid =
-    typeof v.steps === 'number' &&
-    typeof v.bootTime === 'number' &&
-    typeof v.at === 'string' &&
-    !Number.isNaN(Date.parse(v.at));
-  return valid ? (v as StepCheckpoint) : null;
+  return raw && !Number.isNaN(Date.parse(raw)) ? new Date(raw) : null;
 }
 
-export async function saveStepCheckpoint(checkpoint: StepCheckpoint): Promise<void> {
-  await AsyncStorage.setItem(STEP_CHECKPOINT_KEY, JSON.stringify(checkpoint));
+export async function saveStepCheckpoint(at: Date): Promise<void> {
+  await AsyncStorage.setItem(STEP_CHECKPOINT_KEY, at.toISOString());
+}
+
+/**
+ * 1.2.0 read the raw step sensor, which only counts while an app listens to it,
+ * so every step count it saved is a bogus 0. Drops those counts, keeping the rest.
+ */
+export function dropBrokenStepCounts(entries: Entry[]): Entry[] {
+  return entries.map((e) => {
+    if (e.steps === undefined) return e;
+    const { steps: _steps, stepsFrom: _stepsFrom, ...rest } = e;
+    return rest;
+  });
+}
+
+/** One-time fixes to stored entries, each run once per install. */
+export async function migrateEntries(entries: Entry[]): Promise<Entry[]> {
+  if (await AsyncStorage.getItem(STEPS_V2_MIGRATION_KEY)) return entries;
+  const fixed = dropBrokenStepCounts(entries);
+  await saveEntries(fixed);
+  await AsyncStorage.setItem(STEPS_V2_MIGRATION_KEY, new Date().toISOString());
+  return fixed;
 }

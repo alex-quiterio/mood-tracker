@@ -3,96 +3,104 @@ package expo.modules.stepcounter
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.fitness.FitnessLocal
+import com.google.android.gms.fitness.LocalRecordingClient
+import com.google.android.gms.fitness.data.LocalBucket
+import com.google.android.gms.fitness.data.LocalDataPoint
+import com.google.android.gms.fitness.data.LocalDataSet
+import com.google.android.gms.fitness.data.LocalDataType
+import com.google.android.gms.fitness.data.LocalField
+import com.google.android.gms.fitness.request.LocalDataReadRequest
+import com.google.android.gms.fitness.result.LocalDataReadResponse
 import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.TimeUnit
 
 /**
- * Reads the hardware step counter (TYPE_STEP_COUNTER): total steps since the
- * phone last booted. The sensor counts even while the app is closed, so the app
- * only needs to read it at check-in time and subtract the previous reading.
+ * Steps from Google Play services' Recording API on mobile. Once subscribed, Play
+ * services records steps in the background (battery-efficiently, no account) and
+ * keeps up to 10 days, so the app can ask for the steps between any two times.
+ *
+ * The raw hardware step counter can't do this: it only counts while some app
+ * keeps listening to it.
  */
 class StepCounterModule : Module() {
   private val context: Context
     get() = appContext.reactContext ?: throw IllegalStateException("React context is not available")
 
-  private val sensorManager: SensorManager?
-    get() = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+  private val client: LocalRecordingClient
+    get() = FitnessLocal.getLocalRecordingClient(context)
 
   override fun definition() = ModuleDefinition {
     Name("StepCounter")
 
+    // Needs a recent enough Google Play services.
     Function("isSupported") {
-      sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null
+      isSupported()
     }
 
     // Android 10+ needs the "Physical activity" runtime permission; JS requests it.
     Function("hasPermission") {
-      Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-        context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED
+      hasPermission()
     }
 
-    // Resolves { steps, bootTime } or null when unavailable or the sensor doesn't answer in time.
-    AsyncFunction("readAsync") { promise: Promise ->
-      read(promise)
+    // Starts (or renews) recording. Resolves false when unsupported, not permitted or refused.
+    AsyncFunction("subscribeAsync") { promise: Promise ->
+      if (!isSupported() || !hasPermission()) {
+        promise.resolve(false)
+        return@AsyncFunction
+      }
+      client.subscribe(LocalDataType.TYPE_STEP_COUNT_DELTA)
+        .addOnSuccessListener { promise.resolve(true) }
+        .addOnFailureListener { promise.resolve(false) }
+    }
+
+    // Steps between two times (ms since epoch), or null when they can't be read.
+    AsyncFunction("countStepsAsync") { startMs: Double, endMs: Double, promise: Promise ->
+      countSteps(startMs.toLong(), endMs.toLong(), promise)
     }
   }
 
-  private fun read(promise: Promise) {
-    val manager = sensorManager
-    val sensor = manager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-    if (manager == null || sensor == null) {
+  private fun isSupported(): Boolean =
+    GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+      context,
+      LocalRecordingClient.LOCAL_RECORDING_CLIENT_MIN_VERSION_CODE,
+    ) == ConnectionResult.SUCCESS
+
+  private fun hasPermission(): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+      context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED
+
+  private fun countSteps(startMs: Long, endMs: Long, promise: Promise) {
+    if (!isSupported() || !hasPermission()) {
       promise.resolve(null)
       return
     }
-    val done = AtomicBoolean(false)
-    val handler = Handler(Looper.getMainLooper())
-
-    val listener = object : SensorEventListener {
-      override fun onSensorChanged(event: SensorEvent) {
-        if (!done.compareAndSet(false, true)) return
-        manager.unregisterListener(this)
-        handler.removeCallbacksAndMessages(null)
-        promise.resolve(
-          mapOf(
-            "steps" to event.values[0].toDouble(),
-            "bootTime" to (System.currentTimeMillis() - SystemClock.elapsedRealtime()).toDouble(),
-          )
-        )
-      }
-
-      override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-    }
-
-    // On-change sensors report their current value right after registering.
-    val registered = try {
-      manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL, handler)
-    } catch (_: SecurityException) {
-      false
-    }
-    if (!registered) {
-      done.set(true)
-      promise.resolve(null)
+    if (endMs <= startMs) {
+      promise.resolve(0)
       return
     }
-    handler.postDelayed({
-      if (done.compareAndSet(false, true)) {
-        manager.unregisterListener(listener)
-        promise.resolve(null)
+    val request = LocalDataReadRequest.Builder()
+      .aggregate(LocalDataType.TYPE_STEP_COUNT_DELTA)
+      .bucketByTime(1, TimeUnit.DAYS)
+      .setTimeRange(startMs, endMs, TimeUnit.MILLISECONDS)
+      .build()
+    client.readData(request)
+      .addOnSuccessListener { response: LocalDataReadResponse ->
+        var steps = 0
+        for (bucket in response.buckets) {
+          for (set in (bucket as LocalBucket).dataSets) {
+            for (point in (set as LocalDataSet).dataPoints) {
+              steps += (point as LocalDataPoint).getValue(LocalField.FIELD_STEPS).asInt()
+            }
+          }
+        }
+        promise.resolve(steps)
       }
-    }, TIMEOUT_MS)
-  }
-
-  companion object {
-    private const val TIMEOUT_MS = 5000L
+      .addOnFailureListener { promise.resolve(null) }
   }
 }

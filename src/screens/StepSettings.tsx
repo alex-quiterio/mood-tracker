@@ -3,7 +3,7 @@ import { Alert, AppState, Linking, PermissionsAndroid, StyleSheet, Switch, Text,
 
 import { stepCounter } from '../../modules/step-counter';
 import { Button } from '../components/Button';
-import { resetStepCheckpoint } from '../steps';
+import { startStepRecording } from '../steps';
 import { Palette, spacing, useColors, useThemedStyles } from '../theme';
 import { SettingsStore } from '../useSettings';
 
@@ -12,7 +12,7 @@ async function ensurePermission(): Promise<boolean> {
   if (stepCounter.hasPermission()) return true;
   const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION, {
     title: 'Count your steps?',
-    message: 'Mood Tracker reads your phone’s step counter at each check-in. The count stays on this phone.',
+    message: 'Mood Tracker asks your phone for your steps at each check-in. The count stays on this phone.',
     buttonPositive: 'Allow',
     buttonNegative: 'Not now',
   });
@@ -52,8 +52,14 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
       const granted = await ensurePermission();
       setHasPermission(granted);
       if (!granted) return;
-      // Count from now, not from whenever tracking was last on.
-      await resetStepCheckpoint();
+      // Starts background recording, and counts from now rather than from when tracking was last on.
+      if (!(await startStepRecording())) {
+        Alert.alert(
+          'Could not start step counting',
+          'Google Play services did not start recording steps. Try again later.',
+        );
+        return;
+      }
       await settings.update({ trackSteps: true });
     } catch (e) {
       Alert.alert('Could not turn on step counting', String(e));
@@ -76,8 +82,8 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
       </View>
       <Text style={styles.body}>
         {supported
-          ? 'Counts your steps since your last check-in with the phone’s built-in step counter, and adds them to the stats and the Claude prompt. Only check-ins saved for the current time slot get a count. If the phone restarts in between, only the steps since the restart are counted.'
-          : 'Needs a phone with a step counter sensor and an installed build of the app (it does not work in Expo Go).'}
+          ? 'Counts your steps since your last check-in and adds them to the stats and the Claude prompt. Google Play services records the steps in the background, on this phone and without an account. Only check-ins saved for the current time slot get a count; steps are counted from when you turn this on.'
+          : 'Needs an up-to-date Google Play services and an installed build of the app (it does not work in Expo Go).'}
       </Text>
       {supported && enabled && !hasPermission && (
         <>

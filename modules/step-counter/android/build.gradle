@@ -16,3 +16,8 @@ android {
     abortOnError false
   }
 }
+
+dependencies {
+  // Recording API on mobile: background step recording by Google Play services.
+  implementation 'com.google.android.gms:play-services-fitness:21.2.0'
+}

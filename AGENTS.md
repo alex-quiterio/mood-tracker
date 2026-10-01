@@ -33,7 +33,7 @@ Run lint and typecheck before declaring any task done.
 - Pure logic lives in `src/*.ts` and is covered by `npm test`.
 - Voices (`src/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/quotes.ts`) must be verbatim from public-domain translations, with chapter and translator in `source`; never add quotes from memory.
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
-- `modules/step-counter` (Kotlin, Android only) reads `TYPE_STEP_COUNTER`, the hardware count of steps since boot. Steps between check-ins are the difference from a stored checkpoint (`src/steps.ts`); a lower reading or a changed boot time means the phone rebooted. Same optional-module rule as above.
+- `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/windowedCount.ts`. Same optional-module rule as above.
 
 ## Building with EAS
 

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+import { stepCounter } from './modules/step-counter';
 import { localDate } from './src/dates';
 import { configureNotificationHandler } from './src/reminders';
 import { CheckInScreen } from './src/screens/CheckInScreen';
@@ -68,6 +69,11 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const today = useToday();
   const [tab, setTab] = useState<TabKey>('checkin');
   const { trackUnlocks, trackSteps } = settings.settings;
+
+  // Renew background step recording on launch, in case Play services dropped the subscription.
+  useEffect(() => {
+    if (trackSteps) stepCounter.subscribe().catch(() => {});
+  }, [trackSteps]);
   const tracking = useMemo(() => ({ unlocks: trackUnlocks, steps: trackSteps }), [trackUnlocks, trackSteps]);
 
   return (

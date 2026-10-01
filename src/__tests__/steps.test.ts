@@ -1,156 +1,128 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import type { StepReading } from '../../modules/step-counter';
 import { parseEntry } from '../entries';
 import { buildReflectionPrompt } from '../prompt';
 import { describeSignals } from '../signals';
 import { weeklyStats } from '../stats';
-import {
-  checkpointFrom,
-  formatSteps,
-  formatStepsShort,
-  previewSteps,
-  resetStepCheckpoint,
-  stepsSince,
-  withSteps,
-} from '../steps';
-import type { StepCheckpoint } from '../storage';
+import { formatSteps, formatStepsShort, previewSteps, startStepRecording, withSteps } from '../steps';
 import { Entry } from '../types';
 import { VOICES } from '../voices';
 
-const mockRead = jest.fn<() => Promise<StepReading | null>>();
+const mockCountSteps = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
+const mockSubscribe = jest.fn<() => Promise<boolean>>();
 jest.mock('../../modules/step-counter', () => ({
-  stepCounter: { read: () => mockRead() },
+  stepCounter: {
+    countSteps: (start: Date, end: Date) => mockCountSteps(start, end),
+    subscribe: () => mockSubscribe(),
+  },
 }));
 
-let mockCheckpoint: StepCheckpoint | null = null;
+let mockCheckpoint: Date | null = null;
 jest.mock('../storage', () => ({
   loadStepCheckpoint: async () => mockCheckpoint,
-  saveStepCheckpoint: async (cp: StepCheckpoint) => {
-    mockCheckpoint = cp;
+  saveStepCheckpoint: async (at: Date) => {
+    mockCheckpoint = at;
   },
-  // unlocks.ts is imported for isLiveCheckIn; its storage calls aren't used here.
-  loadUnlockCheckpoint: async () => null,
-  saveUnlockCheckpoint: async () => {},
 }));
 
-const BOOT = Date.UTC(2026, 8, 28, 6, 0); // phone booted Mon 28 Sep
 const now = new Date(2026, 9, 1, 9, 30); // Thu 1 Oct 09:30 local: a morning check-in
 const lastCheckIn = new Date(2026, 8, 30, 21, 0); // Wed 21:00 local
 const base: Entry = { date: '2026-10-01', slot: 'morning', mood: 4, recordedAt: now.toISOString() };
-const cp = (steps: number, at = lastCheckIn, bootTime = BOOT): StepCheckpoint => ({
-  steps,
-  bootTime,
-  at: at.toISOString(),
-});
 
 beforeEach(() => {
-  mockRead.mockReset();
+  mockCountSteps.mockReset();
+  mockSubscribe.mockReset();
   mockCheckpoint = null;
 });
 
-describe('stepsSince', () => {
-  it('subtracts the checkpoint reading', () => {
-    expect(stepsSince(cp(10_000), { steps: 12_480, bootTime: BOOT })).toEqual({
-      steps: 2480,
-      from: lastCheckIn,
-    });
-  });
-
-  it('tolerates small boot-time wobble', () => {
-    expect(stepsSince(cp(10_000), { steps: 10_500, bootTime: BOOT + 30_000 }).steps).toBe(500);
-  });
-
-  it('counts since boot when the counter went backwards (reboot)', () => {
-    const bootTime = Date.UTC(2026, 9, 1, 5, 0);
-    expect(stepsSince(cp(10_000), { steps: 800, bootTime })).toEqual({
-      steps: 800,
-      from: new Date(bootTime),
-    });
-  });
-
-  it('counts since boot when the boot time changed, even if the counter is higher', () => {
-    const bootTime = Date.UTC(2026, 9, 1, 5, 0);
-    expect(stepsSince(cp(100), { steps: 900, bootTime })).toEqual({ steps: 900, from: new Date(bootTime) });
-  });
-
-  it('rounds the float the sensor reports', () => {
-    expect(stepsSince(cp(10.4), { steps: 20.6, bootTime: BOOT }).steps).toBe(10);
-  });
-});
-
 describe('withSteps', () => {
-  it('counts since the checkpoint and moves it to now', async () => {
-    mockCheckpoint = cp(10_000);
-    mockRead.mockResolvedValue({ steps: 12_480, bootTime: BOOT });
+  it('counts the steps between the checkpoint and now, then moves the checkpoint', async () => {
+    mockCheckpoint = lastCheckIn;
+    mockCountSteps.mockResolvedValue(2480);
     const entry = await withSteps(base, undefined, true, now);
     expect(entry).toMatchObject({ steps: 2480, stepsFrom: lastCheckIn.toISOString() });
-    expect(mockCheckpoint).toEqual(cp(12_480, now));
+    expect(mockCountSteps).toHaveBeenCalledWith(lastCheckIn, now);
+    expect(mockCheckpoint).toEqual(now);
   });
 
-  it('on the first count only sets the checkpoint', async () => {
-    mockRead.mockResolvedValue({ steps: 5_000, bootTime: BOOT });
-    expect(await withSteps(base, undefined, true, now)).toEqual(base);
-    expect(mockCheckpoint).toEqual(cp(5_000, now));
+  it('records a real zero', async () => {
+    mockCheckpoint = lastCheckIn;
+    mockCountSteps.mockResolvedValue(0);
+    expect(await withSteps(base, undefined, true, now)).toMatchObject({ steps: 0 });
+  });
+
+  it('counts from the start of today without a checkpoint', async () => {
+    mockCountSteps.mockResolvedValue(300);
+    const entry = await withSteps(base, undefined, true, now);
+    expect(mockCountSteps).toHaveBeenCalledWith(new Date(2026, 9, 1), now);
+    expect(entry.stepsFrom).toBe(new Date(2026, 9, 1).toISOString());
+  });
+
+  it('starts fresh, without a count, when the checkpoint is older than the recorded data', async () => {
+    mockCheckpoint = new Date(2026, 8, 20, 9, 0); // 11 days earlier
+    const entry = await withSteps(base, undefined, true, now);
+    expect(entry).not.toHaveProperty('steps');
+    expect(mockCountSteps).not.toHaveBeenCalled();
+    expect(mockCheckpoint).toEqual(now);
   });
 
   it('keeps the first count when an entry is edited, even with tracking off', async () => {
     const existing = { ...base, steps: 2480, stepsFrom: lastCheckIn.toISOString() };
     const entry = await withSteps({ ...base, mood: 2 }, existing, false, now);
     expect(entry).toMatchObject({ mood: 2, steps: 2480, stepsFrom: lastCheckIn.toISOString() });
-    expect(mockRead).not.toHaveBeenCalled();
+    expect(mockCountSteps).not.toHaveBeenCalled();
   });
 
   it('skips counting when off and for back-filled or other-slot entries', async () => {
-    mockRead.mockResolvedValue({ steps: 12_480, bootTime: BOOT });
+    mockCountSteps.mockResolvedValue(2480);
     expect(await withSteps(base, undefined, false, now)).toEqual(base);
     expect(await withSteps({ ...base, date: '2026-09-30' }, undefined, true, now)).not.toHaveProperty(
       'steps',
     );
     expect(await withSteps({ ...base, slot: 'evening' }, undefined, true, now)).not.toHaveProperty('steps');
-    expect(mockRead).not.toHaveBeenCalled();
+    expect(mockCountSteps).not.toHaveBeenCalled();
   });
 
-  it('keeps the checkpoint when there is no reading', async () => {
-    mockCheckpoint = cp(10_000);
-    mockRead.mockResolvedValue(null);
+  it('keeps the checkpoint when steps cannot be read', async () => {
+    mockCheckpoint = lastCheckIn;
+    mockCountSteps.mockResolvedValue(null);
     expect(await withSteps(base, undefined, true, now)).toEqual(base);
-    expect(mockCheckpoint).toEqual(cp(10_000));
+    expect(mockCheckpoint).toEqual(lastCheckIn);
   });
 
   it('never throws', async () => {
-    mockRead.mockRejectedValue(new Error('sensor exploded'));
+    mockCheckpoint = lastCheckIn;
+    mockCountSteps.mockRejectedValue(new Error('play services exploded'));
     expect(await withSteps(base, undefined, true, now)).toEqual(base);
   });
 });
 
-describe('previewSteps and resetStepCheckpoint', () => {
+describe('previewSteps and startStepRecording', () => {
   it('previews the current window without moving the checkpoint', async () => {
-    mockCheckpoint = cp(10_000);
-    mockRead.mockResolvedValue({ steps: 10_250, bootTime: BOOT });
-    expect(await previewSteps()).toEqual({ count: 250, from: lastCheckIn });
-    expect(mockCheckpoint).toEqual(cp(10_000));
+    mockCheckpoint = lastCheckIn;
+    mockCountSteps.mockResolvedValue(250);
+    expect(await previewSteps(now)).toEqual({ count: 250, from: lastCheckIn });
+    expect(mockCheckpoint).toEqual(lastCheckIn);
   });
 
-  it('is null without a checkpoint or a reading', async () => {
-    mockRead.mockResolvedValue({ steps: 10_250, bootTime: BOOT });
-    expect(await previewSteps()).toBeNull();
-    mockCheckpoint = cp(10_000);
-    mockRead.mockResolvedValue(null);
-    expect(await previewSteps()).toBeNull();
+  it('is null when steps cannot be read', async () => {
+    mockCheckpoint = lastCheckIn;
+    mockCountSteps.mockResolvedValue(null);
+    expect(await previewSteps(now)).toBeNull();
   });
 
-  it('reset starts counting from now', async () => {
-    mockRead.mockResolvedValue({ steps: 7_000, bootTime: BOOT });
-    await resetStepCheckpoint(now);
-    expect(mockCheckpoint).toEqual(checkpointFrom({ steps: 7_000, bootTime: BOOT }, now));
+  it('subscribes and counts from now', async () => {
+    mockCheckpoint = lastCheckIn;
+    mockSubscribe.mockResolvedValue(true);
+    expect(await startStepRecording(now)).toBe(true);
+    expect(mockCheckpoint).toEqual(now);
   });
 
-  it('reset leaves things alone without a reading', async () => {
-    mockCheckpoint = cp(10_000);
-    mockRead.mockResolvedValue(null);
-    await resetStepCheckpoint(now);
-    expect(mockCheckpoint).toEqual(cp(10_000));
+  it('leaves the checkpoint alone when recording does not start', async () => {
+    mockCheckpoint = lastCheckIn;
+    mockSubscribe.mockResolvedValue(false);
+    expect(await startStepRecording(now)).toBe(false);
+    expect(mockCheckpoint).toEqual(lastCheckIn);
   });
 });
 

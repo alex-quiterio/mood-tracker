@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { mergeEntries, removeEntry, upsertEntry } from './entries';
-import { loadEntries, saveEntries } from './storage';
+import { loadEntries, migrateEntries, saveEntries } from './storage';
 import { Entry, Slot } from './types';
 
 /** App-wide entry state, persisted to AsyncStorage on every change. */
@@ -12,6 +12,7 @@ export function useEntries() {
 
   useEffect(() => {
     loadEntries()
+      .then(migrateEntries)
       .then((stored) => {
         latest.current = stored;
         setEntries(stored);

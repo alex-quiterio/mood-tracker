@@ -1,18 +1,20 @@
 name: Android APK
 
+# Pushes and PRs only run the checks. The APK is built when a GitHub release is
+# published, and attached to it.
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
-  workflow_dispatch:
+  release:
+    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: write # attach the APK to a GitHub release on version tags
+  contents: write # attach the APK to the release
 
 jobs:
   check:
@@ -30,9 +32,20 @@ jobs:
 
   build:
     needs: check
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
+      # Fail fast, before the long build, if the tag and app.json disagree.
+      - name: Check tag matches app version
+        run: |
+          VERSION="$(node -p 'require("./app.json").expo.version')"
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "::error::Release tag $GITHUB_REF_NAME does not match app.json version $VERSION (expected v$VERSION)."
+            exit 1
+          fi
+
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -68,25 +81,10 @@ jobs:
             --ks-key-alias "$KEY_ALIAS" android/app/build/outputs/apk/release/app-release.apk
           rm "$RUNNER_TEMP/release.jks"
 
-      - name: Name APK
-        run: |
-          VERSION="$(node -p 'require("./app.json").expo.version')"
-          mv android/app/build/outputs/apk/release/app-release.apk "mood-tracker-$VERSION-${GITHUB_SHA::7}.apk"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mood-tracker-apk
-          path: mood-tracker-*.apk
-          retention-days: 30
-
       - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        # Uploads to the release if one was already created by hand for this tag.
         run: |
-          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" mood-tracker-*.apk --clobber
-          else
-            gh release create "$GITHUB_REF_NAME" mood-tracker-*.apk --generate-notes --title "$GITHUB_REF_NAME"
-          fi
+          APK="mood-tracker-${GITHUB_REF_NAME#v}.apk"
+          mv android/app/build/outputs/apk/release/app-release.apk "$APK"
+          gh release upload "$GITHUB_REF_NAME" "$APK" --clobber

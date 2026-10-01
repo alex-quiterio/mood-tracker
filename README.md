@@ -39,10 +39,13 @@ npm run lint
 
 ## Installing on your phone
 
-The **Android APK** GitHub Action builds a release APK on every push to `main`:
+The **Android APK** GitHub Action runs typecheck, lint and tests on every push. It only builds the APK when you publish a GitHub release, and then attaches the APK to that release.
 
-1. Open the latest run under the repo's **Actions** tab and download the `mood-tracker-apk` artifact. Or push a tag like `v1.0.0` to get the APK attached to a GitHub release.
-2. Open the APK on your phone and allow "install unknown apps" for the browser or file manager when asked.
+To release:
+
+1. Bump `expo.version` in `app.json` (and `expo.android.versionCode`) and push. The release tag must be `v` plus that version, or the build stops right away.
+2. Publish a release: `gh release create v1.0.2 --generate-notes`, or use **Releases → Draft a new release** on GitHub.
+3. After about 7 minutes, `mood-tracker-1.0.2.apk` appears on the release. Open it on your phone and allow "install unknown apps" when asked.
 
 New builds install over old ones and keep your data, as long as the signing key stays the same. By default the APK uses the Expo template's debug key, which is fine for personal sideloading. For your own key, add these repo secrets and the workflow signs with it:
 

@@ -4,7 +4,13 @@ import { parseEntry } from '../entries';
 import { buildReflectionPrompt } from '../prompt';
 import { weeklyStats } from '../stats';
 import { Entry } from '../types';
-import { formatUnlocksSince, isLiveCheckIn, previewUnlocks, unlockWindowStart, withUnlocks } from '../unlocks';
+import {
+  formatUnlocksSince,
+  isLiveCheckIn,
+  previewUnlocks,
+  unlockWindowStart,
+  withUnlocks,
+} from '../unlocks';
 
 const mockCountUnlocks = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
 jest.mock('../../modules/unlock-stats', () => ({
@@ -43,10 +49,12 @@ describe('unlock window', () => {
   });
 
   it('formats the window start', () => {
-    expect(formatUnlocksSince({ date: '2026-10-01', unlocksFrom: new Date(2026, 9, 1, 8, 5).toISOString() })).toBe('08:05');
-    expect(formatUnlocksSince({ date: '2026-10-01', unlocksFrom: new Date(2026, 8, 30, 21, 0).toISOString() })).toBe(
-      'Wed 21:00',
-    );
+    expect(
+      formatUnlocksSince({ date: '2026-10-01', unlocksFrom: new Date(2026, 9, 1, 8, 5).toISOString() }),
+    ).toBe('08:05');
+    expect(
+      formatUnlocksSince({ date: '2026-10-01', unlocksFrom: new Date(2026, 8, 30, 21, 0).toISOString() }),
+    ).toBe('Wed 21:00');
   });
 });
 

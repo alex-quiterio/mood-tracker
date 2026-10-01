@@ -8,11 +8,13 @@ import { Entry } from './types';
 const ENTRIES_KEY = 'mood-tracker:entries:v1';
 const SETTINGS_KEY = 'mood-tracker:settings:v1';
 const UNLOCK_CHECKPOINT_KEY = 'mood-tracker:unlock-checkpoint:v1';
+const STEP_CHECKPOINT_KEY = 'mood-tracker:step-checkpoint:v1';
 
 export type Settings = {
   remindersEnabled: boolean;
   theme: ThemeName;
   trackUnlocks: boolean;
+  trackSteps: boolean;
   voice: VoiceId;
   /** Per-voice quotes that replace the defaults. */
   customQuotes: Partial<Record<VoiceId, Quote[]>>;
@@ -22,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   remindersEnabled: false,
   theme: 'light',
   trackUnlocks: false,
+  trackSteps: false,
   voice: 'plain',
   customQuotes: {},
 };
@@ -45,6 +48,7 @@ export async function loadSettings(): Promise<Settings> {
     remindersEnabled: stored.remindersEnabled === true,
     theme: THEMES.includes(stored.theme as ThemeName) ? (stored.theme as ThemeName) : DEFAULT_SETTINGS.theme,
     trackUnlocks: stored.trackUnlocks === true,
+    trackSteps: stored.trackSteps === true,
     voice: VOICE_IDS.includes(stored.voice as VoiceId) ? (stored.voice as VoiceId) : DEFAULT_SETTINGS.voice,
     customQuotes: parseCustomQuotes(stored.customQuotes),
   };
@@ -79,4 +83,23 @@ export async function loadUnlockCheckpoint(): Promise<Date | null> {
 
 export async function saveUnlockCheckpoint(at: Date): Promise<void> {
   await AsyncStorage.setItem(UNLOCK_CHECKPOINT_KEY, at.toISOString());
+}
+
+/** The step counter reading at the last count; the next live check-in counts from here. */
+export type StepCheckpoint = { steps: number; bootTime: number; at: string };
+
+export async function loadStepCheckpoint(): Promise<StepCheckpoint | null> {
+  const raw = await AsyncStorage.getItem(STEP_CHECKPOINT_KEY);
+  if (!raw) return null;
+  const v = JSON.parse(raw) as Partial<StepCheckpoint>;
+  const valid =
+    typeof v.steps === 'number' &&
+    typeof v.bootTime === 'number' &&
+    typeof v.at === 'string' &&
+    !Number.isNaN(Date.parse(v.at));
+  return valid ? (v as StepCheckpoint) : null;
+}
+
+export async function saveStepCheckpoint(checkpoint: StepCheckpoint): Promise<void> {
+  await AsyncStorage.setItem(STEP_CHECKPOINT_KEY, JSON.stringify(checkpoint));
 }

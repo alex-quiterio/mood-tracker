@@ -16,6 +16,10 @@ export type Entry = {
   unlocks?: number;
   /** ISO 8601 start of the window `unlocks` covers. */
   unlocksFrom?: string;
+  /** Steps since the previous check-in, from the phone's step counter. Same capture rules as `unlocks`. */
+  steps?: number;
+  /** ISO 8601 start of the window `steps` covers. */
+  stepsFrom?: string;
 };
 
 export const MOOD_EMOJI: Record<Mood, string> = {

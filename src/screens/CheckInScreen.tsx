@@ -6,21 +6,25 @@ import { QuoteCard } from '../components/QuoteCard';
 import { Button } from '../components/Button';
 import { Burst, MoodBurst, makeBurst } from '../components/MoodBurst';
 import { MoodPicker } from '../components/MoodPicker';
-import { UnlockBanner } from '../components/UnlockBanner';
+import { LiveCount, LiveCounts } from '../components/LiveCounts';
 import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../dates';
 import { NOTE_MAX_LENGTH, entryKey } from '../entries';
 import { burstEmojis, greetingFor, offersBreathing, streakLabel } from '../moments';
 import { currentStreak, weeklyStats } from '../stats';
 import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
 import { Entry, Mood, SLOTS, Slot } from '../types';
-import { formatUnlocksSince, withUnlocks } from '../unlocks';
+import { describeSignals } from '../signals';
+import { formatSteps, previewSteps, withSteps } from '../steps';
+import { previewUnlocks, withUnlocks } from '../unlocks';
 import { EntriesStore } from '../useEntries';
-import { useLiveUnlocks } from '../useLiveUnlocks';
+import { useLivePreview } from '../useLivePreview';
 import { useVoice } from '../voices';
 
-type Props = { store: EntriesStore; trackUnlocks: boolean };
+export type Tracking = { unlocks: boolean; steps: boolean };
 
-export function CheckInScreen({ store, trackUnlocks }: Props) {
+type Props = { store: EntriesStore; tracking: Tracking };
+
+export function CheckInScreen({ store, tracking }: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
@@ -29,12 +33,32 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
   const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
-  const livePreview = useLiveUnlocks(trackUnlocks, store.entries);
+  const liveUnlocks = useLivePreview(previewUnlocks, tracking.unlocks, store.entries);
+  const liveSteps = useLivePreview(previewSteps, tracking.steps, store.entries);
   const voice = useVoice();
 
   const greeting = greetingFor(slotForTime());
   const streak = streakLabel(currentStreak(store.entries, today));
-  const usualUnlocks = weeklyStats(store.entries, today).unlockAverage;
+  const week = weeklyStats(store.entries, today);
+  const liveCounts: LiveCount[] = [];
+  if (liveUnlocks) {
+    liveCounts.push({
+      icon: '📱',
+      value: String(liveUnlocks.count),
+      unit: liveUnlocks.count === 1 ? 'unlock' : 'unlocks',
+      from: liveUnlocks.from,
+      usual: week.unlockAverage === null ? null : `Usually about ${Math.round(week.unlockAverage)}`,
+    });
+  }
+  if (liveSteps) {
+    liveCounts.push({
+      icon: '👟',
+      value: formatSteps(liveSteps.count),
+      unit: liveSteps.count === 1 ? 'step' : 'steps',
+      from: liveSteps.from,
+      usual: week.stepAverage === null ? null : `Usually about ${formatSteps(week.stepAverage)}`,
+    });
+  }
 
   const onSaved = (mood: Mood) => {
     setBurst((b) => makeBurst(b.key, burstEmojis(voice, mood)));
@@ -66,9 +90,7 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
 
         <QuoteCard date={today} />
 
-        {livePreview && date === today && (
-          <UnlockBanner preview={livePreview} today={today} usual={usualUnlocks} />
-        )}
+        {date === today && <LiveCounts counts={liveCounts} today={today} />}
 
         {offerBreath && (
           <View style={styles.comfort}>
@@ -128,7 +150,7 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
               open={openSlot === slot}
               onOpen={() => setOpenSlot(slot)}
               store={store}
-              trackUnlocks={trackUnlocks}
+              tracking={tracking}
               onSaved={onSaved}
             />
           );
@@ -147,11 +169,11 @@ type SlotCardProps = {
   open: boolean;
   onOpen: () => void;
   store: EntriesStore;
-  trackUnlocks: boolean;
+  tracking: Tracking;
   onSaved: (mood: Mood) => void;
 };
 
-function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSaved }: SlotCardProps) {
+function SlotCard({ date, slot, entry, open, onOpen, store, tracking, onSaved }: SlotCardProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
@@ -163,12 +185,9 @@ function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSave
     const trimmed = note.trim();
     const now = new Date();
     try {
-      const next = await withUnlocks(
-        { date, slot, mood, ...(trimmed ? { note: trimmed } : {}), recordedAt: now.toISOString() },
-        entry,
-        trackUnlocks,
-        now,
-      );
+      const base = { date, slot, mood, ...(trimmed ? { note: trimmed } : {}), recordedAt: now.toISOString() };
+      const withCounts = await withUnlocks(base, entry, tracking.unlocks, now);
+      const next = await withSteps(withCounts, entry, tracking.steps, now);
       await store.save(next);
       onSaved(mood);
     } catch (e) {
@@ -202,7 +221,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSave
             {entry.note}
           </Text>
         ) : null}
-        {entry?.unlocks !== undefined && <UnlockLine entry={entry} />}
+        {entry && <SignalLines entry={entry} />}
       </Pressable>
     );
   }
@@ -235,13 +254,13 @@ function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSave
   );
 }
 
-function UnlockLine({ entry }: { entry: Entry }) {
+function SignalLines({ entry }: { entry: Entry }) {
   const styles = useThemedStyles(makeStyles);
-  return (
-    <Text style={styles.unlocks}>
-      📱 {entry.unlocks} {entry.unlocks === 1 ? 'unlock' : 'unlocks'} since {formatUnlocksSince(entry)}
+  return describeSignals(entry).map((line) => (
+    <Text key={line} style={styles.unlocks}>
+      {line}
     </Text>
-  );
+  ));
 }
 
 const makeStyles = (c: Palette) =>

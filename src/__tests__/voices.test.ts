@@ -14,7 +14,7 @@ describe('voices', () => {
     for (const m of MOODS) expect(v.moodLabels[m] && v.moodEmoji[m]).toBeTruthy();
     for (const s of SLOTS) expect(v.slotLabels[s] && v.notePrompts[s]).toBeTruthy();
     expect(v.burst.high.length && v.burst.mid.length).toBeTruthy();
-    expect(v.claude.ask.match(/\{unlocks\}/g)).toHaveLength(1);
+    expect(v.claude.ask.match(/\{signals\}/g)).toHaveLength(1);
   });
 
   it.each(VOICE_IDS.filter((id) => id !== 'plain'))('%s has sourced default quotes', (id) => {
@@ -31,13 +31,15 @@ describe('voices', () => {
     expect(prompt.startsWith(VOICES.marcus.claude.intro)).toBe(true);
     expect(prompt).toContain('morning: 2/5');
     expect(prompt).toContain('what was in my control');
-    expect(prompt).not.toContain('{unlocks}');
+    expect(prompt).not.toContain('{signals}');
   });
 
   it('keeps the plain prompt as it was', () => {
     const prompt = buildReflectionPrompt(weeklyStats([entry], '2026-10-01'), VOICES.plain);
     expect(prompt.startsWith('Here are my mood check-ins')).toBe(true);
-    expect(prompt).toContain('What patterns do you notice (time of day, days of the week, anything in the notes)?');
+    expect(prompt).toContain(
+      'What patterns do you notice (time of day, days of the week, anything in the notes)?',
+    );
   });
 });
 

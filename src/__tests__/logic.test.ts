@@ -11,7 +11,13 @@ jest.mock('expo-document-picker', () => ({}));
 jest.mock('expo-file-system', () => ({}));
 jest.mock('expo-sharing', () => ({}));
 
-const entry = (date: string, slot: Entry['slot'], mood: Entry['mood'], recordedAt = `${date}T10:00:00.000Z`, note?: string): Entry => ({
+const entry = (
+  date: string,
+  slot: Entry['slot'],
+  mood: Entry['mood'],
+  recordedAt = `${date}T10:00:00.000Z`,
+  note?: string,
+): Entry => ({
   date,
   slot,
   mood,
@@ -33,7 +39,13 @@ describe('dates', () => {
 
   it('lists the last 7 days oldest first, ending today', () => {
     expect(lastNDays(7, '2026-10-01')).toEqual([
-      '2026-09-25', '2026-09-26', '2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01',
+      '2026-09-25',
+      '2026-09-26',
+      '2026-09-27',
+      '2026-09-28',
+      '2026-09-29',
+      '2026-09-30',
+      '2026-10-01',
     ]);
   });
 
@@ -58,7 +70,10 @@ describe('entries', () => {
     entries = upsertEntry(entries, entry('2026-10-01', 'evening', 4));
     entries = upsertEntry(entries, entry('2026-10-01', 'morning', 5));
     expect(entries).toHaveLength(2);
-    expect(entries.map((e) => [e.slot, e.mood])).toEqual([['morning', 5], ['evening', 4]]);
+    expect(entries.map((e) => [e.slot, e.mood])).toEqual([
+      ['morning', 5],
+      ['evening', 4],
+    ]);
   });
 
   it('merges imports keeping the newer entry per slot', () => {
@@ -73,10 +88,25 @@ describe('entries', () => {
   });
 
   it('rejects invalid entries', () => {
-    expect(parseEntry({ date: '2026-10-01', slot: 'night', mood: 3, recordedAt: '2026-10-01T10:00:00Z' })).toBeNull();
-    expect(parseEntry({ date: '2026-10-01', slot: 'morning', mood: 6, recordedAt: '2026-10-01T10:00:00Z' })).toBeNull();
-    expect(parseEntry({ date: '2026-10-01', slot: 'morning', mood: 3, recordedAt: '2026-10-01T10:00:00Z', note: '  ' })).toEqual({
-      date: '2026-10-01', slot: 'morning', mood: 3, recordedAt: '2026-10-01T10:00:00Z',
+    expect(
+      parseEntry({ date: '2026-10-01', slot: 'night', mood: 3, recordedAt: '2026-10-01T10:00:00Z' }),
+    ).toBeNull();
+    expect(
+      parseEntry({ date: '2026-10-01', slot: 'morning', mood: 6, recordedAt: '2026-10-01T10:00:00Z' }),
+    ).toBeNull();
+    expect(
+      parseEntry({
+        date: '2026-10-01',
+        slot: 'morning',
+        mood: 3,
+        recordedAt: '2026-10-01T10:00:00Z',
+        note: '  ',
+      }),
+    ).toEqual({
+      date: '2026-10-01',
+      slot: 'morning',
+      mood: 3,
+      recordedAt: '2026-10-01T10:00:00Z',
     });
   });
 });

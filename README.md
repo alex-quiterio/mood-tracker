@@ -11,6 +11,7 @@ Built with Expo (SDK 57), React Native and TypeScript. Sideloaded; not on the Pl
 - **Reflect with Claude**: builds a plain-text prompt with the week's entries and asks for patterns plus one small suggestion. It opens Android's share sheet so you can send it to the Claude app.
 - **Reminders**: optional local notifications at 09:00, 14:00 and 20:00.
 - **Theme**: Light, Dim or Dark, chosen in Settings.
+- **Steps** (optional, off by default): counts your steps since the previous check-in with the phone's built-in step counter sensor, which keeps counting while the app is closed. Shown next to unlocks in the live counter, on check-in cards, in the weekly table and in the Claude prompt. Needs the "Physical activity" permission. If the phone restarts between two check-ins, only the steps since the restart are counted.
 - **Voices**: Plain, Lao Tzu, Marcus Aurelius, Seneca, Rumi, Kabir or Patanjali. A voice changes the mood names and emojis, the slot names, the question in the note field (Marcus asks for his evening review; Lao Tzu asks what you can leave undone), the small messages, and how the Claude prompt is framed. Each voice shows a quote of the day from a public-domain translation (tap it for another), and you can replace a voice's quotes with your own in Settings. Entries are always stored as plain 1–5 moods, so switching voices never changes your data.
 - **Little moments**: a greeting for the time of day with your check-in streak, a burst of emojis when you save a good mood, and an offer of three guided slow breaths after a low one.
 - **Phone unlocks** (optional, off by default): counts how often you unlocked your phone since the previous check-in, and shows it as a live counter at the top of the check-in screen, on each check-in card, in every cell of the weekly table (with per-slot averages), and in the Claude prompt. It reads Android's usage event log, so it needs Android 9+ and the "Usage access" permission, which you switch on once in Android settings. Only check-ins saved for the current slot get a count, because the log only goes back about a week. Editing a check-in keeps its original count.
@@ -29,6 +30,8 @@ One entry per date and slot; saving the same date and slot again replaces it.
 | `recordedAt` | ISO timestamp                          |
 | `unlocks`    | optional, phone unlocks since the previous check-in |
 | `unlocksFrom`| optional, ISO start of the `unlocks` window |
+| `steps`      | optional, steps since the previous check-in |
+| `stepsFrom`  | optional, ISO start of the `steps` window |
 
 Everything is stored on the device in AsyncStorage. **Uninstalling the app deletes your data**, so export a backup now and then.
 

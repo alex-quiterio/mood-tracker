@@ -10,6 +10,7 @@ import { Palette, THEMES, THEME_LABEL, palettes, spacing, useColors, useThemedSt
 import { SLOT_LABEL } from '../types';
 import { EntriesStore } from '../useEntries';
 import { SettingsStore } from '../useSettings';
+import { StepSettings } from './StepSettings';
 import { VoiceSettings } from './VoiceSettings';
 
 type Props = { store: EntriesStore; settings: SettingsStore };
@@ -115,6 +116,8 @@ export function SettingsScreen({ store, settings }: Props) {
       </View>
 
       <UnlockSettings settings={settings} />
+
+      <StepSettings settings={settings} />
 
       <View style={styles.section}>
         <Text style={styles.title}>Your data</Text>

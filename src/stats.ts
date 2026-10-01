@@ -14,6 +14,9 @@ export type WeeklyStats = {
   /** Average phone unlocks per check-in, over the check-ins that have a count. */
   unlockAverage: number | null;
   slotUnlockAverages: Record<Slot, number | null>;
+  /** Average steps per check-in, over the check-ins that have a count. */
+  stepAverage: number | null;
+  slotStepAverages: Record<Slot, number | null>;
   logged: number;
   possible: number;
 };
@@ -41,17 +44,29 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     SLOTS.map((slot) => [slot, average(weekEntries.filter((e) => e.slot === slot).map((e) => e.mood))]),
   ) as Record<Slot, number | null>;
 
-  const unlocksOf = (list: Entry[]) => list.flatMap((e) => (e.unlocks === undefined ? [] : [e.unlocks]));
-  const slotUnlockAverages = Object.fromEntries(
-    SLOTS.map((slot) => [slot, average(unlocksOf(weekEntries.filter((e) => e.slot === slot)))]),
-  ) as Record<Slot, number | null>;
+  const valuesOf = (list: Entry[], key: 'unlocks' | 'steps') =>
+    list.flatMap((e) => (e[key] === undefined ? [] : [e[key]]));
+  const perSlot = (key: 'unlocks' | 'steps') =>
+    Object.fromEntries(
+      SLOTS.map((slot) => [
+        slot,
+        average(
+          valuesOf(
+            weekEntries.filter((e) => e.slot === slot),
+            key,
+          ),
+        ),
+      ]),
+    ) as Record<Slot, number | null>;
 
   return {
     days,
     slotAverages,
     overallAverage: average(weekEntries.map((e) => e.mood)),
-    unlockAverage: average(unlocksOf(weekEntries)),
-    slotUnlockAverages,
+    unlockAverage: average(valuesOf(weekEntries, 'unlocks')),
+    slotUnlockAverages: perSlot('unlocks'),
+    stepAverage: average(valuesOf(weekEntries, 'steps')),
+    slotStepAverages: perSlot('steps'),
     logged: weekEntries.length,
     possible: days.length * SLOTS.length,
   };

@@ -15,7 +15,12 @@ const entry = (date: string, slot: Entry['slot'] = 'morning', unlocks?: number):
 
 describe('streak', () => {
   it('counts consecutive days ending today', () => {
-    const entries = [entry('2026-09-29'), entry('2026-09-30'), entry('2026-10-01'), entry('2026-10-01', 'evening')];
+    const entries = [
+      entry('2026-09-29'),
+      entry('2026-09-30'),
+      entry('2026-10-01'),
+      entry('2026-10-01', 'evening'),
+    ];
     expect(currentStreak(entries, '2026-10-01')).toBe(3);
   });
 
@@ -52,7 +57,11 @@ describe('moments', () => {
 describe('unlock averages per slot', () => {
   it('averages only check-ins that have a count', () => {
     const stats = weeklyStats(
-      [entry('2026-09-30', 'morning', 10), entry('2026-10-01', 'morning', 20), entry('2026-10-01', 'evening')],
+      [
+        entry('2026-09-30', 'morning', 10),
+        entry('2026-10-01', 'morning', 20),
+        entry('2026-10-01', 'evening'),
+      ],
       '2026-10-01',
     );
     expect(stats.slotUnlockAverages).toEqual({ morning: 15, afternoon: null, evening: null });

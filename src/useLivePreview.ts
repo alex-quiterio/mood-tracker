@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
-import { UnlockPreview, previewUnlocks } from './unlocks';
-
 const REFRESH_MS = 60_000;
 
 /**
- * Live count of unlocks since the last check-in. Refreshes every minute, when the
- * app comes back to the foreground, and whenever `refreshKey` changes (e.g. after a save).
+ * A live value such as unlocks or steps since the last check-in. Refreshes every
+ * minute, when the app comes back to the foreground, and whenever `refreshKey`
+ * changes (e.g. after a save). `load` must be stable, like a module-level function.
  */
-export function useLiveUnlocks(enabled: boolean, refreshKey: unknown): UnlockPreview | null {
-  const [preview, setPreview] = useState<UnlockPreview | null>(null);
+export function useLivePreview<T>(
+  load: () => Promise<T | null>,
+  enabled: boolean,
+  refreshKey: unknown,
+): T | null {
+  const [preview, setPreview] = useState<T | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;
     const refresh = () =>
-      previewUnlocks().then((p) => {
+      load().then((p) => {
         if (!cancelled) setPreview(p);
       });
     refresh();
@@ -29,7 +32,7 @@ export function useLiveUnlocks(enabled: boolean, refreshKey: unknown): UnlockPre
       clearInterval(timer);
       sub.remove();
     };
-  }, [enabled, refreshKey]);
+  }, [load, enabled, refreshKey]);
 
   return enabled ? preview : null;
 }

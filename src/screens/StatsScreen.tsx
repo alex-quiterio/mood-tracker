@@ -3,6 +3,7 @@ import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { dayOfMonth, weekdayShort } from '../dates';
 import { buildReflectionPrompt } from '../prompt';
+import { formatSteps, formatStepsShort } from '../steps';
 import { formatAverage, weeklyStats } from '../stats';
 import { Palette, moodColors, onMoodColor, spacing, useThemedStyles } from '../theme';
 import { SLOTS } from '../types';
@@ -33,6 +34,9 @@ export function StatsScreen({ store }: Props) {
         {stats.unlockAverage !== null && (
           <SummaryTile label="Unlocks per check-in" value={String(Math.round(stats.unlockAverage))} />
         )}
+        {stats.stepAverage !== null && (
+          <SummaryTile label="Steps per check-in" value={formatSteps(stats.stepAverage)} />
+        )}
       </View>
 
       <View style={styles.table}>
@@ -58,14 +62,19 @@ export function StatsScreen({ store }: Props) {
                   style={[styles.cell, styles.moodCell, e && { backgroundColor: moodColors[e.mood] }]}
                   accessibilityLabel={`${day.date} ${slot}: ${
                     e
-                      ? `mood ${e.mood}${e.unlocks === undefined ? '' : `, ${e.unlocks} unlocks`}`
+                      ? `mood ${e.mood}${e.unlocks === undefined ? '' : `, ${e.unlocks} unlocks`}${
+                          e.steps === undefined ? '' : `, ${e.steps} steps`
+                        }`
                       : 'not logged'
                   }`}
                 >
                   <Text style={e ? styles.moodText : styles.emptyText}>
                     {e ? `${voice.moodEmoji[e.mood]} ${e.mood}` : '–'}
                   </Text>
-                  {e?.unlocks !== undefined && <Text style={styles.cellUnlocks}>📱 {e.unlocks}</Text>}
+                  {e?.unlocks !== undefined && <Text style={styles.cellSignal}>📱 {e.unlocks}</Text>}
+                  {e?.steps !== undefined && (
+                    <Text style={styles.cellSignal}>👟 {formatStepsShort(e.steps)}</Text>
+                  )}
                 </View>
               );
             })}
@@ -89,6 +98,20 @@ export function StatsScreen({ store }: Props) {
               return (
                 <Text key={slot} style={[styles.cell, styles.averageText]}>
                   {avg === null ? '–' : Math.round(avg)}
+                </Text>
+              );
+            })}
+          </View>
+        )}
+
+        {stats.stepAverage !== null && (
+          <View style={styles.row}>
+            <Text style={[styles.dayCell, styles.headerText]}>👟 Steps</Text>
+            {SLOTS.map((slot) => {
+              const avg = stats.slotStepAverages[slot];
+              return (
+                <Text key={slot} style={[styles.cell, styles.averageText]}>
+                  {avg === null ? '–' : formatStepsShort(avg)}
                 </Text>
               );
             })}
@@ -119,9 +142,10 @@ function SummaryTile({ label, value }: { label: string; value: string }) {
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
-    summary: { flexDirection: 'row', gap: spacing(3) },
+    summary: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(3) },
     tile: {
-      flex: 1,
+      flexGrow: 1,
+      flexBasis: '30%',
       backgroundColor: c.surface,
       borderRadius: 16,
       padding: spacing(4),
@@ -150,7 +174,7 @@ const makeStyles = (c: Palette) =>
       backgroundColor: c.background,
     },
     moodText: { color: onMoodColor },
-    cellUnlocks: { color: onMoodColor, fontSize: 11, marginTop: 2, opacity: 0.8 },
+    cellSignal: { color: onMoodColor, fontSize: 11, marginTop: 2, opacity: 0.8 },
     emptyText: { color: c.muted },
     averageRow: {
       marginTop: spacing(1),

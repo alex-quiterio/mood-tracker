@@ -50,7 +50,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     breathDone: 'That’s it. Be gentle with yourself 🌿',
     claude: {
       intro: '',
-      ask: 'Please reflect on this week. What patterns do you notice (time of day, days of the week, {unlocks}anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.',
+      ask: 'Please reflect on this week. What patterns do you notice (time of day, days of the week, {signals}anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.',
     },
   },
 
@@ -72,7 +72,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     claude: {
       intro:
         'Reflect on my week in the spirit of the Tao Te Ching: gently, without judgment, favouring yielding over forcing.',
-      ask: 'What patterns do you notice (where I pushed against the current, where things flowed, {unlocks}anything in the notes)? Suggest one small thing I could let go of or do less of next week. Keep it short and simple, like water.',
+      ask: 'What patterns do you notice (where I pushed against the current, where things flowed, {signals}anything in the notes)? Suggest one small thing I could let go of or do less of next week. Keep it short and simple, like water.',
     },
   },
 
@@ -95,7 +95,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     claude: {
       intro:
         "Reflect on my week as a Stoic teacher in the spirit of Marcus Aurelius's Meditations: calm, honest and kind.",
-      ask: 'What patterns do you notice ({unlocks}the notes, the time of day)? Help me separate what happened from my judgments about it, and what was in my control from what was not. Suggest one virtue or small practice to focus on next week. Keep it short, and be gentle about the low days.',
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Help me separate what happened from my judgments about it, and what was in my control from what was not. Suggest one virtue or small practice to focus on next week. Keep it short, and be gentle about the low days.',
     },
   },
 
@@ -117,7 +117,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     claude: {
       intro:
         'Reflect on my week as Seneca might in one of his letters to Lucilius: warm, practical and frank, like an old friend.',
-      ask: 'What patterns do you notice in how I spent my time and attention ({unlocks}the notes, the time of day)? Point out any fear I may be borrowing from the future. Suggest one small, practical thing for next week. Write it as a short letter.',
+      ask: 'What patterns do you notice in how I spent my time and attention ({signals}the notes, the time of day)? Point out any fear I may be borrowing from the future. Suggest one small, practical thing for next week. Write it as a short letter.',
     },
   },
 
@@ -139,7 +139,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     claude: {
       intro:
         'Reflect on my week in the spirit of Rumi: tender and open-hearted, welcoming every feeling as a guest.',
-      ask: 'What patterns do you notice in what my days held ({unlocks}the notes, the time of day)? End with a short, original poem-like reflection (not a quote) and one small invitation for next week. Keep it brief.',
+      ask: 'What patterns do you notice in what my days held ({signals}the notes, the time of day)? End with a short, original poem-like reflection (not a quote) and one small invitation for next week. Keep it brief.',
     },
   },
 
@@ -161,7 +161,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     claude: {
       intro:
         'Reflect on my week in the spirit of Kabir: plain-spoken, warm and a little playful, cutting through pretence.',
-      ask: 'What patterns do you notice ({unlocks}the notes, the time of day)? Say it simply, the way a weaver-poet would. Suggest one small, down-to-earth thing for next week. End with a two-line original verse (not a quote).',
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Say it simply, the way a weaver-poet would. Suggest one small, down-to-earth thing for next week. End with a two-line original verse (not a quote).',
     },
   },
 
@@ -183,7 +183,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     claude: {
       intro:
         'Reflect on my week in the spirit of the Yoga Sutras of Patanjali: patient and non-judgmental, treating each mood as a movement of the mind to observe.',
-      ask: 'What patterns do you notice ({unlocks}the notes, the time of day)? Gently point out where steady practice (abhyasa) helped and where letting go (vairagya) might. Suggest one small practice for next week. Keep it short.',
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Gently point out where steady practice (abhyasa) helped and where letting go (vairagya) might. Suggest one small practice for next week. Keep it short.',
     },
   },
 };

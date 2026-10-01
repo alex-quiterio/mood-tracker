@@ -67,6 +67,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const c = useColors();
   const today = useToday();
   const [tab, setTab] = useState<TabKey>('checkin');
+  const { trackUnlocks, trackSteps } = settings.settings;
+  const tracking = useMemo(() => ({ unlocks: trackUnlocks, steps: trackSteps }), [trackUnlocks, trackSteps]);
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
@@ -78,9 +80,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
         ) : (
           // Keyed on the date so screens reset to "today" after midnight.
           <View key={today} style={styles.content}>
-            {tab === 'checkin' && (
-              <CheckInScreen store={store} trackUnlocks={settings.settings.trackUnlocks} />
-            )}
+            {tab === 'checkin' && <CheckInScreen store={store} tracking={tracking} />}
             {tab === 'stats' && <StatsScreen store={store} />}
             {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}
           </View>

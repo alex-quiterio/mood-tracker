@@ -1,5 +1,6 @@
 import { parseHabitLog } from '@domain/habits/habits';
 import { isValidDate } from '@domain/shared/dates';
+import { parseSleep } from './sleep';
 import { Entry, MOODS, Mood, SLOTS, Slot } from './types';
 
 export const NOTE_MAX_LENGTH = 280;
@@ -51,6 +52,8 @@ export function parseEntry(value: unknown): Entry | null {
   if (unlocks === 'invalid' || steps === 'invalid') return null;
   const habits = v.habits === undefined ? undefined : parseHabitLog(v.habits);
   if (habits === null) return null;
+  const sleep = v.sleep === undefined ? undefined : parseSleep(v.sleep);
+  if (sleep === null) return null;
 
   const entry: Entry = {
     date: v.date,
@@ -69,6 +72,7 @@ export function parseEntry(value: unknown): Entry | null {
     entry.stepsFrom = steps.from;
   }
   if (habits) entry.habits = habits;
+  if (sleep) entry.sleep = sleep;
   return entry;
 }
 

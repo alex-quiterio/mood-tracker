@@ -5,8 +5,9 @@ import { HistoryCalendar } from '@ui/components/HistoryCalendar';
 import { Habit } from '@domain/habits/habits';
 import { HabitsWeek } from '@ui/habits/HabitsWeek';
 import { dayOfMonth } from '@domain/shared/dates';
-import { weekdayShort, formatAverage } from '@ui/i18n/format';
+import { weekdayShort, formatAverage, formatHours } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
+import { sleepWeek } from '@domain/checkins/sleep';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { formatSteps, formatStepsShort } from '@ui/i18n/signals';
 import { weeklyStats } from '@domain/checkins/stats';
@@ -37,6 +38,7 @@ export function StatsScreen({
   const voice = useVoice();
   const { m, locale } = useLocale();
   const stats = weeklyStats(store.entries);
+  const sleep = sleepWeek(store.entries, today);
 
   const reflect = async () => {
     try {
@@ -59,6 +61,12 @@ export function StatsScreen({
         )}
         {stats.stepAverage !== null && (
           <SummaryTile label={m.stats.stepsPerCheckIn} value={formatSteps(stats.stepAverage, locale)} />
+        )}
+        {sleep.averageHours !== null && (
+          <SummaryTile
+            label={m.sleep.perNight}
+            value={m.sleep.hours(formatHours(sleep.averageHours, locale))}
+          />
         )}
       </View>
 

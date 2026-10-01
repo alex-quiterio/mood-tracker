@@ -1,5 +1,6 @@
 import { WeeklyStats } from '@domain/checkins/stats';
-import { formatAverage, formatEuros, formatDecimal, weekdayShort } from '@ui/i18n/format';
+import { formatAverage, formatDecimal, formatEuros, formatHours, weekdayShort } from '@ui/i18n/format';
+import { sleepWeek } from '@domain/checkins/sleep';
 import { SLOTS } from '@domain/checkins/types';
 import { checkInPoints } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
@@ -7,6 +8,7 @@ import { habitWeek, totalSavings } from '@domain/habits/insights';
 import { promptHabitText, promptHabitWeek } from '@ui/i18n/habits';
 import { Locale } from '@domain/settings/language';
 import { messages } from '@ui/i18n/messages';
+import { promptSleepText } from '@ui/i18n/sleep';
 
 import { VOICES, Voice } from '@ui/voices/voices';
 
@@ -35,7 +37,8 @@ export function buildReflectionPrompt(
       const unlocks = e.unlocks === undefined ? '' : p.unlocks(e.unlocks);
       const steps = e.steps === undefined ? '' : p.steps(e.steps);
       const habitText = habits && e.habits ? p.habits(promptHabitText(e.habits, habits, locale)) : '';
-      return `  ${slotName(slot)}: ${e.mood}/5${unlocks}${steps}${e.note ? ` — "${e.note}"` : ''}${habitText}`;
+      const sleepText = e.sleep ? p.sleep(promptSleepText(e.sleep, locale)) : '';
+      return `  ${slotName(slot)}: ${e.mood}/5${unlocks}${steps}${e.note ? ` — "${e.note}"` : ''}${sleepText}${habitText}`;
     });
     return [`${weekdayShort(day.date, locale)} ${day.date}`, ...slotLines].join('\n');
   });
@@ -70,6 +73,7 @@ export function buildReflectionPrompt(
     p.averages(averages, formatAverage(stats.overallAverage, locale)),
     ...(hasUnlocks ? [p.averageUnlocks(Math.round(stats.unlockAverage!))] : []),
     ...(hasSteps ? [p.averageSteps(Math.round(stats.stepAverage!))] : []),
+    ...sleepSummary(stats, locale),
     ...(hasHabits ? habitSummary(stats, habits!, balance, locale) : []),
     '',
     ask,
@@ -107,4 +111,30 @@ function habitSummary(
     ...(instead.length ? [p.instead(instead.join(', '))] : []),
     p.loops,
   ];
+}
+
+/** Sleep for Claude: the week's average, and moods after good vs short nights. Sleep is always included. */
+function sleepSummary(stats: WeeklyStats, locale: Locale): string[] {
+  const p = messages(locale).prompt;
+  const entries = stats.days.flatMap((d) => SLOTS.flatMap((s) => d.entries[s] ?? []));
+  const week = sleepWeek(entries, stats.days[stats.days.length - 1].date);
+  if (week.nights === 0) return [];
+  const lines: string[] = [];
+  if (week.averageHours !== null || week.averageQuality !== null) {
+    lines.push(
+      p.sleepWeek(
+        week.averageHours === null ? '–' : p.sleepHours(formatHours(week.averageHours, locale)),
+        week.averageQuality === null ? '–' : formatDecimal(week.averageQuality, 1, locale),
+      ),
+    );
+  }
+  if (week.moodAfterGood !== null && week.moodAfterShort !== null) {
+    lines.push(
+      p.sleepMoods(
+        formatDecimal(week.moodAfterGood, 1, locale),
+        formatDecimal(week.moodAfterShort, 1, locale),
+      ),
+    );
+  }
+  return lines;
 }

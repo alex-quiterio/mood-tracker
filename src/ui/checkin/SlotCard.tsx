@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { NOTE_MAX_LENGTH } from '@domain/checkins/entries';
+import { Sleep, isEmptySleep, sameSleep } from '@domain/checkins/sleep';
 import { Entry, Mood, Slot } from '@domain/checkins/types';
 import { EMPTY_LOG, Habit, HabitLog, cleanLog, isWin, sameLog } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
@@ -11,6 +12,8 @@ import { withUnlocks } from '@infrastructure/signals/unlocks';
 import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';
 import { MoodPicker } from '@ui/components/MoodPicker';
+import { describeSleep } from '@ui/i18n/sleep';
+import { SleepLogger } from './SleepLogger';
 import { HabitLogger } from '@ui/habits/HabitLogger';
 import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -47,10 +50,13 @@ export function SlotCard({
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
-  const { m } = useLocale();
+  const { m, locale } = useLocale();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
   const [habitLog, setHabitLog] = useState<HabitLog>(entry?.habits ?? EMPTY_LOG);
+  // Only the morning check-in asks about last night.
+  const asksSleep = slot === 'morning';
+  const [sleep, setSleep] = useState<Sleep>(entry?.sleep ?? {});
 
   const save = async () => {
     if (mood === null) return;
@@ -64,6 +70,7 @@ export function SlotCard({
         mood,
         ...(trimmed ? { note: trimmed } : {}),
         ...(logged ? { habits: logged } : {}),
+        ...(asksSleep && !isEmptySleep(sleep) ? { sleep } : {}),
         recordedAt: now.toISOString(),
       };
       const withCounts = await withUnlocks(base, entry, tracking.unlocks, now);
@@ -101,6 +108,7 @@ export function SlotCard({
             {entry.note}
           </Text>
         ) : null}
+        {entry?.sleep ? <Text style={styles.unlocks}>{describeSleep(entry.sleep, locale)}</Text> : null}
         {entry?.habits && <HabitLines log={entry.habits} habits={habits} />}
         {entry && <SignalLines entry={entry} />}
       </Pressable>
@@ -111,7 +119,8 @@ export function SlotCard({
     entry !== undefined &&
     entry.mood === mood &&
     (entry.note ?? '') === note.trim() &&
-    sameLog(entry.habits, habitLog);
+    sameLog(entry.habits, habitLog) &&
+    sameSleep(entry.sleep, asksSleep ? sleep : undefined);
 
   return (
     <Card accent>
@@ -129,6 +138,7 @@ export function SlotCard({
         maxLength={NOTE_MAX_LENGTH}
         multiline
       />
+      {asksSleep && <SleepLogger sleep={sleep} onChange={setSleep} />}
       <HabitLogger habits={habits} log={habitLog} onChange={setHabitLog} />
       <Button
         title={entry ? m.common.update : m.common.save}

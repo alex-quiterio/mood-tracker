@@ -100,3 +100,7 @@ export function longDate(date: string, locale: Locale): string {
 /** An average mood: "3.5" · "3,5", or a dash when there is none. */
 export const formatAverage = (value: number | null, locale: Locale = 'en') =>
   value === null ? '–' : formatDecimal(value, 1, locale);
+
+/** Hours of sleep: 8 → "8", 7.5 → "7.5" · "7,5". */
+export const formatHours = (hours: number, locale: Locale = 'en') =>
+  Number.isInteger(hours) ? String(hours) : formatDecimal(hours, 1, locale);

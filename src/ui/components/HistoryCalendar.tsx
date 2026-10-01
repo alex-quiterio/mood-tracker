@@ -19,6 +19,7 @@ import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@ui/i18n/describeSignals';
 import { longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
+import { describeSleep } from '@ui/i18n/sleep';
 import { Habit } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
@@ -146,6 +147,7 @@ function DayDetail({
                   <Text style={styles.signal}>{describeLog(e.habits, habits)}</Text>
                 ) : null}
                 {e.habits?.instead ? <Text style={styles.instead}>🌱 {e.habits.instead}</Text> : null}
+                {e.sleep ? <Text style={styles.signal}>{describeSleep(e.sleep, locale)}</Text> : null}
                 {describeSignals(e, locale).map((line) => (
                   <Text key={line} style={styles.signal}>
                     {line}

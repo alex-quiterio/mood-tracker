@@ -1,5 +1,7 @@
 import type { HabitLog } from '@domain/habits/habits';
 
+import type { Sleep } from './sleep';
+
 export const SLOTS = ['morning', 'afternoon', 'evening'] as const;
 export type Slot = (typeof SLOTS)[number];
 
@@ -24,4 +26,6 @@ export type Entry = {
   stepsFrom?: string;
   /** Habits logged with this check-in: doses since the last one, habits grown, what you did instead. */
   habits?: HabitLog;
+  /** Last night's sleep; only the morning check-in asks for it. */
+  sleep?: Sleep;
 };

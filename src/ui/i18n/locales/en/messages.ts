@@ -297,6 +297,15 @@ export const messages: Omit<Messages, 'voices'> = {
     dancing: 'Dancing',
     music: 'Listening to music',
   },
+  sleep: {
+    title: 'How did you sleep?',
+    quality: { 1: 'Awful', 2: 'Poorly', 3: 'Okay', 4: 'Well', 5: 'Great' },
+    hoursLabel: 'Hours slept',
+    hours: (hours) => `${hours} h`,
+    fewerHours: 'Half an hour less',
+    moreHours: 'Half an hour more',
+    perNight: 'Sleep per night',
+  },
   /** The Claude prompt. Claude answers in the language it's asked in. */
   prompt: {
     intro: (first: string, last: string) =>
@@ -329,6 +338,12 @@ export const messages: Omit<Messages, 'voices'> = {
     about: 'about ',
     did: (what: string) => `did: ${what}`,
     insteadNote: (note: string) => `instead: "${note}"`,
+    sleep: (text) => `; slept ${text}`,
+    sleepHours: (hours) => `${hours}h`,
+    sleepQuality: (quality) => `sleep ${quality}/5`,
+    sleepWeek: (hours, quality) => `Sleep this week: ${hours} a night on average, quality ${quality}/5.`,
+    sleepMoods: (good, short) =>
+      `Average mood on days after 7h+ of sleep: ${good}; after under 6h: ${short}.`,
     answerIn: '',
   },
 };

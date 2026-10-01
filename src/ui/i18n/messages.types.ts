@@ -341,7 +341,21 @@ export type Messages = {
     about: string;
     did: (what: string) => string;
     insteadNote: (note: string) => string;
+    sleep: (text: string) => string;
+    sleepHours: (hours: string) => string;
+    sleepQuality: (quality: number) => string;
+    sleepWeek: (hours: string, quality: string) => string;
+    sleepMoods: (good: string, short: string) => string;
     answerIn: string;
+  };
+  sleep: {
+    title: string;
+    quality: Record<1 | 2 | 3 | 4 | 5, string>;
+    hoursLabel: string;
+    hours: (hours: string) => string;
+    fewerHours: string;
+    moreHours: string;
+    perNight: string;
   };
   /** Each voice's words; its emojis and bursts don't change with the language. */
   voices: Record<VoiceId, VoiceText>;

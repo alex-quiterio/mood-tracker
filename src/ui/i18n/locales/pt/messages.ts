@@ -298,6 +298,15 @@ export const messages: Omit<Messages, 'voices'> = {
     dancing: 'Dançar',
     music: 'Ouvir música',
   },
+  sleep: {
+    title: 'Como dormiste?',
+    quality: { 1: 'Muito mal', 2: 'Mal', 3: 'Assim-assim', 4: 'Bem', 5: 'Muito bem' },
+    hoursLabel: 'Horas de sono',
+    hours: (hours) => `${hours} h`,
+    fewerHours: 'Menos meia hora',
+    moreHours: 'Mais meia hora',
+    perNight: 'Sono por noite',
+  },
   prompt: {
     intro: (first, last) => `Aqui estão os meus registos de humor da última semana (${first} a ${last}).`,
     scale:
@@ -327,6 +336,12 @@ export const messages: Omit<Messages, 'voices'> = {
     about: 'cerca de ',
     did: (what) => `fiz: ${what}`,
     insteadNote: (note) => `em vez disso: "${note}"`,
+    sleep: (text) => `; dormi ${text}`,
+    sleepHours: (hours) => `${hours} h`,
+    sleepQuality: (quality) => `sono ${quality}/5`,
+    sleepWeek: (hours, quality) => `Sono desta semana: ${hours} por noite em média, qualidade ${quality}/5.`,
+    sleepMoods: (good, short) =>
+      `Humor médio nos dias depois de 7 h ou mais de sono: ${good}; depois de menos de 6 h: ${short}.`,
     answerIn: 'Responde em português de Portugal.',
   },
 };

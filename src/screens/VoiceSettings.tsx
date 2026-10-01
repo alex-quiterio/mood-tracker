@@ -23,47 +23,69 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
   const styles = useThemedStyles(makeStyles);
   const voice = useVoice();
   const [editing, setEditing] = useState(false);
+  // Collapsed by default: the list is long and rarely changed.
+  const [expanded, setExpanded] = useState(false);
   const { customQuotes } = settings.settings;
   const usingCustom = (customQuotes[voice.id]?.length ?? 0) > 0;
 
   return (
     <View style={styles.section}>
-      <Text style={styles.title}>Voice</Text>
-      <Text style={styles.body}>
-        Changes how the app speaks: mood names, emojis, questions and the Claude prompt. Your data stays the
-        same.
-      </Text>
-      <View style={styles.list} accessibilityRole="radiogroup">
-        {VOICE_IDS.map((id) => {
-          const v = VOICES[id];
-          const selected = id === voice.id;
-          return (
-            <Pressable
-              key={id}
-              accessibilityRole="radio"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`${v.name}: ${v.tagline}`}
-              onPress={() => settings.update({ voice: id })}
-              style={[styles.option, selected && styles.optionSelected]}
-            >
-              <View style={styles.optionText}>
-                <Text style={[styles.optionName, selected && styles.optionNameSelected]}>{v.name}</Text>
-                <Text style={styles.optionTagline}>{v.tagline}</Text>
-              </View>
-              <Text style={styles.optionEmoji}>{MOODS.map((m) => v.moodEmoji[m]).join('')}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityHint={expanded ? 'Hides the voices' : 'Shows all voices'}
+        onPress={() => setExpanded((e) => !e)}
+        style={styles.header}
+      >
+        <View style={styles.headerText}>
+          <Text style={styles.title}>Voice</Text>
+          <Text style={styles.current}>
+            {voice.name} · {voice.tagline}
+          </Text>
+        </View>
+        <Text style={styles.headerEmoji}>{MOODS.map((m) => voice.moodEmoji[m]).join('')}</Text>
+        <Text style={styles.chevron}>{expanded ? '▴' : '▾'}</Text>
+      </Pressable>
 
-      <View style={styles.quotesRow}>
-        <Text style={styles.body}>
-          {voice.quotes.length === 0
-            ? 'No quotes yet for this voice.'
-            : `${voice.quotes.length} quotes · ${usingCustom ? 'your own' : 'defaults'}`}
-        </Text>
-      </View>
-      <Button title={`Edit ${voice.name} quotes`} variant="secondary" onPress={() => setEditing(true)} />
+      {expanded && (
+        <>
+          <Text style={styles.body}>
+            Changes how the app speaks: mood names, emojis, questions and the Claude prompt. Your data stays
+            the same.
+          </Text>
+          <View style={styles.list} accessibilityRole="radiogroup">
+            {VOICE_IDS.map((id) => {
+              const v = VOICES[id];
+              const selected = id === voice.id;
+              return (
+                <Pressable
+                  key={id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={`${v.name}: ${v.tagline}`}
+                  onPress={() => settings.update({ voice: id })}
+                  style={[styles.option, selected && styles.optionSelected]}
+                >
+                  <View style={styles.optionText}>
+                    <Text style={[styles.optionName, selected && styles.optionNameSelected]}>{v.name}</Text>
+                    <Text style={styles.optionTagline}>{v.tagline}</Text>
+                  </View>
+                  <Text style={styles.optionEmoji}>{MOODS.map((m) => v.moodEmoji[m]).join('')}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <View style={styles.quotesRow}>
+            <Text style={styles.body}>
+              {voice.quotes.length === 0
+                ? 'No quotes yet for this voice.'
+                : `${voice.quotes.length} quotes · ${usingCustom ? 'your own' : 'defaults'}`}
+            </Text>
+          </View>
+          <Button title={`Edit ${voice.name} quotes`} variant="secondary" onPress={() => setEditing(true)} />
+        </>
+      )}
 
       <QuoteEditor
         visible={editing}
@@ -149,6 +171,11 @@ const makeStyles = (c: Palette) =>
       gap: spacing(3),
     },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
+    header: { flexDirection: 'row', alignItems: 'center', gap: spacing(2) },
+    headerText: { flex: 1 },
+    current: { fontSize: 13, color: c.muted, marginTop: 2 },
+    headerEmoji: { fontSize: 14, letterSpacing: 1 },
+    chevron: { fontSize: 16, color: c.muted, width: 16, textAlign: 'center' },
     body: { color: c.muted, lineHeight: 20 },
     list: { gap: spacing(2) },
     option: {

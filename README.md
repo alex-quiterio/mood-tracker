@@ -11,6 +11,7 @@ Built with Expo (SDK 57), React Native and TypeScript. Sideloaded; not on the Pl
 - **Reflect with Claude**: builds a plain-text prompt with the week's entries and asks for patterns plus one small suggestion. It opens Android's share sheet so you can send it to the Claude app.
 - **Reminders**: optional local notifications at 09:00, 14:00 and 20:00.
 - **Theme**: Light, Dim or Dark, chosen in Settings.
+- **Phone unlocks** (optional, off by default): counts how often you unlocked your phone since the previous check-in, and shows it on the check-in card, the weekly screen and in the Claude prompt. It reads Android's usage event log, so it needs Android 9+ and the "Usage access" permission, which you switch on once in Android settings. Only check-ins saved for the current slot get a count, because the log only goes back about a week. Editing a check-in keeps its original count.
 - **Backup**: export all entries as a JSON file through the share sheet (save to Drive, email it, etc.) and import it on a new phone. Importing merges and keeps the newer entry for each date and slot.
 
 ## Data model
@@ -24,6 +25,8 @@ One entry per date and slot; saving the same date and slot again replaces it.
 | `mood`       | 1–5                                    |
 | `note`       | optional, up to 280 characters         |
 | `recordedAt` | ISO timestamp                          |
+| `unlocks`    | optional, phone unlocks since the previous check-in |
+| `unlocksFrom`| optional, ISO start of the `unlocks` window |
 
 Everything is stored on the device in AsyncStorage. **Uninstalling the app deletes your data**, so export a backup now and then.
 
@@ -31,7 +34,7 @@ Everything is stored on the device in AsyncStorage. **Uninstalling the app delet
 
 ```bash
 npm install
-npx expo start          # open in Expo Go on your phone, or press "a" for an emulator
+npx expo start          # open in Expo Go on your phone, or press "a" for an emulator (unlock counts need a real build)
 npm test                # unit tests for dates, stats, prompt and export format
 npm run typecheck
 npm run lint

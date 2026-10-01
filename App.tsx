@@ -73,7 +73,9 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
         ) : (
           // Keyed on the date so screens reset to "today" after midnight.
           <View key={today} style={styles.content}>
-            {tab === 'checkin' && <CheckInScreen store={store} />}
+            {tab === 'checkin' && (
+              <CheckInScreen store={store} trackUnlocks={settings.settings.trackUnlocks} />
+            )}
             {tab === 'stats' && <StatsScreen store={store} />}
             {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}
           </View>

@@ -11,11 +11,13 @@ export function buildReflectionPrompt(stats: WeeklyStats): string {
     const slotLines = SLOTS.map((slot) => {
       const e = day.entries[slot];
       if (!e) return `  ${slot}: not logged`;
-      return `  ${slot}: ${e.mood}/5${e.note ? ` — "${e.note}"` : ''}`;
+      const unlocks = e.unlocks === undefined ? '' : `, ${e.unlocks} phone unlocks since previous check-in`;
+      return `  ${slot}: ${e.mood}/5${unlocks}${e.note ? ` — "${e.note}"` : ''}`;
     });
     return [`${weekdayShort(day.date)} ${day.date}`, ...slotLines].join('\n');
   });
 
+  const hasUnlocks = stats.unlockAverage !== null;
   const averages = SLOTS.map((s) => `${s} ${formatAverage(stats.slotAverages[s])}`).join(', ');
 
   return [
@@ -26,7 +28,10 @@ export function buildReflectionPrompt(stats: WeeklyStats): string {
     '',
     `Logged ${stats.logged} of ${stats.possible} possible check-ins.`,
     `Averages: ${averages}; overall ${formatAverage(stats.overallAverage)}.`,
+    ...(hasUnlocks ? [`Average phone unlocks between check-ins: ${Math.round(stats.unlockAverage!)}.`] : []),
     '',
-    'Please reflect on this week. What patterns do you notice (time of day, days of the week, anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.',
+    `Please reflect on this week. What patterns do you notice (time of day, days of the week, ${
+      hasUnlocks ? 'how often I unlocked my phone, ' : ''
+    }anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.`,
   ].join('\n');
 }

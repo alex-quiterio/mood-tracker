@@ -11,6 +11,8 @@ export type WeeklyStats = {
   days: DayRow[];
   slotAverages: Record<Slot, number | null>;
   overallAverage: number | null;
+  /** Average phone unlocks per check-in, over the check-ins that have a count. */
+  unlockAverage: number | null;
   logged: number;
   possible: number;
 };
@@ -42,6 +44,7 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     days,
     slotAverages,
     overallAverage: average(weekEntries.map((e) => e.mood)),
+    unlockAverage: average(weekEntries.flatMap((e) => (e.unlocks === undefined ? [] : [e.unlocks]))),
     logged: weekEntries.length,
     possible: days.length * SLOTS.length,
   };

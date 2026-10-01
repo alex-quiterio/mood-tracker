@@ -28,6 +28,9 @@ export function StatsScreen({ store }: Props) {
       <View style={styles.summary}>
         <SummaryTile label="Overall average" value={formatAverage(stats.overallAverage)} />
         <SummaryTile label="Check-ins logged" value={`${stats.logged} / ${stats.possible}`} />
+        {stats.unlockAverage !== null && (
+          <SummaryTile label="Unlocks per check-in" value={String(Math.round(stats.unlockAverage))} />
+        )}
       </View>
 
       <View style={styles.table}>
@@ -84,7 +87,9 @@ function SummaryTile({ label, value }: { label: string; value: string }) {
   const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
-      <Text style={styles.tileValue}>{value}</Text>
+      <Text style={styles.tileValue} numberOfLines={1} adjustsFontSizeToFit>
+        {value}
+      </Text>
       <Text style={styles.tileLabel}>{label}</Text>
     </View>
   );

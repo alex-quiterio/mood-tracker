@@ -29,17 +29,17 @@ Built with Expo (SDK 57), React Native and TypeScript. Sideloaded; not on the Pl
 
 One entry per date and slot; saving the same date and slot again replaces it.
 
-| field        | type                                   |
-| ------------ | -------------------------------------- |
-| `date`       | local date, `YYYY-MM-DD` (never UTC)   |
-| `slot`       | `morning` \| `afternoon` \| `evening`  |
-| `mood`       | 1–5                                    |
-| `note`       | optional, up to 280 characters         |
-| `recordedAt` | ISO timestamp                          |
-| `unlocks`    | optional, phone unlocks since the previous check-in |
-| `unlocksFrom`| optional, ISO start of the `unlocks` window |
-| `steps`      | optional, steps since the previous check-in |
-| `stepsFrom`  | optional, ISO start of the `steps` window |
+| field         | type                                                |
+| ------------- | --------------------------------------------------- |
+| `date`        | local date, `YYYY-MM-DD` (never UTC)                |
+| `slot`        | `morning` \| `afternoon` \| `evening`               |
+| `mood`        | 1–5                                                 |
+| `note`        | optional, up to 280 characters                      |
+| `recordedAt`  | ISO timestamp                                       |
+| `unlocks`     | optional, phone unlocks since the previous check-in |
+| `unlocksFrom` | optional, ISO start of the `unlocks` window         |
+| `steps`       | optional, steps since the previous check-in         |
+| `stepsFrom`   | optional, ISO start of the `steps` window           |
 
 Everything is stored on the device in AsyncStorage. **Uninstalling the app deletes your data**, so export a backup now and then.
 

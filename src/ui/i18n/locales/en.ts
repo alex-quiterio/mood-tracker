@@ -1,8 +1,7 @@
-/**
- * English text. Every other locale must provide exactly these keys (see
- * `Messages`), so a missing translation is a type error.
- */
-export const en = {
+import type { Messages } from '@ui/i18n/messages.types';
+
+/** English. */
+export const en: Messages = {
   common: {
     cancel: 'Cancel',
     save: 'Save',
@@ -46,8 +45,8 @@ export const en = {
     anotherQuote: 'Shows another quote',
   },
   signals: {
-    unlocks: (n: number): string => (n === 1 ? 'unlock' : 'unlocks'),
-    steps: (n: number): string => (n === 1 ? 'step' : 'steps'),
+    unlocks: (n: number) => (n === 1 ? 'unlock' : 'unlocks'),
+    steps: (n: number) => (n === 1 ? 'step' : 'steps'),
     since: (what: string, time: string) => `${what} since ${time}`,
   },
   stats: {
@@ -135,7 +134,7 @@ export const en = {
       150: 'a weekend away 🚆',
       300: 'a new bike 🚲',
       600: 'a holiday 🏖️',
-    } as Record<number, string>,
+    },
   },
   practice: {
     title: 'Take a pause',
@@ -286,7 +285,7 @@ export const en = {
     walk: { name: 'Walk', unit: '' },
     friend: { name: 'Connect with a friend', unit: '' },
     making: { name: 'Time doing something', unit: '' },
-  } as Record<string, { name: string; unit: string }>,
+  },
   presetOptions: {
     cooking: 'Cooking',
     cleaning: 'Cleaning',
@@ -296,7 +295,7 @@ export const en = {
     painting: 'Painting',
     dancing: 'Dancing',
     music: 'Listening to music',
-  } as Record<string, string>,
+  },
   /** The Claude prompt. Claude answers in the language it's asked in. */
   prompt: {
     intro: (first: string, last: string) =>
@@ -332,5 +331,3 @@ export const en = {
     answerIn: '',
   },
 };
-
-export type Messages = typeof en;

@@ -1,4 +1,4 @@
-import type { Messages } from './en';
+import type { Messages } from '@ui/i18n/messages.types';
 
 /** Português europeu. */
 export const pt: Messages = {

@@ -21,7 +21,10 @@ export function MoodPicker({ value, onChange }: Props) {
             accessibilityState={{ selected }}
             accessibilityLabel={`${mood}: ${MOOD_LABEL[mood]}`}
             onPress={() => onChange(mood)}
-            style={[styles.option, selected && { backgroundColor: moodColors[mood], borderColor: onMoodColor }]}
+            style={[
+              styles.option,
+              selected && { backgroundColor: moodColors[mood], borderColor: onMoodColor },
+            ]}
           >
             <Text style={styles.emoji}>{MOOD_EMOJI[mood]}</Text>
             <Text style={[styles.number, selected && styles.numberSelected]}>{mood}</Text>

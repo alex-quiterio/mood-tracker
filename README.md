@@ -11,7 +11,8 @@ Built with Expo (SDK 57), React Native and TypeScript. Sideloaded; not on the Pl
 - **Reflect with Claude**: builds a plain-text prompt with the week's entries and asks for patterns plus one small suggestion. It opens Android's share sheet so you can send it to the Claude app.
 - **Reminders**: optional local notifications at 09:00, 14:00 and 20:00.
 - **Theme**: Light, Dim or Dark, chosen in Settings.
-- **Phone unlocks** (optional, off by default): counts how often you unlocked your phone since the previous check-in, and shows it on the check-in card, the weekly screen and in the Claude prompt. It reads Android's usage event log, so it needs Android 9+ and the "Usage access" permission, which you switch on once in Android settings. Only check-ins saved for the current slot get a count, because the log only goes back about a week. Editing a check-in keeps its original count.
+- **Little moments**: a greeting for the time of day with your check-in streak, a burst of emojis when you save a good mood, and an offer of three guided slow breaths after a low one.
+- **Phone unlocks** (optional, off by default): counts how often you unlocked your phone since the previous check-in, and shows it as a live counter at the top of the check-in screen, on each check-in card, in every cell of the weekly table (with per-slot averages), and in the Claude prompt. It reads Android's usage event log, so it needs Android 9+ and the "Usage access" permission, which you switch on once in Android settings. Only check-ins saved for the current slot get a count, because the log only goes back about a week. Editing a check-in keeps its original count.
 - **Backup**: export all entries as a JSON file through the share sheet (save to Drive, email it, etc.) and import it on a new phone. Importing merges and keeps the newer entry for each date and slot.
 
 ## Data model

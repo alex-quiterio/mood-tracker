@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { BreathingModal } from '../components/BreathingModal';
 import { Button } from '../components/Button';
+import { Burst, MoodBurst, makeBurst } from '../components/MoodBurst';
 import { MoodPicker } from '../components/MoodPicker';
+import { UnlockBanner } from '../components/UnlockBanner';
 import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../dates';
 import { NOTE_MAX_LENGTH, entryKey } from '../entries';
+import { burstEmojis, greetingFor, offersBreathing, streakLabel } from '../moments';
+import { currentStreak, weeklyStats } from '../stats';
 import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
 import { Entry, MOOD_EMOJI, MOOD_LABEL, Mood, SLOTS, SLOT_LABEL, Slot } from '../types';
 import { formatUnlocksSince, withUnlocks } from '../unlocks';
 import { EntriesStore } from '../useEntries';
+import { useLiveUnlocks } from '../useLiveUnlocks';
 
 type Props = { store: EntriesStore; trackUnlocks: boolean };
 
@@ -18,6 +24,19 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
   const days = lastNDays(7, today);
   const [date, setDate] = useState(today);
   const [openSlot, setOpenSlot] = useState<Slot>(slotForTime());
+  const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
+  const [offerBreath, setOfferBreath] = useState(false);
+  const [breathing, setBreathing] = useState(false);
+  const livePreview = useLiveUnlocks(trackUnlocks, store.entries);
+
+  const greeting = greetingFor(slotForTime());
+  const streak = streakLabel(currentStreak(store.entries, today));
+  const usualUnlocks = weeklyStats(store.entries, today).unlockAverage;
+
+  const onSaved = (mood: Mood) => {
+    setBurst((b) => makeBurst(b.key, burstEmojis(mood)));
+    setOfferBreath(offersBreathing(mood));
+  };
 
   const entryFor = (slot: Slot) => store.entries.find((e) => e.date === date && e.slot === slot);
 
@@ -29,50 +48,92 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.dayStrip}>
-        {days.map((d) => {
-          const selected = d === date;
-          const count = store.entries.filter((e) => e.date === d).length;
+    <View style={styles.root}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <View style={styles.greetingRow}>
+          <Text style={styles.greeting}>
+            {greeting.text} {greeting.emoji}
+          </Text>
+          {streak && (
+            <View style={styles.streak}>
+              <Text style={styles.streakText}>{streak}</Text>
+            </View>
+          )}
+        </View>
+
+        {livePreview && date === today && (
+          <UnlockBanner preview={livePreview} today={today} usual={usualUnlocks} />
+        )}
+
+        {offerBreath && (
+          <View style={styles.comfort}>
+            <Text style={styles.comfortText}>
+              That sounds like a heavy moment. Take three slow breaths with me?
+            </Text>
+            <View style={styles.comfortActions}>
+              <View style={styles.flex}>
+                <Button
+                  title="Breathe with me"
+                  onPress={() => {
+                    setOfferBreath(false);
+                    setBreathing(true);
+                  }}
+                />
+              </View>
+              <View style={styles.flex}>
+                <Button title="Not now" variant="secondary" onPress={() => setOfferBreath(false)} />
+              </View>
+            </View>
+          </View>
+        )}
+
+        <View style={styles.dayStrip}>
+          {days.map((d) => {
+            const selected = d === date;
+            const count = store.entries.filter((e) => e.date === d).length;
+            return (
+              <Pressable
+                key={d}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`${d}, ${count} of 3 logged`}
+                onPress={() => selectDate(d)}
+                style={[styles.day, selected && styles.daySelected]}
+              >
+                <Text style={[styles.dayName, selected && styles.daySelectedText]}>
+                  {d === today ? 'Today' : weekdayShort(d)}
+                </Text>
+                <Text style={[styles.dayNumber, selected && styles.daySelectedText]}>{dayOfMonth(d)}</Text>
+                <Text style={[styles.dayDots, selected && styles.daySelectedText]}>
+                  {'●'.repeat(count)}
+                  {'○'.repeat(3 - count)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {SLOTS.map((slot) => {
+          const entry = entryFor(slot);
           return (
-            <Pressable
-              key={d}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`${d}, ${count} of 3 logged`}
-              onPress={() => selectDate(d)}
-              style={[styles.day, selected && styles.daySelected]}
-            >
-              <Text style={[styles.dayName, selected && styles.daySelectedText]}>
-                {d === today ? 'Today' : weekdayShort(d)}
-              </Text>
-              <Text style={[styles.dayNumber, selected && styles.daySelectedText]}>{dayOfMonth(d)}</Text>
-              <Text style={[styles.dayDots, selected && styles.daySelectedText]}>
-                {'●'.repeat(count)}
-                {'○'.repeat(3 - count)}
-              </Text>
-            </Pressable>
+            <SlotCard
+              // Remount when the day or saved entry changes so the draft resets.
+              key={`${entryKey(date, slot)}|${entry?.recordedAt ?? ''}`}
+              date={date}
+              slot={slot}
+              entry={entry}
+              open={openSlot === slot}
+              onOpen={() => setOpenSlot(slot)}
+              store={store}
+              trackUnlocks={trackUnlocks}
+              onSaved={onSaved}
+            />
           );
         })}
-      </View>
-
-      {SLOTS.map((slot) => {
-        const entry = entryFor(slot);
-        return (
-          <SlotCard
-            // Remount when the day or saved entry changes so the draft resets.
-            key={`${entryKey(date, slot)}|${entry?.recordedAt ?? ''}`}
-            date={date}
-            slot={slot}
-            entry={entry}
-            open={openSlot === slot}
-            onOpen={() => setOpenSlot(slot)}
-            store={store}
-            trackUnlocks={trackUnlocks}
-          />
-        );
-      })}
-    </ScrollView>
+      </ScrollView>
+      <MoodBurst burst={burst} />
+      <BreathingModal visible={breathing} onClose={() => setBreathing(false)} />
+    </View>
   );
 }
 
@@ -84,9 +145,10 @@ type SlotCardProps = {
   onOpen: () => void;
   store: EntriesStore;
   trackUnlocks: boolean;
+  onSaved: (mood: Mood) => void;
 };
 
-function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks }: SlotCardProps) {
+function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSaved }: SlotCardProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
@@ -104,6 +166,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks }: Slot
         now,
       );
       await store.save(next);
+      onSaved(mood);
     } catch (e) {
       Alert.alert('Could not save', String(e));
     }
@@ -179,7 +242,35 @@ function UnlockLine({ entry }: { entry: Entry }) {
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
+    root: { flex: 1 },
+    flex: { flex: 1 },
     container: { padding: spacing(4), gap: spacing(3) },
+    greetingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing(2),
+    },
+    greeting: { fontSize: 17, color: c.text, fontWeight: '500' },
+    streak: {
+      backgroundColor: c.surface,
+      borderColor: c.border,
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: spacing(3),
+      paddingVertical: spacing(1),
+    },
+    streakText: { color: c.text, fontSize: 13, fontWeight: '600' },
+    comfort: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: spacing(4),
+      borderWidth: 1,
+      borderColor: c.accent,
+      gap: spacing(3),
+    },
+    comfortText: { color: c.text, fontSize: 15, lineHeight: 21 },
+    comfortActions: { flexDirection: 'row', gap: spacing(2) },
     dayStrip: { flexDirection: 'row', gap: spacing(1), marginBottom: spacing(1) },
     day: {
       flex: 1,

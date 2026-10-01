@@ -21,13 +21,29 @@ export function unlockWindowStart(checkpoint: Date | null, now: Date): Date | nu
   return checkpoint;
 }
 
-/** "21:00" when the window started on the entry's day, otherwise "Tue 21:00". */
-export function formatUnlocksSince(entry: Pick<Entry, 'date' | 'unlocksFrom'>): string {
-  if (!entry.unlocksFrom) return '';
-  const from = new Date(entry.unlocksFrom);
+/** "21:00" when `from` is on `day`, otherwise "Tue 21:00". */
+export function formatSince(from: Date, day: string): string {
   const time = `${String(from.getHours()).padStart(2, '0')}:${String(from.getMinutes()).padStart(2, '0')}`;
   const fromDate = localDate(from);
-  return fromDate === entry.date ? time : `${weekdayShort(fromDate)} ${time}`;
+  return fromDate === day ? time : `${weekdayShort(fromDate)} ${time}`;
+}
+
+export function formatUnlocksSince(entry: Pick<Entry, 'date' | 'unlocksFrom'>): string {
+  return entry.unlocksFrom ? formatSince(new Date(entry.unlocksFrom), entry.date) : '';
+}
+
+export type UnlockPreview = { count: number; from: Date };
+
+/** Unlocks so far in the current window, i.e. what the next live check-in would record. */
+export async function previewUnlocks(now: Date = new Date()): Promise<UnlockPreview | null> {
+  try {
+    const from = unlockWindowStart(await loadUnlockCheckpoint(), now);
+    if (!from) return null;
+    const count = await unlockStats.countUnlocks(from, now);
+    return count === null ? null : { count, from };
+  } catch {
+    return null;
+  }
 }
 
 /**

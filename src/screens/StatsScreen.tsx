@@ -54,11 +54,16 @@ export function StatsScreen({ store }: Props) {
                 <View
                   key={slot}
                   style={[styles.cell, styles.moodCell, e && { backgroundColor: moodColors[e.mood] }]}
-                  accessibilityLabel={`${day.date} ${slot}: ${e ? e.mood : 'not logged'}`}
+                  accessibilityLabel={`${day.date} ${slot}: ${
+                    e
+                      ? `mood ${e.mood}${e.unlocks === undefined ? '' : `, ${e.unlocks} unlocks`}`
+                      : 'not logged'
+                  }`}
                 >
                   <Text style={e ? styles.moodText : styles.emptyText}>
                     {e ? `${MOOD_EMOJI[e.mood]} ${e.mood}` : '–'}
                   </Text>
+                  {e?.unlocks !== undefined && <Text style={styles.cellUnlocks}>📱 {e.unlocks}</Text>}
                 </View>
               );
             })}
@@ -73,6 +78,20 @@ export function StatsScreen({ store }: Props) {
             </Text>
           ))}
         </View>
+
+        {stats.unlockAverage !== null && (
+          <View style={styles.row}>
+            <Text style={[styles.dayCell, styles.headerText]}>📱 Unlocks</Text>
+            {SLOTS.map((slot) => {
+              const avg = stats.slotUnlockAverages[slot];
+              return (
+                <Text key={slot} style={[styles.cell, styles.averageText]}>
+                  {avg === null ? '–' : Math.round(avg)}
+                </Text>
+              );
+            })}
+          </View>
+        )}
       </View>
 
       <Button title="Reflect with Claude" onPress={reflect} disabled={stats.logged === 0} />
@@ -129,6 +148,7 @@ const makeStyles = (c: Palette) =>
       backgroundColor: c.background,
     },
     moodText: { color: onMoodColor },
+    cellUnlocks: { color: onMoodColor, fontSize: 11, marginTop: 2, opacity: 0.8 },
     emptyText: { color: c.muted },
     averageRow: {
       marginTop: spacing(1),

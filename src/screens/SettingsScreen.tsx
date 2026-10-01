@@ -159,7 +159,7 @@ function UnlockSettings({ settings }: { settings: SettingsStore }) {
     if (unlockStats.hasUsageAccess()) return enable();
     Alert.alert(
       'Allow usage access',
-      'Android only shares unlock counts with apps that have usage access. On the next screen, find Mood Tracker and turn on "Permit usage access", then come back.',
+      'Android only shares unlock counts with apps that have usage access. On the next screen, find Mood Tracker and turn on "Permit usage access", then come back.\n\nIf it is greyed out or says "Restricted setting": open Android Settings > Apps > Mood Tracker, tap the ⋮ menu, choose "Allow restricted settings", then try again.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

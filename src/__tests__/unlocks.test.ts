@@ -4,7 +4,7 @@ import { parseEntry } from '../entries';
 import { buildReflectionPrompt } from '../prompt';
 import { weeklyStats } from '../stats';
 import { Entry } from '../types';
-import { formatUnlocksSince, isLiveCheckIn, unlockWindowStart, withUnlocks } from '../unlocks';
+import { formatUnlocksSince, isLiveCheckIn, previewUnlocks, unlockWindowStart, withUnlocks } from '../unlocks';
 
 const mockCountUnlocks = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
 jest.mock('../../modules/unlock-stats', () => ({
@@ -81,6 +81,21 @@ describe('withUnlocks', () => {
   it('never throws when counting fails', async () => {
     mockCountUnlocks.mockRejectedValue(new Error('boom'));
     expect(await withUnlocks(base, undefined, true, now)).toEqual(base);
+  });
+});
+
+describe('previewUnlocks', () => {
+  it('counts the current window without moving the checkpoint', async () => {
+    const checkpoint = new Date(2026, 9, 1, 7, 0);
+    mockCheckpoint = checkpoint;
+    mockCountUnlocks.mockResolvedValue(5);
+    expect(await previewUnlocks(now)).toEqual({ count: 5, from: checkpoint });
+    expect(mockCheckpoint).toBe(checkpoint);
+  });
+
+  it('is null without usage access', async () => {
+    mockCountUnlocks.mockResolvedValue(null);
+    expect(await previewUnlocks(now)).toBeNull();
   });
 });
 

@@ -1,4 +1,4 @@
-import { lastNDays } from './dates';
+import { addDays, lastNDays } from './dates';
 import { entryKey } from './entries';
 import { Entry, SLOTS, Slot } from './types';
 
@@ -13,6 +13,7 @@ export type WeeklyStats = {
   overallAverage: number | null;
   /** Average phone unlocks per check-in, over the check-ins that have a count. */
   unlockAverage: number | null;
+  slotUnlockAverages: Record<Slot, number | null>;
   logged: number;
   possible: number;
 };
@@ -40,14 +41,35 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     SLOTS.map((slot) => [slot, average(weekEntries.filter((e) => e.slot === slot).map((e) => e.mood))]),
   ) as Record<Slot, number | null>;
 
+  const unlocksOf = (list: Entry[]) => list.flatMap((e) => (e.unlocks === undefined ? [] : [e.unlocks]));
+  const slotUnlockAverages = Object.fromEntries(
+    SLOTS.map((slot) => [slot, average(unlocksOf(weekEntries.filter((e) => e.slot === slot)))]),
+  ) as Record<Slot, number | null>;
+
   return {
     days,
     slotAverages,
     overallAverage: average(weekEntries.map((e) => e.mood)),
-    unlockAverage: average(weekEntries.flatMap((e) => (e.unlocks === undefined ? [] : [e.unlocks]))),
+    unlockAverage: average(unlocksOf(weekEntries)),
+    slotUnlockAverages,
     logged: weekEntries.length,
     possible: days.length * SLOTS.length,
   };
 }
 
 export const formatAverage = (value: number | null) => (value === null ? '–' : value.toFixed(1));
+
+/**
+ * Consecutive days with at least one check-in, ending today. A day without a
+ * check-in yet today doesn't break the streak until it's over.
+ */
+export function currentStreak(entries: Entry[], today: string): number {
+  const logged = new Set(entries.map((e) => e.date));
+  let day = logged.has(today) ? today : addDays(today, -1);
+  let streak = 0;
+  while (logged.has(day)) {
+    streak++;
+    day = addDays(day, -1);
+  }
+  return streak;
+}

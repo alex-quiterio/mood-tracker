@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { PRESET_HABITS } from '@domain/habits/habits';
+
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
 import { mergeEntries, parseEntry, upsertEntry } from '@domain/checkins/entries';
@@ -136,9 +138,15 @@ describe('weekly stats and prompt', () => {
 });
 
 describe('export format', () => {
-  it('round-trips entries', () => {
+  it('round-trips entries and habit definitions', () => {
     const entries = [entry('2026-10-01', 'morning', 3, undefined, 'ok')];
-    expect(parseExport(serializeExport(entries))).toEqual(entries);
+    expect(parseExport(serializeExport(entries, PRESET_HABITS))).toEqual({ entries, habits: PRESET_HABITS });
+  });
+
+  it('still imports version 1 files, which have no habits', () => {
+    const entries = [entry('2026-10-01', 'morning', 3)];
+    const v1 = JSON.stringify({ format: 'mood-tracker-export', version: 1, exportedAt: '2026-10-01T00:00:00Z', entries });
+    expect(parseExport(v1)).toEqual({ entries, habits: [] });
   });
 
   it('rejects files that are not exports', () => {

@@ -1,3 +1,4 @@
+import { parseHabitLog } from '@domain/habits/habits';
 import { isValidDate } from '@domain/shared/dates';
 import { Entry, MOODS, Mood, SLOTS, Slot } from './types';
 
@@ -48,6 +49,8 @@ export function parseEntry(value: unknown): Entry | null {
   const unlocks = parseCount(v.unlocks, v.unlocksFrom);
   const steps = parseCount(v.steps, v.stepsFrom);
   if (unlocks === 'invalid' || steps === 'invalid') return null;
+  const habits = v.habits === undefined ? undefined : parseHabitLog(v.habits);
+  if (habits === null) return null;
 
   const entry: Entry = {
     date: v.date,
@@ -65,6 +68,7 @@ export function parseEntry(value: unknown): Entry | null {
     entry.steps = steps.count;
     entry.stepsFrom = steps.from;
   }
+  if (habits) entry.habits = habits;
   return entry;
 }
 

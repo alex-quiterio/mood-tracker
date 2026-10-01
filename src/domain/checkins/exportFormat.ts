@@ -1,24 +1,30 @@
+import { Habit, parseHabits } from '@domain/habits/habits';
+
 import { parseEntry } from './entries';
 import { Entry } from './types';
 
 /** The backup file format. Versioned: keep older versions importable. */
 const FORMAT = 'mood-tracker-export';
-const VERSION = 1;
+// v2 adds habit definitions, so logged habits keep their names on another phone. v1 still imports.
+const VERSION = 2;
 
 type ExportFile = {
   format: typeof FORMAT;
   version: number;
   exportedAt: string;
   entries: Entry[];
+  habits?: Habit[];
 };
 
-export function serializeExport(entries: Entry[], now: Date = new Date()): string {
-  const file: ExportFile = { format: FORMAT, version: VERSION, exportedAt: now.toISOString(), entries };
+export type ImportedData = { entries: Entry[]; habits: Habit[] };
+
+export function serializeExport(entries: Entry[], habits: Habit[], now: Date = new Date()): string {
+  const file: ExportFile = { format: FORMAT, version: VERSION, exportedAt: now.toISOString(), entries, habits };
   return JSON.stringify(file, null, 2);
 }
 
 /** Parses an export file. Throws with a readable message when the file isn't one. */
-export function parseExport(text: string): Entry[] {
+export function parseExport(text: string): ImportedData {
   let data: unknown;
   try {
     data = JSON.parse(text);
@@ -36,5 +42,6 @@ export function parseExport(text: string): Entry[] {
   if (entries.some((e) => e === null)) {
     throw new Error('The file contains invalid entries; nothing was imported.');
   }
-  return entries as Entry[];
+  // v1 files have no habit definitions.
+  return { entries: entries as Entry[], habits: Array.isArray(file.habits) ? parseHabits(file.habits) : [] };
 }

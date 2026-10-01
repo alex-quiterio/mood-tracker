@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { unlockStats } from '@modules/unlock-stats';
+import { mergeHabits } from '@domain/habits/habits';
 import { exportEntries, pickImportFile } from '@infrastructure/backup/backupFiles';
 import { Button } from '@ui/components/Button';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
@@ -40,7 +41,7 @@ export function SettingsScreen({ store, settings }: Props) {
 
   const doExport = async () => {
     try {
-      await exportEntries(store.entries);
+      await exportEntries(store.entries, settings.settings.habits);
     } catch (e) {
       Alert.alert('Export failed', e instanceof Error ? e.message : String(e));
     }
@@ -50,10 +51,11 @@ export function SettingsScreen({ store, settings }: Props) {
     try {
       const incoming = await pickImportFile();
       if (!incoming) return;
-      await store.importEntries(incoming);
+      await store.importEntries(incoming.entries);
+      await settings.update({ habits: mergeHabits(settings.settings.habits, incoming.habits) });
       Alert.alert(
         'Import complete',
-        `Read ${incoming.length} entries. Where both had the same check-in, the newer one was kept.`,
+        `Read ${incoming.entries.length} entries. Where both had the same check-in, the newer one was kept.`,
       );
     } catch (e) {
       Alert.alert('Import failed', e instanceof Error ? e.message : String(e));

@@ -1,4 +1,5 @@
 import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
+import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;
@@ -23,6 +24,10 @@ export type Settings = {
   voice: VoiceId;
   /** Per-voice quotes that replace the defaults. */
   customQuotes: Partial<Record<VoiceId, Quote[]>>;
+  /** Habits logged with each check-in. */
+  habits: Habit[];
+  /** Habit data is sensitive, so it only goes into the Claude prompt when you choose. */
+  habitsInPrompt: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -34,6 +39,8 @@ export const DEFAULT_SETTINGS: Settings = {
   trackSteps: false,
   voice: 'plain',
   customQuotes: {},
+  habits: PRESET_HABITS,
+  habitsInPrompt: false,
 };
 
 /** Settings from stored JSON; anything missing or invalid falls back to its default. */
@@ -48,6 +55,8 @@ export function parseSettings(value: unknown): Settings {
     trackSteps: stored.trackSteps === true,
     voice: VOICE_IDS.includes(stored.voice as VoiceId) ? (stored.voice as VoiceId) : DEFAULT_SETTINGS.voice,
     customQuotes: parseCustomQuotes(stored.customQuotes),
+    habits: parseHabits(stored.habits),
+    habitsInPrompt: stored.habitsInPrompt === true,
   };
 }
 

@@ -1,3 +1,5 @@
+import type { HabitLog } from '@domain/habits/habits';
+
 export const SLOTS = ['morning', 'afternoon', 'evening'] as const;
 export type Slot = (typeof SLOTS)[number];
 
@@ -20,6 +22,8 @@ export type Entry = {
   steps?: number;
   /** ISO 8601 start of the window `steps` covers. */
   stepsFrom?: string;
+  /** Habits logged with this check-in: doses since the last one, habits grown, what you did instead. */
+  habits?: HabitLog;
 };
 
 export const MOOD_EMOJI: Record<Mood, string> = {

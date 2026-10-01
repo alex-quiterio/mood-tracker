@@ -197,6 +197,7 @@ export const messages: Omit<Messages, 'voices'> = {
     export: 'Exportar cópia de segurança (JSON)',
     import: 'Importar cópia de segurança',
     importHint: 'A importação junta-se ao que já existe. Nada é apagado.',
+    version: (version, build) => `Mood Tracker ${version} (compilação ${build})`,
     exportFailed: 'A exportação falhou',
     importFailed: 'A importação falhou',
     importDone: 'Importação concluída',

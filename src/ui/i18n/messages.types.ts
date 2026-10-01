@@ -232,6 +232,7 @@ export type Messages = {
     export: string;
     import: string;
     importHint: string;
+    version: (version: string, build: string) => string;
     exportFailed: string;
     importFailed: string;
     importDone: string;

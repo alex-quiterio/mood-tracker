@@ -199,6 +199,7 @@ export const messages: Omit<Messages, 'voices'> = {
     export: 'Export backup (JSON)',
     import: 'Import backup',
     importHint: 'Importing merges with what is already here. Nothing is deleted.',
+    version: (version, build) => `Mood Tracker ${version} (build ${build})`,
     exportFailed: 'Export failed',
     importFailed: 'Import failed',
     importDone: 'Import complete',

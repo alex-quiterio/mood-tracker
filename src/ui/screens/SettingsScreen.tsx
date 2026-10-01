@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ExportError } from '@domain/checkins/exportFormat';
@@ -23,6 +24,7 @@ type Props = { store: EntriesStore; settings: SettingsStore };
 
 export function SettingsScreen({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
 
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -35,6 +37,12 @@ export function SettingsScreen({ store, settings }: Props) {
       <UnlockSettings settings={settings} />
       <StepSettings settings={settings} />
       <DataSettings store={store} settings={settings} />
+      <Text style={styles.version}>
+        {m.settings.version(
+          Constants.expoConfig?.version ?? '?',
+          String(Constants.expoConfig?.android?.versionCode ?? '?'),
+        )}
+      </Text>
     </ScrollView>
   );
 }
@@ -144,6 +152,7 @@ const makeStyles = (c: Palette) =>
     title: { fontSize: 18, fontWeight: '600', color: c.text },
     body: { color: c.muted, lineHeight: 20 },
     hint: { color: c.muted, fontSize: 13, textAlign: 'center' },
+    version: { color: c.muted, fontSize: 12, textAlign: 'center', marginBottom: spacing(2) },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     themeRow: { flexDirection: 'row', gap: spacing(2) },
     themeOption: {

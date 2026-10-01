@@ -1,15 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, AppState, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  Alert,
+  AppState,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { unlockStats } from '../../modules/unlock-stats';
 import { exportEntries, pickImportFile } from '../backup';
 import { Button } from '../components/Button';
-import { REMINDER_TIMES, disableReminders, enableReminders, formatTime } from '../reminders';
 import { saveUnlockCheckpoint } from '../storage';
 import { Palette, THEMES, THEME_LABEL, palettes, spacing, useColors, useThemedStyles } from '../theme';
-import { SLOT_LABEL } from '../types';
 import { EntriesStore } from '../useEntries';
 import { SettingsStore } from '../useSettings';
+import { ReminderSettings } from './ReminderSettings';
 import { StepSettings } from './StepSettings';
 import { VoiceSettings } from './VoiceSettings';
 
@@ -18,27 +27,7 @@ type Props = { store: EntriesStore; settings: SettingsStore };
 export function SettingsScreen({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
-  const [busy, setBusy] = useState(false);
-  const { remindersEnabled, theme } = settings.settings;
-
-  const toggleReminders = async (enabled: boolean) => {
-    setBusy(true);
-    try {
-      if (enabled && !(await enableReminders())) {
-        Alert.alert(
-          'Notifications are off',
-          'Allow notifications for Mood Tracker in Android settings to get reminders.',
-        );
-        return;
-      }
-      if (!enabled) await disableReminders();
-      await settings.update({ remindersEnabled: enabled });
-    } catch (e) {
-      Alert.alert('Could not update reminders', String(e));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const { theme } = settings.settings;
 
   const doExport = async () => {
     try {
@@ -63,7 +52,7 @@ export function SettingsScreen({ store, settings }: Props) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.section}>
         <Text style={styles.title}>Theme</Text>
         <View style={styles.themeRow} accessibilityRole="radiogroup">
@@ -99,21 +88,7 @@ export function SettingsScreen({ store, settings }: Props) {
 
       <VoiceSettings settings={settings} />
 
-      <View style={styles.section}>
-        <View style={styles.switchRow}>
-          <Text style={styles.title}>Daily reminders</Text>
-          <Switch
-            value={remindersEnabled}
-            onValueChange={toggleReminders}
-            disabled={busy}
-            trackColor={{ true: c.accent, false: c.border }}
-            thumbColor={c.surface}
-          />
-        </View>
-        <Text style={styles.body}>
-          {REMINDER_TIMES.map((r) => `${SLOT_LABEL[r.slot]} ${formatTime(r.hour, r.minute)}`).join(' · ')}
-        </Text>
-      </View>
+      <ReminderSettings settings={settings} />
 
       <UnlockSettings settings={settings} />
 

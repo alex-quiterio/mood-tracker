@@ -1,18 +1,10 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-import { SLOT_LABEL, Slot } from './types';
+import { ReminderTimes, reminderMessage } from './reminderTimes';
+import { SLOTS } from './types';
 
 const CHANNEL_ID = 'check-in-reminders';
-
-export const REMINDER_TIMES: { slot: Slot; hour: number; minute: number }[] = [
-  { slot: 'morning', hour: 9, minute: 0 },
-  { slot: 'afternoon', hour: 14, minute: 0 },
-  { slot: 'evening', hour: 20, minute: 0 },
-];
-
-export const formatTime = (hour: number, minute: number) =>
-  `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 
 export function configureNotificationHandler() {
   Notifications.setNotificationHandler({
@@ -25,8 +17,34 @@ export function configureNotificationHandler() {
   });
 }
 
-/** Schedules the three daily reminders. Returns false if notification permission was denied. */
-export async function enableReminders(): Promise<boolean> {
+// Rescheduling cancels everything first, so runs must not overlap when times change quickly.
+let queue: Promise<unknown> = Promise.resolve();
+const serialize = <T>(task: () => Promise<T>): Promise<T> => {
+  const run = queue.then(task);
+  queue = run.catch(() => {});
+  return run;
+};
+
+/** Replaces the scheduled reminders with one daily reminder per slot. */
+export function scheduleReminders(times: ReminderTimes, name: string): Promise<void> {
+  return serialize(async () => {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    for (const slot of SLOTS) {
+      await Notifications.scheduleNotificationAsync({
+        content: reminderMessage(slot, name),
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour: times[slot].hour,
+          minute: times[slot].minute,
+          channelId: CHANNEL_ID,
+        },
+      });
+    }
+  });
+}
+
+/** Asks for permission and schedules the reminders. Returns false if notification permission was denied. */
+export async function enableReminders(times: ReminderTimes, name: string): Promise<boolean> {
   const { status } = await Notifications.requestPermissionsAsync();
   if (status !== 'granted') return false;
 
@@ -36,25 +54,10 @@ export async function enableReminders(): Promise<boolean> {
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }
-
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  for (const { slot, hour, minute } of REMINDER_TIMES) {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `${SLOT_LABEL[slot]} check-in`,
-        body: 'How are you feeling right now?',
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour,
-        minute,
-        channelId: CHANNEL_ID,
-      },
-    });
-  }
+  await scheduleReminders(times, name);
   return true;
 }
 
-export async function disableReminders(): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+export function disableReminders(): Promise<void> {
+  return serialize(() => Notifications.cancelAllScheduledNotificationsAsync());
 }

@@ -1,4 +1,5 @@
-import { addDays, parseLocalDate, localDate } from '@domain/shared/dates';
+import { addDays, localDate, parseLocalDate } from '@domain/shared/dates';
+import { average } from '@domain/shared/math';
 
 import { Entry, Mood } from './types';
 
@@ -57,7 +58,7 @@ export type DaySummary = { count: number; average: number | null; mood: Mood | n
 /** How a day went: its check-ins, their average, and that average as a mood for colouring. */
 export function summarizeDay(entries: Entry[], date: string): DaySummary {
   const moods = entries.filter((e) => e.date === date).map((e) => e.mood);
-  if (moods.length === 0) return { count: 0, average: null, mood: null };
-  const average = moods.reduce((a, b) => a + b, 0) / moods.length;
-  return { count: moods.length, average, mood: Math.min(5, Math.max(1, Math.round(average))) as Mood };
+  const mean = average(moods);
+  if (mean === null) return { count: 0, average: null, mood: null };
+  return { count: moods.length, average: mean, mood: Math.min(5, Math.max(1, Math.round(mean))) as Mood };
 }

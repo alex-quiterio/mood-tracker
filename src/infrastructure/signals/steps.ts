@@ -1,7 +1,7 @@
 import { stepCounter } from '@modules/step-counter';
 import { loadStepCheckpoint, saveStepCheckpoint } from '@infrastructure/storage/checkpoints';
 import { Entry } from '@domain/checkins/types';
-import { CountPreview, WindowedCounter, previewCount, withCount } from '@domain/signals/windowedCount';
+import { WindowedCounter, previewCount, withCount } from '@domain/signals/windowedCount';
 
 /** Google Play services keeps recorded steps for 10 days; leave a day of margin. */
 const MAX_WINDOW_MS = 9 * 24 * 60 * 60 * 1000;
@@ -24,8 +24,6 @@ export async function startStepRecording(now: Date = new Date()): Promise<boolea
   await saveStepCheckpoint(now);
   return true;
 }
-
-export type StepPreview = CountPreview;
 
 /** Steps so far in the current window, i.e. what the next live check-in would record. */
 export const previewSteps = (now: Date = new Date()) => previewCount(stepCount, now);

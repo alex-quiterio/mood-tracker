@@ -5,7 +5,7 @@ import { ThemeName } from '@domain/settings/settings';
 import type { VoiceId } from '@domain/voices/voices';
 import { Heading, ON_MOOD, VOICE_LOOKS } from './voicePalettes';
 
-export { THEMES, THEME_LABEL } from '@domain/settings/settings';
+export { THEMES } from '@domain/settings/settings';
 export type { ThemeName } from '@domain/settings/settings';
 
 export type Palette = {

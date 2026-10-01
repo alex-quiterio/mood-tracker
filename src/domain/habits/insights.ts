@@ -1,6 +1,7 @@
 import { Entry } from '@domain/checkins/types';
 import { formatEuros } from '@domain/i18n/format';
 import { Locale } from '@domain/i18n/locale';
+import { average } from '@domain/shared/math';
 import { messages } from '@domain/i18n/messages';
 import { addDays, lastNDays } from '@domain/shared/dates';
 
@@ -60,8 +61,6 @@ export type HabitWeek = {
   moodWithNone: number | null;
   moodWithSome: number | null;
 };
-
-const average = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 
 /** This week's view of each active habit, built to show what's going right. */
 export function habitWeek(entries: Entry[], habits: Habit[], today: string): HabitWeek[] {

@@ -32,12 +32,6 @@ export function slotForTime(d: Date = new Date()): Slot {
   return 'evening';
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-export function weekdayShort(date: string): string {
-  return WEEKDAYS[parseLocalDate(date).getDay()];
-}
-
 export function dayOfMonth(date: string): number {
   return parseLocalDate(date).getDate();
 }

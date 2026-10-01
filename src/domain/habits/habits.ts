@@ -1,4 +1,5 @@
 import { Locale } from '@domain/i18n/locale';
+import { uniqueId } from '@domain/shared/ids';
 import { messages } from '@domain/i18n/messages';
 
 /**
@@ -198,13 +199,11 @@ export const mergeHabits = (mine: Habit[], incoming: Habit[]) => [
 /** A new custom habit with an id that doesn't clash. */
 export function createHabit(existing: Habit[], name: string, emoji: string, kind: HabitKind): Habit {
   const clean = name.trim().slice(0, HABIT_NAME_MAX_LENGTH);
-  const base =
-    clean
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'habit';
-  let id = base;
-  for (let n = 2; existing.some((h) => h.id === id); n++) id = `${base}-${n}`;
+  const id = uniqueId(
+    clean,
+    existing.map((h) => h.id),
+    'habit',
+  );
   return {
     id,
     name: clean,
@@ -225,13 +224,11 @@ export function addOption(habit: Habit, label: string, emoji: string): Habit {
   const clean = label.trim().slice(0, OPTION_LABEL_MAX_LENGTH);
   if (!clean) return habit;
   const options = habit.options ?? [];
-  const base =
-    clean
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'option';
-  let id = base;
-  for (let n = 2; options.some((o) => o.id === id); n++) id = `${base}-${n}`;
+  const id = uniqueId(
+    clean,
+    options.map((o) => o.id),
+    'option',
+  );
   return { ...habit, options: [...options, { id, label: clean, emoji: emoji.trim() || '•' }] };
 }
 

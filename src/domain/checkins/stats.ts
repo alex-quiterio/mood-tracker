@@ -1,6 +1,7 @@
 import { formatDecimal } from '@domain/i18n/format';
 import { Locale } from '@domain/i18n/locale';
 import { addDays, lastNDays } from '@domain/shared/dates';
+import { average } from '@domain/shared/math';
 import { entryKey } from './entries';
 import { Entry, SLOTS, Slot } from './types';
 
@@ -22,9 +23,6 @@ export type WeeklyStats = {
   logged: number;
   possible: number;
 };
-
-const average = (values: number[]) =>
-  values.length ? values.reduce((sum, v) => sum + v, 0) / values.length : null;
 
 /** Stats for the 7 days ending at `today` (inclusive). */
 export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {

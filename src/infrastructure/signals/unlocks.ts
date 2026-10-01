@@ -26,8 +26,6 @@ const unlockCounter: WindowedCounter = {
 export const unlockWindowStart = (checkpoint: Date | null, now: Date) =>
   windowStart(checkpoint, now, MAX_WINDOW_MS);
 
-export type UnlockPreview = CountPreview;
-
 /** Unlocks so far in the current window, i.e. what the next live check-in would record. */
 export const previewUnlocks = (now: Date = new Date()) => previewCount(unlockCounter, now);
 

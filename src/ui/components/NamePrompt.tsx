@@ -4,12 +4,14 @@ import { KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, View } from '
 import { NAME_MAX_LENGTH } from '@domain/settings/settings';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { Button } from './Button';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 type Props = { visible: boolean; onSave: (name: string) => void; onSkip: () => void };
 
 /** Asked once, until the user gives a name. "Not now" asks again next launch. */
 export function NamePrompt({ visible, onSave, onSkip }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const c = useColors();
   const [name, setName] = useState('');
   const trimmed = name.trim();
@@ -19,13 +21,13 @@ export function NamePrompt({ visible, onSave, onSkip }: Props) {
       <KeyboardAvoidingView style={styles.backdrop} behavior="padding">
         <View style={styles.card}>
           <Text style={styles.wave}>👋</Text>
-          <Text style={styles.title}>What should I call you?</Text>
-          <Text style={styles.body}>Used in greetings and reminders. It stays on this phone.</Text>
+          <Text style={styles.title}>{m.name.promptTitle}</Text>
+          <Text style={styles.body}>{m.name.promptBody}</Text>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
-            placeholder="Your name"
+            placeholder={m.name.placeholder}
             placeholderTextColor={c.muted}
             maxLength={NAME_MAX_LENGTH}
             autoFocus
@@ -33,8 +35,8 @@ export function NamePrompt({ visible, onSave, onSkip }: Props) {
             returnKeyType="done"
             onSubmitEditing={() => trimmed && onSave(trimmed)}
           />
-          <Button title="Continue" onPress={() => onSave(trimmed)} disabled={!trimmed} />
-          <Button title="Not now" variant="secondary" onPress={onSkip} />
+          <Button title={m.common.continue} onPress={() => onSave(trimmed)} disabled={!trimmed} />
+          <Button title={m.common.notNow} variant="secondary" onPress={onSkip} />
         </View>
       </KeyboardAvoidingView>
     </Modal>

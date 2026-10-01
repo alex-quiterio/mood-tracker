@@ -8,6 +8,7 @@ import {
   OPTION_LABEL_MAX_LENGTH,
   addOption,
   createHabit,
+  localizeHabit,
   parsePrice,
   removeOption,
   updateHabit,
@@ -15,6 +16,7 @@ import {
 } from '@domain/habits/habits';
 import { Button } from '@ui/components/Button';
 import { SettingsStore } from '@ui/hooks/useSettings';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 
 /** Which habits to log, their prices, usual amounts, weights and options. Collapsed by default. */
@@ -24,6 +26,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const { habits, habitsInPrompt } = settings.settings;
+  const { m, locale } = useLocale();
   const setHabits = (next: Habit[]) => settings.update({ habits: next });
   const tracked = habits.filter((h) => !h.archived);
 
@@ -36,8 +39,10 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
         style={styles.header}
       >
         <View style={styles.flex}>
-          <Text style={styles.title}>Habits</Text>
-          <Text style={styles.muted}>{tracked.map((h) => h.emoji).join(' ') || 'None tracked'}</Text>
+          <Text style={styles.title}>{m.habitSettings.title}</Text>
+          <Text style={styles.muted}>
+            {tracked.map((h) => h.emoji).join(' ') || m.habitSettings.noneTracked}
+          </Text>
         </View>
         <Text style={styles.chevron}>{expanded ? '▴' : '▾'}</Text>
       </Pressable>
@@ -52,6 +57,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
             <HabitRow
               key={h.id}
               habit={h}
+              shown={localizeHabit(h, locale)}
               open={editing === h.id}
               onToggleOpen={() => setEditing(editing === h.id ? null : h.id)}
               onChange={(patch) => setHabits(updateHabit(habits, h.id, patch))}
@@ -62,7 +68,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
             onAdd={(name, emoji, kind) => setHabits([...habits, createHabit(habits, name, emoji, kind)])}
           />
           <View style={styles.switchRow}>
-            <Text style={[styles.body, styles.flex]}>Include habits in the Claude prompt</Text>
+            <Text style={[styles.body, styles.flex]}>{m.habitSettings.inPrompt}</Text>
             <Switch
               value={habitsInPrompt}
               onValueChange={(v) => settings.update({ habitsInPrompt: v })}
@@ -78,19 +84,22 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
 
 type RowProps = {
   habit: Habit;
+  /** The habit as shown, in the app's language; edits apply to `habit`. */
+  shown: Habit;
   open: boolean;
   onToggleOpen: () => void;
   onChange: (patch: Partial<Omit<Habit, 'id'>>) => void;
   onReplace: (habit: Habit) => void;
 };
 
-function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) {
+function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: RowProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [price, setPrice] = useState(habit.pricePerDose?.toString() ?? '');
   const [optionLabel, setOptionLabel] = useState('');
   const [optionEmoji, setOptionEmoji] = useState('');
   const reduce = habit.kind === 'reduce';
+  const { m } = useLocale();
 
   return (
     <View style={styles.habit}>
@@ -102,12 +111,14 @@ function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) 
           accessibilityState={{ expanded: open }}
         >
           <Text style={[styles.habitName, habit.archived && styles.archived]}>
-            {habit.emoji} {habit.name}
+            {shown.emoji} {shown.name}
           </Text>
           <Text style={styles.muted}>
-            {reduce ? `To reduce · 🪨 ${weightOf(habit)}/dose` : `To grow · 🌱 ${weightOf(habit)}`}
+            {reduce
+              ? m.habitSettings.reduceSummary(weightOf(habit))
+              : m.habitSettings.growSummary(weightOf(habit))}
             {reduce && habit.pricePerDose ? ` · €${habit.pricePerDose}` : ''}
-            {open ? '' : ' · edit'}
+            {open ? '' : m.habitSettings.edit}
           </Text>
         </Pressable>
         <Switch
@@ -115,18 +126,22 @@ function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) 
           onValueChange={(on) => onChange({ archived: !on })}
           trackColor={{ true: c.accent, false: c.border }}
           thumbColor={c.surface}
-          accessibilityLabel={`Track ${habit.name}`}
+          accessibilityLabel={m.habitSettings.track(shown.name)}
         />
       </View>
 
       {open && (
         <View style={styles.editor}>
-          <Field label="Name">
+          <Field label={m.habitSettings.name}>
             <TextInput
               style={[styles.input, styles.flex]}
-              defaultValue={habit.name}
+              defaultValue={shown.name}
               maxLength={HABIT_NAME_MAX_LENGTH}
-              onEndEditing={(e) => e.nativeEvent.text.trim() && onChange({ name: e.nativeEvent.text.trim() })}
+              // Only a real change becomes your own name; leaving it keeps the translated preset.
+              onEndEditing={(e) => {
+                const name = e.nativeEvent.text.trim();
+                if (name && name !== shown.name) onChange({ name });
+              }}
             />
             <TextInput
               style={[styles.input, styles.emojiInput]}
@@ -139,7 +154,7 @@ function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) 
           </Field>
           {reduce && (
             <>
-              <Field label="Price per dose (€)">
+              <Field label={m.habitSettings.price}>
                 <TextInput
                   style={[styles.input, styles.numberInput]}
                   value={price}
@@ -150,7 +165,7 @@ function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) 
                   placeholderTextColor={c.muted}
                 />
               </Field>
-              <Field label="Usually per day, before">
+              <Field label={m.habitSettings.usual}>
                 <Stepper
                   value={habit.usualPerDay ?? 0}
                   max={60}
@@ -159,20 +174,20 @@ function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) 
               </Field>
             </>
           )}
-          <Field label={reduce ? 'Heavy points per dose' : 'Light points when done'}>
+          <Field label={reduce ? m.habitSettings.heavyPoints : m.habitSettings.lightPoints}>
             <Stepper value={weightOf(habit)} max={5} onChange={(n) => onChange({ weight: n })} />
           </Field>
           {!reduce && (
             <View style={styles.options}>
-              <Text style={styles.fieldLabel}>Options (optional)</Text>
+              <Text style={styles.fieldLabel}>{m.habitSettings.options}</Text>
               <View style={styles.chips}>
-                {(habit.options ?? []).map((o) => (
+                {(shown.options ?? []).map((o) => (
                   <Pressable
                     key={o.id}
                     onPress={() => onReplace(removeOption(habit, o.id))}
                     style={styles.chip}
                     accessibilityRole="button"
-                    accessibilityLabel={`Remove ${o.label}`}
+                    accessibilityLabel={m.habitSettings.removeOption(o.label)}
                   >
                     <Text style={styles.chipText}>
                       {o.emoji} {o.label} ×
@@ -193,12 +208,12 @@ function HabitRow({ habit, open, onToggleOpen, onChange, onReplace }: RowProps) 
                   style={[styles.input, styles.flex]}
                   value={optionLabel}
                   onChangeText={setOptionLabel}
-                  placeholder="Add an option, e.g. Gardening"
+                  placeholder={m.habitSettings.optionPlaceholder}
                   placeholderTextColor={c.muted}
                   maxLength={OPTION_LABEL_MAX_LENGTH}
                 />
                 <Button
-                  title="Add"
+                  title={m.common.add}
                   variant="secondary"
                   disabled={!optionLabel.trim()}
                   onPress={() => {
@@ -222,10 +237,11 @@ function NewHabit({ onAdd }: { onAdd: (name: string, emoji: string, kind: HabitK
   const [name, setName] = useState('');
   const [emoji, setEmoji] = useState('');
   const [kind, setKind] = useState<HabitKind>('grow');
+  const { m } = useLocale();
 
   return (
     <View style={styles.newHabit}>
-      <Text style={styles.fieldLabel}>Add a habit</Text>
+      <Text style={styles.fieldLabel}>{m.habitSettings.addHabit}</Text>
       <View style={styles.row}>
         <TextInput
           style={[styles.input, styles.emojiInput]}
@@ -239,7 +255,7 @@ function NewHabit({ onAdd }: { onAdd: (name: string, emoji: string, kind: HabitK
           style={[styles.input, styles.flex]}
           value={name}
           onChangeText={setName}
-          placeholder="e.g. Read before bed"
+          placeholder={m.habitSettings.habitPlaceholder}
           placeholderTextColor={c.muted}
           maxLength={HABIT_NAME_MAX_LENGTH}
         />
@@ -254,13 +270,13 @@ function NewHabit({ onAdd }: { onAdd: (name: string, emoji: string, kind: HabitK
             accessibilityState={{ selected: kind === k }}
           >
             <Text style={[styles.chipText, kind === k && styles.chipTextOn]}>
-              {k === 'grow' ? '🌱 To grow' : '🪨 To reduce'}
+              {k === 'grow' ? m.habitSettings.toGrow : m.habitSettings.toReduce}
             </Text>
           </Pressable>
         ))}
         <View style={styles.flex} />
         <Button
-          title="Add"
+          title={m.common.add}
           disabled={!name.trim()}
           onPress={() => {
             onAdd(name, emoji, kind);
@@ -285,13 +301,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Stepper({ value, max, onChange }: { value: number; max: number; onChange: (n: number) => void }) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   return (
     <View style={styles.row}>
       <Pressable
         style={styles.step}
         onPress={() => onChange(Math.max(0, value - 1))}
         disabled={value <= 0}
-        accessibilityLabel="Less"
+        accessibilityLabel={m.common.less}
       >
         <Text style={styles.stepText}>−</Text>
       </Pressable>
@@ -300,7 +317,7 @@ function Stepper({ value, max, onChange }: { value: number; max: number; onChang
         style={styles.step}
         onPress={() => onChange(Math.min(max, value + 1))}
         disabled={value >= max}
-        accessibilityLabel="More"
+        accessibilityLabel={m.common.more}
       >
         <Text style={styles.stepText}>+</Text>
       </Pressable>

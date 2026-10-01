@@ -9,6 +9,7 @@ import {
   toggleOption,
 } from '@domain/habits/habits';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 type Props = { habits: Habit[]; log: HabitLog; onChange: (log: HabitLog) => void };
 
@@ -19,6 +20,7 @@ type Props = { habits: Habit[]; log: HabitLog; onChange: (log: HabitLog) => void
 export function HabitLogger({ habits, log, onChange }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
+  const { m } = useLocale();
   const reduce = activeHabits(habits, 'reduce');
   const grow = activeHabits(habits, 'grow');
   if (reduce.length === 0 && grow.length === 0) return null;
@@ -42,7 +44,7 @@ export function HabitLogger({ habits, log, onChange }: Props) {
 
   return (
     <View style={styles.root}>
-      {reduce.length > 0 && <Text style={styles.heading}>Since your last check-in</Text>}
+      {reduce.length > 0 && <Text style={styles.heading}>{m.habits.sinceLastCheckIn}</Text>}
       {reduce.map((h) => {
         const dose = log.doses[h.id];
         return (
@@ -52,23 +54,23 @@ export function HabitLogger({ habits, log, onChange }: Props) {
             </Text>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={dose ? `Roughly: ${dose.approx ? 'on' : 'off'}` : 'Roughly'}
+              accessibilityLabel={m.habits.roughlyA11y(!!dose?.approx)}
               disabled={!dose}
               onPress={() => toggleApprox(h.id)}
               style={[styles.approx, dose?.approx && styles.approxOn, !dose && styles.hidden]}
             >
-              <Text style={[styles.approxText, dose?.approx && styles.approxTextOn]}>≈ roughly</Text>
+              <Text style={[styles.approxText, dose?.approx && styles.approxTextOn]}>{m.habits.roughly}</Text>
             </Pressable>
             <Step
               label="−"
-              hint={`Fewer ${h.unit}`}
+              hint={m.habits.fewer(h.unit || h.name)}
               onPress={() => setDose(h.id, dose ? dose.count - 1 : 0)}
               disabled={dose?.count === 0}
             />
             <Pressable
               onLongPress={() => setDose(h.id, null)}
               accessibilityLabel={
-                dose ? `${dose.count} ${h.unit}. Long press to clear.` : `${h.name} not logged`
+                dose ? m.habits.countA11y(dose.count, h.unit || h.name) : m.habits.notLoggedA11y(h.name)
               }
               style={styles.countBox}
             >
@@ -76,12 +78,16 @@ export function HabitLogger({ habits, log, onChange }: Props) {
                 {!dose ? '–' : dose.count === 0 ? '🌱' : dose.count}
               </Text>
             </Pressable>
-            <Step label="+" hint={`More ${h.unit}`} onPress={() => setDose(h.id, (dose?.count ?? 0) + 1)} />
+            <Step
+              label="+"
+              hint={m.habits.moreOf(h.unit || h.name)}
+              onPress={() => setDose(h.id, (dose?.count ?? 0) + 1)}
+            />
           </View>
         );
       })}
 
-      {grow.length > 0 && <Text style={styles.heading}>Good things you did</Text>}
+      {grow.length > 0 && <Text style={styles.heading}>{m.habits.goodThings}</Text>}
       <View style={styles.chips}>
         {grow
           .filter((h) => !h.options?.length)
@@ -118,7 +124,7 @@ export function HabitLogger({ habits, log, onChange }: Props) {
         style={styles.instead}
         value={log.instead ?? ''}
         onChangeText={(instead) => onChange({ ...log, instead })}
-        placeholder="🌱 What did you do instead? (optional)"
+        placeholder={m.habits.insteadPlaceholder}
         placeholderTextColor={c.muted}
         maxLength={INSTEAD_MAX_LENGTH}
       />

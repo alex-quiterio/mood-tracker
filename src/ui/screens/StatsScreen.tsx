@@ -4,7 +4,9 @@ import { Button } from '@ui/components/Button';
 import { HistoryCalendar } from '@ui/components/HistoryCalendar';
 import { Habit } from '@domain/habits/habits';
 import { HabitsWeek } from '@ui/habits/HabitsWeek';
-import { dayOfMonth, weekdayShort } from '@domain/shared/dates';
+import { dayOfMonth } from '@domain/shared/dates';
+import { weekdayShort } from '@domain/i18n/format';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { buildReflectionPrompt } from '@domain/voices/prompt';
 import { formatSteps, formatStepsShort } from '@domain/signals/format';
 import { formatAverage, weeklyStats } from '@domain/checkins/stats';
@@ -33,33 +35,36 @@ export function StatsScreen({
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
+  const { m, locale } = useLocale();
   const stats = weeklyStats(store.entries);
 
   const reflect = async () => {
     try {
       // Opens Android's share sheet; pick the Claude app. No API calls involved.
-      await Share.share({ message: buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null) });
+      await Share.share({
+        message: buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null, locale),
+      });
     } catch (e) {
-      Alert.alert('Could not open the share sheet', String(e));
+      Alert.alert(m.stats.shareFailed, String(e));
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.summary}>
-        <SummaryTile label="Overall average" value={formatAverage(stats.overallAverage)} />
-        <SummaryTile label="Check-ins logged" value={`${stats.logged} / ${stats.possible}`} />
+        <SummaryTile label={m.stats.overallAverage} value={formatAverage(stats.overallAverage, locale)} />
+        <SummaryTile label={m.stats.logged} value={`${stats.logged} / ${stats.possible}`} />
         {stats.unlockAverage !== null && (
-          <SummaryTile label="Unlocks per check-in" value={String(Math.round(stats.unlockAverage))} />
+          <SummaryTile label={m.stats.unlocksPerCheckIn} value={String(Math.round(stats.unlockAverage))} />
         )}
         {stats.stepAverage !== null && (
-          <SummaryTile label="Steps per check-in" value={formatSteps(stats.stepAverage)} />
+          <SummaryTile label={m.stats.stepsPerCheckIn} value={formatSteps(stats.stepAverage, locale)} />
         )}
       </View>
 
       <View style={styles.table}>
         <View style={styles.row}>
-          <Text style={[styles.dayCell, styles.headerText]}>Last 7 days</Text>
+          <Text style={[styles.dayCell, styles.headerText]}>{m.stats.last7Days}</Text>
           {SLOTS.map((slot) => (
             <Text key={slot} style={[styles.cell, styles.headerText]}>
               {voice.slotLabels[slot]}
@@ -70,7 +75,7 @@ export function StatsScreen({
         {stats.days.map((day) => (
           <View key={day.date} style={styles.row}>
             <Text style={styles.dayCell}>
-              {weekdayShort(day.date)} {dayOfMonth(day.date)}
+              {weekdayShort(day.date, locale)} {dayOfMonth(day.date)}
             </Text>
             {SLOTS.map((slot) => {
               const e = day.entries[slot];
@@ -78,20 +83,24 @@ export function StatsScreen({
                 <View
                   key={slot}
                   style={[styles.cell, styles.moodCell, e && { backgroundColor: c.moodColors[e.mood] }]}
-                  accessibilityLabel={`${day.date} ${slot}: ${
+                  accessibilityLabel={m.stats.cellA11y(
+                    day.date,
+                    voice.slotLabels[slot],
                     e
-                      ? `mood ${e.mood}${e.unlocks === undefined ? '' : `, ${e.unlocks} unlocks`}${
-                          e.steps === undefined ? '' : `, ${e.steps} steps`
-                        }`
-                      : 'not logged'
-                  }`}
+                      ? [
+                          m.stats.moodDetail(e.mood),
+                          ...(e.unlocks === undefined ? [] : [m.stats.unlocksDetail(e.unlocks)]),
+                          ...(e.steps === undefined ? [] : [m.stats.stepsDetail(e.steps)]),
+                        ].join(', ')
+                      : m.common.notLogged,
+                  )}
                 >
                   <Text style={e ? styles.moodText : styles.emptyText}>
                     {e ? `${voice.moodEmoji[e.mood]} ${e.mood}` : '–'}
                   </Text>
                   {e?.unlocks !== undefined && <Text style={styles.cellSignal}>📱 {e.unlocks}</Text>}
                   {e?.steps !== undefined && (
-                    <Text style={styles.cellSignal}>👟 {formatStepsShort(e.steps)}</Text>
+                    <Text style={styles.cellSignal}>👟 {formatStepsShort(e.steps, locale)}</Text>
                   )}
                 </View>
               );
@@ -100,17 +109,17 @@ export function StatsScreen({
         ))}
 
         <View style={[styles.row, styles.averageRow]}>
-          <Text style={[styles.dayCell, styles.headerText]}>Average</Text>
+          <Text style={[styles.dayCell, styles.headerText]}>{m.stats.average}</Text>
           {SLOTS.map((slot) => (
             <Text key={slot} style={[styles.cell, styles.averageText]}>
-              {formatAverage(stats.slotAverages[slot])}
+              {formatAverage(stats.slotAverages[slot], locale)}
             </Text>
           ))}
         </View>
 
         {stats.unlockAverage !== null && (
           <View style={styles.row}>
-            <Text style={[styles.dayCell, styles.headerText]}>📱 Unlocks</Text>
+            <Text style={[styles.dayCell, styles.headerText]}>{m.stats.unlocksRow}</Text>
             {SLOTS.map((slot) => {
               const avg = stats.slotUnlockAverages[slot];
               return (
@@ -124,12 +133,12 @@ export function StatsScreen({
 
         {stats.stepAverage !== null && (
           <View style={styles.row}>
-            <Text style={[styles.dayCell, styles.headerText]}>👟 Steps</Text>
+            <Text style={[styles.dayCell, styles.headerText]}>{m.stats.stepsRow}</Text>
             {SLOTS.map((slot) => {
               const avg = stats.slotStepAverages[slot];
               return (
                 <Text key={slot} style={[styles.cell, styles.averageText]}>
-                  {avg === null ? '–' : formatStepsShort(avg)}
+                  {avg === null ? '–' : formatStepsShort(avg, locale)}
                 </Text>
               );
             })}
@@ -138,24 +147,22 @@ export function StatsScreen({
       </View>
 
       <View style={styles.promptRow}>
-        <Text style={styles.promptLabel}>Include my habits</Text>
+        <Text style={styles.promptLabel}>{m.stats.includeHabits}</Text>
         <Switch
           value={habitsInPrompt}
           onValueChange={onHabitsInPromptChange}
           trackColor={{ true: c.accent, false: c.border }}
           thumbColor={c.surface}
-          accessibilityLabel="Include habits in the Claude prompt"
+          accessibilityLabel={m.stats.includeHabitsA11y}
         />
       </View>
-      <Button title="Reflect with Claude" onPress={reflect} disabled={stats.logged === 0} />
-      <Text style={styles.hint}>
-        Builds a text summary of this week and opens the share sheet. Send it to the Claude app.
-      </Text>
+      <Button title={m.stats.reflect} onPress={reflect} disabled={stats.logged === 0} />
+      <Text style={styles.hint}>{m.stats.reflectHint}</Text>
 
-      <Text style={styles.sectionTitle}>Habits</Text>
+      <Text style={styles.sectionTitle}>{m.stats.habits}</Text>
       <HabitsWeek entries={store.entries} habits={habits} today={today} />
 
-      <Text style={styles.sectionTitle}>History</Text>
+      <Text style={styles.sectionTitle}>{m.stats.history}</Text>
       <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} habits={habits} />
     </ScrollView>
   );

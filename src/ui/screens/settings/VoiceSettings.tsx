@@ -16,12 +16,21 @@ import { DEFAULT_QUOTES } from '@domain/voices/quotes';
 import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { MOODS } from '@domain/checkins/types';
 import { SettingsStore } from '@ui/hooks/useSettings';
-import { VOICES, VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText } from '@domain/voices/voices';
+import { useLocale } from '@ui/i18n/LocaleContext';
+import {
+  VOICES,
+  VOICE_IDS,
+  localizeVoice,
+  VoiceId,
+  formatQuotesText,
+  parseQuotesText,
+} from '@domain/voices/voices';
 import { useVoice } from '@ui/theme/voiceContext';
 
 /** Pick a voice, and edit the quotes it shows. */
 export function VoiceSettings({ settings }: { settings: SettingsStore }) {
   const styles = useThemedStyles(makeStyles);
+  const { m, locale } = useLocale();
   const voice = useVoice();
   const [editing, setEditing] = useState(false);
   // Collapsed by default: the list is long and rarely changed.
@@ -34,12 +43,12 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded }}
-        accessibilityHint={expanded ? 'Hides the voices' : 'Shows all voices'}
+        accessibilityHint={expanded ? m.voiceSettings.hide : m.voiceSettings.show}
         onPress={() => setExpanded((e) => !e)}
         style={styles.header}
       >
         <View style={styles.headerText}>
-          <Text style={styles.title}>Voice</Text>
+          <Text style={styles.title}>{m.voiceSettings.title}</Text>
           <Text style={styles.current}>
             {voice.name} · {voice.tagline}
           </Text>
@@ -50,13 +59,10 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
 
       {expanded && (
         <>
-          <Text style={styles.body}>
-            Changes how the app speaks: mood names, emojis, questions and the Claude prompt. Your data stays
-            the same.
-          </Text>
+          <Text style={styles.body}>{m.voiceSettings.body}</Text>
           <View style={styles.list} accessibilityRole="radiogroup">
             {VOICE_IDS.map((id) => {
-              const v = VOICES[id];
+              const v = localizeVoice(VOICES[id], locale);
               const selected = id === voice.id;
               return (
                 <Pressable
@@ -83,11 +89,15 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
           <View style={styles.quotesRow}>
             <Text style={styles.body}>
               {voice.quotes.length === 0
-                ? 'No quotes yet for this voice.'
-                : `${voice.quotes.length} quotes · ${usingCustom ? 'your own' : 'defaults'}`}
+                ? m.voiceSettings.noQuotes
+                : m.voiceSettings.quoteCount(voice.quotes.length, usingCustom)}
             </Text>
           </View>
-          <Button title={`Edit ${voice.name} quotes`} variant="secondary" onPress={() => setEditing(true)} />
+          <Button
+            title={m.voiceSettings.edit(voice.name)}
+            variant="secondary"
+            onPress={() => setEditing(true)}
+          />
         </>
       )}
 
@@ -105,6 +115,7 @@ type EditorProps = { visible: boolean; voiceId: VoiceId; settings: SettingsStore
 
 function QuoteEditor({ visible, voiceId, settings, onClose }: EditorProps) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const c = useColors();
   const voice = useVoice();
   const [text, setText] = useState('');
@@ -118,9 +129,9 @@ function QuoteEditor({ visible, voiceId, settings, onClose }: EditorProps) {
   };
 
   const restore = () =>
-    Alert.alert('Restore the default quotes?', 'Your own quotes for this voice will be removed.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Restore', style: 'destructive', onPress: () => save([]) },
+    Alert.alert(m.voiceSettings.restoreTitle, m.voiceSettings.restoreBody, [
+      { text: m.common.cancel, style: 'cancel' },
+      { text: m.voiceSettings.restoreConfirm, style: 'destructive', onPress: () => save([]) },
     ]);
 
   return (
@@ -132,29 +143,26 @@ function QuoteEditor({ visible, voiceId, settings, onClose }: EditorProps) {
     >
       <SafeAreaView style={styles.editorRoot} edges={['top', 'bottom']}>
         <KeyboardAvoidingView style={styles.editor} behavior="padding">
-          <Text style={styles.editorTitle}>{VOICES[voiceId].name} quotes</Text>
-          <Text style={styles.body}>
-            One quote per paragraph, with a blank line between them. To credit a source, put it on the last
-            line, starting with “—”. Clear everything to go back to the defaults.
-          </Text>
+          <Text style={styles.editorTitle}>{m.voiceSettings.editorTitle(voice.name)}</Text>
+          <Text style={styles.body}>{m.voiceSettings.editorBody}</Text>
           <TextInput
             style={styles.editorInput}
             value={text}
             onChangeText={setText}
             multiline
             autoCorrect={false}
-            placeholder={'Write a quote here.\n— Where it is from (optional)'}
+            placeholder={m.voiceSettings.editorPlaceholder}
             placeholderTextColor={c.muted}
           />
-          <Button title="Save" onPress={() => save(parseQuotesText(text))} />
+          <Button title={m.common.save} onPress={() => save(parseQuotesText(text))} />
           <View style={styles.editorActions}>
             {DEFAULT_QUOTES[voiceId].length > 0 && (
               <View style={styles.flex}>
-                <Button title="Restore defaults" variant="secondary" onPress={restore} />
+                <Button title={m.voiceSettings.restore} variant="secondary" onPress={restore} />
               </View>
             )}
             <View style={styles.flex}>
-              <Button title="Cancel" variant="secondary" onPress={onClose} />
+              <Button title={m.common.cancel} variant="secondary" onPress={onClose} />
             </View>
           </View>
         </KeyboardAvoidingView>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Modal, StyleSheet, Text, View } from 'react-native';
 
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { useVoice } from '@ui/theme/voiceContext';
 import { Button } from './Button';
 
@@ -12,16 +13,12 @@ const SMALL = 0.55;
 
 type Phase = 'in' | 'out' | 'done';
 
-const PHASE_TEXT: Record<Exclude<Phase, 'done'>, string> = {
-  in: 'Breathe in…',
-  out: 'And slowly out…',
-};
-
 type Props = { visible: boolean; onClose: () => void };
 
 /** Three slow breaths, paced by a circle that grows on the inhale and shrinks on the longer exhale. */
 export function BreathingModal({ visible, onClose }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const voice = useVoice();
   const [scale] = useState(() => new Animated.Value(SMALL));
   const [phase, setPhase] = useState<Phase>('in');
@@ -64,9 +61,9 @@ export function BreathingModal({ visible, onClose }: Props) {
           <Animated.View style={[styles.circle, { transform: [{ scale }] }]} />
         </View>
         <Text style={styles.phase} accessibilityLiveRegion="polite">
-          {phase === 'done' ? voice.breathDone : PHASE_TEXT[phase]}
+          {phase === 'done' ? voice.breathDone : phase === 'in' ? m.practice.guidedIn : m.practice.guidedOut}
         </Text>
-        <Text style={styles.count}>{phase === 'done' ? ' ' : `Breath ${cycle} of ${CYCLES}`}</Text>
+        <Text style={styles.count}>{phase === 'done' ? ' ' : m.practice.guidedCount(cycle, CYCLES)}</Text>
         <View style={styles.actions}>
           <Button title={phase === 'done' ? 'Close' : 'Stop'} variant="secondary" onPress={onClose} />
         </View>

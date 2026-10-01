@@ -1,4 +1,6 @@
 import { Entry } from '@domain/checkins/types';
+import { Locale } from '@domain/i18n/locale';
+import { messages } from '@domain/i18n/messages';
 import { addDays, lastNDays } from '@domain/shared/dates';
 
 import { Habit, HabitLog, weightOf } from './habits';
@@ -56,13 +58,14 @@ export function balanceDays(entries: Entry[], habits: Habit[], days: string[]): 
 export type Verdict = { label: string; emoji: string };
 
 /** Kind words for the week's tilt; a heavier week gets encouragement, not blame. */
-export function verdictFor(light: number, heavy: number): Verdict | null {
+export function verdictFor(light: number, heavy: number, locale: Locale = 'en'): Verdict | null {
   if (light + heavy === 0) return null;
+  const v = messages(locale).balance.verdicts;
   const share = light / (light + heavy);
-  if (share >= 0.75) return { label: 'Flourishing', emoji: '🌳' };
-  if (share >= 0.55) return { label: 'Leaning light', emoji: '🌱' };
-  if (share >= 0.45) return { label: 'In balance', emoji: '⚖️' };
-  return { label: 'A heavier week; every light point counts', emoji: '🪨' };
+  if (share >= 0.75) return { label: v.flourishing, emoji: '🌳' };
+  if (share >= 0.55) return { label: v.leaningLight, emoji: '🌱' };
+  if (share >= 0.45) return { label: v.inBalance, emoji: '⚖️' };
+  return { label: v.heavier, emoji: '🪨' };
 }
 
 export type WeekBalance = {
@@ -75,7 +78,12 @@ export type WeekBalance = {
   verdict: Verdict | null;
 };
 
-export function weekBalance(entries: Entry[], habits: Habit[], today: string): WeekBalance {
+export function weekBalance(
+  entries: Entry[],
+  habits: Habit[],
+  today: string,
+  locale: Locale = 'en',
+): WeekBalance {
   const days = balanceDays(entries, habits, lastNDays(7, today));
   const previous = balanceDays(entries, habits, lastNDays(7, addDays(today, -7)));
   const light = days.reduce((s, d) => s + d.light, 0);
@@ -86,17 +94,22 @@ export function weekBalance(entries: Entry[], habits: Habit[], today: string): W
     heavy,
     net: light - heavy,
     previousNet: previous.some((d) => d.logged) ? previous.reduce((s, d) => s + d.net, 0) : null,
-    verdict: verdictFor(light, heavy),
+    verdict: verdictFor(light, heavy, locale),
   };
 }
 
 /** "+5 vs last week", phrased so improvement stands out and a dip stays gentle. */
-export function compareWithLastWeek(net: number, previousNet: number | null): string | null {
+export function compareWithLastWeek(
+  net: number,
+  previousNet: number | null,
+  locale: Locale = 'en',
+): string | null {
   if (previousNet === null) return null;
+  const m = messages(locale).balance;
   const diff = net - previousNet;
-  if (diff > 0) return `+${diff} lighter than last week`;
-  if (diff < 0) return `${diff} vs last week — tomorrow is a fresh start`;
-  return 'Same as last week';
+  if (diff > 0) return m.lighter(diff);
+  if (diff < 0) return m.heavierThanLast(diff);
+  return m.same;
 }
 
 export const formatPoints = (n: number) => (n > 0 ? `+${n}` : String(n));

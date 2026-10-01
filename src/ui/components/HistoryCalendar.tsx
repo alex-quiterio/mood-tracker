@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   EDITABLE_DAYS,
   HISTORY_MONTHS,
-  MONTH_NAMES,
   MonthRef,
   canShowMonth,
   isEditable,
@@ -15,16 +14,16 @@ import {
   summarizeDay,
 } from '@domain/checkins/calendar';
 import { Entry, SLOTS } from '@domain/checkins/types';
-import { dayOfMonth, parseLocalDate } from '@domain/shared/dates';
+import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@domain/signals/describe';
+import { longDate, monthTitle, weekdayInitials } from '@domain/i18n/format';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { Habit } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { useVoice } from '@ui/theme/voiceContext';
 
 import { Button } from './Button';
-
-const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 type Props = {
   entries: Entry[];
@@ -37,6 +36,7 @@ type Props = {
 /** Six months of check-ins, a month at a time. The last week can be edited; older days are read-only. */
 export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { m, locale } = useLocale();
   const c = useColors();
   const [month, setMonth] = useState<MonthRef>(monthOf(today));
   const [selected, setSelected] = useState<string>(today);
@@ -49,23 +49,21 @@ export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
       <View style={styles.header}>
         <ArrowButton
           label="‹"
-          hint="Previous month"
+          hint={m.calendar.previousMonth}
           disabled={!canShowMonth(prev, today)}
           onPress={() => setMonth(prev)}
         />
-        <Text style={styles.month}>
-          {MONTH_NAMES[month.month]} {month.year}
-        </Text>
+        <Text style={styles.month}>{monthTitle(month.year, month.month, locale)}</Text>
         <ArrowButton
           label="›"
-          hint="Next month"
+          hint={m.calendar.nextMonth}
           disabled={!canShowMonth(next, today)}
           onPress={() => setMonth(next)}
         />
       </View>
 
       <View style={styles.week}>
-        {WEEKDAYS.map((d, i) => (
+        {weekdayInitials(locale).map((d, i) => (
           <Text key={i} style={[styles.cell, styles.weekday]}>
             {d}
           </Text>
@@ -85,7 +83,7 @@ export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
                 onPress={() => setSelected(date)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected, disabled: !visible }}
-                accessibilityLabel={`${date}: ${count} of 3 logged`}
+                accessibilityLabel={m.calendar.dayA11y(date, count)}
                 style={[
                   styles.cell,
                   styles.day,
@@ -103,9 +101,7 @@ export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
       ))}
 
       <DayDetail entries={entries} date={selected} today={today} onEditDay={onEditDay} habits={habits} />
-      <Text style={styles.hint}>
-        Shows the last {HISTORY_MONTHS} months. Only the last {EDITABLE_DAYS} days can be edited.
-      </Text>
+      <Text style={styles.hint}>{m.calendar.hint(HISTORY_MONTHS, EDITABLE_DAYS)}</Text>
     </View>
   );
 }
@@ -124,17 +120,14 @@ function DayDetail({
   habits: Habit[];
 }) {
   const styles = useThemedStyles(makeStyles);
+  const { m, locale } = useLocale();
   const c = useColors();
   const voice = useVoice();
-  const label = parseLocalDate(date).toLocaleDateString(undefined, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
+  const label = longDate(date, locale);
 
   return (
     <View style={styles.detail}>
-      <Text style={styles.detailTitle}>{date === today ? 'Today' : label}</Text>
+      <Text style={styles.detailTitle}>{date === today ? m.common.today : label}</Text>
       {SLOTS.map((slot) => {
         const e = entries.find((x) => x.date === date && x.slot === slot);
         return (
@@ -152,22 +145,22 @@ function DayDetail({
                   <Text style={styles.signal}>{describeLog(e.habits, habits)}</Text>
                 ) : null}
                 {e.habits?.instead ? <Text style={styles.instead}>🌱 {e.habits.instead}</Text> : null}
-                {describeSignals(e).map((line) => (
+                {describeSignals(e, locale).map((line) => (
                   <Text key={line} style={styles.signal}>
                     {line}
                   </Text>
                 ))}
               </View>
             ) : (
-              <Text style={styles.empty}>Not logged</Text>
+              <Text style={styles.empty}>{m.common.notLogged}</Text>
             )}
           </View>
         );
       })}
       {isEditable(date, today) ? (
-        <Button title="Edit this day" variant="secondary" onPress={() => onEditDay(date)} />
+        <Button title={m.calendar.editDay} variant="secondary" onPress={() => onEditDay(date)} />
       ) : (
-        <Text style={styles.readOnly}>Read-only: older than {EDITABLE_DAYS} days.</Text>
+        <Text style={styles.readOnly}>{m.calendar.readOnly(EDITABLE_DAYS)}</Text>
       )}
     </View>
   );

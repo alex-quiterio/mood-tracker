@@ -3,11 +3,13 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { quoteOfTheDay } from '@domain/voices/voices';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { useVoice } from '@ui/theme/voiceContext';
 
 /** Today's quote for the current voice. Tap for another. */
 export function QuoteCard({ date }: { date: string }) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const voice = useVoice();
   const [offset, setOffset] = useState(0);
   const quote = quoteOfTheDay(voice.quotes, date, offset);
@@ -16,7 +18,7 @@ export function QuoteCard({ date }: { date: string }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityHint={voice.quotes.length > 1 ? 'Shows another quote' : undefined}
+      accessibilityHint={voice.quotes.length > 1 ? m.checkin.anotherQuote : undefined}
       onPress={() => setOffset((o) => o + 1)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

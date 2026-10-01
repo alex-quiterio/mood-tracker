@@ -1,4 +1,7 @@
 import { Entry } from '@domain/checkins/types';
+import { formatEuros } from '@domain/i18n/format';
+import { Locale } from '@domain/i18n/locale';
+import { messages } from '@domain/i18n/messages';
 import { addDays, lastNDays } from '@domain/shared/dates';
 
 import { Habit, HabitLog, activeHabits } from './habits';
@@ -31,27 +34,19 @@ export function savings(entries: Entry[], habit: Habit, fromDate?: string, toDat
 export const totalSavings = (entries: Entry[], habits: Habit[], fromDate?: string, toDate?: string) =>
   habits.reduce((sum, h) => sum + (h.kind === 'reduce' ? savings(entries, h, fromDate, toDate) : 0), 0);
 
-/** Something real the savings could buy, to make the number feel like something. */
-export const SAVINGS_MILESTONES: { amount: number; label: string }[] = [
-  { amount: 5, label: 'a fresh coffee ☕' },
-  { amount: 12, label: 'coffee and cake for two 🍰' },
-  { amount: 25, label: 'a cinema night 🎬' },
-  { amount: 50, label: 'a dinner out 🍝' },
-  { amount: 100, label: 'a new pair of shoes 👟' },
-  { amount: 150, label: 'a weekend away 🚆' },
-  { amount: 300, label: 'a new bike 🚲' },
-  { amount: 600, label: 'a holiday 🏖️' },
-];
+/** Amounts of the milestones; each locale names something real they could buy. */
+export const SAVINGS_MILESTONES = [5, 12, 25, 50, 100, 150, 300, 600];
 
 /** The biggest milestone reached and the next one to aim for. */
-export function savingsMilestone(amount: number) {
-  const reached = [...SAVINGS_MILESTONES].reverse().find((m) => amount >= m.amount) ?? null;
-  const next = SAVINGS_MILESTONES.find((m) => amount < m.amount) ?? null;
+export function savingsMilestone(amount: number, locale: Locale = 'en') {
+  const labels = messages(locale).savings.milestones;
+  const toMilestone = (a: number | undefined) => (a === undefined ? null : { amount: a, label: labels[a] });
+  const reached = toMilestone([...SAVINGS_MILESTONES].reverse().find((a) => amount >= a));
+  const next = toMilestone(SAVINGS_MILESTONES.find((a) => amount < a));
   return { reached, next, progress: next ? amount / next.amount : 1 };
 }
 
-export const formatEuros = (amount: number) =>
-  `€${amount >= 100 ? Math.round(amount) : amount.toFixed(2).replace(/\.00$/, '')}`;
+export { formatEuros };
 
 export type HabitWeek = {
   habit: Habit;
@@ -102,18 +97,20 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
 }
 
 /** One line per habit for a week, phrased around what went right. */
-export function describeHabitWeek(w: HabitWeek): string {
+export function describeHabitWeek(w: HabitWeek, locale: Locale = 'en'): string {
   const { habit } = w;
-  if (w.logged === 0) return `${habit.emoji} ${habit.name}: not logged this week`;
-  if (habit.kind === 'grow') return `${habit.emoji} ${habit.name} in ${w.wins} of ${w.logged} check-ins`;
-  return `${habit.emoji} None in ${w.wins} of ${w.logged} check-ins · ${w.total} ${habit.unit} in all`;
+  const m = messages(locale).habits;
+  if (w.logged === 0) return m.notLoggedThisWeek(habit.emoji, habit.name);
+  if (habit.kind === 'grow') return m.growWeek(habit.emoji, habit.name, w.wins, w.logged);
+  return m.reduceWeek(habit.emoji, w.wins, w.logged, w.total, habit.unit);
 }
 
 /** One habit's week for the Claude prompt, in plain words. */
-export function promptHabitWeek(w: HabitWeek): string {
+export function promptHabitWeek(w: HabitWeek, locale: Locale = 'en'): string {
   const { habit } = w;
-  if (habit.kind === 'grow') return `${habit.name}: done in ${w.wins} of ${w.logged} check-ins`;
-  return `${habit.name}: none in ${w.wins} of ${w.logged} check-ins, ${w.total} ${habit.unit} in all`;
+  const m = messages(locale).prompt;
+  if (habit.kind === 'grow') return m.habitGrow(habit.name, w.wins, w.logged);
+  return m.habitReduce(habit.name, w.wins, w.logged, w.total, habit.unit);
 }
 
 /** A check-in's habits as short text, e.g. "🚬 2≈ · 🍺 0 · 💧 🚶". */
@@ -132,11 +129,12 @@ export function describeLog(log: HabitLog | undefined, habits: Habit[]): string 
 }
 
 /** Habit lines for the Claude prompt. */
-export function promptHabitText(log: HabitLog | undefined, habits: Habit[]): string {
+export function promptHabitText(log: HabitLog | undefined, habits: Habit[], locale: Locale = 'en'): string {
   if (!log) return '';
+  const m = messages(locale).prompt;
   const byId = new Map(habits.map((h) => [h.id, h]));
   const parts = Object.entries(log.doses).map(
-    ([id, d]) => `${d.approx ? 'about ' : ''}${d.count} ${byId.get(id)?.unit ?? id}`,
+    ([id, d]) => `${d.approx ? m.about : ''}${d.count} ${byId.get(id)?.unit ?? id}`,
   );
   const did = log.did.map((id) => {
     const habit = byId.get(id);
@@ -146,7 +144,7 @@ export function promptHabitText(log: HabitLog | undefined, habits: Habit[]): str
     const name = habit?.name.toLowerCase() ?? id;
     return picked?.length ? `${name} (${picked.join(', ')})` : name;
   });
-  if (did.length) parts.push(`did: ${did.join(', ')}`);
-  if (log.instead) parts.push(`instead: "${log.instead}"`);
+  if (did.length) parts.push(m.did(did.join(', ')));
+  if (log.instead) parts.push(m.insteadNote(log.instead));
   return parts.join('; ');
 }

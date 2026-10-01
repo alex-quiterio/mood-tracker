@@ -3,18 +3,12 @@
 export type BreathPhaseKind = 'in' | 'hold' | 'out';
 export type BreathPhase = { kind: BreathPhaseKind; seconds: number };
 
-export type BreathPattern = {
-  id: 'calm' | 'box' | 'relax';
-  name: string;
-  description: string;
-  phases: BreathPhase[];
-};
+/** Names and descriptions live in the message catalogues, keyed by id. */
+export type BreathPattern = { id: 'calm' | 'box' | 'relax'; phases: BreathPhase[] };
 
 export const BREATH_PATTERNS: BreathPattern[] = [
   {
     id: 'calm',
-    name: 'Calm',
-    description: 'In for 4, out for 6. A longer out-breath slows you down.',
     phases: [
       { kind: 'in', seconds: 4 },
       { kind: 'out', seconds: 6 },
@@ -22,8 +16,6 @@ export const BREATH_PATTERNS: BreathPattern[] = [
   },
   {
     id: 'box',
-    name: 'Box',
-    description: 'In, hold, out, hold, for 4 each. Steady and even.',
     phases: [
       { kind: 'in', seconds: 4 },
       { kind: 'hold', seconds: 4 },
@@ -33,8 +25,6 @@ export const BREATH_PATTERNS: BreathPattern[] = [
   },
   {
     id: 'relax',
-    name: '4-7-8',
-    description: 'In for 4, hold for 7, out for 8. Good before sleep.',
     phases: [
       { kind: 'in', seconds: 4 },
       { kind: 'hold', seconds: 7 },
@@ -44,12 +34,6 @@ export const BREATH_PATTERNS: BreathPattern[] = [
 ];
 
 export const BREATH_COUNTS = [5, 10, 21] as const;
-
-export const PHASE_TEXT: Record<BreathPhaseKind, string> = {
-  in: 'Breathe in',
-  hold: 'Hold',
-  out: 'Breathe out',
-};
 
 export const breathSeconds = (pattern: BreathPattern) =>
   pattern.phases.reduce((sum, p) => sum + p.seconds, 0);
@@ -99,24 +83,10 @@ export function breathPositionAt(pattern: BreathPattern, breaths: number, elapse
 
 export const FOCUS_MINUTES = [1, 3, 5, 10] as const;
 
-export type FocusObject = { id: 'candle' | 'dot' | 'object'; name: string; hint: string };
+/** Names and hints live in the message catalogues, keyed by id. */
+export type FocusObject = { id: 'candle' | 'dot' | 'object' };
 
-export const FOCUS_OBJECTS: FocusObject[] = [
-  {
-    id: 'candle',
-    name: 'Candle',
-    hint: 'Rest your gaze on the flame. When your mind wanders, come back to it.',
-  },
-  { id: 'dot', name: 'Dot', hint: 'Rest your gaze on the dot. Let everything else soften.' },
-  {
-    id: 'object',
-    name: 'Something near you',
-    hint: 'Pick one object in front of you: a stone, a leaf, a cup. Rest your gaze on it until the bell.',
-  },
-];
-
-/** Shown when a focus session ends, as in trataka: the image lingers with your eyes closed. */
-export const FOCUS_DONE = 'Close your eyes and watch the afterimage fade.';
+export const FOCUS_OBJECTS: FocusObject[] = [{ id: 'candle' }, { id: 'dot' }, { id: 'object' }];
 
 /** 0:45 · 4:05 · 10:00 */
 export function formatClock(seconds: number): string {

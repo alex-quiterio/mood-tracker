@@ -7,7 +7,8 @@ import { Button } from '@ui/components/Button';
 import { Burst, MoodBurst, makeBurst } from '@ui/components/MoodBurst';
 import { MoodPicker } from '@ui/components/MoodPicker';
 import { LiveCount, LiveCounts } from '@ui/components/LiveCounts';
-import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '@domain/shared/dates';
+import { dayOfMonth, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
+import { weekdayShort } from '@domain/i18n/format';
 import { NOTE_MAX_LENGTH, entryKey } from '@domain/checkins/entries';
 import {
   burstEmojis,
@@ -30,6 +31,7 @@ import { PracticeModal } from '@ui/practice/PracticeModal';
 import { Habit, HabitLog, EMPTY_LOG, cleanLog, isWin, sameLog } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
 import { HabitLogger } from '@ui/habits/HabitLogger';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { useVoice } from '@ui/theme/voiceContext';
 
 export type Tracking = { unlocks: boolean; steps: boolean };
@@ -59,27 +61,29 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
   const liveUnlocks = useLivePreview(previewUnlocks, tracking.unlocks, store.entries);
   const liveSteps = useLivePreview(previewSteps, tracking.steps, store.entries);
   const voice = useVoice();
+  const { m, locale } = useLocale();
 
-  const greeting = greetingFor(slotForTime());
-  const streak = streakLabel(currentStreak(store.entries, today));
+  const greeting = greetingFor(slotForTime(), locale);
+  const streak = streakLabel(currentStreak(store.entries, today), locale);
   const week = weeklyStats(store.entries, today);
   const liveCounts: LiveCount[] = [];
   if (liveUnlocks) {
     liveCounts.push({
       icon: '📱',
       value: String(liveUnlocks.count),
-      unit: liveUnlocks.count === 1 ? 'unlock' : 'unlocks',
+      unit: m.signals.unlocks(liveUnlocks.count),
       from: liveUnlocks.from,
-      usual: week.unlockAverage === null ? null : `Usually about ${Math.round(week.unlockAverage)}`,
+      usual:
+        week.unlockAverage === null ? null : m.checkin.usuallyAbout(String(Math.round(week.unlockAverage))),
     });
   }
   if (liveSteps) {
     liveCounts.push({
       icon: '👟',
-      value: formatSteps(liveSteps.count),
-      unit: liveSteps.count === 1 ? 'step' : 'steps',
+      value: formatSteps(liveSteps.count, locale),
+      unit: m.signals.steps(liveSteps.count),
       from: liveSteps.from,
-      usual: week.stepAverage === null ? null : `Usually about ${formatSteps(week.stepAverage)}`,
+      usual: week.stepAverage === null ? null : m.checkin.usuallyAbout(formatSteps(week.stepAverage, locale)),
     });
   }
 
@@ -100,7 +104,7 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.greetingRow}>
           <PauseOrb emoji={greeting.emoji} onPress={() => setPracticing(true)} />
-          <Text style={styles.greeting}>{greetingText(slotForTime(), name)}</Text>
+          <Text style={styles.greeting}>{greetingText(slotForTime(), name, locale)}</Text>
           {streak && (
             <View style={styles.streak}>
               <Text style={styles.streakText}>{streak}</Text>
@@ -118,7 +122,7 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
             <View style={styles.comfortActions}>
               <View style={styles.flex}>
                 <Button
-                  title="Breathe with me"
+                  title={m.checkin.breatheWithMe}
                   onPress={() => {
                     setOfferBreath(false);
                     setBreathing(true);
@@ -126,7 +130,7 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
                 />
               </View>
               <View style={styles.flex}>
-                <Button title="Not now" variant="secondary" onPress={() => setOfferBreath(false)} />
+                <Button title={m.common.notNow} variant="secondary" onPress={() => setOfferBreath(false)} />
               </View>
             </View>
           </View>
@@ -141,12 +145,12 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
                 key={d}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
-                accessibilityLabel={`${d}, ${count} of 3 logged`}
+                accessibilityLabel={m.checkin.dayA11y(d, count)}
                 onPress={() => selectDate(d)}
                 style={[styles.day, selected && styles.daySelected]}
               >
                 <Text style={[styles.dayName, selected && styles.daySelectedText]}>
-                  {d === today ? 'Today' : weekdayShort(d)}
+                  {d === today ? m.common.today : weekdayShort(d, locale)}
                 </Text>
                 <Text style={[styles.dayNumber, selected && styles.daySelectedText]}>{dayOfMonth(d)}</Text>
                 <Text style={[styles.dayDots, selected && styles.daySelectedText]}>
@@ -200,6 +204,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, on
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
+  const { m } = useLocale();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
   const [habitLog, setHabitLog] = useState<HabitLog>(entry?.habits ?? EMPTY_LOG);
@@ -223,14 +228,14 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, on
       await store.save(next);
       onSaved(mood, isWin(logged));
     } catch (e) {
-      Alert.alert('Could not save', String(e));
+      Alert.alert(m.checkin.couldNotSave, String(e));
     }
   };
 
   const clear = () =>
-    Alert.alert('Remove this check-in?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => store.remove(date, slot) },
+    Alert.alert(m.checkin.removeTitle, undefined, [
+      { text: m.common.cancel, style: 'cancel' },
+      { text: m.common.remove, style: 'destructive', onPress: () => store.remove(date, slot) },
     ]);
 
   if (!open) {
@@ -245,7 +250,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, on
               </Text>
             </View>
           ) : (
-            <Text style={styles.muted}>Not logged</Text>
+            <Text style={styles.muted}>{m.common.notLogged}</Text>
           )}
         </View>
         {entry?.note ? (
@@ -282,10 +287,14 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, on
         multiline
       />
       <HabitLogger habits={habits} log={habitLog} onChange={setHabitLog} />
-      <Button title={entry ? 'Update' : 'Save'} onPress={save} disabled={mood === null || unchanged} />
+      <Button
+        title={entry ? m.common.update : m.common.save}
+        onPress={save}
+        disabled={mood === null || unchanged}
+      />
       {entry && (
         <Pressable accessibilityRole="button" onPress={clear} style={styles.removeLink}>
-          <Text style={styles.removeText}>Remove check-in</Text>
+          <Text style={styles.removeText}>{m.checkin.removeLink}</Text>
         </Pressable>
       )}
     </View>
@@ -305,7 +314,8 @@ function HabitLines({ log, habits }: { log: HabitLog; habits: Habit[] }) {
 
 function SignalLines({ entry }: { entry: Entry }) {
   const styles = useThemedStyles(makeStyles);
-  return describeSignals(entry).map((line) => (
+  const { locale } = useLocale();
+  return describeSignals(entry, locale).map((line) => (
     <Text key={line} style={styles.unlocks}>
       {line}
     </Text>

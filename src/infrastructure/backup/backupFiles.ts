@@ -8,16 +8,20 @@ import { Habit } from '@domain/habits/habits';
 import { Entry } from '@domain/checkins/types';
 
 /** Writes all entries (and habit definitions) to a JSON file and opens the share sheet to save it elsewhere. */
-export async function exportEntries(entries: Entry[], habits: Habit[]): Promise<void> {
+export async function exportEntries(
+  entries: Entry[],
+  habits: Habit[],
+  text: { dialogTitle: string; unavailable: string },
+): Promise<void> {
   const file = new File(Paths.cache, `mood-tracker-${localDate()}.json`);
   if (file.exists) file.delete();
   file.create();
   file.write(serializeExport(entries, habits));
 
-  if (!(await Sharing.isAvailableAsync())) throw new Error('Sharing is not available on this device.');
+  if (!(await Sharing.isAvailableAsync())) throw new Error(text.unavailable);
   await Sharing.shareAsync(file.uri, {
     mimeType: 'application/json',
-    dialogTitle: 'Save your mood data',
+    dialogTitle: text.dialogTitle,
   });
 }
 

@@ -14,6 +14,7 @@ import {
 } from '@domain/practice/practices';
 import { Button } from '@ui/components/Button';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 import { BreathSession } from './BreathSession';
 import { FocusSession } from './FocusSession';
@@ -25,6 +26,7 @@ type Running =
 /** A pause from the day: count breaths, or rest your gaze on one thing until the bell. */
 export function PracticeModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const [pattern, setPattern] = useState(BREATH_PATTERNS[0]);
   const [breaths, setBreaths] = useState<number>(10);
   const [minutes, setMinutes] = useState<number>(3);
@@ -51,47 +53,48 @@ export function PracticeModal({ visible, onClose }: { visible: boolean; onClose:
         )}
         {!running && (
           <ScrollView contentContainerStyle={styles.menu}>
-            <Text style={styles.title}>Take a pause</Text>
+            <Text style={styles.title}>{m.practice.title}</Text>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>🌬️ Count your breaths</Text>
+              <Text style={styles.cardTitle}>{m.practice.countBreaths}</Text>
               <Chips
-                options={BREATH_PATTERNS.map((p) => ({ key: p.id, label: p.name }))}
+                options={BREATH_PATTERNS.map((p) => ({ key: p.id, label: m.practice.patterns[p.id].name }))}
                 selected={pattern.id}
                 onSelect={(id) => setPattern(BREATH_PATTERNS.find((p) => p.id === id)!)}
               />
-              <Text style={styles.body}>{pattern.description}</Text>
+              <Text style={styles.body}>{m.practice.patterns[pattern.id].description}</Text>
               <Chips
-                options={BREATH_COUNTS.map((n) => ({ key: String(n), label: `${n} breaths` }))}
+                options={BREATH_COUNTS.map((n) => ({ key: String(n), label: m.practice.breathsOption(n) }))}
                 selected={String(breaths)}
                 onSelect={(n) => setBreaths(Number(n))}
               />
               <Button
-                title={`Start · ${formatClock(breathSessionSeconds(pattern, breaths))}`}
+                title={m.practice.startFor(formatClock(breathSessionSeconds(pattern, breaths)))}
                 onPress={() => setRunning({ kind: 'breath', pattern, breaths })}
               />
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>🕯️ Focus until the bell</Text>
+              <Text style={styles.cardTitle}>{m.practice.focus}</Text>
               <Chips
-                options={FOCUS_OBJECTS.map((o) => ({ key: o.id, label: o.name }))}
+                options={FOCUS_OBJECTS.map((o) => ({ key: o.id, label: m.practice.objects[o.id].name }))}
                 selected={object.id}
                 onSelect={(id) => setObject(FOCUS_OBJECTS.find((o) => o.id === id)!)}
               />
-              <Text style={styles.body}>{object.hint}</Text>
+              <Text style={styles.body}>{m.practice.objects[object.id].hint}</Text>
               <Chips
-                options={FOCUS_MINUTES.map((m) => ({ key: String(m), label: `${m} min` }))}
+                options={FOCUS_MINUTES.map((n) => ({ key: String(n), label: m.practice.minutesOption(n) }))}
                 selected={String(minutes)}
                 onSelect={(m) => setMinutes(Number(m))}
               />
-              <Button title="Start" onPress={() => setRunning({ kind: 'focus', minutes, object })} />
+              <Button
+                title={m.practice.start}
+                onPress={() => setRunning({ kind: 'focus', minutes, object })}
+              />
             </View>
 
-            <Text style={styles.footnote}>
-              The screen stays on, and a bell rings at the end even if it locks.
-            </Text>
-            <Button title="Back to check-in" variant="secondary" onPress={close} />
+            <Text style={styles.footnote}>{m.practice.footnote}</Text>
+            <Button title={m.practice.back} variant="secondary" onPress={close} />
           </ScrollView>
         )}
       </SafeAreaView>

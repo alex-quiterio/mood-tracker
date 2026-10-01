@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { Locale } from '@domain/i18n/locale';
+import { messages } from '@domain/i18n/messages';
 import { ReminderTimes, reminderMessage } from '@domain/reminders/times';
 import { SLOTS } from '@domain/checkins/types';
 
@@ -29,13 +31,13 @@ const serialize = <T>(task: () => Promise<T>): Promise<T> => {
 };
 
 /** Replaces the scheduled reminders with one daily reminder per slot. */
-export function scheduleReminders(times: ReminderTimes, name: string): Promise<void> {
+export function scheduleReminders(times: ReminderTimes, name: string, locale: Locale = 'en'): Promise<void> {
   return serialize(async () => {
     await cancelReminders();
     for (const slot of SLOTS) {
       await Notifications.scheduleNotificationAsync({
         identifier: reminderId(slot),
-        content: reminderMessage(slot, name),
+        content: reminderMessage(slot, name, locale),
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: times[slot].hour,
@@ -48,17 +50,21 @@ export function scheduleReminders(times: ReminderTimes, name: string): Promise<v
 }
 
 /** Asks for permission and schedules the reminders. Returns false if notification permission was denied. */
-export async function enableReminders(times: ReminderTimes, name: string): Promise<boolean> {
+export async function enableReminders(
+  times: ReminderTimes,
+  name: string,
+  locale: Locale = 'en',
+): Promise<boolean> {
   const { status } = await Notifications.requestPermissionsAsync();
   if (status !== 'granted') return false;
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: 'Check-in reminders',
+      name: messages(locale).reminders.channel,
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }
-  await scheduleReminders(times, name);
+  await scheduleReminders(times, name, locale);
   return true;
 }
 

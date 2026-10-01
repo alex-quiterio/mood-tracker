@@ -14,8 +14,9 @@ import {
   shiftReminderTime,
 } from '@domain/reminders/times';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
-import { SLOTS, SLOT_LABEL, Slot } from '@domain/checkins/types';
+import { SLOTS, Slot } from '@domain/checkins/types';
 import { SettingsStore } from '@ui/hooks/useSettings';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 /** Daily reminders, one per slot, each movable within its slot's window. */
 export function ReminderSettings({ settings }: { settings: SettingsStore }) {
@@ -23,21 +24,19 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
   const c = useColors();
   const [busy, setBusy] = useState(false);
   const { remindersEnabled, reminderTimes, name } = settings.settings;
+  const { m, locale } = useLocale();
 
   const toggle = async (enabled: boolean) => {
     setBusy(true);
     try {
-      if (enabled && !(await enableReminders(reminderTimes, name))) {
-        Alert.alert(
-          'Notifications are off',
-          'Allow notifications for Mood Tracker in Android settings to get reminders.',
-        );
+      if (enabled && !(await enableReminders(reminderTimes, name, locale))) {
+        Alert.alert(m.reminders.offTitle, m.reminders.offBody);
         return;
       }
       if (!enabled) await disableReminders();
       await settings.update({ remindersEnabled: enabled });
     } catch (e) {
-      Alert.alert('Could not update reminders', String(e));
+      Alert.alert(m.reminders.failed, String(e));
     } finally {
       setBusy(false);
     }
@@ -50,14 +49,14 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
     };
     await settings.update({ reminderTimes: next });
     if (remindersEnabled) {
-      scheduleReminders(next, name).catch((e) => Alert.alert('Could not update reminders', String(e)));
+      scheduleReminders(next, name, locale).catch((e) => Alert.alert(m.reminders.failed, String(e)));
     }
   };
 
   return (
     <View style={styles.section}>
       <View style={styles.switchRow}>
-        <Text style={styles.title}>Daily reminders</Text>
+        <Text style={styles.title}>{m.reminders.title}</Text>
         <Switch
           value={remindersEnabled}
           onValueChange={toggle}
@@ -71,24 +70,24 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
         return (
           <View key={slot} style={styles.timeRow}>
             <View style={styles.timeLabel}>
-              <Text style={styles.slot}>{SLOT_LABEL[slot]}</Text>
+              <Text style={styles.slot}>{m.slots[slot]}</Text>
               <Text style={styles.range}>{formatRange(slot)}</Text>
             </View>
             <StepButton
               label="−"
-              hint={`Earlier ${SLOT_LABEL[slot].toLowerCase()} reminder`}
+              hint={m.reminders.earlier(m.slots[slot])}
               disabled={!canShift(slot, time, -1)}
               onPress={() => shift(slot, -1)}
             />
             <Text
               style={[styles.time, !remindersEnabled && styles.timeOff]}
-              accessibilityLabel={`${SLOT_LABEL[slot]} reminder at ${formatTime(time)}`}
+              accessibilityLabel={m.reminders.atA11y(m.slots[slot], formatTime(time))}
             >
               {formatTime(time)}
             </Text>
             <StepButton
               label="+"
-              hint={`Later ${SLOT_LABEL[slot].toLowerCase()} reminder`}
+              hint={m.reminders.later(m.slots[slot])}
               disabled={!canShift(slot, time, 1)}
               onPress={() => shift(slot, 1)}
             />

@@ -1,5 +1,6 @@
 import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
 import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
+import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/i18n/locale';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;
@@ -28,6 +29,8 @@ export type Settings = {
   habits: Habit[];
   /** Habit data is sensitive, so it only goes into the Claude prompt when you choose. */
   habitsInPrompt: boolean;
+  /** Follow the phone's language, or a fixed one. */
+  language: LanguageSetting;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -41,6 +44,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customQuotes: {},
   habits: PRESET_HABITS,
   habitsInPrompt: false,
+  language: 'system',
 };
 
 /** Settings from stored JSON; anything missing or invalid falls back to its default. */
@@ -57,6 +61,9 @@ export function parseSettings(value: unknown): Settings {
     customQuotes: parseCustomQuotes(stored.customQuotes),
     habits: parseHabits(stored.habits),
     habitsInPrompt: stored.habitsInPrompt === true,
+    language: LANGUAGE_SETTINGS.includes(stored.language as LanguageSetting)
+      ? (stored.language as LanguageSetting)
+      : DEFAULT_SETTINGS.language,
   };
 }
 

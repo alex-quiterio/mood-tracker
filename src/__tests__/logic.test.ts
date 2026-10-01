@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { PRESET_HABITS } from '@domain/habits/habits';
 
-import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
+import { ExportError, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
 import { mergeEntries, parseEntry, upsertEntry } from '@domain/checkins/entries';
 import { buildReflectionPrompt } from '@domain/voices/prompt';
@@ -155,10 +155,10 @@ describe('export format', () => {
   });
 
   it('rejects files that are not exports', () => {
-    expect(() => parseExport('not json')).toThrow('not valid JSON');
-    expect(() => parseExport('{"entries": []}')).toThrow('not a Mood Tracker export');
+    expect(() => parseExport('not json')).toThrow(new ExportError('notJson'));
+    expect(() => parseExport('{"entries": []}')).toThrow(new ExportError('notExport'));
     expect(() =>
       parseExport(JSON.stringify({ format: 'mood-tracker-export', version: 1, entries: [{ date: 'x' }] })),
-    ).toThrow('invalid entries');
+    ).toThrow(new ExportError('invalid'));
   });
 });

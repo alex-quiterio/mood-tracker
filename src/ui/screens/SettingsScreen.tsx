@@ -13,20 +13,15 @@ import {
 
 import { unlockStats } from '@modules/unlock-stats';
 import { mergeHabits } from '@domain/habits/habits';
+import { ExportError } from '@domain/checkins/exportFormat';
+import { LANGUAGE_SETTINGS } from '@domain/i18n/locale';
 import { exportEntries, pickImportFile } from '@infrastructure/backup/backupFiles';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { Button } from '@ui/components/Button';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
 import { NAME_MAX_LENGTH, cleanName } from '@domain/settings/settings';
 import { saveUnlockCheckpoint } from '@infrastructure/storage/checkpoints';
-import {
-  Palette,
-  THEMES,
-  THEME_LABEL,
-  paletteFor,
-  spacing,
-  useColors,
-  useThemedStyles,
-} from '@ui/theme/theme';
+import { Palette, THEMES, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { EntriesStore } from '@ui/hooks/useEntries';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { HabitSettings } from './settings/HabitSettings';
@@ -38,13 +33,19 @@ type Props = { store: EntriesStore; settings: SettingsStore };
 
 export function SettingsScreen({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
-  const { theme } = settings.settings;
+  const { m } = useLocale();
+  const { theme, language } = settings.settings;
+  const errorText = (e: unknown) =>
+    e instanceof ExportError ? m.backupErrors[e.code] : e instanceof Error ? e.message : String(e);
 
   const doExport = async () => {
     try {
-      await exportEntries(store.entries, settings.settings.habits);
+      await exportEntries(store.entries, settings.settings.habits, {
+        dialogTitle: m.settings.shareDialog,
+        unavailable: m.backupErrors.unavailable,
+      });
     } catch (e) {
-      Alert.alert('Export failed', e instanceof Error ? e.message : String(e));
+      Alert.alert(m.settings.exportFailed, errorText(e));
     }
   };
 
@@ -54,12 +55,9 @@ export function SettingsScreen({ store, settings }: Props) {
       if (!incoming) return;
       await store.importEntries(incoming.entries);
       await settings.update({ habits: mergeHabits(settings.settings.habits, incoming.habits) });
-      Alert.alert(
-        'Import complete',
-        `Read ${incoming.entries.length} entries. Where both had the same check-in, the newer one was kept.`,
-      );
+      Alert.alert(m.settings.importDone, m.settings.importDoneBody(incoming.entries.length));
     } catch (e) {
-      Alert.alert('Import failed', e instanceof Error ? e.message : String(e));
+      Alert.alert(m.settings.importFailed, errorText(e));
     }
   };
 
@@ -68,7 +66,29 @@ export function SettingsScreen({ store, settings }: Props) {
       <NameSettings settings={settings} />
 
       <View style={styles.section}>
-        <Text style={styles.title}>Theme</Text>
+        <Text style={styles.title}>{m.settings.language}</Text>
+        <View style={styles.languageRow} accessibilityRole="radiogroup">
+          {LANGUAGE_SETTINGS.map((option) => {
+            const selected = option === language;
+            return (
+              <Pressable
+                key={option}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                onPress={() => settings.update({ language: option })}
+                style={[styles.languageOption, selected && styles.languageOptionSelected]}
+              >
+                <Text style={[styles.languageText, selected && styles.languageTextSelected]}>
+                  {m.settings.languages[option]}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.title}>{m.settings.theme}</Text>
         <View style={styles.themeRow} accessibilityRole="radiogroup">
           {THEMES.map((name) => {
             const selected = name === theme;
@@ -78,7 +98,7 @@ export function SettingsScreen({ store, settings }: Props) {
                 key={name}
                 accessibilityRole="radio"
                 accessibilityState={{ selected }}
-                accessibilityLabel={`${THEME_LABEL[name]} theme`}
+                accessibilityLabel={m.settings.themeA11y(m.settings.themes[name])}
                 onPress={() => settings.update({ theme: name })}
                 style={[styles.themeOption, selected && styles.themeOptionSelected]}
               >
@@ -92,7 +112,7 @@ export function SettingsScreen({ store, settings }: Props) {
                   <View style={[styles.swatchDot, { backgroundColor: preview.accent }]} />
                 </View>
                 <Text style={[styles.themeLabel, selected && styles.themeLabelSelected]}>
-                  {THEME_LABEL[name]}
+                  {m.settings.themes[name]}
                 </Text>
               </Pressable>
             );
@@ -111,14 +131,11 @@ export function SettingsScreen({ store, settings }: Props) {
       <StepSettings settings={settings} />
 
       <View style={styles.section}>
-        <Text style={styles.title}>Your data</Text>
-        <Text style={styles.body}>
-          Everything is stored only on this phone ({store.entries.length} check-ins). Uninstalling the app or
-          switching phones deletes it, so export a backup now and then and save it somewhere safe.
-        </Text>
-        <Button title="Export backup (JSON)" onPress={doExport} disabled={store.entries.length === 0} />
-        <Button title="Import backup" variant="secondary" onPress={doImport} />
-        <Text style={styles.hint}>Importing merges with what is already here. Nothing is deleted.</Text>
+        <Text style={styles.title}>{m.settings.data}</Text>
+        <Text style={styles.body}>{m.settings.dataBody(store.entries.length)}</Text>
+        <Button title={m.settings.export} onPress={doExport} disabled={store.entries.length === 0} />
+        <Button title={m.settings.import} variant="secondary" onPress={doImport} />
+        <Text style={styles.hint}>{m.settings.importHint}</Text>
       </View>
     </ScrollView>
   );
@@ -128,6 +145,7 @@ function NameSettings({ settings }: { settings: SettingsStore }) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [draft, setDraft] = useState(settings.settings.name);
+  const { m, locale } = useLocale();
 
   const save = async () => {
     const name = cleanName(draft);
@@ -136,19 +154,19 @@ function NameSettings({ settings }: { settings: SettingsStore }) {
     await settings.update({ name });
     // Reminders mention the name, so refresh them.
     const { remindersEnabled, reminderTimes } = settings.settings;
-    if (remindersEnabled) scheduleReminders(reminderTimes, name).catch(() => {});
+    if (remindersEnabled) scheduleReminders(reminderTimes, name, locale).catch(() => {});
   };
 
   return (
     <View style={styles.section}>
-      <Text style={styles.title}>Your name</Text>
+      <Text style={styles.title}>{m.name.settingsTitle}</Text>
       <TextInput
         style={styles.input}
         value={draft}
         onChangeText={setDraft}
         onEndEditing={save}
         onSubmitEditing={save}
-        placeholder="What should I call you?"
+        placeholder={m.name.promptTitle}
         placeholderTextColor={c.muted}
         maxLength={NAME_MAX_LENGTH}
         autoCapitalize="words"
@@ -166,6 +184,7 @@ function UnlockSettings({ settings }: { settings: SettingsStore }) {
   // Set while the user is in Android settings granting access, so we can finish turning tracking on.
   const enablingRef = useRef(false);
   const enabled = settings.settings.trackUnlocks;
+  const { m } = useLocale();
 
   const enable = async () => {
     // Count from now, not from whenever tracking was last on.
@@ -188,26 +207,22 @@ function UnlockSettings({ settings }: { settings: SettingsStore }) {
   const toggle = async (on: boolean) => {
     if (!on) return settings.update({ trackUnlocks: false });
     if (unlockStats.hasUsageAccess()) return enable();
-    Alert.alert(
-      'Allow usage access',
-      'Android only shares unlock counts with apps that have usage access. On the next screen, find Mood Tracker and turn on "Permit usage access", then come back.\n\nIf it is greyed out or says "Restricted setting": open Android Settings > Apps > Mood Tracker, tap the ⋮ menu, choose "Allow restricted settings", then try again.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Open settings',
-          onPress: () => {
-            enablingRef.current = true;
-            unlockStats.openUsageAccessSettings();
-          },
+    Alert.alert(m.unlockSettings.accessTitle, m.unlockSettings.accessBody, [
+      { text: m.common.cancel, style: 'cancel' },
+      {
+        text: m.common.openSettings,
+        onPress: () => {
+          enablingRef.current = true;
+          unlockStats.openUsageAccessSettings();
         },
-      ],
-    );
+      },
+    ]);
   };
 
   return (
     <View style={styles.section}>
       <View style={styles.switchRow}>
-        <Text style={styles.title}>Phone unlocks</Text>
+        <Text style={styles.title}>{m.unlockSettings.title}</Text>
         <Switch
           value={enabled && supported}
           onValueChange={toggle}
@@ -216,16 +231,12 @@ function UnlockSettings({ settings }: { settings: SettingsStore }) {
           thumbColor={c.surface}
         />
       </View>
-      <Text style={styles.body}>
-        {supported
-          ? 'Counts how often you unlocked your phone since your last check-in, and adds it to the stats and the Claude prompt. Only check-ins saved for the current time slot get a count. The data stays on this phone.'
-          : 'Needs Android 9 or later and an installed build of the app (it does not work in Expo Go).'}
-      </Text>
+      <Text style={styles.body}>{supported ? m.unlockSettings.body : m.unlockSettings.unsupported}</Text>
       {supported && enabled && !hasAccess && (
         <>
-          <Text style={styles.warning}>Usage access is off, so unlocks are not being counted.</Text>
+          <Text style={styles.warning}>{m.unlockSettings.accessOff}</Text>
           <Button
-            title="Open usage access settings"
+            title={m.unlockSettings.openAccess}
             variant="secondary"
             onPress={unlockStats.openUsageAccessSettings}
           />
@@ -250,6 +261,18 @@ const makeStyles = (c: Palette) =>
     title: { fontSize: 18, fontWeight: '600', color: c.text },
     body: { color: c.muted, lineHeight: 20 },
     hint: { color: c.muted, fontSize: 13, textAlign: 'center' },
+    languageRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
+    languageOption: {
+      paddingHorizontal: spacing(3),
+      paddingVertical: spacing(2),
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.background,
+    },
+    languageOptionSelected: { backgroundColor: c.accent, borderColor: c.accent },
+    languageText: { color: c.text },
+    languageTextSelected: { color: c.accentText, fontWeight: '600' },
     warning: { color: c.danger },
     input: {
       borderWidth: 1,

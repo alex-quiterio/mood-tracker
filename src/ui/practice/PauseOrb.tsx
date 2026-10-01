@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text } from 'react-native';
 
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 /**
  * The greeting's sun or moon, gently breathing (in for 4, out for 6). Tapping it
@@ -9,6 +10,7 @@ import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
  */
 export function PauseOrb({ emoji, onPress }: { emoji: string; onPress: () => void }) {
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const [scale] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
@@ -36,13 +38,13 @@ export function PauseOrb({ emoji, onPress }: { emoji: string; onPress: () => voi
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel="Take a pause: breathing or focus"
+      accessibilityLabel={m.checkin.pauseA11y}
       hitSlop={10}
       style={styles.wrap}
     >
       <Animated.View style={[styles.halo, { transform: [{ scale }] }]} />
       <Text style={styles.emoji}>{emoji}</Text>
-      <Text style={styles.caption}>pause</Text>
+      <Text style={styles.caption}>{m.checkin.pause}</Text>
     </Pressable>
   );
 }

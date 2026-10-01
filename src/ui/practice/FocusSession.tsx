@@ -2,10 +2,11 @@ import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FOCUS_DONE, FocusObject, formatClock } from '@domain/practice/practices';
+import { FocusObject, formatClock } from '@domain/practice/practices';
 import { buzz, cancelBell, scheduleBell } from '@infrastructure/notifications/bell';
 import { Button } from '@ui/components/Button';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 /**
  * Rest your gaze on one thing until the bell (trataka). The screen stays on and
@@ -22,6 +23,7 @@ export function FocusSession({
 }) {
   useKeepAwake();
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const total = minutes * 60;
   const [startedAt] = useState(() => Date.now());
   const [now, setNow] = useState(startedAt);
@@ -33,7 +35,10 @@ export function FocusSession({
     const timer = setInterval(() => setNow(Date.now()), 250);
     let bellId: string | null = null;
     let finished = false;
-    scheduleBell(total, FOCUS_DONE).then((id) => (bellId = id));
+    scheduleBell(total, m.practice.focusDone, {
+      title: m.practice.bellTitle,
+      channel: m.practice.bellChannel,
+    }).then((id) => (bellId = id));
     const end = setTimeout(() => {
       finished = true;
       buzz();
@@ -43,18 +48,16 @@ export function FocusSession({
       clearTimeout(end);
       if (!finished) cancelBell(bellId);
     };
-  }, [total]);
+  }, [total, m]);
 
   return (
     <View style={styles.root}>
-      <Text style={styles.hint}>{done ? FOCUS_DONE : object.hint}</Text>
+      <Text style={styles.hint}>{done ? m.practice.focusDone : m.practice.objects[object.id].hint}</Text>
       <Pressable
         style={styles.stage}
         onPress={() => setShowTime((s) => !s)}
         accessibilityRole="button"
-        accessibilityLabel={
-          done ? 'Session finished' : `${formatClock(left)} left. Tap to show or hide the time.`
-        }
+        accessibilityLabel={done ? m.practice.finished : m.practice.timeLeftA11y(formatClock(left))}
       >
         {!done && object.id === 'candle' && <Flame />}
         {!done && object.id === 'dot' && <View style={styles.dot} />}

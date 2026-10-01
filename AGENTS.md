@@ -31,6 +31,7 @@ Run lint and typecheck before declaring any task done.
 - Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
 - The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
+- All user-facing text comes from `src/domain/i18n/en.ts` and `pt.ts` (European Portuguese: telemóvel, ecrã, registo, tu). `pt` is typed as `Messages`, so adding an English string without its Portuguese is a type error, and a test flags Portuguese left identical to English. Domain functions that produce text take a `locale`; the UI gets `{ m, locale }` from `useLocale()`. Voices are translated in `src/domain/voices/voices.pt.ts`; quotes are never translated.
 - Habits aim for good feedback loops: lead with wins (zeros, good habits, what you did instead), never let savings go negative, never use red or blame. Habit data only goes into the Claude prompt when `habitsInPrompt` is on.
 - Voices (`src/domain/voices/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and each voice's `quotesLicense` says why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
@@ -55,6 +56,7 @@ src/
     practice/                breathing patterns and focus sessions
     habits/                  habits, check-in habit logs, balance points, savings, weekly insights
     shared/                  local dates
+    i18n/                    locales, number/date formatting, message catalogues (en.ts, pt.ts)
   infrastructure/            adapters to the outside world; never imports ui/
     storage/                 AsyncStorage repositories: entries (with migrations), settings, checkpoints
     signals/                 unlocks and steps: native modules + checkpoints wired into the domain counter
@@ -62,6 +64,7 @@ src/
     backup/                  writing and reading export files
   ui/                        React Native
     theme/                   palettes, per-voice tones, theme and voice contexts
+    i18n/                    the locale context (useLocale)
     hooks/                   state hooks (entries, settings, live previews)
     components/              reusable UI
     practice/                the pause orb, practice menu and sessions

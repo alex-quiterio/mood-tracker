@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { WeekBalance, compareWithLastWeek, formatPoints } from '@domain/habits/balance';
-import { weekdayShort } from '@domain/shared/dates';
+import { weekdayShort } from '@domain/i18n/format';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 
 /**
@@ -22,14 +23,16 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
   const colors = balanceColors(c.isDark);
   const [selected, setSelected] = useState<string | null>(null);
   const scale = Math.max(1, ...week.days.map((d) => Math.max(d.light, d.heavy)));
-  const comparison = compareWithLastWeek(week.net, week.previousNet);
+  const { m, locale } = useLocale();
+  const day = (date: string) => weekdayShort(date, locale);
+  const comparison = compareWithLastWeek(week.net, week.previousNet, locale);
   const picked = week.days.find((d) => d.date === selected);
 
   if (!week.days.some((d) => d.logged)) {
     return (
       <View style={styles.card}>
-        <Text style={styles.title}>⚖️ Balance</Text>
-        <Text style={styles.muted}>Log habits with a check-in to see your balance of light and heavy.</Text>
+        <Text style={styles.title}>{m.balance.title}</Text>
+        <Text style={styles.muted}>{m.balance.empty}</Text>
       </View>
     );
   }
@@ -38,7 +41,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
     <View style={styles.card}>
       <View style={styles.heroRow}>
         <View style={styles.flex}>
-          <Text style={styles.title}>⚖️ Balance</Text>
+          <Text style={styles.title}>{m.balance.title}</Text>
           {week.verdict && (
             <Text style={styles.verdict}>
               {week.verdict.emoji} {week.verdict.label}
@@ -47,18 +50,20 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
         </View>
         <View style={styles.heroNumber}>
           <Text style={styles.hero}>{formatPoints(week.net)}</Text>
-          <Text style={styles.muted}>this week</Text>
+          <Text style={styles.muted}>{m.balance.thisWeek}</Text>
         </View>
       </View>
 
       <View style={styles.totals}>
-        <Legend color={colors.light} label={`🌱 Light ${week.light}`} />
-        <Legend color={colors.heavy} label={`🪨 Heavy ${week.heavy}`} />
+        <Legend color={colors.light} label={m.balance.light(week.light)} />
+        <Legend color={colors.heavy} label={m.balance.heavy(week.heavy)} />
       </View>
 
       <View
         style={styles.chart}
-        accessibilityLabel={`Balance by day: ${week.days.map((d) => `${weekdayShort(d.date)} ${formatPoints(d.net)}`).join(', ')}`}
+        accessibilityLabel={m.balance.chartA11y(
+          week.days.map((d) => `${day(d.date)} ${formatPoints(d.net)}`).join(', '),
+        )}
       >
         <View style={styles.baseline} />
         {week.days.map((d) => (
@@ -68,7 +73,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
             onPress={() => setSelected(d.date === selected ? null : d.date)}
             hitSlop={4}
             accessibilityRole="button"
-            accessibilityLabel={`${weekdayShort(d.date)}: light ${d.light}, heavy ${d.heavy}`}
+            accessibilityLabel={m.balance.barA11y(day(d.date), d.light, d.heavy)}
           >
             <View style={styles.half}>
               {d.light > 0 && (
@@ -90,7 +95,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
             <Text
               style={[styles.day, d.date === selected && styles.daySelected, !d.logged && styles.dayEmpty]}
             >
-              {weekdayShort(d.date)}
+              {day(d.date)}
             </Text>
           </Pressable>
         ))}
@@ -98,8 +103,8 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
 
       <Text style={styles.detail}>
         {picked
-          ? `${weekdayShort(picked.date)}: 🌱 ${picked.light} light · 🪨 ${picked.heavy} heavy · net ${formatPoints(picked.net)}`
-          : (comparison ?? 'Tap a day to see its points.')}
+          ? m.balance.dayDetail(day(picked.date), picked.light, picked.heavy, formatPoints(picked.net))
+          : (comparison ?? m.balance.tapDay)}
       </Text>
     </View>
   );

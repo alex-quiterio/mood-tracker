@@ -1,3 +1,4 @@
+import { useLocales } from 'expo-localization';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -22,15 +23,19 @@ import { StatsScreen } from '@ui/screens/StatsScreen';
 import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { EntriesStore, useEntries } from '@ui/hooks/useEntries';
 import { SettingsStore, useSettings } from '@ui/hooks/useSettings';
+import { localeFor } from '@domain/i18n/locale';
+import { messages } from '@domain/i18n/messages';
+import { localizeHabits } from '@domain/habits/habits';
 import { activeVoice } from '@domain/voices/voices';
+import { LocaleContext, useLocale } from '@ui/i18n/LocaleContext';
 import { VoiceContext } from '@ui/theme/voiceContext';
 
 configureNotificationHandler();
 
 const TABS = [
-  { key: 'checkin', title: 'Check-in', icon: '✎' },
-  { key: 'stats', title: 'This week', icon: '▦' },
-  { key: 'settings', title: 'Settings', icon: '⚙' },
+  { key: 'checkin', icon: '✎' },
+  { key: 'stats', icon: '▦' },
+  { key: 'settings', icon: '⚙' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -49,8 +54,12 @@ function useToday() {
 export default function App() {
   const store = useEntries();
   const settings = useSettings();
-  const { voice: voiceId, customQuotes } = settings.settings;
-  const voice = useMemo(() => activeVoice(voiceId, customQuotes), [voiceId, customQuotes]);
+  const { voice: voiceId, customQuotes, language } = settings.settings;
+  // Follows the phone's language live (useLocales re-renders when it changes).
+  const deviceTag = useLocales()[0]?.languageTag;
+  const locale = localeFor(language, deviceTag);
+  const localeValue = useMemo(() => ({ locale, m: messages(locale) }), [locale]);
+  const voice = useMemo(() => activeVoice(voiceId, customQuotes, locale), [voiceId, customQuotes, locale]);
   const { theme } = settings.settings;
   const palette = useMemo(() => paletteFor(theme, voiceId), [theme, voiceId]);
 
@@ -59,11 +68,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <ThemeContext.Provider value={palette}>
-        <VoiceContext.Provider value={voice}>
-          <Shell store={store} settings={settings} />
-        </VoiceContext.Provider>
-      </ThemeContext.Provider>
+      <LocaleContext.Provider value={localeValue}>
+        <ThemeContext.Provider value={palette}>
+          <VoiceContext.Provider value={voice}>
+            <Shell store={store} settings={settings} />
+          </VoiceContext.Provider>
+        </ThemeContext.Provider>
+      </LocaleContext.Provider>
     </SafeAreaProvider>
   );
 }
@@ -73,6 +84,12 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const c = useColors();
   const today = useToday();
   const [tab, setTab] = useState<TabKey>('checkin');
+  const { m, locale } = useLocale();
+  // Untouched preset habits show in the app's language.
+  const habits = useMemo(
+    () => localizeHabits(settings.settings.habits, locale),
+    [settings.settings.habits, locale],
+  );
   // A day picked in the calendar; the check-in screen opens on it.
   const [checkInDay, setCheckInDay] = useState<{ date: string; key: number } | null>(null);
   const editDay = (date: string) => {
@@ -85,9 +102,15 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
 
   const saveName = async (next: string) => {
     await settings.update({ name: next });
-    if (remindersEnabled) scheduleReminders(reminderTimes, next).catch(() => {});
+    if (remindersEnabled) scheduleReminders(reminderTimes, next, locale).catch(() => {});
   };
   const { trackUnlocks, trackSteps } = settings.settings;
+
+  // Reminders are written in the app's language, so reschedule them when it changes.
+  useEffect(() => {
+    if (remindersEnabled) scheduleReminders(reminderTimes, name, locale).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
 
   // Renew background step recording on launch, in case Play services dropped the subscription.
   useEffect(() => {
@@ -98,7 +121,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
       <StatusBar style={c.isDark ? 'light' : 'dark'} />
-      <Text style={styles.header}>{TABS.find((t) => t.key === tab)?.title}</Text>
+      <Text style={styles.header}>{m.tabs[tab]}</Text>
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         {!store.loaded ? (
           <ActivityIndicator style={styles.content} color={c.accent} />
@@ -112,7 +135,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 tracking={tracking}
                 name={name}
                 initialDate={checkInDay?.date}
-                habits={settings.settings.habits}
+                habits={habits}
               />
             )}
             {tab === 'stats' && (
@@ -120,7 +143,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 store={store}
                 today={today}
                 onEditDay={editDay}
-                habits={settings.settings.habits}
+                habits={habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
@@ -141,7 +164,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
               style={styles.tab}
             >
               <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
-              <Text style={[styles.tabText, selected && styles.tabSelected]}>{t.title}</Text>
+              <Text style={[styles.tabText, selected && styles.tabSelected]}>{m.tabs[t.key]}</Text>
             </Pressable>
           );
         })}

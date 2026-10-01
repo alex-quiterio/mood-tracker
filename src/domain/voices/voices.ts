@@ -1,4 +1,7 @@
+import { Locale } from '@domain/i18n/locale';
+
 import { DEFAULT_QUOTES } from './quotes';
+import { VOICES_PT } from './voices.pt';
 import { MOOD_EMOJI, MOOD_LABEL, Mood, SLOT_LABEL, Slot } from '@domain/checkins/types';
 
 export const VOICE_IDS = [
@@ -350,12 +353,30 @@ export const VOICES: Record<VoiceId, Voice> = {
   },
 };
 
+/** The words of a voice that change with the language; emojis, colours and quotes don't. */
+export type VoiceText = Pick<
+  Voice,
+  'name' | 'tagline' | 'moodLabels' | 'slotLabels' | 'notePrompts' | 'comfort' | 'breathDone' | 'claude'
+>;
+
+/** A voice in a language. English is the source; other locales replace its words. */
+export function localizeVoice(voice: Voice, locale: Locale): Voice {
+  return locale === 'pt-PT' ? { ...voice, ...VOICES_PT[voice.id] } : voice;
+}
+
 export type ActiveVoice = Voice & { quotes: Quote[] };
 
 /** The voice with its quotes: the user's own if they've set any, otherwise the defaults. */
-export function activeVoice(id: VoiceId, customQuotes: Partial<Record<VoiceId, Quote[]>>): ActiveVoice {
+export function activeVoice(
+  id: VoiceId,
+  customQuotes: Partial<Record<VoiceId, Quote[]>>,
+  locale: Locale = 'en',
+): ActiveVoice {
   const custom = customQuotes[id];
-  return { ...VOICES[id], quotes: custom && custom.length > 0 ? custom : DEFAULT_QUOTES[id] };
+  return {
+    ...localizeVoice(VOICES[id], locale),
+    quotes: custom && custom.length > 0 ? custom : DEFAULT_QUOTES[id],
+  };
 }
 
 /** The same quote all day, the next one tomorrow. `offset` lets the user tap through others. */

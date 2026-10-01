@@ -4,7 +4,6 @@ import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 
 import {
   BreathPattern,
-  PHASE_TEXT,
   breathPositionAt,
   breathSessionSeconds,
   formatClock,
@@ -12,6 +11,7 @@ import {
 import { buzz, cancelBell, scheduleBell } from '@infrastructure/notifications/bell';
 import { Button } from '@ui/components/Button';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { useLocale } from '@ui/i18n/LocaleContext';
 import { useVoice } from '@ui/theme/voiceContext';
 
 const SMALL = 0.5;
@@ -28,6 +28,7 @@ export function BreathSession({
 }) {
   useKeepAwake();
   const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
   const voice = useVoice();
   const [startedAt] = useState(() => Date.now());
   const [now, setNow] = useState(startedAt);
@@ -40,7 +41,10 @@ export function BreathSession({
     const timer = setInterval(() => setNow(Date.now()), 100);
     let bellId: string | null = null;
     let finished = false;
-    scheduleBell(total, voice.breathDone).then((id) => (bellId = id));
+    scheduleBell(total, voice.breathDone, {
+      title: m.practice.bellTitle,
+      channel: m.practice.bellChannel,
+    }).then((id) => (bellId = id));
     const end = setTimeout(() => {
       finished = true;
       buzz();
@@ -50,7 +54,7 @@ export function BreathSession({
       clearTimeout(end);
       if (!finished) cancelBell(bellId);
     };
-  }, [total, voice.breathDone]);
+  }, [total, voice.breathDone, m]);
 
   // Each phase eases the circle toward its size for the rest of that phase.
   const { breath, phaseIndex, phase, phaseElapsed, done } = pos;
@@ -76,12 +80,12 @@ export function BreathSession({
         <Text style={styles.count}>{done ? '✓' : breath}</Text>
       </View>
       <Text style={styles.phase} accessibilityLiveRegion="polite">
-        {done ? voice.breathDone : PHASE_TEXT[phase.kind]}
+        {done ? voice.breathDone : m.practice.phases[phase.kind]}
       </Text>
       <Text style={styles.meta}>
         {done
-          ? `${breaths} breaths · ${pattern.name}`
-          : `Breath ${breath} of ${breaths} · ${formatClock(total - (now - startedAt) / 1000)} left`}
+          ? m.practice.breathsDone(breaths, m.practice.patterns[pattern.id].name)
+          : m.practice.breathOf(breath, breaths, formatClock(total - (now - startedAt) / 1000))}
       </Text>
       <View style={styles.actions}>
         <Button title={done ? 'Close' : 'Stop'} variant="secondary" onPress={onClose} />

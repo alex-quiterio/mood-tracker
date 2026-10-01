@@ -61,18 +61,3 @@ export function summarizeDay(entries: Entry[], date: string): DaySummary {
   const average = moods.reduce((a, b) => a + b, 0) / moods.length;
   return { count: moods.length, average, mood: Math.min(5, Math.max(1, Math.round(average))) as Mood };
 }
-
-export const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];

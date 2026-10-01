@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { formatSince } from '@domain/signals/format';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 export type LiveCount = {
   icon: string;
@@ -16,6 +17,7 @@ export type LiveCount = {
 /** Live unlocks and steps since the last check-in, side by side at the top of the check-in screen. */
 export function LiveCounts({ counts, today }: { counts: LiveCount[]; today: string }) {
   const styles = useThemedStyles(makeStyles);
+  const { m, locale } = useLocale();
   if (counts.length === 0) return null;
 
   return (
@@ -24,7 +26,7 @@ export function LiveCounts({ counts, today }: { counts: LiveCount[]; today: stri
         <View
           key={c.unit}
           style={[styles.block, i > 0 && styles.divider]}
-          accessibilityLabel={`${c.value} ${c.unit} since ${formatSince(c.from, today)}`}
+          accessibilityLabel={m.signals.since(`${c.value} ${c.unit}`, formatSince(c.from, today, locale))}
         >
           <View style={styles.valueRow}>
             <Text style={styles.icon}>{c.icon}</Text>
@@ -32,10 +34,8 @@ export function LiveCounts({ counts, today }: { counts: LiveCount[]; today: stri
               {c.value}
             </Text>
           </View>
-          <Text style={styles.title}>
-            {c.unit} since {formatSince(c.from, today)}
-          </Text>
-          <Text style={styles.subtitle}>{c.usual ?? 'Saved with your next check-in'}</Text>
+          <Text style={styles.title}>{m.signals.since(c.unit, formatSince(c.from, today, locale))}</Text>
+          <Text style={styles.subtitle}>{c.usual ?? m.checkin.savedWithNext}</Text>
         </View>
       ))}
     </View>

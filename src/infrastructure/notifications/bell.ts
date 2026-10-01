@@ -9,20 +9,24 @@ const CHANNEL_ID = 'practice-bell';
  * screen locks or the app goes to the background. Returns null when
  * notifications aren't allowed; the session still ends with a vibration.
  */
-export async function scheduleBell(seconds: number, body: string): Promise<string | null> {
+export async function scheduleBell(
+  seconds: number,
+  body: string,
+  text: { title: string; channel: string } = { title: '🔔 Time', channel: 'Practice bell' },
+): Promise<string | null> {
   try {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') return null;
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-        name: 'Practice bell',
+        name: text.channel,
         importance: Notifications.AndroidImportance.HIGH,
         sound: 'default',
         vibrationPattern: [0, 300, 150, 300],
       });
     }
     return await Notifications.scheduleNotificationAsync({
-      content: { title: '🔔 Time', body, sound: 'default', data: { kind: BELL_KIND } },
+      content: { title: text.title, body, sound: 'default', data: { kind: BELL_KIND } },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: Math.max(1, Math.round(seconds)),

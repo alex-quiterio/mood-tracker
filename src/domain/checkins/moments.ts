@@ -1,20 +1,23 @@
-import { Mood, Slot } from './types';
+import { Locale } from '@domain/i18n/locale';
+import { messages } from '@domain/i18n/messages';
 import { Voice } from '@domain/voices/voices';
 
-const GREETINGS: Record<Slot, { text: string; emoji: string }> = {
-  morning: { text: 'Good morning', emoji: '☀️' },
-  afternoon: { text: 'Good afternoon', emoji: '🌤️' },
-  evening: { text: 'Good evening', emoji: '🌙' },
-};
+import { Mood, Slot } from './types';
 
-export const greetingFor = (slot: Slot) => GREETINGS[slot];
+const GREETING_EMOJI: Record<Slot, string> = { morning: '☀️', afternoon: '🌤️', evening: '🌙' };
+
+export const greetingFor = (slot: Slot, locale: Locale = 'en') => ({
+  text: messages(locale).greetings[slot],
+  emoji: GREETING_EMOJI[slot],
+});
 
 /** "Good morning, Alex" or just "Good morning". */
-export const greetingText = (slot: Slot, name: string) => `${GREETINGS[slot].text}${name ? `, ${name}` : ''}`;
+export const greetingText = (slot: Slot, name: string, locale: Locale = 'en') =>
+  `${messages(locale).greetings[slot]}${name ? `, ${name}` : ''}`;
 
 /** Shown from two days on; a single day isn't a streak yet. */
-export function streakLabel(days: number): string | null {
-  return days >= 2 ? `🔥 ${days}-day streak` : null;
+export function streakLabel(days: number, locale: Locale = 'en'): string | null {
+  return days >= 2 ? messages(locale).streak(days) : null;
 }
 
 /**

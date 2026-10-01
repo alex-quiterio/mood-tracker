@@ -6,26 +6,24 @@ import { Button } from '@ui/components/Button';
 import { startStepRecording } from '@infrastructure/signals/steps';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { SettingsStore } from '@ui/hooks/useSettings';
+import { Messages } from '@domain/i18n/messages';
+import { useLocale } from '@ui/i18n/LocaleContext';
 
 /** Asks for "Physical activity". True when granted (or not needed before Android 10). */
-async function ensurePermission(): Promise<boolean> {
+async function ensurePermission(m: Messages): Promise<boolean> {
   if (stepCounter.hasPermission()) return true;
   const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION, {
-    title: 'Count your steps?',
-    message: 'Mood Tracker asks your phone for your steps at each check-in. The count stays on this phone.',
-    buttonPositive: 'Allow',
-    buttonNegative: 'Not now',
+    title: m.stepSettings.askTitle,
+    message: m.stepSettings.askBody,
+    buttonPositive: m.common.allow,
+    buttonNegative: m.common.notNow,
   });
   if (result === PermissionsAndroid.RESULTS.GRANTED) return true;
   if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-    Alert.alert(
-      'Physical activity is off',
-      'Android won’t ask again. Turn on "Physical activity" for Mood Tracker in its app settings.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Open settings', onPress: () => Linking.openSettings() },
-      ],
-    );
+    Alert.alert(m.stepSettings.deniedTitle, m.stepSettings.deniedBody, [
+      { text: m.common.cancel, style: 'cancel' },
+      { text: m.common.openSettings, onPress: () => Linking.openSettings() },
+    ]);
   }
   return false;
 }
@@ -37,6 +35,7 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
   const [hasPermission, setHasPermission] = useState(() => stepCounter.hasPermission());
   const [busy, setBusy] = useState(false);
   const enabled = settings.settings.trackSteps;
+  const { m } = useLocale();
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
@@ -49,20 +48,17 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
     if (!on) return settings.update({ trackSteps: false });
     setBusy(true);
     try {
-      const granted = await ensurePermission();
+      const granted = await ensurePermission(m);
       setHasPermission(granted);
       if (!granted) return;
       // Starts background recording, and counts from now rather than from when tracking was last on.
       if (!(await startStepRecording())) {
-        Alert.alert(
-          'Could not start step counting',
-          'Google Play services did not start recording steps. Try again later.',
-        );
+        Alert.alert(m.stepSettings.startFailedTitle, m.stepSettings.startFailedBody);
         return;
       }
       await settings.update({ trackSteps: true });
     } catch (e) {
-      Alert.alert('Could not turn on step counting', String(e));
+      Alert.alert(m.stepSettings.failed, String(e));
     } finally {
       setBusy(false);
     }
@@ -71,7 +67,7 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
   return (
     <View style={styles.section}>
       <View style={styles.switchRow}>
-        <Text style={styles.title}>Steps</Text>
+        <Text style={styles.title}>{m.stepSettings.title}</Text>
         <Switch
           value={enabled && supported}
           onValueChange={toggle}
@@ -80,17 +76,15 @@ export function StepSettings({ settings }: { settings: SettingsStore }) {
           thumbColor={c.surface}
         />
       </View>
-      <Text style={styles.body}>
-        {supported
-          ? 'Counts your steps since your last check-in and adds them to the stats and the Claude prompt. Google Play services records the steps in the background, on this phone and without an account. Only check-ins saved for the current time slot get a count; steps are counted from when you turn this on.'
-          : 'Needs an up-to-date Google Play services and an installed build of the app (it does not work in Expo Go).'}
-      </Text>
+      <Text style={styles.body}>{supported ? m.stepSettings.body : m.stepSettings.unsupported}</Text>
       {supported && enabled && !hasPermission && (
         <>
-          <Text style={styles.warning}>
-            Physical activity permission is off, so steps are not being counted.
-          </Text>
-          <Button title="Open app settings" variant="secondary" onPress={() => Linking.openSettings()} />
+          <Text style={styles.warning}>{m.stepSettings.permissionOff}</Text>
+          <Button
+            title={m.common.openAppSettings}
+            variant="secondary"
+            onPress={() => Linking.openSettings()}
+          />
         </>
       )}
     </View>

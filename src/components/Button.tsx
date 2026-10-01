@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors, spacing } from '../theme';
+import { Palette, spacing, useThemedStyles } from '../theme';
 
 type Props = {
   title: string;
@@ -10,6 +10,7 @@ type Props = {
 };
 
 export function Button({ title, onPress, variant = 'primary', disabled }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const primary = variant === 'primary';
   return (
     <Pressable
@@ -27,17 +28,18 @@ export function Button({ title, onPress, variant = 'primary', disabled }: Props)
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    paddingVertical: spacing(3),
-    paddingHorizontal: spacing(4),
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  primary: { backgroundColor: colors.accent },
-  secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-  dimmed: { opacity: 0.6 },
-  text: { fontSize: 16, fontWeight: '600' },
-  primaryText: { color: colors.accentText },
-  secondaryText: { color: colors.text },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    base: {
+      paddingVertical: spacing(3),
+      paddingHorizontal: spacing(4),
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    primary: { backgroundColor: c.accent },
+    secondary: { backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
+    dimmed: { opacity: 0.6 },
+    text: { fontSize: 16, fontWeight: '600' },
+    primaryText: { color: c.accentText },
+    secondaryText: { color: c.text },
+  });

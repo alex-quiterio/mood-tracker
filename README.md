@@ -10,6 +10,7 @@ Built with Expo (SDK 57), React Native and TypeScript. Sideloaded; not on the Pl
 - **This week**: mood per slot per day for the last 7 days, the average per slot, the overall average, and how many of the 21 possible check-ins you logged.
 - **Reflect with Claude**: builds a plain-text prompt with the week's entries and asks for patterns plus one small suggestion. It opens Android's share sheet so you can send it to the Claude app.
 - **Reminders**: optional local notifications at 09:00, 14:00 and 20:00.
+- **Theme**: Light, Dim or Dark, chosen in Settings.
 - **Backup**: export all entries as a JSON file through the share sheet (save to Drive, email it, etc.) and import it on a new phone. Importing merges and keeps the newer entry for each date and slot.
 
 ## Data model

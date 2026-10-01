@@ -4,13 +4,14 @@ import { Button } from '../components/Button';
 import { dayOfMonth, weekdayShort } from '../dates';
 import { buildReflectionPrompt } from '../prompt';
 import { formatAverage, weeklyStats } from '../stats';
-import { colors, moodColors, spacing } from '../theme';
+import { Palette, moodColors, onMoodColor, spacing, useThemedStyles } from '../theme';
 import { MOOD_EMOJI, SLOTS, SLOT_LABEL } from '../types';
 import { EntriesStore } from '../useEntries';
 
 type Props = { store: EntriesStore };
 
 export function StatsScreen({ store }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const stats = weeklyStats(store.entries);
 
   const reflect = async () => {
@@ -80,6 +81,7 @@ export function StatsScreen({ store }: Props) {
 }
 
 function SummaryTile({ label, value }: { label: string; value: string }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
       <Text style={styles.tileValue}>{value}</Text>
@@ -88,41 +90,47 @@ function SummaryTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { padding: spacing(4), gap: spacing(4) },
-  summary: { flexDirection: 'row', gap: spacing(3) },
-  tile: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing(4),
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  tileValue: { fontSize: 28, fontWeight: '700', color: colors.text },
-  tileLabel: { color: colors.muted, marginTop: spacing(1) },
-  table: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing(3),
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing(1),
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
-  dayCell: { width: 76, color: colors.text },
-  cell: { flex: 1, textAlign: 'center' },
-  headerText: { fontSize: 12, color: colors.muted, fontWeight: '600' },
-  moodCell: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing(2),
-    borderRadius: 8,
-    backgroundColor: colors.background,
-  },
-  moodText: { color: colors.text },
-  emptyText: { color: colors.muted },
-  averageRow: { marginTop: spacing(1), paddingTop: spacing(2), borderTopWidth: 1, borderTopColor: colors.border },
-  averageText: { fontWeight: '700', color: colors.text },
-  hint: { color: colors.muted, textAlign: 'center', fontSize: 13 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    container: { padding: spacing(4), gap: spacing(4) },
+    summary: { flexDirection: 'row', gap: spacing(3) },
+    tile: {
+      flex: 1,
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: spacing(4),
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    tileValue: { fontSize: 28, fontWeight: '700', color: c.text },
+    tileLabel: { color: c.muted, marginTop: spacing(1) },
+    table: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: spacing(3),
+      borderWidth: 1,
+      borderColor: c.border,
+      gap: spacing(1),
+    },
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
+    dayCell: { width: 76, color: c.text },
+    cell: { flex: 1, textAlign: 'center' },
+    headerText: { fontSize: 12, color: c.muted, fontWeight: '600' },
+    moodCell: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing(2),
+      borderRadius: 8,
+      backgroundColor: c.background,
+    },
+    moodText: { color: onMoodColor },
+    emptyText: { color: c.muted },
+    averageRow: {
+      marginTop: spacing(1),
+      paddingTop: spacing(2),
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    averageText: { fontWeight: '700', color: c.text },
+    hint: { color: c.muted, textAlign: 'center', fontSize: 13 },
+  });

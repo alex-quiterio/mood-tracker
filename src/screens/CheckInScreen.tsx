@@ -5,13 +5,14 @@ import { Button } from '../components/Button';
 import { MoodPicker } from '../components/MoodPicker';
 import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../dates';
 import { NOTE_MAX_LENGTH, entryKey } from '../entries';
-import { colors, moodColors, spacing } from '../theme';
+import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
 import { Entry, MOOD_EMOJI, MOOD_LABEL, Mood, SLOTS, SLOT_LABEL, Slot } from '../types';
 import { EntriesStore } from '../useEntries';
 
 type Props = { store: EntriesStore };
 
 export function CheckInScreen({ store }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
   const [date, setDate] = useState(today);
@@ -83,6 +84,8 @@ type SlotCardProps = {
 };
 
 function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
+  const styles = useThemedStyles(makeStyles);
+  const c = useColors();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
 
@@ -115,7 +118,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
           <Text style={styles.slotTitle}>{SLOT_LABEL[slot]}</Text>
           {entry ? (
             <View style={[styles.badge, { backgroundColor: moodColors[entry.mood] }]}>
-              <Text>
+              <Text style={styles.badgeText}>
                 {MOOD_EMOJI[entry.mood]} {MOOD_LABEL[entry.mood]}
               </Text>
             </View>
@@ -146,7 +149,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
         value={note}
         onChangeText={setNote}
         placeholder="Add a note (optional)"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={c.muted}
         maxLength={NOTE_MAX_LENGTH}
         multiline
       />
@@ -160,47 +163,49 @@ function SlotCard({ date, slot, entry, open, onOpen, store }: SlotCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { padding: spacing(4), gap: spacing(3) },
-  dayStrip: { flexDirection: 'row', gap: spacing(1), marginBottom: spacing(1) },
-  day: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing(2),
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  daySelected: { backgroundColor: colors.accent, borderColor: colors.accent },
-  daySelectedText: { color: colors.accentText },
-  dayName: { fontSize: 11, color: colors.muted },
-  dayNumber: { fontSize: 17, fontWeight: '600', color: colors.text },
-  dayDots: { fontSize: 7, color: colors.muted, letterSpacing: 1, marginTop: 2 },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing(4),
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing(3),
-  },
-  cardOpen: { borderColor: colors.accent },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  slotTitle: { fontSize: 18, fontWeight: '600', color: colors.text },
-  muted: { color: colors.muted },
-  badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
-  notePreview: { color: colors.muted },
-  noteInput: {
-    minHeight: 64,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: spacing(3),
-    fontSize: 15,
-    color: colors.text,
-    textAlignVertical: 'top',
-  },
-  removeLink: { alignSelf: 'center', padding: spacing(1) },
-  removeText: { color: colors.danger },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    container: { padding: spacing(4), gap: spacing(3) },
+    dayStrip: { flexDirection: 'row', gap: spacing(1), marginBottom: spacing(1) },
+    day: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing(2),
+      borderRadius: 10,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    daySelected: { backgroundColor: c.accent, borderColor: c.accent },
+    daySelectedText: { color: c.accentText },
+    dayName: { fontSize: 11, color: c.muted },
+    dayNumber: { fontSize: 17, fontWeight: '600', color: c.text },
+    dayDots: { fontSize: 7, color: c.muted, letterSpacing: 1, marginTop: 2 },
+    card: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: spacing(4),
+      borderWidth: 1,
+      borderColor: c.border,
+      gap: spacing(3),
+    },
+    cardOpen: { borderColor: c.accent },
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    slotTitle: { fontSize: 18, fontWeight: '600', color: c.text },
+    muted: { color: c.muted },
+    badgeText: { color: onMoodColor },
+    badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
+    notePreview: { color: c.muted },
+    noteInput: {
+      minHeight: 64,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 12,
+      padding: spacing(3),
+      fontSize: 15,
+      color: c.text,
+      textAlignVertical: 'top',
+    },
+    removeLink: { alignSelf: 'center', padding: spacing(1) },
+    removeText: { color: c.danger },
+  });

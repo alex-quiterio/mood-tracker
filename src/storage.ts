@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { parseEntry } from './entries';
+import { THEMES, ThemeName } from './theme';
 import { Entry } from './types';
 
 const ENTRIES_KEY = 'mood-tracker:entries:v1';
@@ -8,9 +9,10 @@ const SETTINGS_KEY = 'mood-tracker:settings:v1';
 
 export type Settings = {
   remindersEnabled: boolean;
+  theme: ThemeName;
 };
 
-const DEFAULT_SETTINGS: Settings = { remindersEnabled: false };
+export const DEFAULT_SETTINGS: Settings = { remindersEnabled: false, theme: 'light' };
 
 export async function loadEntries(): Promise<Entry[]> {
   const raw = await AsyncStorage.getItem(ENTRIES_KEY);
@@ -26,7 +28,11 @@ export async function saveEntries(entries: Entry[]): Promise<void> {
 
 export async function loadSettings(): Promise<Settings> {
   const raw = await AsyncStorage.getItem(SETTINGS_KEY);
-  return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : DEFAULT_SETTINGS;
+  const stored: Partial<Settings> = raw ? JSON.parse(raw) : {};
+  return {
+    remindersEnabled: stored.remindersEnabled === true,
+    theme: THEMES.includes(stored.theme as ThemeName) ? (stored.theme as ThemeName) : DEFAULT_SETTINGS.theme,
+  };
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {

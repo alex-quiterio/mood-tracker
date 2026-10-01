@@ -76,6 +76,31 @@ describe('quotes', () => {
     expect(parseQuotesText('— just a dash')).toEqual([{ text: '— just a dash' }]);
   });
 
+  it('shows a different quote every day of the week, for every voice', () => {
+    const week = [
+      '2026-09-28',
+      '2026-09-29',
+      '2026-09-30',
+      '2026-10-01',
+      '2026-10-02',
+      '2026-10-03',
+      '2026-10-04',
+    ];
+    for (const id of VOICE_IDS) {
+      const list = DEFAULT_QUOTES[id];
+      if (list.length === 0) continue;
+      const picked = week.map((d) => quoteOfTheDay(list, d));
+      expect(new Set(picked).size).toBe(Math.min(7, list.length));
+    }
+  });
+
+  it('cycles across month and year boundaries without skipping', () => {
+    const list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((text) => ({ text }));
+    const days = ['2026-12-30', '2026-12-31', '2027-01-01', '2027-01-02'];
+    const idx = days.map((d) => list.indexOf(quoteOfTheDay(list, d)!));
+    for (let i = 1; i < idx.length; i++) expect(idx[i]).toBe((idx[i - 1] + 1) % list.length);
+  });
+
   it('picks the same quote all day and cycles with the offset', () => {
     const a = quoteOfTheDay(quotes, '2026-10-01');
     expect(quoteOfTheDay(quotes, '2026-10-01')).toBe(a);

@@ -256,13 +256,16 @@ export function activeVoice(id: VoiceId, customQuotes: Partial<Record<VoiceId, Q
   return { ...VOICES[id], quotes: custom && custom.length > 0 ? custom : DEFAULT_QUOTES[id] };
 }
 
-/** The same quote all day, a different one tomorrow. `offset` lets the user tap through others. */
+/** The same quote all day, the next one tomorrow. `offset` lets the user tap through others. */
 export function quoteOfTheDay(quotes: Quote[], date: string, offset = 0): Quote | null {
   if (quotes.length === 0) return null;
-  let hash = 0;
-  for (const ch of date) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return quotes[(hash + offset) % quotes.length];
+  // Step through the list one quote a day, so a week of 7+ quotes never repeats.
+  const [y, m, d] = date.split('-').map(Number);
+  const day = Math.round(Date.UTC(y, m - 1, d) / DAY_MS);
+  return quotes[(((day + offset) % quotes.length) + quotes.length) % quotes.length];
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Editor format: one quote per paragraph, with an optional last line "— source". */
 export function formatQuotesText(quotes: Quote[]): string {

@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon.png" alt="Mood Tracker icon" width="128" /></p>
+
 # Mood Tracker
 
 A personal Android app for logging your mood three times a day, growing good habits, and reflecting on your week with Claude. No backend, no API keys; everything stays on the phone. Expo (SDK 57), React Native, TypeScript. English and European Portuguese.

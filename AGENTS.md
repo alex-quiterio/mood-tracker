@@ -31,6 +31,7 @@ Run lint and typecheck before declaring any task done.
 - Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
 - The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
+- Habits aim for good feedback loops: lead with wins (zeros, good habits, what you did instead), never let savings go negative, never use red or blame. Habit data only goes into the Claude prompt when `habitsInPrompt` is on.
 - Voices (`src/domain/voices/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and each voice's `quotesLicense` says why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
 - `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/domain/signals/windowedCount.ts`. Same optional-module rule as above.
@@ -52,6 +53,7 @@ src/
     reminders/               reminder time windows and messages
     settings/                Settings model, defaults, parsing, theme modes
     practice/                breathing patterns and focus sessions
+    habits/                  habits, check-in habit logs, balance points, savings, weekly insights
     shared/                  local dates
   infrastructure/            adapters to the outside world; never imports ui/
     storage/                 AsyncStorage repositories: entries (with migrations), settings, checkpoints
@@ -63,6 +65,7 @@ src/
     hooks/                   state hooks (entries, settings, live previews)
     components/              reusable UI
     practice/                the pause orb, practice menu and sessions
+    habits/                  habit logger, balance board, savings jar, weekly habits view
     screens/                 one file per tab; settings sections in screens/settings/
   __tests__/                 Jest tests
 ```

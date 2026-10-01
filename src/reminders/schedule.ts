@@ -1,8 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-import { ReminderTimes, reminderMessage } from './reminderTimes';
-import { SLOTS } from './types';
+import { ReminderTimes, reminderMessage } from './times';
+import { SLOTS } from '../data/types';
 
 const CHANNEL_ID = 'check-in-reminders';
 

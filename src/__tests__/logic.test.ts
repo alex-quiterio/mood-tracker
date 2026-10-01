@@ -1,11 +1,11 @@
 import { describe, expect, it, jest } from '@jest/globals';
 
-import { parseExport, serializeExport } from '../backup';
-import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '../dates';
-import { mergeEntries, parseEntry, upsertEntry } from '../entries';
-import { buildReflectionPrompt } from '../prompt';
-import { weeklyStats } from '../stats';
-import { Entry } from '../types';
+import { parseExport, serializeExport } from '../data/backup';
+import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '../data/dates';
+import { mergeEntries, parseEntry, upsertEntry } from '../data/entries';
+import { buildReflectionPrompt } from '../voices/prompt';
+import { weeklyStats } from '../data/stats';
+import { Entry } from '../data/types';
 
 jest.mock('expo-document-picker', () => ({}));
 jest.mock('expo-file-system', () => ({}));

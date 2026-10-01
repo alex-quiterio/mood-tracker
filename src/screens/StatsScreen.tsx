@@ -1,14 +1,14 @@
 import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '../components/Button';
-import { dayOfMonth, weekdayShort } from '../dates';
-import { buildReflectionPrompt } from '../prompt';
-import { formatSteps, formatStepsShort } from '../steps';
-import { formatAverage, weeklyStats } from '../stats';
-import { Palette, spacing, useColors, useThemedStyles } from '../theme';
-import { SLOTS } from '../types';
-import { useVoice } from '../voices';
-import { EntriesStore } from '../useEntries';
+import { dayOfMonth, weekdayShort } from '../data/dates';
+import { buildReflectionPrompt } from '../voices/prompt';
+import { formatSteps, formatStepsShort } from '../signals/steps';
+import { formatAverage, weeklyStats } from '../data/stats';
+import { Palette, spacing, useColors, useThemedStyles } from '../theme/theme';
+import { SLOTS } from '../data/types';
+import { useVoice } from '../voices/voices';
+import { EntriesStore } from '../hooks/useEntries';
 
 type Props = { store: EntriesStore };
 

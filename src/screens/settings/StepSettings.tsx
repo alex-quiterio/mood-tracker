@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Alert, AppState, Linking, PermissionsAndroid, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { stepCounter } from '../../modules/step-counter';
-import { Button } from '../components/Button';
-import { startStepRecording } from '../steps';
-import { Palette, spacing, useColors, useThemedStyles } from '../theme';
-import { SettingsStore } from '../useSettings';
+import { stepCounter } from '../../../modules/step-counter/index';
+import { Button } from '../../components/Button';
+import { startStepRecording } from '../../signals/steps';
+import { Palette, spacing, useColors, useThemedStyles } from '../../theme/theme';
+import { SettingsStore } from '../../hooks/useSettings';
 
 /** Asks for "Physical activity". True when granted (or not needed before Android 10). */
 async function ensurePermission(): Promise<boolean> {

@@ -1,24 +1,24 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { parseEntry } from '../entries';
-import { buildReflectionPrompt } from '../prompt';
-import { weeklyStats } from '../stats';
-import { Entry } from '../types';
+import { parseEntry } from '../data/entries';
+import { buildReflectionPrompt } from '../voices/prompt';
+import { weeklyStats } from '../data/stats';
+import { Entry } from '../data/types';
 import {
   formatUnlocksSince,
   isLiveCheckIn,
   previewUnlocks,
   unlockWindowStart,
   withUnlocks,
-} from '../unlocks';
+} from '../signals/unlocks';
 
 const mockCountUnlocks = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
-jest.mock('../../modules/unlock-stats', () => ({
+jest.mock('../../modules/unlock-stats/index', () => ({
   unlockStats: { countUnlocks: (start: Date, end: Date) => mockCountUnlocks(start, end) },
 }));
 
 let mockCheckpoint: Date | null = null;
-jest.mock('../storage', () => ({
+jest.mock('../data/storage', () => ({
   loadUnlockCheckpoint: async () => mockCheckpoint,
   saveUnlockCheckpoint: async (at: Date) => {
     mockCheckpoint = at;

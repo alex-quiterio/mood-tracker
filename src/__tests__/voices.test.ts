@@ -1,10 +1,17 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildReflectionPrompt } from '../prompt';
-import { DEFAULT_QUOTES } from '../quotes';
-import { weeklyStats } from '../stats';
-import { Entry, MOODS, SLOTS } from '../types';
-import { VOICES, VOICE_IDS, activeVoice, formatQuotesText, parseQuotesText, quoteOfTheDay } from '../voices';
+import { buildReflectionPrompt } from '../voices/prompt';
+import { DEFAULT_QUOTES } from '../voices/quotes';
+import { weeklyStats } from '../data/stats';
+import { Entry, MOODS, SLOTS } from '../data/types';
+import {
+  VOICES,
+  VOICE_IDS,
+  activeVoice,
+  formatQuotesText,
+  parseQuotesText,
+  quoteOfTheDay,
+} from '../voices/voices';
 
 const entry: Entry = { date: '2026-10-01', slot: 'morning', mood: 2, recordedAt: '2026-10-01T08:00:00.000Z' };
 

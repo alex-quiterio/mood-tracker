@@ -1,4 +1,4 @@
-import { SLOT_LABEL, SLOTS, Slot } from './types';
+import { SLOT_LABEL, SLOTS, Slot } from '../data/types';
 
 export type ClockTime = { hour: number; minute: number };
 export type ReminderTimes = Record<Slot, ClockTime>;

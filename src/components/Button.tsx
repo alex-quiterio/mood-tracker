@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { Palette, spacing, useThemedStyles } from '../theme';
+import { Palette, spacing, useThemedStyles } from '../theme/theme';
 
 type Props = {
   title: string;

@@ -11,12 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button } from '../components/Button';
-import { DEFAULT_QUOTES } from '../quotes';
-import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '../theme';
-import { MOODS } from '../types';
-import { SettingsStore } from '../useSettings';
-import { VOICES, VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText, useVoice } from '../voices';
+import { Button } from '../../components/Button';
+import { DEFAULT_QUOTES } from '../../voices/quotes';
+import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '../../theme/theme';
+import { MOODS } from '../../data/types';
+import { SettingsStore } from '../../hooks/useSettings';
+import { VOICES, VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText, useVoice } from '../../voices/voices';
 
 /** Pick a voice, and edit the quotes it shows. */
 export function VoiceSettings({ settings }: { settings: SettingsStore }) {

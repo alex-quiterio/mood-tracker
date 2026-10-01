@@ -1,7 +1,7 @@
-import { unlockStats } from '../modules/unlock-stats';
-import { localDate, weekdayShort } from './dates';
-import { loadUnlockCheckpoint, saveUnlockCheckpoint } from './storage';
-import { Entry } from './types';
+import { unlockStats } from '../../modules/unlock-stats/index';
+import { localDate, weekdayShort } from '../data/dates';
+import { loadUnlockCheckpoint, saveUnlockCheckpoint } from '../data/storage';
+import { Entry } from '../data/types';
 import { CountPreview, WindowedCounter, previewCount, windowStart, withCount } from './windowedCount';
 
 export { isLiveCheckIn } from './windowedCount';

@@ -11,18 +11,18 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import { stepCounter } from './modules/step-counter';
-import { localDate } from './src/dates';
-import { configureNotificationHandler } from './src/reminders';
+import { stepCounter } from './modules/step-counter/index';
+import { localDate } from './src/data/dates';
+import { configureNotificationHandler } from './src/reminders/schedule';
 import { NamePrompt } from './src/components/NamePrompt';
-import { scheduleReminders } from './src/reminders';
+import { scheduleReminders } from './src/reminders/schedule';
 import { CheckInScreen } from './src/screens/CheckInScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
-import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from './src/theme';
-import { EntriesStore, useEntries } from './src/useEntries';
-import { SettingsStore, useSettings } from './src/useSettings';
-import { VoiceContext, activeVoice } from './src/voices';
+import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from './src/theme/theme';
+import { EntriesStore, useEntries } from './src/hooks/useEntries';
+import { SettingsStore, useSettings } from './src/hooks/useSettings';
+import { VoiceContext, activeVoice } from './src/voices/voices';
 
 configureNotificationHandler();
 

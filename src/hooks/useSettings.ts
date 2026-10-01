@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_SETTINGS, Settings, loadSettings, saveSettings } from './storage';
+import { DEFAULT_SETTINGS, Settings, loadSettings, saveSettings } from '../data/storage';
 
 /** App-wide settings, persisted to AsyncStorage on every change. */
 export function useSettings() {

@@ -1,8 +1,8 @@
 import { createContext, useContext, useMemo } from 'react';
 
-import { Mood } from './types';
+import { Mood } from '../data/types';
 import { Heading, ON_MOOD, VOICE_LOOKS } from './voicePalettes';
-import type { VoiceId } from './voices';
+import type { VoiceId } from '../voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;
 export type ThemeName = (typeof THEMES)[number];

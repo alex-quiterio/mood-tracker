@@ -10,8 +10,8 @@ import {
   parseReminderTimes,
   reminderMessage,
   shiftReminderTime,
-} from '../reminderTimes';
-import { SLOTS } from '../types';
+} from '../reminders/times';
+import { SLOTS } from '../data/types';
 
 const t = (hour: number, minute = 0) => ({ hour, minute });
 

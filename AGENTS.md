@@ -28,12 +28,32 @@ Run lint and typecheck before declaring any task done.
 - Personal Android mood tracker, sideloaded (no Play Store). See README.md for the spec.
 - No backend and no API keys. All data stays on the device (AsyncStorage). Claude integration is a plain-text prompt sent through the share sheet.
 - Keep dependencies minimal. Navigation is a three-tab state switch in `App.tsx`; do not add Expo Router or React Navigation unless the screen count grows.
-- Dates are local `YYYY-MM-DD` (see `src/dates.ts`), never UTC.
-- The export file format (`src/backup.ts`) is versioned; keep old versions importable.
-- Pure logic lives in `src/*.ts` and is covered by `npm test`.
-- Voices (`src/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/quotes.ts`) must be verbatim from public-domain translations, with chapter and translator in `source`; never add quotes from memory.
+- Dates are local `YYYY-MM-DD` (see `src/data/dates.ts`), never UTC.
+- The export file format (`src/data/backup.ts`) is versioned; keep old versions importable.
+- Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
+- Voices (`src/voices/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/voices/quotes.ts`) must be verbatim from public-domain translations, with chapter and translator in `source`; never add quotes from memory.
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
-- `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/windowedCount.ts`. Same optional-module rule as above.
+- `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/signals/windowedCount.ts`. Same optional-module rule as above.
+
+## Project layout
+
+Put new code in the folder for its area; don't add loose files to `src/`.
+
+```
+App.tsx               tabs, providers, name prompt
+modules/              local native modules (Kotlin): unlock-stats, step-counter
+src/
+  data/               entries, dates, stats, storage + migrations, backup format
+  signals/            phone signals counted per check-in window (unlocks, steps)
+  voices/             voices, their default quotes, the Claude reflection prompt
+  theme/              palettes, per-voice tones, theme context
+  reminders/          notification scheduling and reminder time windows
+  checkin/            greeting, streak and save-moment logic
+  hooks/              React state hooks (entries, settings, live previews)
+  components/         reusable UI
+  screens/            one file per tab; settings sections in screens/settings/
+  __tests__/          Jest tests for the pure logic
+```
 
 ## Building with EAS
 

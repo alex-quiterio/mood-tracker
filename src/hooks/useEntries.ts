@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { mergeEntries, removeEntry, upsertEntry } from './entries';
-import { loadEntries, migrateEntries, saveEntries } from './storage';
-import { Entry, Slot } from './types';
+import { mergeEntries, removeEntry, upsertEntry } from '../data/entries';
+import { loadEntries, migrateEntries, saveEntries } from '../data/storage';
+import { Entry, Slot } from '../data/types';
 
 /** App-wide entry state, persisted to AsyncStorage on every change. */
 export function useEntries() {

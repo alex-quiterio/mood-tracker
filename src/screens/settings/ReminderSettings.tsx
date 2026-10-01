@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { disableReminders, enableReminders, scheduleReminders } from '../reminders';
+import { disableReminders, enableReminders, scheduleReminders } from '../../reminders/schedule';
 import {
   REMINDER_STEP_MINUTES,
   canShift,
   formatRange,
   formatTime,
   shiftReminderTime,
-} from '../reminderTimes';
-import { Palette, spacing, useColors, useThemedStyles } from '../theme';
-import { SLOTS, SLOT_LABEL, Slot } from '../types';
-import { SettingsStore } from '../useSettings';
+} from '../../reminders/times';
+import { Palette, spacing, useColors, useThemedStyles } from '../../theme/theme';
+import { SLOTS, SLOT_LABEL, Slot } from '../../data/types';
+import { SettingsStore } from '../../hooks/useSettings';
 
 /** Daily reminders, one per slot, each movable within its slot's window. */
 export function ReminderSettings({ settings }: { settings: SettingsStore }) {

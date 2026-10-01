@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
 import { DEFAULT_QUOTES } from './quotes';
-import { MOOD_EMOJI, MOOD_LABEL, Mood, SLOT_LABEL, Slot } from './types';
+import { MOOD_EMOJI, MOOD_LABEL, Mood, SLOT_LABEL, Slot } from '../data/types';
 
 export const VOICE_IDS = ['plain', 'laoTzu', 'marcus', 'seneca', 'rumi', 'kabir', 'patanjali'] as const;
 export type VoiceId = (typeof VOICE_IDS)[number];

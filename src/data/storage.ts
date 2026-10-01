@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { parseEntry } from './entries';
-import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from './reminderTimes';
-import { THEMES, ThemeName } from './theme';
-import { Quote, VOICE_IDS, VoiceId } from './voices';
+import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '../reminders/times';
+import { THEMES, ThemeName } from '../theme/theme';
+import { Quote, VOICE_IDS, VoiceId } from '../voices/voices';
 import { Entry } from './types';
 
 const ENTRIES_KEY = 'mood-tracker:entries:v1';

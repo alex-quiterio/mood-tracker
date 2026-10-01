@@ -1,5 +1,5 @@
-import { localDate, slotForTime } from './dates';
-import { Entry, Slot } from './types';
+import { localDate, slotForTime } from '../data/dates';
+import { Entry, Slot } from '../data/types';
 
 /**
  * Something the phone can count over a time window (unlocks, steps), saved on a

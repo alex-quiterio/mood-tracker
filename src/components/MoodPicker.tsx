@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Palette, spacing, useColors, useThemedStyles } from '../theme';
-import { MOODS, Mood } from '../types';
-import { useVoice } from '../voices';
+import { Palette, spacing, useColors, useThemedStyles } from '../theme/theme';
+import { MOODS, Mood } from '../data/types';
+import { useVoice } from '../voices/voices';
 
 type Props = {
   value: Mood | null;

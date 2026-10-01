@@ -1,5 +1,5 @@
 import { formatSteps } from './steps';
-import { Entry } from './types';
+import { Entry } from '../data/types';
 import { formatSince } from './unlocks';
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);

@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-import { parseEntry } from '../entries';
-import { buildReflectionPrompt } from '../prompt';
-import { describeSignals } from '../signals';
-import { weeklyStats } from '../stats';
-import { formatSteps, formatStepsShort, previewSteps, startStepRecording, withSteps } from '../steps';
-import { Entry } from '../types';
-import { VOICES } from '../voices';
+import { parseEntry } from '../data/entries';
+import { buildReflectionPrompt } from '../voices/prompt';
+import { describeSignals } from '../signals/describe';
+import { weeklyStats } from '../data/stats';
+import { formatSteps, formatStepsShort, previewSteps, startStepRecording, withSteps } from '../signals/steps';
+import { Entry } from '../data/types';
+import { VOICES } from '../voices/voices';
 
 const mockCountSteps = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
 const mockSubscribe = jest.fn<() => Promise<boolean>>();
-jest.mock('../../modules/step-counter', () => ({
+jest.mock('../../modules/step-counter/index', () => ({
   stepCounter: {
     countSteps: (start: Date, end: Date) => mockCountSteps(start, end),
     subscribe: () => mockSubscribe(),
@@ -18,7 +18,7 @@ jest.mock('../../modules/step-counter', () => ({
 }));
 
 let mockCheckpoint: Date | null = null;
-jest.mock('../storage', () => ({
+jest.mock('../data/storage', () => ({
   loadStepCheckpoint: async () => mockCheckpoint,
   saveStepCheckpoint: async (at: Date) => {
     mockCheckpoint = at;

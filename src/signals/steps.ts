@@ -1,6 +1,6 @@
-import { stepCounter } from '../modules/step-counter';
-import { loadStepCheckpoint, saveStepCheckpoint } from './storage';
-import { Entry } from './types';
+import { stepCounter } from '../../modules/step-counter/index';
+import { loadStepCheckpoint, saveStepCheckpoint } from '../data/storage';
+import { Entry } from '../data/types';
 import { CountPreview, WindowedCounter, previewCount, withCount } from './windowedCount';
 
 /** Google Play services keeps recorded steps for 10 days; leave a day of margin. */

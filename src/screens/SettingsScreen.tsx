@@ -11,17 +11,25 @@ import {
   View,
 } from 'react-native';
 
-import { unlockStats } from '../../modules/unlock-stats';
-import { exportEntries, pickImportFile } from '../backup';
+import { unlockStats } from '../../modules/unlock-stats/index';
+import { exportEntries, pickImportFile } from '../data/backup';
 import { Button } from '../components/Button';
-import { scheduleReminders } from '../reminders';
-import { NAME_MAX_LENGTH, cleanName, saveUnlockCheckpoint } from '../storage';
-import { Palette, THEMES, THEME_LABEL, paletteFor, spacing, useColors, useThemedStyles } from '../theme';
-import { EntriesStore } from '../useEntries';
-import { SettingsStore } from '../useSettings';
-import { ReminderSettings } from './ReminderSettings';
-import { StepSettings } from './StepSettings';
-import { VoiceSettings } from './VoiceSettings';
+import { scheduleReminders } from '../reminders/schedule';
+import { NAME_MAX_LENGTH, cleanName, saveUnlockCheckpoint } from '../data/storage';
+import {
+  Palette,
+  THEMES,
+  THEME_LABEL,
+  paletteFor,
+  spacing,
+  useColors,
+  useThemedStyles,
+} from '../theme/theme';
+import { EntriesStore } from '../hooks/useEntries';
+import { SettingsStore } from '../hooks/useSettings';
+import { ReminderSettings } from './settings/ReminderSettings';
+import { StepSettings } from './settings/StepSettings';
+import { VoiceSettings } from './settings/VoiceSettings';
 
 type Props = { store: EntriesStore; settings: SettingsStore };
 

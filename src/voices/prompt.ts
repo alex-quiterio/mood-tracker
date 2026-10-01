@@ -1,6 +1,6 @@
-import { weekdayShort } from './dates';
-import { WeeklyStats, formatAverage } from './stats';
-import { SLOTS } from './types';
+import { weekdayShort } from '../data/dates';
+import { WeeklyStats, formatAverage } from '../data/stats';
+import { SLOTS } from '../data/types';
 import { VOICES, Voice } from './voices';
 
 /**

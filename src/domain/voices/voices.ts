@@ -11,6 +11,10 @@ export const VOICE_IDS = [
   'patanjali',
   'lorde',
   'capra',
+  'jesus',
+  'muhammad',
+  'buddha',
+  'shiva',
 ] as const;
 export type VoiceId = (typeof VOICE_IDS)[number];
 
@@ -243,6 +247,94 @@ export const VOICES: Record<VoiceId, Voice> = {
     },
     quotesNote:
       'Fritjof Capra’s books are still under copyright, so this voice has no built-in quotes. Add lines you love with “Edit quotes”.',
+  },
+
+  jesus: {
+    id: 'jesus',
+    name: 'Jesus',
+    tagline: 'Enough for today',
+    moodLabels: { 1: 'Weary', 2: 'Troubled', 3: 'At rest', 4: 'Hopeful', 5: 'Joyful' },
+    moodEmoji: { 1: '🌊', 2: '🌧️', 3: '🕯️', 4: '🌾', 5: '🕊️' },
+    slotLabels: SLOT_LABEL,
+    notePrompts: {
+      morning: 'What is enough for today?',
+      afternoon: 'Who could use your kindness right now?',
+      evening: 'What are you grateful for tonight?',
+    },
+    burst: { high: ['🕊️', '🌾', '✨'], mid: ['🕯️'] },
+    comfort: 'Come away and rest a while. Three slow breaths?',
+    breathDone: 'Peace be with you 🕊️',
+    claude: {
+      intro:
+        'Reflect on my week in the spirit of the teachings of Jesus in the Gospels: gentle, compassionate and hopeful, without preaching.',
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Where might I let go of worry about tomorrow, and where could kindness, to others or to myself, help? Suggest one small thing for next week. Keep it short.',
+    },
+  },
+
+  muhammad: {
+    id: 'muhammad',
+    name: 'Muhammad',
+    tagline: 'Patience, gratitude and mercy',
+    moodLabels: { 1: 'Burdened', 2: 'Restless', 3: 'Patient', 4: 'Grateful', 5: 'At peace' },
+    moodEmoji: { 1: '🌑', 2: '🌒', 3: '🌓', 4: '🌔', 5: '🌕' },
+    slotLabels: SLOT_LABEL,
+    notePrompts: {
+      morning: 'What intention do you set for today?',
+      afternoon: 'Where do you need patience right now?',
+      evening: 'What are you thankful for today?',
+    },
+    burst: { high: ['🌙', '⭐', '✨'], mid: ['⭐'] },
+    comfort: 'With hardship comes ease. Three slow breaths?',
+    breathDone: 'Peace be upon you 🌙',
+    claude: {
+      intro:
+        "Reflect on my week in the spirit of the Prophet Muhammad's teachings of patience (sabr), gratitude (shukr) and mercy, respectfully and without claiming to speak for him.",
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Where did patience or gratitude carry me, and where might they help? Suggest one small, kind practice for next week. Keep it short.',
+    },
+  },
+
+  buddha: {
+    id: 'buddha',
+    name: 'Buddha',
+    tagline: 'The mind at peace',
+    moodLabels: { 1: 'Clouded', 2: 'Agitated', 3: 'Mindful', 4: 'Content', 5: 'Serene' },
+    moodEmoji: { 1: '☁️', 2: '🌬️', 3: '🍃', 4: '🌳', 5: '🪷' },
+    slotLabels: SLOT_LABEL,
+    notePrompts: {
+      morning: 'What will you pay attention to today?',
+      afternoon: 'What are you holding on to right now?',
+      evening: 'Where did you meet yourself with kindness today?',
+    },
+    burst: { high: ['🪷', '🌳', '✨'], mid: ['🍃'] },
+    comfort: 'This too is passing. Three mindful breaths?',
+    breathDone: 'Just this breath 🪷',
+    claude: {
+      intro:
+        "Reflect on my week in the spirit of the Buddha's teachings in the Dhammapada: calm, clear and kind, noticing how thoughts shape moods.",
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? Gently point out where craving, aversion or a busy mind showed up, and where there was ease. Suggest one small mindful practice for next week. Keep it short.',
+    },
+  },
+
+  shiva: {
+    id: 'shiva',
+    name: 'Shiva',
+    tagline: 'Stillness that transforms',
+    moodLabels: { 1: 'Scattered', 2: 'Turbulent', 3: 'Centered', 4: 'Still', 5: 'Radiant' },
+    moodEmoji: { 1: '🌫️', 2: '⛈️', 3: '🏔️', 4: '🌙', 5: '🔱' },
+    slotLabels: SLOT_LABEL,
+    notePrompts: {
+      morning: 'What are you ready to let go of today?',
+      afternoon: 'Where can you be still within the movement?',
+      evening: 'What ended today, and what began?',
+    },
+    burst: { high: ['🔱', '🌙', '✨'], mid: ['🏔️'] },
+    comfort: 'Even storms pass over the mountain. Three slow breaths?',
+    breathDone: 'Still as the mountain 🏔️',
+    claude: {
+      intro:
+        'Reflect on my week in the spirit of Shiva as the yogi of stillness and the dance of change: calm and deep, honouring both endings and beginnings.',
+      ask: 'What patterns do you notice ({signals}the notes, the time of day)? What might be ready to end, and what is trying to begin? Suggest one small practice of stillness for next week. Keep it short.',
+    },
   },
 };
 

@@ -214,4 +214,145 @@ export const DEFAULT_QUOTES: Record<VoiceId, Quote[]> = {
   // Still under copyright: no built-in quotes (see each voice's quotesNote).
   lorde: [],
   capra: [],
+
+  // Words of Jesus in the Gospels (King James Version).
+  jesus: [
+    {
+      text: 'Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof.',
+      source: 'Matthew 6:34 (King James Version, 1611)',
+    },
+    {
+      text: 'Come unto me, all ye that labour and are heavy laden, and I will give you rest.',
+      source: 'Matthew 11:28 (King James Version, 1611)',
+    },
+    {
+      text: 'Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.',
+      source: 'John 14:27 (King James Version, 1611)',
+    },
+    {
+      text: 'Come ye yourselves apart into a desert place, and rest a while…',
+      source: 'Mark 6:31 (King James Version, 1611)',
+    },
+    {
+      text: 'Consider the lilies how they grow: they toil not, they spin not; and yet I say unto you, that Solomon in all his glory was not arrayed like one of these.',
+      source: 'Luke 12:27 (King James Version, 1611)',
+    },
+    {
+      text: 'Blessed are they that mourn: for they shall be comforted.',
+      source: 'Matthew 5:4 (King James Version, 1611)',
+    },
+    {
+      text: 'And as ye would that men should do to you, do ye also to them likewise.',
+      source: 'Luke 6:31 (King James Version, 1611)',
+    },
+    {
+      text: 'These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world.',
+      source: 'John 16:33 (King James Version, 1611)',
+    },
+  ],
+  // Qur'an verses (Pickthall). In Islam these are God's words, not Muhammad's, so they're cited as the Qur'an.
+  muhammad: [
+    {
+      text: 'But lo! with hardship goeth ease, / Lo! with hardship goeth ease;',
+      source: "Qur'an 94:5–6 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'Allah tasketh not a soul beyond its scope.',
+      source: "Qur'an 2:286 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'Verily in the remembrance of Allah do hearts find rest!',
+      source: "Qur'an 13:28 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'Thy Lord hath not forsaken thee nor doth He hate thee, / And verily the latter portion will be better for thee than the former, / And verily thy Lord will give unto thee so that thou wilt be content.',
+      source: "Qur'an 93:3–5 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'O ye who believe! Seek help in stedfastness and prayer. Lo! Allah is with the stedfast.',
+      source: "Qur'an 2:153 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'Despair not of the mercy of Allah, Who forgiveth all sins. Lo! He is the Forgiving, the Merciful.',
+      source: "Qur'an 39:53 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'We verily created man and We know what his soul whispereth to him, and We are nearer to him than his jugular vein.',
+      source: "Qur'an 50:16 (tr. Marmaduke Pickthall, 1930)",
+    },
+    {
+      text: 'Allah will vouchsafe, after hardship, ease.',
+      source: "Qur'an 65:7 (tr. Marmaduke Pickthall, 1930)",
+    },
+  ],
+  // The Dhammapada (Müller).
+  buddha: [
+    {
+      text: 'All that we are is the result of what we have thought: it is founded on our thoughts, it is made up of our thoughts.',
+      source: 'Dhammapada, v. 1 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'For hatred does not cease by hatred at any time: hatred ceases by love, this is an old rule.',
+      source: 'Dhammapada, v. 5 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'It is good to tame the mind, which is difficult to hold in and flighty, rushing wherever it listeth; a tamed mind brings happiness.',
+      source: 'Dhammapada, v. 35 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'As a solid rock is not shaken by the wind, wise people falter not amidst blame and praise.',
+      source: 'Dhammapada, v. 81 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'Wise people, after they have listened to the laws, become serene, like a deep, smooth, and still lake.',
+      source: 'Dhammapada, v. 82 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'Let no man think lightly of good, saying in his heart, It will not come nigh unto me. Even by the falling of water-drops a water-pot is filled…',
+      source: 'Dhammapada, v. 122 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'Health is the greatest of gifts, contentedness the best riches; trust is the best of relationships, Nirvana the highest happiness.',
+      source: 'Dhammapada, v. 204 (tr. F. Max Müller, 1881)',
+    },
+    {
+      text: 'Let a man overcome anger by love, let him overcome evil by good; let him overcome the greedy by liberality, the liar by truth!',
+      source: 'Dhammapada, v. 223 (tr. F. Max Müller, 1881)',
+    },
+  ],
+  // The Svetasvatara Upanishad, which praises Rudra/Śiva (Müller).
+  shiva: [
+    {
+      text: 'O Rudra, thou dweller in the mountains, look upon us with that most blessed form of thine which is auspicious, not terrible, and reveals no evil!',
+      source: 'Svetasvatara Upanishad III.5 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'As a metal disk (mirror), tarnished by dust, shines bright again after it has been cleaned, so is the one incarnate person satisfied and free from grief, after he has seen the real nature of the self.',
+      source: 'Svetasvatara Upanishad II.14 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'When that god is known, all fetters fall off, sufferings are destroyed, and birth and death cease.',
+      source: 'Svetasvatara Upanishad I.11 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'If a wise man hold his body with its three erect parts (chest, neck, and head) even, and turn his senses with the mind towards the heart, he will then in the boat of Brahman cross all the torrents which cause fear.',
+      source: 'Svetasvatara Upanishad II.8 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'The Self, smaller than small, greater than great, is hidden in the heart of the creature. A man who has left all grief behind, sees the majesty, the Lord, the passionless, by the grace of the creator (the Lord).',
+      source: 'Svetasvatara Upanishad III.20 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'He who has known him who is more subtile than subtile, in the midst of chaos, creating all things, having many forms, alone enveloping everything, the happy one (Siva), passes into peace for ever.',
+      source: 'Svetasvatara Upanishad IV.14 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'When the light has risen, there is no day, no night, neither existence nor non-existence; Siva (the blessed) alone is there.',
+      source: 'Svetasvatara Upanishad IV.18 (tr. F. Max Müller, 1884)',
+    },
+    {
+      text: 'O Rudra, let thy gracious face protect me for ever!',
+      source: 'Svetasvatara Upanishad IV.21 (tr. F. Max Müller, 1884)',
+    },
+  ],
 };

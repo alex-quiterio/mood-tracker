@@ -30,7 +30,10 @@ describe('voices', () => {
     expect(DEFAULT_QUOTES[id].length).toBeGreaterThanOrEqual(5);
     for (const q of DEFAULT_QUOTES[id]) {
       expect(q.text.length).toBeLessThanOrEqual(220);
-      expect(q.source).toMatch(/\(tr\. .+, \d{4}\)$/);
+      // Cites the translation and its year, and the year keeps it in the public domain.
+      const year = Number(/\(.+, (\d{4})\)$/.exec(q.source ?? '')?.[1]);
+      expect(year).toBeGreaterThan(1600);
+      expect(year).toBeLessThanOrEqual(1930);
     }
   });
 

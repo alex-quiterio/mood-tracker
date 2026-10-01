@@ -25,6 +25,8 @@ import { formatSteps } from '@domain/signals/format';
 import { previewUnlocks, withUnlocks } from '@infrastructure/signals/unlocks';
 import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLivePreview } from '@ui/hooks/useLivePreview';
+import { PauseOrb } from '@ui/practice/PauseOrb';
+import { PracticeModal } from '@ui/practice/PracticeModal';
 import { useVoice } from '@ui/theme/voiceContext';
 
 export type Tracking = { unlocks: boolean; steps: boolean };
@@ -49,6 +51,7 @@ export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
   const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
+  const [practicing, setPracticing] = useState(false);
   const liveUnlocks = useLivePreview(previewUnlocks, tracking.unlocks, store.entries);
   const liveSteps = useLivePreview(previewSteps, tracking.steps, store.entries);
   const voice = useVoice();
@@ -92,9 +95,8 @@ export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
     <View style={styles.root}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.greetingRow}>
-          <Text style={styles.greeting}>
-            {greetingText(slotForTime(), name)} {greeting.emoji}
-          </Text>
+          <PauseOrb emoji={greeting.emoji} onPress={() => setPracticing(true)} />
+          <Text style={styles.greeting}>{greetingText(slotForTime(), name)}</Text>
           {streak && (
             <View style={styles.streak}>
               <Text style={styles.streakText}>{streak}</Text>
@@ -172,6 +174,7 @@ export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
       </ScrollView>
       <MoodBurst burst={burst} />
       <BreathingModal visible={breathing} onClose={() => setBreathing(false)} />
+      <PracticeModal visible={practicing} onClose={() => setPracticing(false)} />
     </View>
   );
 }
@@ -288,7 +291,7 @@ const makeStyles = (c: Palette) =>
       justifyContent: 'space-between',
       gap: spacing(2),
     },
-    greeting: { fontSize: 17, color: c.text, fontWeight: '500', ...c.heading },
+    greeting: { flex: 1, fontSize: 17, color: c.text, fontWeight: '500', ...c.heading },
     streak: {
       backgroundColor: c.surface,
       borderColor: c.border,

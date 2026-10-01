@@ -51,16 +51,18 @@ src/
     voices/                  voices, default quotes, the Claude reflection prompt
     reminders/               reminder time windows and messages
     settings/                Settings model, defaults, parsing, theme modes
+    practice/                breathing patterns and focus sessions
     shared/                  local dates
   infrastructure/            adapters to the outside world; never imports ui/
     storage/                 AsyncStorage repositories: entries (with migrations), settings, checkpoints
     signals/                 unlocks and steps: native modules + checkpoints wired into the domain counter
-    notifications/           scheduling reminders with expo-notifications
+    notifications/           reminders, the practice bell, the notification handler
     backup/                  writing and reading export files
   ui/                        React Native
     theme/                   palettes, per-voice tones, theme and voice contexts
     hooks/                   state hooks (entries, settings, live previews)
     components/              reusable UI
+    practice/                the pause orb, practice menu and sessions
     screens/                 one file per tab; settings sections in screens/settings/
   __tests__/                 Jest tests
 ```

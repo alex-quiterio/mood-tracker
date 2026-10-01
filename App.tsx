@@ -13,7 +13,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { stepCounter } from '@modules/step-counter';
 import { localDate } from '@domain/shared/dates';
-import { configureNotificationHandler } from '@infrastructure/notifications/reminders';
+import { configureNotificationHandler } from '@infrastructure/notifications/handler';
 import { NamePrompt } from '@ui/components/NamePrompt';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';

@@ -14,7 +14,8 @@ import {
 import { unlockStats } from '../../modules/unlock-stats';
 import { exportEntries, pickImportFile } from '../backup';
 import { Button } from '../components/Button';
-import { saveUnlockCheckpoint } from '../storage';
+import { scheduleReminders } from '../reminders';
+import { NAME_MAX_LENGTH, cleanName, saveUnlockCheckpoint } from '../storage';
 import { Palette, THEMES, THEME_LABEL, palettes, spacing, useColors, useThemedStyles } from '../theme';
 import { EntriesStore } from '../useEntries';
 import { SettingsStore } from '../useSettings';
@@ -53,6 +54,8 @@ export function SettingsScreen({ store, settings }: Props) {
 
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <NameSettings settings={settings} />
+
       <View style={styles.section}>
         <Text style={styles.title}>Theme</Text>
         <View style={styles.themeRow} accessibilityRole="radiogroup">
@@ -105,6 +108,40 @@ export function SettingsScreen({ store, settings }: Props) {
         <Text style={styles.hint}>Importing merges with what is already here. Nothing is deleted.</Text>
       </View>
     </ScrollView>
+  );
+}
+
+function NameSettings({ settings }: { settings: SettingsStore }) {
+  const styles = useThemedStyles(makeStyles);
+  const c = useColors();
+  const [draft, setDraft] = useState(settings.settings.name);
+
+  const save = async () => {
+    const name = cleanName(draft);
+    setDraft(name);
+    if (name === settings.settings.name) return;
+    await settings.update({ name });
+    // Reminders mention the name, so refresh them.
+    const { remindersEnabled, reminderTimes } = settings.settings;
+    if (remindersEnabled) scheduleReminders(reminderTimes, name).catch(() => {});
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.title}>Your name</Text>
+      <TextInput
+        style={styles.input}
+        value={draft}
+        onChangeText={setDraft}
+        onEndEditing={save}
+        onSubmitEditing={save}
+        placeholder="What should I call you?"
+        placeholderTextColor={c.muted}
+        maxLength={NAME_MAX_LENGTH}
+        autoCapitalize="words"
+        returnKeyType="done"
+      />
+    </View>
   );
 }
 
@@ -201,6 +238,15 @@ const makeStyles = (c: Palette) =>
     body: { color: c.muted, lineHeight: 20 },
     hint: { color: c.muted, fontSize: 13, textAlign: 'center' },
     warning: { color: c.danger },
+    input: {
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 12,
+      padding: spacing(3),
+      fontSize: 16,
+      color: c.text,
+      backgroundColor: c.background,
+    },
     themeRow: { flexDirection: 'row', gap: spacing(2) },
     themeOption: {
       flex: 1,

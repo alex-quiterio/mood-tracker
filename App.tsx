@@ -14,6 +14,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { stepCounter } from './modules/step-counter';
 import { localDate } from './src/dates';
 import { configureNotificationHandler } from './src/reminders';
+import { NamePrompt } from './src/components/NamePrompt';
+import { scheduleReminders } from './src/reminders';
 import { CheckInScreen } from './src/screens/CheckInScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
@@ -68,6 +70,14 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const c = useColors();
   const today = useToday();
   const [tab, setTab] = useState<TabKey>('checkin');
+  // "Not now" hides the name prompt until the next launch.
+  const [nameSkipped, setNameSkipped] = useState(false);
+  const { name, remindersEnabled, reminderTimes } = settings.settings;
+
+  const saveName = async (next: string) => {
+    await settings.update({ name: next });
+    if (remindersEnabled) scheduleReminders(reminderTimes, next).catch(() => {});
+  };
   const { trackUnlocks, trackSteps } = settings.settings;
 
   // Renew background step recording on launch, in case Play services dropped the subscription.
@@ -86,7 +96,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
         ) : (
           // Keyed on the date so screens reset to "today" after midnight.
           <View key={today} style={styles.content}>
-            {tab === 'checkin' && <CheckInScreen store={store} tracking={tracking} />}
+            {tab === 'checkin' && <CheckInScreen store={store} tracking={tracking} name={name} />}
             {tab === 'stats' && <StatsScreen store={store} />}
             {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}
           </View>
@@ -109,6 +119,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
           );
         })}
       </View>
+      <NamePrompt visible={!name && !nameSkipped} onSave={saveName} onSkip={() => setNameSkipped(true)} />
     </SafeAreaView>
   );
 }

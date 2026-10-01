@@ -9,6 +9,9 @@ const GREETINGS: Record<Slot, { text: string; emoji: string }> = {
 
 export const greetingFor = (slot: Slot) => GREETINGS[slot];
 
+/** "Good morning, Alex" or just "Good morning". */
+export const greetingText = (slot: Slot, name: string) => `${GREETINGS[slot].text}${name ? `, ${name}` : ''}`;
+
 /** Shown from two days on; a single day isn't a streak yet. */
 export function streakLabel(days: number): string | null {
   return days >= 2 ? `🔥 ${days}-day streak` : null;

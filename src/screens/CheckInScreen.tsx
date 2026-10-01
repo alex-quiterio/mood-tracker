@@ -9,7 +9,7 @@ import { MoodPicker } from '../components/MoodPicker';
 import { LiveCount, LiveCounts } from '../components/LiveCounts';
 import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../dates';
 import { NOTE_MAX_LENGTH, entryKey } from '../entries';
-import { burstEmojis, greetingFor, offersBreathing, streakLabel } from '../moments';
+import { burstEmojis, greetingFor, greetingText, offersBreathing, streakLabel } from '../moments';
 import { currentStreak, weeklyStats } from '../stats';
 import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
 import { Entry, Mood, SLOTS, Slot } from '../types';
@@ -22,9 +22,9 @@ import { useVoice } from '../voices';
 
 export type Tracking = { unlocks: boolean; steps: boolean };
 
-type Props = { store: EntriesStore; tracking: Tracking };
+type Props = { store: EntriesStore; tracking: Tracking; name: string };
 
-export function CheckInScreen({ store, tracking }: Props) {
+export function CheckInScreen({ store, tracking, name }: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
@@ -79,7 +79,7 @@ export function CheckInScreen({ store, tracking }: Props) {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.greetingRow}>
           <Text style={styles.greeting}>
-            {greeting.text} {greeting.emoji}
+            {greetingText(slotForTime(), name)} {greeting.emoji}
           </Text>
           {streak && (
             <View style={styles.streak}>

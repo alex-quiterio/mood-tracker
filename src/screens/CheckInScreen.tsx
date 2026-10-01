@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { BreathingModal } from '../components/BreathingModal';
+import { QuoteCard } from '../components/QuoteCard';
 import { Button } from '../components/Button';
 import { Burst, MoodBurst, makeBurst } from '../components/MoodBurst';
 import { MoodPicker } from '../components/MoodPicker';
@@ -11,10 +12,11 @@ import { NOTE_MAX_LENGTH, entryKey } from '../entries';
 import { burstEmojis, greetingFor, offersBreathing, streakLabel } from '../moments';
 import { currentStreak, weeklyStats } from '../stats';
 import { Palette, moodColors, onMoodColor, spacing, useColors, useThemedStyles } from '../theme';
-import { Entry, MOOD_EMOJI, MOOD_LABEL, Mood, SLOTS, SLOT_LABEL, Slot } from '../types';
+import { Entry, Mood, SLOTS, Slot } from '../types';
 import { formatUnlocksSince, withUnlocks } from '../unlocks';
 import { EntriesStore } from '../useEntries';
 import { useLiveUnlocks } from '../useLiveUnlocks';
+import { useVoice } from '../voices';
 
 type Props = { store: EntriesStore; trackUnlocks: boolean };
 
@@ -28,13 +30,14 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
   const livePreview = useLiveUnlocks(trackUnlocks, store.entries);
+  const voice = useVoice();
 
   const greeting = greetingFor(slotForTime());
   const streak = streakLabel(currentStreak(store.entries, today));
   const usualUnlocks = weeklyStats(store.entries, today).unlockAverage;
 
   const onSaved = (mood: Mood) => {
-    setBurst((b) => makeBurst(b.key, burstEmojis(mood)));
+    setBurst((b) => makeBurst(b.key, burstEmojis(voice, mood)));
     setOfferBreath(offersBreathing(mood));
   };
 
@@ -61,15 +64,15 @@ export function CheckInScreen({ store, trackUnlocks }: Props) {
           )}
         </View>
 
+        <QuoteCard date={today} />
+
         {livePreview && date === today && (
           <UnlockBanner preview={livePreview} today={today} usual={usualUnlocks} />
         )}
 
         {offerBreath && (
           <View style={styles.comfort}>
-            <Text style={styles.comfortText}>
-              That sounds like a heavy moment. Take three slow breaths with me?
-            </Text>
+            <Text style={styles.comfortText}>{voice.comfort}</Text>
             <View style={styles.comfortActions}>
               <View style={styles.flex}>
                 <Button
@@ -151,6 +154,7 @@ type SlotCardProps = {
 function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSaved }: SlotCardProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
+  const voice = useVoice();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
 
@@ -182,11 +186,11 @@ function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSave
     return (
       <Pressable accessibilityRole="button" onPress={onOpen} style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.slotTitle}>{SLOT_LABEL[slot]}</Text>
+          <Text style={styles.slotTitle}>{voice.slotLabels[slot]}</Text>
           {entry ? (
             <View style={[styles.badge, { backgroundColor: moodColors[entry.mood] }]}>
               <Text style={styles.badgeText}>
-                {MOOD_EMOJI[entry.mood]} {MOOD_LABEL[entry.mood]}
+                {voice.moodEmoji[entry.mood]} {voice.moodLabels[entry.mood]}
               </Text>
             </View>
           ) : (
@@ -208,15 +212,15 @@ function SlotCard({ date, slot, entry, open, onOpen, store, trackUnlocks, onSave
   return (
     <View style={[styles.card, styles.cardOpen]}>
       <View style={styles.cardHeader}>
-        <Text style={styles.slotTitle}>{SLOT_LABEL[slot]}</Text>
-        {mood !== null && <Text style={styles.muted}>{MOOD_LABEL[mood]}</Text>}
+        <Text style={styles.slotTitle}>{voice.slotLabels[slot]}</Text>
+        {mood !== null && <Text style={styles.muted}>{voice.moodLabels[mood]}</Text>}
       </View>
       <MoodPicker value={mood} onChange={setMood} />
       <TextInput
         style={styles.noteInput}
         value={note}
         onChangeText={setNote}
-        placeholder="Add a note (optional)"
+        placeholder={voice.notePrompts[slot]}
         placeholderTextColor={c.muted}
         maxLength={NOTE_MAX_LENGTH}
         multiline

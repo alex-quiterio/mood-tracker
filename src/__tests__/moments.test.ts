@@ -3,6 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { burstEmojis, greetingFor, offersBreathing, streakLabel } from '../moments';
 import { currentStreak, weeklyStats } from '../stats';
 import { Entry } from '../types';
+import { VOICES } from '../voices';
 
 const entry = (date: string, slot: Entry['slot'] = 'morning', unlocks?: number): Entry => ({
   date,
@@ -35,9 +36,10 @@ describe('streak', () => {
 
 describe('moments', () => {
   it('celebrates good moods and comforts low ones', () => {
-    expect(burstEmojis(5)).toContain('🎉');
-    expect(burstEmojis(3)).toEqual(['✨', '🌱']);
-    expect(burstEmojis(2)).toEqual([]);
+    expect(burstEmojis(VOICES.plain, 5)).toEqual(['😄', '✨', '🎉', '💛']);
+    expect(burstEmojis(VOICES.plain, 3)).toEqual(['✨', '🌱']);
+    expect(burstEmojis(VOICES.laoTzu, 5)[0]).toBe('🪷');
+    expect(burstEmojis(VOICES.laoTzu, 2)).toEqual([]);
     expect(offersBreathing(2)).toBe(true);
     expect(offersBreathing(3)).toBe(false);
   });

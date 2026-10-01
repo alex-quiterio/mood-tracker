@@ -5,19 +5,21 @@ import { dayOfMonth, weekdayShort } from '../dates';
 import { buildReflectionPrompt } from '../prompt';
 import { formatAverage, weeklyStats } from '../stats';
 import { Palette, moodColors, onMoodColor, spacing, useThemedStyles } from '../theme';
-import { MOOD_EMOJI, SLOTS, SLOT_LABEL } from '../types';
+import { SLOTS } from '../types';
+import { useVoice } from '../voices';
 import { EntriesStore } from '../useEntries';
 
 type Props = { store: EntriesStore };
 
 export function StatsScreen({ store }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const voice = useVoice();
   const stats = weeklyStats(store.entries);
 
   const reflect = async () => {
     try {
       // Opens Android's share sheet; pick the Claude app. No API calls involved.
-      await Share.share({ message: buildReflectionPrompt(stats) });
+      await Share.share({ message: buildReflectionPrompt(stats, voice) });
     } catch (e) {
       Alert.alert('Could not open the share sheet', String(e));
     }
@@ -38,7 +40,7 @@ export function StatsScreen({ store }: Props) {
           <Text style={[styles.dayCell, styles.headerText]}>Last 7 days</Text>
           {SLOTS.map((slot) => (
             <Text key={slot} style={[styles.cell, styles.headerText]}>
-              {SLOT_LABEL[slot]}
+              {voice.slotLabels[slot]}
             </Text>
           ))}
         </View>
@@ -61,7 +63,7 @@ export function StatsScreen({ store }: Props) {
                   }`}
                 >
                   <Text style={e ? styles.moodText : styles.emptyText}>
-                    {e ? `${MOOD_EMOJI[e.mood]} ${e.mood}` : '–'}
+                    {e ? `${voice.moodEmoji[e.mood]} ${e.mood}` : '–'}
                   </Text>
                   {e?.unlocks !== undefined && <Text style={styles.cellUnlocks}>📱 {e.unlocks}</Text>}
                 </View>

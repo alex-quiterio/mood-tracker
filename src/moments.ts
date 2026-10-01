@@ -1,4 +1,5 @@
-import { MOOD_EMOJI, Mood, Slot } from './types';
+import { Mood, Slot } from './types';
+import { Voice } from './voices';
 
 const GREETINGS: Record<Slot, { text: string; emoji: string }> = {
   morning: { text: 'Good morning', emoji: '☀️' },
@@ -18,10 +19,9 @@ export function streakLabel(days: number): string | null {
  * little sparkle, and low moods none: confetti would feel wrong there, so they
  * get the breathing offer instead.
  */
-export function burstEmojis(mood: Mood): string[] {
-  if (mood === 5) return [MOOD_EMOJI[5], '✨', '🎉', '💛'];
-  if (mood === 4) return [MOOD_EMOJI[4], '✨', '🌼'];
-  if (mood === 3) return ['✨', '🌱'];
+export function burstEmojis(voice: Pick<Voice, 'moodEmoji' | 'burst'>, mood: Mood): string[] {
+  if (mood >= 4) return [voice.moodEmoji[mood], ...voice.burst.high];
+  if (mood === 3) return voice.burst.mid;
   return [];
 }
 

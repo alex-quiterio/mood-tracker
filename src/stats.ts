@@ -33,9 +33,9 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     },
   }));
 
-  const weekEntries = days.flatMap((d) => SLOTS.map((s) => d.entries[s])).filter(
-    (e): e is Entry => e !== undefined,
-  );
+  const weekEntries = days
+    .flatMap((d) => SLOTS.map((s) => d.entries[s]))
+    .filter((e): e is Entry => e !== undefined);
 
   const slotAverages = Object.fromEntries(
     SLOTS.map((slot) => [slot, average(weekEntries.filter((e) => e.slot === slot).map((e) => e.mood))]),

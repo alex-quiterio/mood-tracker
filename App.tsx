@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   AppState,
@@ -19,6 +19,7 @@ import { StatsScreen } from './src/screens/StatsScreen';
 import { Palette, ThemeContext, palettes, spacing, useColors, useThemedStyles } from './src/theme';
 import { EntriesStore, useEntries } from './src/useEntries';
 import { SettingsStore, useSettings } from './src/useSettings';
+import { VoiceContext, activeVoice } from './src/voices';
 
 configureNotificationHandler();
 
@@ -44,6 +45,8 @@ function useToday() {
 export default function App() {
   const store = useEntries();
   const settings = useSettings();
+  const { voice: voiceId, customQuotes } = settings.settings;
+  const voice = useMemo(() => activeVoice(voiceId, customQuotes), [voiceId, customQuotes]);
 
   // Hold off until the saved theme is known, so the app doesn't flash the default one.
   if (!settings.loaded) return null;
@@ -51,7 +54,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeContext.Provider value={palettes[settings.settings.theme]}>
-        <Shell store={store} settings={settings} />
+        <VoiceContext.Provider value={voice}>
+          <Shell store={store} settings={settings} />
+        </VoiceContext.Provider>
       </ThemeContext.Provider>
     </SafeAreaProvider>
   );

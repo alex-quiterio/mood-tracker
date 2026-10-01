@@ -31,6 +31,7 @@ Run lint and typecheck before declaring any task done.
 - Dates are local `YYYY-MM-DD` (see `src/dates.ts`), never UTC.
 - The export file format (`src/backup.ts`) is versioned; keep old versions importable.
 - Pure logic lives in `src/*.ts` and is covered by `npm test`.
+- Voices (`src/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/quotes.ts`) must be verbatim from public-domain translations, with chapter and translator in `source`; never add quotes from memory.
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
 
 ## Building with EAS

@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { parseEntry } from './entries';
 import { THEMES, ThemeName } from './theme';
+import { Quote, VOICE_IDS, VoiceId } from './voices';
 import { Entry } from './types';
 
 const ENTRIES_KEY = 'mood-tracker:entries:v1';
@@ -12,9 +13,18 @@ export type Settings = {
   remindersEnabled: boolean;
   theme: ThemeName;
   trackUnlocks: boolean;
+  voice: VoiceId;
+  /** Per-voice quotes that replace the defaults. */
+  customQuotes: Partial<Record<VoiceId, Quote[]>>;
 };
 
-export const DEFAULT_SETTINGS: Settings = { remindersEnabled: false, theme: 'light', trackUnlocks: false };
+export const DEFAULT_SETTINGS: Settings = {
+  remindersEnabled: false,
+  theme: 'light',
+  trackUnlocks: false,
+  voice: 'plain',
+  customQuotes: {},
+};
 
 export async function loadEntries(): Promise<Entry[]> {
   const raw = await AsyncStorage.getItem(ENTRIES_KEY);
@@ -35,7 +45,26 @@ export async function loadSettings(): Promise<Settings> {
     remindersEnabled: stored.remindersEnabled === true,
     theme: THEMES.includes(stored.theme as ThemeName) ? (stored.theme as ThemeName) : DEFAULT_SETTINGS.theme,
     trackUnlocks: stored.trackUnlocks === true,
+    voice: VOICE_IDS.includes(stored.voice as VoiceId) ? (stored.voice as VoiceId) : DEFAULT_SETTINGS.voice,
+    customQuotes: parseCustomQuotes(stored.customQuotes),
   };
+}
+
+function parseCustomQuotes(value: unknown): Partial<Record<VoiceId, Quote[]>> {
+  if (typeof value !== 'object' || value === null) return {};
+  const result: Partial<Record<VoiceId, Quote[]>> = {};
+  for (const id of VOICE_IDS) {
+    const list = (value as Record<string, unknown>)[id];
+    if (!Array.isArray(list)) continue;
+    const quotes = list.filter(
+      (q): q is Quote =>
+        typeof q?.text === 'string' &&
+        q.text.trim() !== '' &&
+        (q.source === undefined || typeof q.source === 'string'),
+    );
+    if (quotes.length > 0) result[id] = quotes;
+  }
+  return result;
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {

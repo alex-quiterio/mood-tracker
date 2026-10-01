@@ -47,7 +47,8 @@ export function parseEntry(value: unknown): Entry | null {
   if (v.note !== undefined && typeof v.note !== 'string') return null;
   const hasUnlocks = v.unlocks !== undefined || v.unlocksFrom !== undefined;
   if (hasUnlocks && !(Number.isInteger(v.unlocks) && (v.unlocks as number) >= 0)) return null;
-  if (hasUnlocks && (typeof v.unlocksFrom !== 'string' || Number.isNaN(Date.parse(v.unlocksFrom)))) return null;
+  if (hasUnlocks && (typeof v.unlocksFrom !== 'string' || Number.isNaN(Date.parse(v.unlocksFrom))))
+    return null;
 
   const entry: Entry = {
     date: v.date,

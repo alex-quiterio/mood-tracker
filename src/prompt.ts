@@ -1,9 +1,16 @@
 import { weekdayShort } from './dates';
 import { WeeklyStats, formatAverage } from './stats';
 import { SLOTS } from './types';
+import { VOICES, Voice } from './voices';
 
-/** Plain-text prompt for the Claude app: the week's entries plus a request for patterns and one suggestion. */
-export function buildReflectionPrompt(stats: WeeklyStats): string {
+/**
+ * Plain-text prompt for the Claude app: the week's entries plus a request for patterns
+ * and one suggestion, framed by the voice. The data itself is always on the plain 1–5 scale.
+ */
+export function buildReflectionPrompt(
+  stats: WeeklyStats,
+  voice: Pick<Voice, 'claude'> = VOICES.plain,
+): string {
   const first = stats.days[0].date;
   const last = stats.days[stats.days.length - 1].date;
 
@@ -20,7 +27,10 @@ export function buildReflectionPrompt(stats: WeeklyStats): string {
   const hasUnlocks = stats.unlockAverage !== null;
   const averages = SLOTS.map((s) => `${s} ${formatAverage(stats.slotAverages[s])}`).join(', ');
 
+  const ask = voice.claude.ask.replace('{unlocks}', hasUnlocks ? 'how often I unlocked my phone, ' : '');
+
   return [
+    ...(voice.claude.intro ? [voice.claude.intro, ''] : []),
     `Here are my mood check-ins for the past week (${first} to ${last}).`,
     'Mood is on a 1–5 scale (1 = very low, 5 = very good). I check in up to three times a day: morning, afternoon and evening.',
     '',
@@ -30,8 +40,6 @@ export function buildReflectionPrompt(stats: WeeklyStats): string {
     `Averages: ${averages}; overall ${formatAverage(stats.overallAverage)}.`,
     ...(hasUnlocks ? [`Average phone unlocks between check-ins: ${Math.round(stats.unlockAverage!)}.`] : []),
     '',
-    `Please reflect on this week. What patterns do you notice (time of day, days of the week, ${
-      hasUnlocks ? 'how often I unlocked my phone, ' : ''
-    }anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.`,
+    ask,
   ].join('\n');
 }

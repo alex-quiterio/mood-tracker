@@ -211,9 +211,77 @@ export const DEFAULT_QUOTES: Record<VoiceId, Quote[]> = {
     },
   ],
 
-  // Still under copyright: no built-in quotes (see each voice's quotesNote).
-  lorde: [],
-  capra: [],
+  // Short quotations from copyrighted books, for personal use: each is listed as sourced on Wikiquote
+  // and was matched against a scan of the original book.
+  lorde: [
+    {
+      text: 'Caring for myself is not self-indulgence, it is self-preservation, and that is an act of political warfare.',
+      source: 'A Burst of Light: Essays (1988), "A Burst of Light: Living with Cancer", p. 125',
+    },
+    {
+      text: 'We can train ourselves to respect our feelings and to transpose them into a language so they can be shared.',
+      source: '"Poetry Is Not a Luxury", in Sister Outsider (1984), p. 37',
+    },
+    {
+      text: 'Poetry is the way we help give name to the nameless so it can be thought.',
+      source: '"Poetry Is Not a Luxury", in Sister Outsider (1984), p. 37',
+    },
+    {
+      text: 'We can learn to work and speak when we are afraid in the same way we have learned to work and speak when we are tired.',
+      source: '"The Transformation of Silence into Language and Action", in Sister Outsider (1984), p. 44',
+    },
+    {
+      text: 'The sharing of joy, whether physical, emotional, psychic, or intellectual, forms a bridge between the sharers which can be the basis for understanding much of what is not shared between them …',
+      source: '"Uses of the Erotic: The Erotic as Power", in Sister Outsider (1984), p. 56',
+    },
+    {
+      text: 'Difference is that raw and powerful connection from which our personal power is forged.',
+      source:
+        '"The Master\'s Tools Will Never Dismantle the Master\'s House", in Sister Outsider (1984), p. 112',
+    },
+    {
+      text: 'Nothing I accept about myself can be used against me to diminish me.',
+      source: '"Eye to Eye: Black Women, Hatred, and Anger", in Sister Outsider (1984)',
+    },
+    {
+      text: 'We are not perfect, but we are stronger and wiser than the sum of our errors.',
+      source: '"Learning from the 60s", in Sister Outsider (1984), p. 138',
+    },
+  ],
+  capra: [
+    {
+      text: 'One of the key insights of the systems approach has been the realization that the network is a pattern that is common to all life. Wherever we see life, we see networks.',
+      source: 'The Hidden Connections (2002), p. 8',
+    },
+    {
+      text: 'A diverse community is a resilient community, capable of adapting to changing situations.',
+      source: 'The Web of Life (1996), Epilogue: Ecological Literacy, p. 303',
+    },
+    {
+      text: 'Partnership—the tendency to associate, establish links, live inside one another, and cooperate—is one of the hallmarks of life.',
+      source: 'The Web of Life (1996), Epilogue: Ecological Literacy, p. 300',
+    },
+    {
+      text: 'Understanding ecological interdependence means understanding relationships. It requires the shifts of perception … from the parts to the whole, from objects to relationships, from contents to patterns.',
+      source: 'The Web of Life (1996), Epilogue: Ecological Literacy, p. 298',
+    },
+    {
+      text: 'In quantum theory we never end up with any “things”; we always deal with interconnections.',
+      source: 'The Web of Life (1996), p. 30',
+    },
+    {
+      text: 'The dance of Shiva is the dancing universe, the ceaseless flow of energy going through an infinite variety of patterns that melt into one another.',
+      source: 'The Tao of Physics (1975), Ch. 15 "The Cosmic Dance", p. 244',
+    },
+    {
+      text: 'Lack of flexibility manifests itself as stress.',
+      source: 'The Web of Life (1996), Epilogue: Ecological Literacy, p. 302',
+    },
+    {
+      text: '… the community will need stability and change, order and freedom, tradition and innovation.',
+      source: 'The Web of Life (1996), Epilogue: Ecological Literacy, p. 303',
+    },
+  ],
 
   // Words of Jesus in the Gospels (King James Version).
   jesus: [

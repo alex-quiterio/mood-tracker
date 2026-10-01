@@ -24,9 +24,9 @@ describe('voices', () => {
     expect(v.claude.ask.match(/\{signals\}/g)).toHaveLength(1);
   });
 
-  const withQuotes = VOICE_IDS.filter((id) => id !== 'plain' && !VOICES[id].quotesNote);
+  const byLicense = (license: string) => VOICE_IDS.filter((id) => VOICES[id].quotesLicense === license);
 
-  it.each(withQuotes)('%s has sourced default quotes', (id) => {
+  it.each(byLicense('public-domain'))('%s quotes public-domain translations', (id) => {
     expect(DEFAULT_QUOTES[id].length).toBeGreaterThanOrEqual(5);
     for (const q of DEFAULT_QUOTES[id]) {
       expect(q.text.length).toBeLessThanOrEqual(220);
@@ -55,10 +55,21 @@ describe('voices', () => {
   });
 });
 
-describe('voices without built-in quotes', () => {
-  it.each(VOICE_IDS.filter((id) => VOICES[id].quotesNote))('%s explains why and has none', (id) => {
-    expect(DEFAULT_QUOTES[id]).toEqual([]);
-    expect(VOICES[id].quotesNote).toMatch(/copyright/);
+describe('short quotations from copyrighted books', () => {
+  it.each(VOICE_IDS.filter((id) => VOICES[id].quotesLicense === 'short-quotation'))(
+    '%s keeps them brief and sourced',
+    (id) => {
+      expect(DEFAULT_QUOTES[id].length).toBeGreaterThanOrEqual(7);
+      for (const q of DEFAULT_QUOTES[id]) {
+        expect(q.text.length).toBeLessThanOrEqual(220);
+        expect(q.source).toMatch(/\(\d{4}\)/); // names the work and its year
+      }
+    },
+  );
+
+  it('leaves Plain without quotes', () => {
+    expect(VOICES.plain.quotesLicense).toBe('none');
+    expect(DEFAULT_QUOTES.plain).toEqual([]);
   });
 });
 

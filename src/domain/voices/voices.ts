@@ -42,8 +42,11 @@ export type Voice = {
   breathDone: string;
   /** Claude prompt: who to reflect as, and what to ask for. */
   claude: { intro: string; ask: string };
-  /** Why a voice has no built-in quotes, e.g. the author's work is still under copyright. */
-  quotesNote?: string;
+  /**
+   * Why the default quotes may be used: public-domain translations, or short quotations
+   * from books still under copyright (fine in a personal app, but kept brief and sourced).
+   */
+  quotesLicense: 'public-domain' | 'short-quotation' | 'none';
 };
 
 export const VOICES: Record<VoiceId, Voice> = {
@@ -62,6 +65,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['✨', '🎉', '💛'], mid: ['✨', '🌱'] },
     comfort: 'That sounds like a heavy moment. Take three slow breaths with me?',
     breathDone: 'That’s it. Be gentle with yourself 🌿',
+    quotesLicense: 'none',
     claude: {
       intro: '',
       ask: 'Please reflect on this week. What patterns do you notice (time of day, days of the week, {signals}anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.',
@@ -83,6 +87,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🪷', '💧', '✨'], mid: ['🍃'] },
     comfort: 'Muddy water clears when it is left still. Rest here for three slow breaths?',
     breathDone: 'The water settles on its own 🌊',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week in the spirit of the Tao Te Ching: gently, without judgment, favouring yielding over forcing.',
@@ -106,6 +111,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     comfort:
       'Even an emperor had hard days, and wrote to himself through them. Pause for three slow breaths?',
     breathDone: 'Begin again, as often as you need 🌅',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         "Reflect on my week as a Stoic teacher in the spirit of Marcus Aurelius's Meditations: calm, honest and kind.",
@@ -128,6 +134,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['☀️', '📜', '✨'], mid: ['🕯️'] },
     comfort: 'A hard hour is easier shared. Write to yourself as to a friend, after three slow breaths?',
     breathDone: 'Be the friend you would write to ✉️',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week as Seneca might in one of his letters to Lucilius: warm, practical and frank, like an old friend.',
@@ -150,6 +157,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🌹', '🌞', '✨'], mid: ['🕯️'] },
     comfort: 'Even this feeling is a visitor. Sit with it for three slow breaths?',
     breathDone: 'Let the visitor rest a while 🕯️',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week in the spirit of Rumi: tender and open-hearted, welcoming every feeling as a guest.',
@@ -172,6 +180,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🌸', '🎶', '✨'], mid: ['🪔'] },
     comfort: 'What you are looking for is nearer than your breath. Three slow breaths?',
     breathDone: 'Simple, and near 🪔',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week in the spirit of Kabir: plain-spoken, warm and a little playful, cutting through pretence.',
@@ -194,6 +203,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🧘', '🔆', '✨'], mid: ['🍃'] },
     comfort: 'The waves of the mind rise and fall. Watch three slow breaths?',
     breathDone: 'Steady and at ease 🧘',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week in the spirit of the Yoga Sutras of Patanjali: patient and non-judgmental, treating each mood as a movement of the mind to observe.',
@@ -221,8 +231,7 @@ export const VOICES: Record<VoiceId, Voice> = {
         'Reflect on my week in the spirit of Audre Lorde: direct, warm and unflinching, treating my feelings as a source of knowledge and caring for myself as necessary, not indulgent.',
       ask: 'What patterns do you notice ({signals}the notes, the time of day)? Name what my feelings might be telling me, plainly and without softening it into nothing. Suggest one small act of self-care for next week. Keep it short.',
     },
-    quotesNote:
-      'Audre Lorde’s writing is still under copyright, so this voice has no built-in quotes. Add lines you love with “Edit quotes”.',
+    quotesLicense: 'short-quotation',
   },
 
   capra: {
@@ -245,8 +254,7 @@ export const VOICES: Record<VoiceId, Voice> = {
         'Reflect on my week in the spirit of Fritjof Capra: as a systems thinker, seeing my moods as part of a web of relationships, rhythms and feedback loops.',
       ask: 'What patterns and feedback loops do you notice ({signals}the notes, the time of day, how one part of my day shapes the next)? Suggest one small change that could ripple through the whole system next week. Keep it short.',
     },
-    quotesNote:
-      'Fritjof Capra’s books are still under copyright, so this voice has no built-in quotes. Add lines you love with “Edit quotes”.',
+    quotesLicense: 'short-quotation',
   },
 
   jesus: {
@@ -264,6 +272,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🕊️', '🌾', '✨'], mid: ['🕯️'] },
     comfort: 'Come away and rest a while. Three slow breaths?',
     breathDone: 'Peace be with you 🕊️',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week in the spirit of the teachings of Jesus in the Gospels: gentle, compassionate and hopeful, without preaching.',
@@ -286,6 +295,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🌙', '⭐', '✨'], mid: ['⭐'] },
     comfort: 'With hardship comes ease. Three slow breaths?',
     breathDone: 'Peace be upon you 🌙',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         "Reflect on my week in the spirit of the Prophet Muhammad's teachings of patience (sabr), gratitude (shukr) and mercy, respectfully and without claiming to speak for him.",
@@ -308,6 +318,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🪷', '🌳', '✨'], mid: ['🍃'] },
     comfort: 'This too is passing. Three mindful breaths?',
     breathDone: 'Just this breath 🪷',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         "Reflect on my week in the spirit of the Buddha's teachings in the Dhammapada: calm, clear and kind, noticing how thoughts shape moods.",
@@ -330,6 +341,7 @@ export const VOICES: Record<VoiceId, Voice> = {
     burst: { high: ['🔱', '🌙', '✨'], mid: ['🏔️'] },
     comfort: 'Even storms pass over the mountain. Three slow breaths?',
     breathDone: 'Still as the mountain 🏔️',
+    quotesLicense: 'public-domain',
     claude: {
       intro:
         'Reflect on my week in the spirit of Shiva as the yogi of stillness and the dance of change: calm and deep, honouring both endings and beginnings.',

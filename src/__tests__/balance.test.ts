@@ -5,16 +5,17 @@ import {
   ZERO_POINTS,
   balanceDays,
   checkInPoints,
-  compareWithLastWeek,
+  changeFromLastWeek,
   formatPoints,
   verdictFor,
   weekBalance,
 } from '@domain/habits/balance';
 import { Entry } from '@domain/checkins/types';
 import { PRESET_HABITS, weightOf } from '@domain/habits/habits';
+import { changeText, verdictLabel } from '@ui/i18n/balance';
 import { weeklyStats } from '@domain/checkins/stats';
-import { buildReflectionPrompt } from '@domain/voices/prompt';
-import { VOICES } from '@domain/voices/voices';
+import { buildReflectionPrompt } from '@ui/reflection/prompt';
+import { VOICES } from '@ui/voices/voices';
 
 const today = '2026-10-01';
 const entry = (date: string, habits: Entry['habits'], slot: Entry['slot'] = 'morning'): Entry => ({
@@ -84,7 +85,7 @@ describe('week balance', () => {
     expect(week.days.at(-2)).toMatchObject({ date: '2026-09-30', light: 3, heavy: 4, net: -1, logged: true });
     expect(week.days.at(-1)).toMatchObject({ light: 5, heavy: 0, net: 5 });
     expect(week).toMatchObject({ light: 8, heavy: 4, net: 4, previousNet: -6 });
-    expect(week.verdict).toEqual({ label: 'Leaning light', emoji: '🌱' });
+    expect(week.verdict).toEqual({ kind: 'leaningLight', emoji: '🌱' });
   });
 
   it('marks unlogged days and has no comparison without last week', () => {
@@ -96,17 +97,19 @@ describe('week balance', () => {
 
 describe('words', () => {
   it('are kind at every tilt', () => {
-    expect(verdictFor(9, 1)?.label).toBe('Flourishing');
-    expect(verdictFor(5, 5)?.label).toBe('In balance');
-    expect(verdictFor(1, 9)?.label).toMatch(/every light point counts/);
+    expect(verdictFor(9, 1)?.kind).toBe('flourishing');
+    expect(verdictFor(5, 5)?.kind).toBe('inBalance');
+    expect(verdictLabel(verdictFor(9, 1)!)).toBe('Flourishing');
+    expect(verdictLabel(verdictFor(1, 9)!)).toMatch(/every light point counts/);
+    expect(verdictLabel(verdictFor(1, 9)!, 'pt-PT')).toMatch(/cada ponto leve conta/);
     expect(verdictFor(0, 0)).toBeNull();
   });
 
   it('frame the comparison gently', () => {
-    expect(compareWithLastWeek(4, -6)).toBe('+10 lighter than last week');
-    expect(compareWithLastWeek(-2, 3)).toBe('-5 vs last week — tomorrow is a fresh start');
-    expect(compareWithLastWeek(1, 1)).toBe('Same as last week');
-    expect(compareWithLastWeek(1, null)).toBeNull();
+    expect(changeText(changeFromLastWeek(4, -6))).toBe('+10 lighter than last week');
+    expect(changeText(changeFromLastWeek(-2, 3))).toBe('-5 vs last week — tomorrow is a fresh start');
+    expect(changeText(changeFromLastWeek(1, 1))).toBe('Same as last week');
+    expect(changeText(changeFromLastWeek(1, null))).toBeNull();
     expect(formatPoints(3)).toBe('+3');
     expect(formatPoints(-2)).toBe('-2');
   });

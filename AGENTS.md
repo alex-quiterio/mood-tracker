@@ -31,9 +31,9 @@ Run lint and typecheck before declaring any task done.
 - Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
 - The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
-- All user-facing text comes from `src/domain/i18n/en.ts` and `pt.ts` (European Portuguese: telemóvel, ecrã, registo, tu). `pt` is typed as `Messages`, so adding an English string without its Portuguese is a type error, and a test flags Portuguese left identical to English. Domain functions that produce text take a `locale`; the UI gets `{ m, locale }` from `useLocale()`. Voices are translated in `src/domain/voices/voices.pt.ts`; quotes are never translated.
+- All user-facing text lives in the presentation layer: `src/ui/i18n/en.ts` and `pt.ts` (European Portuguese: telemóvel, ecrã, registo, tu). `pt` is typed as `Messages`, so adding an English string without its Portuguese is a type error, and a test flags Portuguese left identical to English. The domain returns values (a verdict kind, a change in points, a milestone amount) and `ui/i18n` turns them into words; infrastructure adapters receive translated text as arguments. The UI gets `{ m, locale }` from `useLocale()`. Voices' wording is in `src/ui/voices/` (English and `voices.pt.ts`); quotes are never translated.
 - Habits aim for good feedback loops: lead with wins (zeros, good habits, what you did instead), never let savings go negative, never use red or blame. Habit data only goes into the Claude prompt when `habitsInPrompt` is on.
-- Voices (`src/domain/voices/voices.ts`) are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and each voice's `quotesLicense` says why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
+- Voices are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and `QUOTES_LICENSE` says for each voice why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
 - `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/domain/signals/windowedCount.ts`. Same optional-module rule as above.
 
@@ -47,28 +47,29 @@ Import across areas with the path aliases `@domain/…`, `@infrastructure/…`, 
 App.tsx                      composition root: providers, tabs, name prompt
 modules/                     local native modules (Kotlin): unlock-stats, step-counter
 src/
-  domain/                    pure model and rules. No React, React Native, Expo, storage or UI imports.
-    checkins/                Entry, Mood, Slot; entries, stats, streak, moments, export format, migrations
-    signals/                 counting a signal over a check-in window; formatting and describing counts
-    voices/                  voices, default quotes, the Claude reflection prompt
-    reminders/               reminder time windows and messages
-    settings/                Settings model, defaults, parsing, theme modes
+  domain/                    the model and its rules; returns values, never sentences.
+                             No React, React Native, Expo, storage, UI or i18n imports.
+    checkins/                Entry, Mood, Slot; entries, stats, calendar, celebration rules, export format, migrations
+    habits/                  habits, check-in habit logs, balance points and verdicts, savings, weekly insights
+    signals/                 counting a signal over a check-in window
+    voices/                  voice ids, default quotes and their licences, quote-of-the-day rules
+    reminders/               reminder time windows
     practice/                breathing patterns and focus sessions
-    habits/                  habits, check-in habit logs, balance points, savings, weekly insights
-    shared/                  local dates
-    i18n/                    locales, number/date formatting, message catalogues (en.ts, pt.ts)
-  infrastructure/            adapters to the outside world; never imports ui/
+    settings/                Settings model and parsing, theme modes, the language choice
+    shared/                  local dates, ids, maths
+  infrastructure/            adapters to the outside world; never imports ui/. Text arrives already translated.
     storage/                 AsyncStorage repositories: entries (with migrations), settings, checkpoints
     signals/                 unlocks and steps: native modules + checkpoints wired into the domain counter
     notifications/           reminders, the practice bell, the notification handler
     backup/                  writing and reading export files
-  ui/                        React Native
+  ui/                        presentation
+    i18n/                    catalogues (en.ts, pt.ts), formatting, and formatters from domain values to words
+    voices/                  each voice's wording (English and voices.pt.ts), emojis and save bursts
+    reflection/              the Claude prompt, a document written in the user's language
     theme/                   palettes, per-voice tones, theme and voice contexts
-    i18n/                    the locale context (useLocale)
     hooks/                   state hooks (entries, settings, live previews)
-    components/              reusable UI
-    practice/                the pause orb, practice menu and sessions
-    habits/                  habit logger, balance board, savings jar, weekly habits view
+    components/              reusable UI: Card, Chip, RoundButton, Stepper, Button, …
+    checkin/ habits/ practice/  feature views
     screens/                 one file per tab; settings sections in screens/settings/
   __tests__/                 Jest tests
 ```

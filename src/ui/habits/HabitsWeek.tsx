@@ -4,8 +4,9 @@ import { Card } from '@ui/components/Card';
 import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
-import { describeHabitWeek, habitWeek, totalSavings } from '@domain/habits/insights';
-import { formatDecimal } from '@domain/i18n/format';
+import { habitWeek, totalSavings } from '@domain/habits/insights';
+import { describeHabitWeek } from '@ui/i18n/habits';
+import { formatDecimal } from '@ui/i18n/format';
 import { addDays, lastNDays } from '@domain/shared/dates';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -27,7 +28,7 @@ export function HabitsWeek({ entries, habits, today }: { entries: Entry[]; habit
 
   return (
     <View style={styles.root}>
-      <BalanceBoard week={weekBalance(entries, habits, today, locale)} />
+      <BalanceBoard week={weekBalance(entries, habits, today)} />
       <SavingsJar
         week={totalSavings(entries, habits, addDays(today, -6), today)}
         total={totalSavings(entries, habits)}

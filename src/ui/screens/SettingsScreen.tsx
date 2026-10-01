@@ -2,7 +2,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 
 import { ExportError } from '@domain/checkins/exportFormat';
 import { mergeHabits } from '@domain/habits/habits';
-import { LANGUAGE_SETTINGS } from '@domain/i18n/locale';
+import { LANGUAGE_SETTINGS } from '@domain/settings/language';
 import { exportEntries, pickImportFile } from '@infrastructure/backup/backupFiles';
 import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';

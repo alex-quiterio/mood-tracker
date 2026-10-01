@@ -8,12 +8,12 @@ import {
   OPTION_LABEL_MAX_LENGTH,
   addOption,
   createHabit,
-  localizeHabit,
   parsePrice,
   removeOption,
   updateHabit,
   weightOf,
 } from '@domain/habits/habits';
+import { localizeHabit } from '@ui/i18n/habits';
 import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';
 import { Chip } from '@ui/components/Chip';

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { parseEntry } from '@domain/checkins/entries';
-import { buildReflectionPrompt } from '@domain/voices/prompt';
+import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 import {
@@ -10,7 +10,7 @@ import {
   unlockWindowStart,
   withUnlocks,
 } from '@infrastructure/signals/unlocks';
-import { formatUnlocksSince } from '@domain/signals/format';
+import { formatUnlocksSince } from '@ui/i18n/signals';
 
 const mockCountUnlocks = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
 jest.mock('@modules/unlock-stats', () => ({

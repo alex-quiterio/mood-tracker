@@ -1,7 +1,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 
-import { greetingText } from '@domain/checkins/moments';
+import { greetingText } from '@ui/i18n/greetings';
 import { NAME_MAX_LENGTH, cleanName } from '@domain/settings/settings';
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);

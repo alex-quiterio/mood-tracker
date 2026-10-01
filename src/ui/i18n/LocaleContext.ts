@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
-import { Locale } from '@domain/i18n/locale';
-import { Messages, messages } from '@domain/i18n/messages';
+import { Locale } from '@domain/settings/language';
+import { Messages, messages } from '@ui/i18n/messages';
 
 export type LocaleValue = { locale: Locale; m: Messages };
 

@@ -18,14 +18,8 @@ import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '@ui/th
 import { MOODS } from '@domain/checkins/types';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { useLocale } from '@ui/i18n/LocaleContext';
-import {
-  VOICES,
-  VOICE_IDS,
-  localizeVoice,
-  VoiceId,
-  formatQuotesText,
-  parseQuotesText,
-} from '@domain/voices/voices';
+import { VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText } from '@domain/voices/voices';
+import { VOICES, localizeVoice } from '@ui/voices/voices';
 import { useVoice } from '@ui/theme/voiceContext';
 
 /** Pick a voice, and edit the quotes it shows. */

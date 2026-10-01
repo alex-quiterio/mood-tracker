@@ -1,6 +1,6 @@
 import { parseLocalDate } from '@domain/shared/dates';
 
-import { Locale } from './locale';
+import { Locale } from '@domain/settings/language';
 
 /**
  * Locale-aware formatting without relying on the JS engine's Intl data, which
@@ -96,3 +96,7 @@ export function longDate(date: string, locale: Locale): string {
   const month = MONTHS[locale][d.getMonth()];
   return locale === 'pt-PT' ? `${day}, ${d.getDate()} de ${month}` : `${day}, ${d.getDate()} ${month}`;
 }
+
+/** An average mood: "3.5" · "3,5", or a dash when there is none. */
+export const formatAverage = (value: number | null, locale: Locale = 'en') =>
+  value === null ? '–' : formatDecimal(value, 1, locale);

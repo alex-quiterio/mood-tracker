@@ -1,8 +1,8 @@
 import { Entry } from '@domain/checkins/types';
-import { Locale } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
+import { Locale } from '@domain/settings/language';
+import { messages } from '@ui/i18n/messages';
 
-import { formatSince, formatSteps } from './format';
+import { formatSince, formatSteps } from '@ui/i18n/signals';
 
 /**
  * The phone signals saved with a check-in, as display lines. Shares one line when

@@ -1,19 +1,14 @@
-import { WeeklyStats, formatAverage } from '@domain/checkins/stats';
+import { WeeklyStats } from '@domain/checkins/stats';
+import { formatAverage, formatEuros, formatDecimal, weekdayShort } from '@ui/i18n/format';
 import { SLOTS } from '@domain/checkins/types';
 import { checkInPoints } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
-import {
-  formatEuros,
-  habitWeek,
-  promptHabitText,
-  promptHabitWeek,
-  totalSavings,
-} from '@domain/habits/insights';
-import { formatDecimal, weekdayShort } from '@domain/i18n/format';
-import { Locale } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
+import { habitWeek, totalSavings } from '@domain/habits/insights';
+import { promptHabitText, promptHabitWeek } from '@ui/i18n/habits';
+import { Locale } from '@domain/settings/language';
+import { messages } from '@ui/i18n/messages';
 
-import { VOICES, Voice } from './voices';
+import { VOICES, Voice } from '@ui/voices/voices';
 
 /**
  * Plain-text prompt for the Claude app: the week's entries plus a request for patterns

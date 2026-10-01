@@ -1,6 +1,6 @@
 import { Entry } from '@domain/checkins/types';
-import { formatDecimal, formatInteger, weekdayShort } from '@domain/i18n/format';
-import { Locale } from '@domain/i18n/locale';
+import { formatDecimal, formatInteger, weekdayShort } from '@ui/i18n/format';
+import { Locale } from '@domain/settings/language';
 import { localDate } from '@domain/shared/dates';
 
 /** "21:00" when `from` is on `day`, otherwise "Tue 21:00". */

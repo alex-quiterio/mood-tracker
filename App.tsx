@@ -17,16 +17,17 @@ import { localDate } from '@domain/shared/dates';
 import { configureNotificationHandler } from '@infrastructure/notifications/handler';
 import { NamePrompt } from '@ui/components/NamePrompt';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
+import { reminderMessages } from '@ui/i18n/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';
 import { SettingsScreen } from '@ui/screens/SettingsScreen';
 import { StatsScreen } from '@ui/screens/StatsScreen';
 import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { EntriesStore, useEntries } from '@ui/hooks/useEntries';
 import { SettingsStore, useSettings } from '@ui/hooks/useSettings';
-import { localeFor } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
-import { localizeHabits } from '@domain/habits/habits';
-import { activeVoice } from '@domain/voices/voices';
+import { localeFor } from '@domain/settings/language';
+import { messages } from '@ui/i18n/messages';
+import { localizeHabits } from '@ui/i18n/habits';
+import { activeVoice } from '@ui/voices/voices';
 import { LocaleContext, useLocale } from '@ui/i18n/LocaleContext';
 import { VoiceContext } from '@ui/theme/voiceContext';
 
@@ -102,13 +103,13 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
 
   const saveName = async (next: string) => {
     await settings.update({ name: next });
-    if (remindersEnabled) scheduleReminders(reminderTimes, next, locale).catch(() => {});
+    if (remindersEnabled) scheduleReminders(reminderTimes, reminderMessages(next, locale)).catch(() => {});
   };
   const { trackUnlocks, trackSteps } = settings.settings;
 
   // Reminders are written in the app's language, so reschedule them when it changes.
   useEffect(() => {
-    if (remindersEnabled) scheduleReminders(reminderTimes, name, locale).catch(() => {});
+    if (remindersEnabled) scheduleReminders(reminderTimes, reminderMessages(name, locale)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 

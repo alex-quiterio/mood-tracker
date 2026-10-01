@@ -7,7 +7,7 @@ import { Card } from '@ui/components/Card';
 import { startStepRecording } from '@infrastructure/signals/steps';
 import { Palette, useColors, useThemedStyles } from '@ui/theme/theme';
 import { SettingsStore } from '@ui/hooks/useSettings';
-import { Messages } from '@domain/i18n/messages';
+import { Messages } from '@ui/i18n/messages';
 import { useLocale } from '@ui/i18n/LocaleContext';
 
 /** Asks for "Physical activity". True when granted (or not needed before Android 10). */

@@ -16,8 +16,8 @@ import {
 } from '@domain/checkins/calendar';
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { dayOfMonth } from '@domain/shared/dates';
-import { describeSignals } from '@domain/signals/describe';
-import { longDate, monthTitle, weekdayInitials } from '@domain/i18n/format';
+import { describeSignals } from '@ui/i18n/describeSignals';
+import { longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { Habit } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';

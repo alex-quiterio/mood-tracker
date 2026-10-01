@@ -1,5 +1,3 @@
-import { formatDecimal } from '@domain/i18n/format';
-import { Locale } from '@domain/i18n/locale';
 import { addDays, lastNDays } from '@domain/shared/dates';
 import { average } from '@domain/shared/math';
 import { entryKey } from './entries';
@@ -71,9 +69,6 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     possible: days.length * SLOTS.length,
   };
 }
-
-export const formatAverage = (value: number | null, locale: Locale = 'en') =>
-  value === null ? '–' : formatDecimal(value, 1, locale);
 
 /**
  * Consecutive days with at least one check-in, ending today. A day without a

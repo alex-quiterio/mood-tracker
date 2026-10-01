@@ -1,6 +1,4 @@
-import { Locale } from '@domain/i18n/locale';
 import { uniqueId } from '@domain/shared/ids';
-import { messages } from '@domain/i18n/messages';
 
 /**
  * Habits logged with each check-in. Ones to reduce are counted in doses (possibly
@@ -243,28 +241,3 @@ export function parsePrice(text: string): number | undefined {
   const n = Number(text.replace(',', '.').replace(/[^\d.]/g, ''));
   return text.trim() === '' || !Number.isFinite(n) ? undefined : Math.round(n * 100) / 100;
 }
-
-/**
- * A habit in the user's language. Presets you haven't renamed take the locale's
- * name, unit and option labels; anything you've changed keeps your wording.
- */
-export function localizeHabit(habit: Habit, locale: Locale): Habit {
-  const preset = PRESET_HABITS.find((p) => p.id === habit.id);
-  if (!preset) return habit;
-  const m = messages(locale);
-  const text = m.presets[habit.id];
-  return {
-    ...habit,
-    name: habit.name === preset.name && text ? text.name : habit.name,
-    unit: habit.unit === preset.unit && text ? text.unit : habit.unit,
-    options: habit.options?.map((o) => {
-      const original = preset.options?.find((p) => p.id === o.id);
-      return original && o.label === original.label && m.presetOptions[o.id]
-        ? { ...o, label: m.presetOptions[o.id] }
-        : o;
-    }),
-  };
-}
-
-export const localizeHabits = (habits: Habit[], locale: Locale) =>
-  habits.map((h) => localizeHabit(h, locale));

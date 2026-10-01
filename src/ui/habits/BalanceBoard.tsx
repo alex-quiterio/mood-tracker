@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/components/Card';
-import { WeekBalance, compareWithLastWeek, formatPoints } from '@domain/habits/balance';
-import { weekdayShort } from '@domain/i18n/format';
+import { WeekBalance, changeFromLastWeek, formatPoints } from '@domain/habits/balance';
+import { changeText, verdictLabel } from '@ui/i18n/balance';
+import { weekdayShort } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 
@@ -26,7 +27,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
   const scale = Math.max(1, ...week.days.map((d) => Math.max(d.light, d.heavy)));
   const { m, locale } = useLocale();
   const day = (date: string) => weekdayShort(date, locale);
-  const comparison = compareWithLastWeek(week.net, week.previousNet, locale);
+  const comparison = changeText(changeFromLastWeek(week.net, week.previousNet), locale);
   const picked = week.days.find((d) => d.date === selected);
 
   if (!week.days.some((d) => d.logged)) {
@@ -45,7 +46,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
           <Text style={styles.title}>{m.balance.title}</Text>
           {week.verdict && (
             <Text style={styles.verdict}>
-              {week.verdict.emoji} {week.verdict.label}
+              {week.verdict.emoji} {verdictLabel(week.verdict, locale)}
             </Text>
           )}
         </View>

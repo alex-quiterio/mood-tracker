@@ -2,8 +2,9 @@ import { describe, expect, it } from '@jest/globals';
 
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
-import { PRESET_HABITS, localizeHabit } from '@domain/habits/habits';
-import { en } from '@domain/i18n/en';
+import { PRESET_HABITS } from '@domain/habits/habits';
+import { localizeHabit } from '@ui/i18n/habits';
+import { en } from '@ui/i18n/en';
 import {
   formatDecimal,
   formatEuros,
@@ -12,15 +13,16 @@ import {
   monthTitle,
   weekdayInitials,
   weekdayShort,
-} from '@domain/i18n/format';
-import { localeFor, resolveLocale } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
-import { pt } from '@domain/i18n/pt';
-import { formatSteps } from '@domain/signals/format';
-import { buildReflectionPrompt } from '@domain/voices/prompt';
+} from '@ui/i18n/format';
+import { localeFor, resolveLocale } from '@domain/settings/language';
+import { messages } from '@ui/i18n/messages';
+import { pt } from '@ui/i18n/pt';
+import { formatSteps } from '@ui/i18n/signals';
+import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
-import { VOICES, VOICE_IDS, activeVoice, localizeVoice } from '@domain/voices/voices';
-import { VOICES_PT } from '@domain/voices/voices.pt';
+import { VOICE_IDS } from '@domain/voices/voices';
+import { VOICES, activeVoice, localizeVoice } from '@ui/voices/voices';
+import { VOICES_PT } from '@ui/voices/voices.pt';
 
 describe('locale', () => {
   it('maps any Portuguese to pt-PT and everything else to English', () => {

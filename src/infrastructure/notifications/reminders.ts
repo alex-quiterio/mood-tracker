@@ -1,14 +1,15 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-import { Locale } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
-import { ReminderTimes, reminderMessage } from '@domain/reminders/times';
-import { SLOTS } from '@domain/checkins/types';
+import { SLOTS, Slot } from '@domain/checkins/types';
+import { ReminderTimes } from '@domain/reminders/times';
 
 import { BELL_KIND } from './bell';
 
 const CHANNEL_ID = 'check-in-reminders';
+
+/** What each reminder says. The UI writes it in the user's language; this adapter only schedules. */
+export type ReminderText = Record<Slot, { title: string; body: string }>;
 
 // Reminders get fixed ids. Cancelling clears every scheduled notification except the practice
 // bell, which also removes reminders scheduled by older versions without ids.
@@ -31,13 +32,13 @@ const serialize = <T>(task: () => Promise<T>): Promise<T> => {
 };
 
 /** Replaces the scheduled reminders with one daily reminder per slot. */
-export function scheduleReminders(times: ReminderTimes, name: string, locale: Locale = 'en'): Promise<void> {
+export function scheduleReminders(times: ReminderTimes, text: ReminderText): Promise<void> {
   return serialize(async () => {
     await cancelReminders();
     for (const slot of SLOTS) {
       await Notifications.scheduleNotificationAsync({
         identifier: reminderId(slot),
-        content: reminderMessage(slot, name, locale),
+        content: text[slot],
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: times[slot].hour,
@@ -52,19 +53,19 @@ export function scheduleReminders(times: ReminderTimes, name: string, locale: Lo
 /** Asks for permission and schedules the reminders. Returns false if notification permission was denied. */
 export async function enableReminders(
   times: ReminderTimes,
-  name: string,
-  locale: Locale = 'en',
+  text: ReminderText,
+  channelName: string,
 ): Promise<boolean> {
   const { status } = await Notifications.requestPermissionsAsync();
   if (status !== 'granted') return false;
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: messages(locale).reminders.channel,
+      name: channelName,
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }
-  await scheduleReminders(times, name, locale);
+  await scheduleReminders(times, text);
   return true;
 }
 

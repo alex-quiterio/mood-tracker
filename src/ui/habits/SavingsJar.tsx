@@ -2,7 +2,8 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/components/Card';
 import { Habit } from '@domain/habits/habits';
-import { formatEuros, savingsMilestone } from '@domain/habits/insights';
+import { savingsMilestone } from '@domain/habits/insights';
+import { formatEuros } from '@ui/i18n/format';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { useLocale } from '@ui/i18n/LocaleContext';
 
@@ -14,7 +15,8 @@ export function SavingsJar({ week, total, habits }: Props) {
   const { m, locale } = useLocale();
   const priced = habits.filter((h) => h.kind === 'reduce' && !h.archived && h.pricePerDose);
   const ready = priced.some((h) => h.usualPerDay);
-  const { reached, next, progress } = savingsMilestone(total, locale);
+  const { reached, next, progress } = savingsMilestone(total);
+  const milestone = (amount: number) => m.savings.milestones[amount];
 
   return (
     <Card style={styles.card}>
@@ -29,11 +31,11 @@ export function SavingsJar({ week, total, habits }: Props) {
             <Text style={styles.amount}>{formatEuros(total, locale)}</Text>
             <Text style={styles.body}>
               {m.savings.thisWeek(formatEuros(week, locale))}
-              {reached ? m.savings.enoughFor(reached.label) : ''}
+              {reached ? m.savings.enoughFor(milestone(reached)) : ''}
             </Text>
             {next && (
               <Text style={styles.muted}>
-                {m.savings.moreFor(formatEuros(next.amount - total, locale), next.label)}
+                {m.savings.moreFor(formatEuros(next - total, locale), milestone(next))}
               </Text>
             )}
           </>

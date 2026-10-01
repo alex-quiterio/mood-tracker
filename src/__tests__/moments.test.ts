@@ -1,9 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { burstEmojis, greetingFor, offersBreathing, streakLabel } from '@domain/checkins/moments';
+import { offersBreathing } from '@domain/checkins/moments';
+import { burstEmojis, VOICES } from '@ui/voices/voices';
+import { greetingFor, streakLabel } from '@ui/i18n/greetings';
 import { currentStreak, weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
-import { VOICES } from '@domain/voices/voices';
 
 const entry = (date: string, slot: Entry['slot'] = 'morning', unlocks?: number): Entry => ({
   date,

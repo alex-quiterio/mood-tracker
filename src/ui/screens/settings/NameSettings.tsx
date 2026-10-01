@@ -3,6 +3,7 @@ import { StyleSheet, Text, TextInput } from 'react-native';
 
 import { NAME_MAX_LENGTH, cleanName } from '@domain/settings/settings';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
+import { reminderMessages } from '@ui/i18n/reminders';
 import { Card } from '@ui/components/Card';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -22,7 +23,7 @@ export function NameSettings({ settings }: { settings: SettingsStore }) {
     await settings.update({ name });
     // Reminders mention the name, so refresh them.
     const { remindersEnabled, reminderTimes } = settings.settings;
-    if (remindersEnabled) scheduleReminders(reminderTimes, name, locale).catch(() => {});
+    if (remindersEnabled) scheduleReminders(reminderTimes, reminderMessages(name, locale)).catch(() => {});
   };
 
   return (

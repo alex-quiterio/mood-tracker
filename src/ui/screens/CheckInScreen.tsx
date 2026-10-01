@@ -8,20 +8,16 @@ import { Button } from '@ui/components/Button';
 import { Burst, MoodBurst, makeBurst } from '@ui/components/MoodBurst';
 import { LiveCount, LiveCounts } from '@ui/components/LiveCounts';
 import { dayOfMonth, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
-import { weekdayShort } from '@domain/i18n/format';
+import { weekdayShort } from '@ui/i18n/format';
 import { entryKey } from '@domain/checkins/entries';
-import {
-  burstEmojis,
-  greetingFor,
-  greetingText,
-  offersBreathing,
-  streakLabel,
-} from '@domain/checkins/moments';
+import { offersBreathing } from '@domain/checkins/moments';
+import { burstEmojis } from '@ui/voices/voices';
+import { greetingFor, greetingText, streakLabel } from '@ui/i18n/greetings';
 import { currentStreak, weeklyStats } from '@domain/checkins/stats';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { Mood, SLOTS, Slot } from '@domain/checkins/types';
 import { previewSteps } from '@infrastructure/signals/steps';
-import { formatSteps } from '@domain/signals/format';
+import { formatSteps } from '@ui/i18n/signals';
 import { previewUnlocks } from '@infrastructure/signals/unlocks';
 import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLivePreview } from '@ui/hooks/useLivePreview';

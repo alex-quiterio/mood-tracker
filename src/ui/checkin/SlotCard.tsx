@@ -5,7 +5,7 @@ import { NOTE_MAX_LENGTH } from '@domain/checkins/entries';
 import { Entry, Mood, Slot } from '@domain/checkins/types';
 import { EMPTY_LOG, Habit, HabitLog, cleanLog, isWin, sameLog } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
-import { describeSignals } from '@domain/signals/describe';
+import { describeSignals } from '@ui/i18n/describeSignals';
 import { withSteps } from '@infrastructure/signals/steps';
 import { withUnlocks } from '@infrastructure/signals/unlocks';
 import { Button } from '@ui/components/Button';

@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { parseEntry } from '@domain/checkins/entries';
-import { buildReflectionPrompt } from '@domain/voices/prompt';
-import { describeSignals } from '@domain/signals/describe';
+import { buildReflectionPrompt } from '@ui/reflection/prompt';
+import { describeSignals } from '@ui/i18n/describeSignals';
 import { weeklyStats } from '@domain/checkins/stats';
 import { previewSteps, startStepRecording, withSteps } from '@infrastructure/signals/steps';
-import { formatSteps, formatStepsShort } from '@domain/signals/format';
+import { formatSteps, formatStepsShort } from '@ui/i18n/signals';
 import { Entry } from '@domain/checkins/types';
-import { VOICES } from '@domain/voices/voices';
+import { VOICES } from '@ui/voices/voices';
 
 const mockCountSteps = jest.fn<(start: Date, end: Date) => Promise<number | null>>();
 const mockSubscribe = jest.fn<() => Promise<boolean>>();

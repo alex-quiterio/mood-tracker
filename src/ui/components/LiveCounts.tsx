@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/components/Card';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
-import { formatSince } from '@domain/signals/format';
+import { formatSince } from '@ui/i18n/signals';
 import { useLocale } from '@ui/i18n/LocaleContext';
 
 export type LiveCount = {

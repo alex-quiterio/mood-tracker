@@ -8,9 +8,9 @@ import {
   formatRange,
   formatTime,
   parseReminderTimes,
-  reminderMessage,
   shiftReminderTime,
 } from '@domain/reminders/times';
+import { reminderMessage } from '@ui/i18n/reminders';
 import { SLOTS } from '@domain/checkins/types';
 
 const t = (hour: number, minute = 0) => ({ hour, minute });

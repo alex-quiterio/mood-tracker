@@ -19,19 +19,17 @@ import {
   removeOption,
   parsePrice,
 } from '@domain/habits/habits';
-import { burstEmojis } from '@domain/checkins/moments';
-import { VOICES } from '@domain/voices/voices';
+import { burstEmojis, VOICES } from '@ui/voices/voices';
 import {
-  describeHabitWeek,
   describeLog,
   dosesByDay,
-  formatEuros,
   habitWeek,
-  promptHabitText,
   savings,
   savingsMilestone,
   totalSavings,
 } from '@domain/habits/insights';
+import { describeHabitWeek, promptHabitText } from '@ui/i18n/habits';
+import { formatEuros } from '@ui/i18n/format';
 
 const today = '2026-10-01';
 const cigarettes: Habit = { ...PRESET_HABITS[0], usualPerDay: 10 }; // €0.55 each
@@ -156,13 +154,9 @@ describe('savings', () => {
   });
 
   it('turn into something real', () => {
-    expect(savingsMilestone(3)).toMatchObject({ reached: null, next: { amount: 5 } });
-    expect(savingsMilestone(60)).toMatchObject({
-      reached: { amount: 50 },
-      next: { amount: 100 },
-      progress: 0.6,
-    });
-    expect(savingsMilestone(1000)).toMatchObject({ reached: { amount: 600 }, next: null, progress: 1 });
+    expect(savingsMilestone(3)).toEqual({ reached: null, next: 5, progress: 0.6 });
+    expect(savingsMilestone(60)).toEqual({ reached: 50, next: 100, progress: 0.6 });
+    expect(savingsMilestone(1000)).toEqual({ reached: 600, next: null, progress: 1 });
     expect(formatEuros(8.25)).toBe('€8.25');
     expect(formatEuros(12)).toBe('€12');
     expect(formatEuros(250.4)).toBe('€250');

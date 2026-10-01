@@ -8,6 +8,7 @@ import {
   enableReminders,
   scheduleReminders,
 } from '@infrastructure/notifications/reminders';
+import { reminderMessages } from '@ui/i18n/reminders';
 import {
   REMINDER_STEP_MINUTES,
   canShift,
@@ -31,7 +32,10 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
   const toggle = async (enabled: boolean) => {
     setBusy(true);
     try {
-      if (enabled && !(await enableReminders(reminderTimes, name, locale))) {
+      if (
+        enabled &&
+        !(await enableReminders(reminderTimes, reminderMessages(name, locale), m.reminders.channel))
+      ) {
         Alert.alert(m.reminders.offTitle, m.reminders.offBody);
         return;
       }
@@ -51,7 +55,9 @@ export function ReminderSettings({ settings }: { settings: SettingsStore }) {
     };
     await settings.update({ reminderTimes: next });
     if (remindersEnabled) {
-      scheduleReminders(next, name, locale).catch((e) => Alert.alert(m.reminders.failed, String(e)));
+      scheduleReminders(next, reminderMessages(name, locale)).catch((e) =>
+        Alert.alert(m.reminders.failed, String(e)),
+      );
     }
   };
 

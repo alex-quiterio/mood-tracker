@@ -1,6 +1,4 @@
 import { SLOTS, Slot } from '@domain/checkins/types';
-import { Locale } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
 
 export type ClockTime = { hour: number; minute: number };
 export type ReminderTimes = Record<Slot, ClockTime>;
@@ -58,16 +56,4 @@ export function parseReminderTimes(value: unknown): ReminderTimes {
     }
   }
   return result;
-}
-
-export function reminderMessage(
-  slot: Slot,
-  name: string,
-  locale: Locale = 'en',
-): { title: string; body: string } {
-  const m = messages(locale);
-  return {
-    title: m.reminders.notificationTitle(m.slots[slot]),
-    body: name ? m.reminders.bodyNamed(name) : m.reminders.body,
-  };
 }

@@ -1,6 +1,6 @@
 import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
 import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
-import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/i18n/locale';
+import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;

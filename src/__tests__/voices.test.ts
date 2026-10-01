@@ -1,17 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildReflectionPrompt } from '@domain/voices/prompt';
-import { DEFAULT_QUOTES } from '@domain/voices/quotes';
+import { buildReflectionPrompt } from '@ui/reflection/prompt';
+import { DEFAULT_QUOTES, QUOTES_LICENSE } from '@domain/voices/quotes';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry, MOODS, SLOTS } from '@domain/checkins/types';
-import {
-  VOICES,
-  VOICE_IDS,
-  activeVoice,
-  formatQuotesText,
-  parseQuotesText,
-  quoteOfTheDay,
-} from '@domain/voices/voices';
+import { VOICE_IDS, formatQuotesText, parseQuotesText, quoteOfTheDay } from '@domain/voices/voices';
+import { VOICES, activeVoice } from '@ui/voices/voices';
 
 const entry: Entry = { date: '2026-10-01', slot: 'morning', mood: 2, recordedAt: '2026-10-01T08:00:00.000Z' };
 
@@ -24,7 +18,7 @@ describe('voices', () => {
     expect(v.claude.ask.match(/\{signals\}/g)).toHaveLength(1);
   });
 
-  const byLicense = (license: string) => VOICE_IDS.filter((id) => VOICES[id].quotesLicense === license);
+  const byLicense = (license: string) => VOICE_IDS.filter((id) => QUOTES_LICENSE[id] === license);
 
   it.each(byLicense('public-domain'))('%s quotes public-domain translations', (id) => {
     expect(DEFAULT_QUOTES[id].length).toBeGreaterThanOrEqual(5);
@@ -56,7 +50,7 @@ describe('voices', () => {
 });
 
 describe('short quotations from copyrighted books', () => {
-  it.each(VOICE_IDS.filter((id) => VOICES[id].quotesLicense === 'short-quotation'))(
+  it.each(VOICE_IDS.filter((id) => QUOTES_LICENSE[id] === 'short-quotation'))(
     '%s keeps them brief and sourced',
     (id) => {
       expect(DEFAULT_QUOTES[id].length).toBeGreaterThanOrEqual(7);
@@ -68,7 +62,7 @@ describe('short quotations from copyrighted books', () => {
   );
 
   it('leaves Plain without quotes', () => {
-    expect(VOICES.plain.quotesLicense).toBe('none');
+    expect(QUOTES_LICENSE.plain).toBe('none');
     expect(DEFAULT_QUOTES.plain).toEqual([]);
   });
 });

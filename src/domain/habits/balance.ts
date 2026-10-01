@@ -1,6 +1,4 @@
 import { Entry } from '@domain/checkins/types';
-import { Locale } from '@domain/i18n/locale';
-import { messages } from '@domain/i18n/messages';
 import { addDays, lastNDays } from '@domain/shared/dates';
 
 import { Habit, HabitLog, weightOf } from './habits';
@@ -55,17 +53,17 @@ export function balanceDays(entries: Entry[], habits: Habit[], days: string[]): 
   });
 }
 
-export type Verdict = { label: string; emoji: string };
+export type VerdictKind = 'flourishing' | 'leaningLight' | 'inBalance' | 'heavier';
+export type Verdict = { kind: VerdictKind; emoji: string };
 
-/** Kind words for the week's tilt; a heavier week gets encouragement, not blame. */
-export function verdictFor(light: number, heavy: number, locale: Locale = 'en'): Verdict | null {
+/** The week's tilt. A heavier week is worded as encouragement, not blame (see the UI). */
+export function verdictFor(light: number, heavy: number): Verdict | null {
   if (light + heavy === 0) return null;
-  const v = messages(locale).balance.verdicts;
   const share = light / (light + heavy);
-  if (share >= 0.75) return { label: v.flourishing, emoji: '🌳' };
-  if (share >= 0.55) return { label: v.leaningLight, emoji: '🌱' };
-  if (share >= 0.45) return { label: v.inBalance, emoji: '⚖️' };
-  return { label: v.heavier, emoji: '🪨' };
+  if (share >= 0.75) return { kind: 'flourishing', emoji: '🌳' };
+  if (share >= 0.55) return { kind: 'leaningLight', emoji: '🌱' };
+  if (share >= 0.45) return { kind: 'inBalance', emoji: '⚖️' };
+  return { kind: 'heavier', emoji: '🪨' };
 }
 
 export type WeekBalance = {
@@ -78,12 +76,7 @@ export type WeekBalance = {
   verdict: Verdict | null;
 };
 
-export function weekBalance(
-  entries: Entry[],
-  habits: Habit[],
-  today: string,
-  locale: Locale = 'en',
-): WeekBalance {
+export function weekBalance(entries: Entry[], habits: Habit[], today: string): WeekBalance {
   const days = balanceDays(entries, habits, lastNDays(7, today));
   const previous = balanceDays(entries, habits, lastNDays(7, addDays(today, -7)));
   const light = days.reduce((s, d) => s + d.light, 0);
@@ -94,22 +87,12 @@ export function weekBalance(
     heavy,
     net: light - heavy,
     previousNet: previous.some((d) => d.logged) ? previous.reduce((s, d) => s + d.net, 0) : null,
-    verdict: verdictFor(light, heavy, locale),
+    verdict: verdictFor(light, heavy),
   };
 }
 
-/** "+5 vs last week", phrased so improvement stands out and a dip stays gentle. */
-export function compareWithLastWeek(
-  net: number,
-  previousNet: number | null,
-  locale: Locale = 'en',
-): string | null {
-  if (previousNet === null) return null;
-  const m = messages(locale).balance;
-  const diff = net - previousNet;
-  if (diff > 0) return m.lighter(diff);
-  if (diff < 0) return m.heavierThanLast(diff);
-  return m.same;
-}
-
 export const formatPoints = (n: number) => (n > 0 ? `+${n}` : String(n));
+
+/** How much lighter (+) or heavier (−) this week is than the last, or null without a last week. */
+export const changeFromLastWeek = (net: number, previousNet: number | null): number | null =>
+  previousNet === null ? null : net - previousNet;

@@ -424,3 +424,26 @@ export const DEFAULT_QUOTES: Record<VoiceId, Quote[]> = {
     },
   ],
 };
+
+/**
+ * Why each voice's default quotes may be used: public-domain translations, or
+ * short quotations from books still under copyright (fine in a personal app, but
+ * kept brief and sourced).
+ */
+export type QuotesLicense = 'public-domain' | 'short-quotation' | 'none';
+
+export const QUOTES_LICENSE: Record<VoiceId, QuotesLicense> = {
+  plain: 'none',
+  laoTzu: 'public-domain',
+  marcus: 'public-domain',
+  seneca: 'public-domain',
+  rumi: 'public-domain',
+  kabir: 'public-domain',
+  patanjali: 'public-domain',
+  lorde: 'short-quotation',
+  capra: 'short-quotation',
+  jesus: 'public-domain',
+  muhammad: 'public-domain',
+  buddha: 'public-domain',
+  shiva: 'public-domain',
+};

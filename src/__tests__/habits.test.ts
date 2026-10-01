@@ -12,6 +12,7 @@ import {
   parseHabitLog,
   parseHabits,
   sameLog,
+  toggleOption,
 } from '@domain/habits/habits';
 import {
   describeHabitWeek,
@@ -42,7 +43,12 @@ const smoked = (count: number, approx = false) => ({
 describe('presets', () => {
   it('reduce cigarettes, weed and drinks, and grow water, walks and connecting with a friend', () => {
     expect(activeHabits(PRESET_HABITS, 'reduce').map((h) => h.id)).toEqual(['cigarettes', 'weed', 'drinks']);
-    expect(activeHabits(PRESET_HABITS, 'grow').map((h) => h.id)).toEqual(['water', 'walk', 'friend']);
+    expect(activeHabits(PRESET_HABITS, 'grow').map((h) => h.id)).toEqual([
+      'water',
+      'walk',
+      'friend',
+      'making',
+    ]);
   });
 
   it('come with Dutch prices for the habits to reduce', () => {
@@ -176,6 +182,45 @@ describe('weekly habit view', () => {
     const week = habitWeek([], [{ ...cigarettes, archived: true }, PRESET_HABITS[2]], today);
     expect(week).toHaveLength(1);
     expect(describeHabitWeek(week[0])).toBe('🍺 Drinks: not logged this week');
+  });
+});
+
+describe('habits with options', () => {
+  const making = PRESET_HABITS.find((h) => h.id === 'making')!;
+
+  it('offer the activities to spend time on', () => {
+    expect(making.options!.map((o) => o.id)).toEqual([
+      'cooking',
+      'cleaning',
+      'carpentry',
+      'laundry',
+      'drawing',
+      'painting',
+    ]);
+  });
+
+  it('count as done while any option is picked', () => {
+    let log = toggleOption({ doses: {}, did: [] }, 'making', 'cooking');
+    log = toggleOption(log, 'making', 'drawing');
+    expect(log).toMatchObject({ did: ['making'], chosen: { making: ['cooking', 'drawing'] } });
+    log = toggleOption(toggleOption(log, 'making', 'cooking'), 'making', 'drawing');
+    expect(log.did).toEqual([]);
+    expect(cleanLog(log)).toBeUndefined();
+  });
+
+  it('round-trip through parsing and read well', () => {
+    const log = { doses: {}, did: ['making'], chosen: { making: ['cooking', 'painting'] } };
+    expect(parseHabitLog(log)).toEqual(log);
+    expect(parseHabitLog({ ...log, chosen: { making: 'cooking' } })).toBeNull();
+    expect(describeLog(log, PRESET_HABITS)).toBe('🛠️🍳🎨');
+    expect(promptHabitText(log, PRESET_HABITS)).toBe('did: time doing something (cooking, painting)');
+  });
+
+  it('drop picks for habits not marked done', () => {
+    expect(cleanLog({ doses: {}, did: ['walk'], chosen: { making: ['cooking'] } })).toEqual({
+      doses: {},
+      did: ['walk'],
+    });
   });
 });
 

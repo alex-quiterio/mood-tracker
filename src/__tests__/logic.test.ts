@@ -145,7 +145,12 @@ describe('export format', () => {
 
   it('still imports version 1 files, which have no habits', () => {
     const entries = [entry('2026-10-01', 'morning', 3)];
-    const v1 = JSON.stringify({ format: 'mood-tracker-export', version: 1, exportedAt: '2026-10-01T00:00:00Z', entries });
+    const v1 = JSON.stringify({
+      format: 'mood-tracker-export',
+      version: 1,
+      exportedAt: '2026-10-01T00:00:00Z',
+      entries,
+    });
     expect(parseExport(v1)).toEqual({ entries, habits: [] });
   });
 

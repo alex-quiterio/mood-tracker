@@ -76,7 +76,15 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
     if (habit.kind === 'grow') {
       const logged = week.filter((e) => e.habits);
       const wins = logged.filter((e) => e.habits!.did.includes(habit.id)).length;
-      return { habit, logged: logged.length, wins, total: wins, saved: 0, moodWithNone: null, moodWithSome: null };
+      return {
+        habit,
+        logged: logged.length,
+        wins,
+        total: wins,
+        saved: 0,
+        moodWithNone: null,
+        moodWithSome: null,
+      };
     }
     const logged = week.filter((e) => e.habits?.doses[habit.id]);
     const none = logged.filter((e) => e.habits!.doses[habit.id].count === 0);
@@ -105,8 +113,14 @@ export function describeHabitWeek(w: HabitWeek): string {
 export function describeLog(log: HabitLog | undefined, habits: Habit[]): string {
   if (!log) return '';
   const byId = new Map(habits.map((h) => [h.id, h]));
-  const doses = Object.entries(log.doses).map(([id, d]) => `${byId.get(id)?.emoji ?? id} ${d.count}${d.approx ? '≈' : ''}`);
-  const did = log.did.map((id) => byId.get(id)?.emoji ?? id);
+  const doses = Object.entries(log.doses).map(
+    ([id, d]) => `${byId.get(id)?.emoji ?? id} ${d.count}${d.approx ? '≈' : ''}`,
+  );
+  const did = log.did.map((id) => {
+    const habit = byId.get(id);
+    const picked = log.chosen?.[id]?.map((o) => habit?.options?.find((x) => x.id === o)?.emoji ?? o) ?? [];
+    return [habit?.emoji ?? id, ...picked].join('');
+  });
   return [...doses, ...(did.length ? [did.join(' ')] : [])].join(' · ');
 }
 
@@ -117,9 +131,15 @@ export function promptHabitText(log: HabitLog | undefined, habits: Habit[]): str
   const parts = Object.entries(log.doses).map(
     ([id, d]) => `${d.approx ? 'about ' : ''}${d.count} ${byId.get(id)?.unit ?? id}`,
   );
-  const did = log.did.map((id) => byId.get(id)?.name.toLowerCase() ?? id);
+  const did = log.did.map((id) => {
+    const habit = byId.get(id);
+    const picked = log.chosen?.[id]?.map(
+      (o) => habit?.options?.find((x) => x.id === o)?.label.toLowerCase() ?? o,
+    );
+    const name = habit?.name.toLowerCase() ?? id;
+    return picked?.length ? `${name} (${picked.join(', ')})` : name;
+  });
   if (did.length) parts.push(`did: ${did.join(', ')}`);
   if (log.instead) parts.push(`instead: "${log.instead}"`);
   return parts.join('; ');
 }
-

@@ -19,7 +19,13 @@ type ExportFile = {
 export type ImportedData = { entries: Entry[]; habits: Habit[] };
 
 export function serializeExport(entries: Entry[], habits: Habit[], now: Date = new Date()): string {
-  const file: ExportFile = { format: FORMAT, version: VERSION, exportedAt: now.toISOString(), entries, habits };
+  const file: ExportFile = {
+    format: FORMAT,
+    version: VERSION,
+    exportedAt: now.toISOString(),
+    entries,
+    habits,
+  };
   return JSON.stringify(file, null, 2);
 }
 

@@ -6,6 +6,9 @@
 
 export type HabitKind = 'reduce' | 'grow';
 
+/** A choice within a habit to grow, e.g. which activity you spent time on. */
+export type HabitOption = { id: string; label: string; emoji: string };
+
 export type Habit = {
   id: string;
   name: string;
@@ -19,6 +22,8 @@ export type Habit = {
   pricePerDose?: number;
   /** How many a day you usually had before. Savings count against this. */
   usualPerDay?: number;
+  /** Habits to grow can offer choices; doing the habit means picking at least one. */
+  options?: HabitOption[];
 };
 
 /**
@@ -28,12 +33,34 @@ export type Habit = {
  * - a 25 cl pils is about €3.35 in a bar and less at home, so €3.
  */
 export const PRESET_HABITS: Habit[] = [
-  { id: 'cigarettes', name: 'Cigarettes', emoji: '🚬', kind: 'reduce', unit: 'cigarettes', pricePerDose: 0.55 },
+  {
+    id: 'cigarettes',
+    name: 'Cigarettes',
+    emoji: '🚬',
+    kind: 'reduce',
+    unit: 'cigarettes',
+    pricePerDose: 0.55,
+  },
   { id: 'weed', name: 'Weed', emoji: '🌿', kind: 'reduce', unit: 'joints', pricePerDose: 5 },
   { id: 'drinks', name: 'Drinks', emoji: '🍺', kind: 'reduce', unit: 'drinks', pricePerDose: 3 },
   { id: 'water', name: 'Water', emoji: '💧', kind: 'grow', unit: '' },
   { id: 'walk', name: 'Walk', emoji: '🚶', kind: 'grow', unit: '' },
   { id: 'friend', name: 'Connect with a friend', emoji: '🤝', kind: 'grow', unit: '' },
+  {
+    id: 'making',
+    name: 'Time doing something',
+    emoji: '🛠️',
+    kind: 'grow',
+    unit: '',
+    options: [
+      { id: 'cooking', label: 'Cooking', emoji: '🍳' },
+      { id: 'cleaning', label: 'Cleaning', emoji: '🧹' },
+      { id: 'carpentry', label: 'Carpentry', emoji: '🪚' },
+      { id: 'laundry', label: 'Laundry', emoji: '🧺' },
+      { id: 'drawing', label: 'Drawing', emoji: '✏️' },
+      { id: 'painting', label: 'Painting', emoji: '🎨' },
+    ],
+  },
 ];
 
 export const MAX_DOSES = 99;
@@ -47,6 +74,8 @@ export type HabitLog = {
   doses: Record<string, Dose>;
   /** Habits to grow that were done. */
   did: string[];
+  /** For habits with options: which ones, e.g. { making: ['cooking', 'drawing'] }. */
+  chosen?: Record<string, string[]>;
   /** The good pattern: what you did instead. */
   instead?: string;
 };
@@ -57,10 +86,25 @@ export const activeHabits = (habits: Habit[], kind?: HabitKind) =>
 export const isEmptyLog = (log: HabitLog | undefined) =>
   !log || (Object.keys(log.doses).length === 0 && log.did.length === 0 && !log.instead);
 
+/** Picks or unpicks an option; the habit counts as done while any option is picked. */
+export function toggleOption(log: HabitLog, habitId: string, optionId: string): HabitLog {
+  const current = log.chosen?.[habitId] ?? [];
+  const next = current.includes(optionId) ? current.filter((o) => o !== optionId) : [...current, optionId];
+  const chosen = { ...log.chosen, [habitId]: next };
+  if (next.length === 0) delete chosen[habitId];
+  const did = next.length > 0 ? [...new Set([...log.did, habitId])] : log.did.filter((id) => id !== habitId);
+  return { ...log, did, chosen };
+}
+
 /** The log with empty parts removed, or undefined when nothing was logged. */
 export function cleanLog(log: HabitLog): HabitLog | undefined {
   const instead = log.instead?.trim().slice(0, INSTEAD_MAX_LENGTH);
   const cleaned: HabitLog = { doses: log.doses, did: [...new Set(log.did)] };
+  const chosen: Record<string, string[]> = {};
+  for (const [id, opts] of Object.entries(log.chosen ?? {})) {
+    if (opts.length > 0 && cleaned.did.includes(id)) chosen[id] = [...new Set(opts)];
+  }
+  if (Object.keys(chosen).length > 0) cleaned.chosen = chosen;
   if (instead) cleaned.instead = instead;
   return isEmptyLog(cleaned) ? undefined : cleaned;
 }
@@ -82,7 +126,20 @@ export function parseHabitLog(value: unknown): HabitLog | undefined | null {
   }
   if (!Array.isArray(v.did) || v.did.some((id) => typeof id !== 'string')) return null;
   if (v.instead !== undefined && typeof v.instead !== 'string') return null;
-  return cleanLog({ doses, did: v.did as string[], instead: v.instead as string | undefined });
+  const chosen = v.chosen;
+  if (
+    chosen !== undefined &&
+    (typeof chosen !== 'object' ||
+      chosen === null ||
+      Object.values(chosen).some((o) => !Array.isArray(o) || o.some((x) => typeof x !== 'string')))
+  )
+    return null;
+  return cleanLog({
+    doses,
+    did: v.did as string[],
+    chosen: chosen as Record<string, string[]> | undefined,
+    instead: v.instead as string | undefined,
+  });
 }
 
 /** Stored habit definitions; presets when nothing (valid) is stored. */
@@ -98,7 +155,13 @@ export function parseHabits(value: unknown): Habit[] {
       typeof h.unit === 'string' &&
       (h.archived === undefined || typeof h.archived === 'boolean') &&
       (h.pricePerDose === undefined || (typeof h.pricePerDose === 'number' && h.pricePerDose >= 0)) &&
-      (h.usualPerDay === undefined || (typeof h.usualPerDay === 'number' && h.usualPerDay >= 0)),
+      (h.usualPerDay === undefined || (typeof h.usualPerDay === 'number' && h.usualPerDay >= 0)) &&
+      (h.options === undefined ||
+        (Array.isArray(h.options) &&
+          h.options.every(
+            (o: HabitOption) =>
+              typeof o?.id === 'string' && typeof o.label === 'string' && typeof o.emoji === 'string',
+          ))),
   );
   const unique = habits.filter((h, i) => habits.findIndex((x) => x.id === h.id) === i);
   return unique.length > 0 ? unique : PRESET_HABITS;
@@ -113,8 +176,18 @@ export const mergeHabits = (mine: Habit[], incoming: Habit[]) => [
 /** A new custom habit with an id that doesn't clash. */
 export function createHabit(existing: Habit[], name: string, emoji: string, kind: HabitKind): Habit {
   const clean = name.trim().slice(0, HABIT_NAME_MAX_LENGTH);
-  const base = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'habit';
+  const base =
+    clean
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'habit';
   let id = base;
   for (let n = 2; existing.some((h) => h.id === id); n++) id = `${base}-${n}`;
-  return { id, name: clean, emoji: emoji.trim() || (kind === 'reduce' ? '•' : '✓'), kind, unit: kind === 'reduce' ? clean.toLowerCase() : '' };
+  return {
+    id,
+    name: clean,
+    emoji: emoji.trim() || (kind === 'reduce' ? '•' : '✓'),
+    kind,
+    unit: kind === 'reduce' ? clean.toLowerCase() : '',
+  };
 }

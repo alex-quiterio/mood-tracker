@@ -1,5 +1,5 @@
-import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '../reminders/times';
-import { Quote, VOICE_IDS, VoiceId } from '../voices/voices';
+import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
+import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;
 export type ThemeName = (typeof THEMES)[number];

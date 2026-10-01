@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { parseEntry } from '../../domain/checkins/entries';
-import { dropBrokenStepCounts } from '../../domain/checkins/migrations';
-import { Entry } from '../../domain/checkins/types';
+import { parseEntry } from '@domain/checkins/entries';
+import { dropBrokenStepCounts } from '@domain/checkins/migrations';
+import { Entry } from '@domain/checkins/types';
 
 const ENTRIES_KEY = 'mood-tracker:entries:v1';
 const STEPS_V2_MIGRATION_KEY = 'mood-tracker:migration:steps-v2';

@@ -1,15 +1,15 @@
-import { unlockStats } from '../../../modules/unlock-stats';
-import { loadUnlockCheckpoint, saveUnlockCheckpoint } from '../storage/checkpoints';
-import { Entry } from '../../domain/checkins/types';
+import { unlockStats } from '@modules/unlock-stats';
+import { loadUnlockCheckpoint, saveUnlockCheckpoint } from '@infrastructure/storage/checkpoints';
+import { Entry } from '@domain/checkins/types';
 import {
   CountPreview,
   WindowedCounter,
   previewCount,
   windowStart,
   withCount,
-} from '../../domain/signals/windowedCount';
+} from '@domain/signals/windowedCount';
 
-export { isLiveCheckIn } from '../../domain/signals/windowedCount';
+export { isLiveCheckIn } from '@domain/signals/windowedCount';
 
 /** Android keeps usage events for roughly a week; older windows would undercount. */
 const MAX_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;

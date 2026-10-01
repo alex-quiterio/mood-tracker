@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { NAME_MAX_LENGTH } from '../../domain/settings/settings';
-import { Palette, spacing, useColors, useThemedStyles } from '../theme/theme';
+import { NAME_MAX_LENGTH } from '@domain/settings/settings';
+import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { Button } from './Button';
 
 type Props = { visible: boolean; onSave: (name: string) => void; onSkip: () => void };

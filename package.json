@@ -34,6 +34,12 @@
   },
   "private": true,
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@domain/(.*)$": "<rootDir>/src/domain/$1",
+      "^@infrastructure/(.*)$": "<rootDir>/src/infrastructure/$1",
+      "^@ui/(.*)$": "<rootDir>/src/ui/$1",
+      "^@modules/(.*)$": "<rootDir>/modules/$1"
+    }
   }
 }

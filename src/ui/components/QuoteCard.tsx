@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { Palette, spacing, useThemedStyles } from '../theme/theme';
-import { quoteOfTheDay } from '../../domain/voices/voices';
-import { useVoice } from '../theme/voiceContext';
+import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { quoteOfTheDay } from '@domain/voices/voices';
+import { useVoice } from '@ui/theme/voiceContext';
 
 /** Today's quote for the current voice. Tap for another. */
 export function QuoteCard({ date }: { date: string }) {

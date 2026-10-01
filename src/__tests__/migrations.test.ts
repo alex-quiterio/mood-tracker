@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { dropBrokenStepCounts } from '../domain/checkins/migrations';
-import { loadEntries, migrateEntries, saveEntries } from '../infrastructure/storage/entriesRepository';
-import { Entry } from '../domain/checkins/types';
+import { dropBrokenStepCounts } from '@domain/checkins/migrations';
+import { loadEntries, migrateEntries, saveEntries } from '@infrastructure/storage/entriesRepository';
+import { Entry } from '@domain/checkins/types';
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 

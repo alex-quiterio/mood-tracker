@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Animated, Easing, Modal, StyleSheet, Text, View } from 'react-native';
 
-import { Palette, spacing, useThemedStyles } from '../theme/theme';
-import { useVoice } from '../theme/voiceContext';
+import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { useVoice } from '@ui/theme/voiceContext';
 import { Button } from './Button';
 
 const CYCLES = 3;

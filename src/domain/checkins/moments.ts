@@ -1,5 +1,5 @@
 import { Mood, Slot } from './types';
-import { Voice } from '../voices/voices';
+import { Voice } from '@domain/voices/voices';
 
 const GREETINGS: Record<Slot, { text: string; emoji: string }> = {
   morning: { text: 'Good morning', emoji: '☀️' },

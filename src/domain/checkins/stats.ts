@@ -1,4 +1,4 @@
-import { addDays, lastNDays } from '../shared/dates';
+import { addDays, lastNDays } from '@domain/shared/dates';
 import { entryKey } from './entries';
 import { Entry, SLOTS, Slot } from './types';
 

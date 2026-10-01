@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Settings, parseSettings } from '../../domain/settings/settings';
+import { Settings, parseSettings } from '@domain/settings/settings';
 
 const SETTINGS_KEY = 'mood-tracker:settings:v1';
 

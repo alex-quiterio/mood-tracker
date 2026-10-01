@@ -11,12 +11,12 @@ import {
   View,
 } from 'react-native';
 
-import { unlockStats } from '../../../modules/unlock-stats';
-import { exportEntries, pickImportFile } from '../../infrastructure/backup/backupFiles';
-import { Button } from '../components/Button';
-import { scheduleReminders } from '../../infrastructure/notifications/reminders';
-import { NAME_MAX_LENGTH, cleanName } from '../../domain/settings/settings';
-import { saveUnlockCheckpoint } from '../../infrastructure/storage/checkpoints';
+import { unlockStats } from '@modules/unlock-stats';
+import { exportEntries, pickImportFile } from '@infrastructure/backup/backupFiles';
+import { Button } from '@ui/components/Button';
+import { scheduleReminders } from '@infrastructure/notifications/reminders';
+import { NAME_MAX_LENGTH, cleanName } from '@domain/settings/settings';
+import { saveUnlockCheckpoint } from '@infrastructure/storage/checkpoints';
 import {
   Palette,
   THEMES,
@@ -25,9 +25,9 @@ import {
   spacing,
   useColors,
   useThemedStyles,
-} from '../theme/theme';
-import { EntriesStore } from '../hooks/useEntries';
-import { SettingsStore } from '../hooks/useSettings';
+} from '@ui/theme/theme';
+import { EntriesStore } from '@ui/hooks/useEntries';
+import { SettingsStore } from '@ui/hooks/useSettings';
 import { ReminderSettings } from './settings/ReminderSettings';
 import { StepSettings } from './settings/StepSettings';
 import { VoiceSettings } from './settings/VoiceSettings';

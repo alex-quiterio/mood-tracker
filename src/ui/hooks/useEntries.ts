@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { mergeEntries, removeEntry, upsertEntry } from '../../domain/checkins/entries';
-import { loadEntries, migrateEntries, saveEntries } from '../../infrastructure/storage/entriesRepository';
-import { Entry, Slot } from '../../domain/checkins/types';
+import { mergeEntries, removeEntry, upsertEntry } from '@domain/checkins/entries';
+import { loadEntries, migrateEntries, saveEntries } from '@infrastructure/storage/entriesRepository';
+import { Entry, Slot } from '@domain/checkins/types';
 
 /** App-wide entry state, persisted to AsyncStorage on every change. */
 export function useEntries() {

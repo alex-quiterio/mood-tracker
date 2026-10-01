@@ -1,11 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { parseExport, serializeExport } from '../domain/checkins/exportFormat';
-import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '../domain/shared/dates';
-import { mergeEntries, parseEntry, upsertEntry } from '../domain/checkins/entries';
-import { buildReflectionPrompt } from '../domain/voices/prompt';
-import { weeklyStats } from '../domain/checkins/stats';
-import { Entry } from '../domain/checkins/types';
+import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
+import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
+import { mergeEntries, parseEntry, upsertEntry } from '@domain/checkins/entries';
+import { buildReflectionPrompt } from '@domain/voices/prompt';
+import { weeklyStats } from '@domain/checkins/stats';
+import { Entry } from '@domain/checkins/types';
 
 const entry = (
   date: string,

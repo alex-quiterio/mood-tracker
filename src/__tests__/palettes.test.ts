@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { THEMES, paletteFor, palettes } from '../ui/theme/theme';
-import { MOODS } from '../domain/checkins/types';
-import { VOICE_IDS } from '../domain/voices/voices';
+import { THEMES, paletteFor, palettes } from '@ui/theme/theme';
+import { MOODS } from '@domain/checkins/types';
+import { VOICE_IDS } from '@domain/voices/voices';
 
 /** WCAG 2.x relative luminance and contrast ratio. */
 function luminance(hex: string): number {

@@ -5,17 +5,17 @@ import {
   disableReminders,
   enableReminders,
   scheduleReminders,
-} from '../../../infrastructure/notifications/reminders';
+} from '@infrastructure/notifications/reminders';
 import {
   REMINDER_STEP_MINUTES,
   canShift,
   formatRange,
   formatTime,
   shiftReminderTime,
-} from '../../../domain/reminders/times';
-import { Palette, spacing, useColors, useThemedStyles } from '../../theme/theme';
-import { SLOTS, SLOT_LABEL, Slot } from '../../../domain/checkins/types';
-import { SettingsStore } from '../../hooks/useSettings';
+} from '@domain/reminders/times';
+import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
+import { SLOTS, SLOT_LABEL, Slot } from '@domain/checkins/types';
+import { SettingsStore } from '@ui/hooks/useSettings';
 
 /** Daily reminders, one per slot, each movable within its slot's window. */
 export function ReminderSettings({ settings }: { settings: SettingsStore }) {

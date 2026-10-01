@@ -1,4 +1,4 @@
-import { Entry } from '../checkins/types';
+import { Entry } from '@domain/checkins/types';
 import { formatSince, formatSteps } from './format';
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);

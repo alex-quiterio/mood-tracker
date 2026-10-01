@@ -1,5 +1,5 @@
 import { DEFAULT_QUOTES } from './quotes';
-import { MOOD_EMOJI, MOOD_LABEL, Mood, SLOT_LABEL, Slot } from '../checkins/types';
+import { MOOD_EMOJI, MOOD_LABEL, Mood, SLOT_LABEL, Slot } from '@domain/checkins/types';
 
 export const VOICE_IDS = [
   'plain',

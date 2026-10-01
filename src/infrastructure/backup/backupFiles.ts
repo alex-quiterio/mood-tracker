@@ -2,9 +2,9 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
-import { localDate } from '../../domain/shared/dates';
-import { parseExport, serializeExport } from '../../domain/checkins/exportFormat';
-import { Entry } from '../../domain/checkins/types';
+import { localDate } from '@domain/shared/dates';
+import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
+import { Entry } from '@domain/checkins/types';
 
 /** Writes all entries to a JSON file and opens the share sheet so it can be saved elsewhere. */
 export async function exportEntries(entries: Entry[]): Promise<void> {

@@ -1,7 +1,7 @@
-import { stepCounter } from '../../../modules/step-counter';
-import { loadStepCheckpoint, saveStepCheckpoint } from '../storage/checkpoints';
-import { Entry } from '../../domain/checkins/types';
-import { CountPreview, WindowedCounter, previewCount, withCount } from '../../domain/signals/windowedCount';
+import { stepCounter } from '@modules/step-counter';
+import { loadStepCheckpoint, saveStepCheckpoint } from '@infrastructure/storage/checkpoints';
+import { Entry } from '@domain/checkins/types';
+import { CountPreview, WindowedCounter, previewCount, withCount } from '@domain/signals/windowedCount';
 
 /** Google Play services keeps recorded steps for 10 days; leave a day of margin. */
 const MAX_WINDOW_MS = 9 * 24 * 60 * 60 * 1000;

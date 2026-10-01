@@ -1,5 +1,5 @@
-import { Entry } from '../checkins/types';
-import { localDate, weekdayShort } from '../shared/dates';
+import { Entry } from '@domain/checkins/types';
+import { localDate, weekdayShort } from '@domain/shared/dates';
 
 /** "21:00" when `from` is on `day`, otherwise "Tue 21:00". */
 export function formatSince(from: Date, day: string): string {

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Palette, spacing, useThemedStyles } from '../theme/theme';
-import { formatSince } from '../../domain/signals/format';
+import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
+import { formatSince } from '@domain/signals/format';
 
 export type LiveCount = {
   icon: string;

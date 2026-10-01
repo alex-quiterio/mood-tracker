@@ -1,4 +1,4 @@
-import { isValidDate } from '../shared/dates';
+import { isValidDate } from '@domain/shared/dates';
 import { Entry, MOODS, Mood, SLOTS, Slot } from './types';
 
 export const NOTE_MAX_LENGTH = 280;

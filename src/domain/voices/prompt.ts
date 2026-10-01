@@ -1,6 +1,6 @@
-import { weekdayShort } from '../shared/dates';
-import { WeeklyStats, formatAverage } from '../checkins/stats';
-import { SLOTS } from '../checkins/types';
+import { weekdayShort } from '@domain/shared/dates';
+import { WeeklyStats, formatAverage } from '@domain/checkins/stats';
+import { SLOTS } from '@domain/checkins/types';
 import { VOICES, Voice } from './voices';
 
 /**

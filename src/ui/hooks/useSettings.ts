@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { DEFAULT_SETTINGS, Settings } from '../../domain/settings/settings';
-import { loadSettings, saveSettings } from '../../infrastructure/storage/settingsRepository';
+import { DEFAULT_SETTINGS, Settings } from '@domain/settings/settings';
+import { loadSettings, saveSettings } from '@infrastructure/storage/settingsRepository';
 
 /** App-wide settings, persisted to AsyncStorage on every change. */
 export function useSettings() {

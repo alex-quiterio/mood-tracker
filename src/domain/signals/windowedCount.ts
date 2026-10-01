@@ -1,5 +1,5 @@
-import { localDate, slotForTime } from '../shared/dates';
-import { Entry, Slot } from '../checkins/types';
+import { localDate, slotForTime } from '@domain/shared/dates';
+import { Entry, Slot } from '@domain/checkins/types';
 
 /**
  * Something the phone can count over a time window (unlocks, steps), saved on a

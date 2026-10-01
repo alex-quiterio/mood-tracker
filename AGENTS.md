@@ -39,6 +39,8 @@ Run lint and typecheck before declaring any task done.
 
 Domain-driven, in three layers. Put new code in the right layer and area; don't add loose files to `src/`. `src/__tests__/architecture.test.ts` enforces the layer rules.
 
+Import across areas with the path aliases `@domain/…`, `@infrastructure/…`, `@ui/…` and `@modules/…` (defined in `tsconfig.json`, mirrored in `jest.moduleNameMapper` in `package.json`; Metro reads tsconfig paths automatically). Use `./` only for files in the same folder; never `../`.
+
 ```
 App.tsx                      composition root: providers, tabs, name prompt
 modules/                     local native modules (Kotlin): unlock-stats, step-counter

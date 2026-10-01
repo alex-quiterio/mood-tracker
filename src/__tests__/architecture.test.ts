@@ -51,3 +51,9 @@ describe('layout', () => {
     expect(loose).toEqual([]);
   });
 });
+
+describe('imports', () => {
+  it.each(filesIn(SRC).map((f) => relative(SRC, f)))('%s uses path aliases instead of ../', (file) => {
+    expect(importsOf(join(SRC, file)).filter((spec) => spec.startsWith('../'))).toEqual([]);
+  });
+});

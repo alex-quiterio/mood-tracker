@@ -1,4 +1,4 @@
-import { Slot } from '../checkins/types';
+import { Slot } from '@domain/checkins/types';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 

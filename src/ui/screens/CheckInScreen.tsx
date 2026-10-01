@@ -1,31 +1,31 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { BreathingModal } from '../components/BreathingModal';
-import { QuoteCard } from '../components/QuoteCard';
-import { Button } from '../components/Button';
-import { Burst, MoodBurst, makeBurst } from '../components/MoodBurst';
-import { MoodPicker } from '../components/MoodPicker';
-import { LiveCount, LiveCounts } from '../components/LiveCounts';
-import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '../../domain/shared/dates';
-import { NOTE_MAX_LENGTH, entryKey } from '../../domain/checkins/entries';
+import { BreathingModal } from '@ui/components/BreathingModal';
+import { QuoteCard } from '@ui/components/QuoteCard';
+import { Button } from '@ui/components/Button';
+import { Burst, MoodBurst, makeBurst } from '@ui/components/MoodBurst';
+import { MoodPicker } from '@ui/components/MoodPicker';
+import { LiveCount, LiveCounts } from '@ui/components/LiveCounts';
+import { dayOfMonth, lastNDays, localDate, slotForTime, weekdayShort } from '@domain/shared/dates';
+import { NOTE_MAX_LENGTH, entryKey } from '@domain/checkins/entries';
 import {
   burstEmojis,
   greetingFor,
   greetingText,
   offersBreathing,
   streakLabel,
-} from '../../domain/checkins/moments';
-import { currentStreak, weeklyStats } from '../../domain/checkins/stats';
-import { Palette, spacing, useColors, useThemedStyles } from '../theme/theme';
-import { Entry, Mood, SLOTS, Slot } from '../../domain/checkins/types';
-import { describeSignals } from '../../domain/signals/describe';
-import { previewSteps, withSteps } from '../../infrastructure/signals/steps';
-import { formatSteps } from '../../domain/signals/format';
-import { previewUnlocks, withUnlocks } from '../../infrastructure/signals/unlocks';
-import { EntriesStore } from '../hooks/useEntries';
-import { useLivePreview } from '../hooks/useLivePreview';
-import { useVoice } from '../theme/voiceContext';
+} from '@domain/checkins/moments';
+import { currentStreak, weeklyStats } from '@domain/checkins/stats';
+import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
+import { Entry, Mood, SLOTS, Slot } from '@domain/checkins/types';
+import { describeSignals } from '@domain/signals/describe';
+import { previewSteps, withSteps } from '@infrastructure/signals/steps';
+import { formatSteps } from '@domain/signals/format';
+import { previewUnlocks, withUnlocks } from '@infrastructure/signals/unlocks';
+import { EntriesStore } from '@ui/hooks/useEntries';
+import { useLivePreview } from '@ui/hooks/useLivePreview';
+import { useVoice } from '@ui/theme/voiceContext';
 
 export type Tracking = { unlocks: boolean; steps: boolean };
 

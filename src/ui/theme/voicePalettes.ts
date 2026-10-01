@@ -1,6 +1,6 @@
 import type { Palette, ThemeName } from './theme';
-import type { Mood } from '../../domain/checkins/types';
-import type { VoiceId } from '../../domain/voices/voices';
+import type { Mood } from '@domain/checkins/types';
+import type { VoiceId } from '@domain/voices/voices';
 
 type Tones = Omit<Palette, 'moodColors' | 'onMood' | 'heading' | 'isDark'>;
 

@@ -1,4 +1,4 @@
-import { SLOT_LABEL, SLOTS, Slot } from '../checkins/types';
+import { SLOT_LABEL, SLOTS, Slot } from '@domain/checkins/types';
 
 export type ClockTime = { hour: number; minute: number };
 export type ReminderTimes = Record<Slot, ClockTime>;

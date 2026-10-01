@@ -112,6 +112,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 tracking={tracking}
                 name={name}
                 initialDate={checkInDay?.date}
+                habits={settings.settings.habits}
               />
             )}
             {tab === 'stats' && <StatsScreen store={store} today={today} onEditDay={editDay} />}

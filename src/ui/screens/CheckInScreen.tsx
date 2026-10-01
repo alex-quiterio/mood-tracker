@@ -27,6 +27,9 @@ import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLivePreview } from '@ui/hooks/useLivePreview';
 import { PauseOrb } from '@ui/practice/PauseOrb';
 import { PracticeModal } from '@ui/practice/PracticeModal';
+import { Habit, HabitLog, EMPTY_LOG, cleanLog, isWin, sameLog } from '@domain/habits/habits';
+import { describeLog } from '@domain/habits/insights';
+import { HabitLogger } from '@ui/habits/HabitLogger';
 import { useVoice } from '@ui/theme/voiceContext';
 
 export type Tracking = { unlocks: boolean; steps: boolean };
@@ -37,9 +40,10 @@ type Props = {
   name: string;
   /** Opens on this day instead of today, e.g. from the calendar. */
   initialDate?: string;
+  habits: Habit[];
 };
 
-export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
+export function CheckInScreen({ store, tracking, name, initialDate, habits }: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
@@ -79,8 +83,8 @@ export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
     });
   }
 
-  const onSaved = (mood: Mood) => {
-    setBurst((b) => makeBurst(b.key, burstEmojis(voice, mood)));
+  const onSaved = (mood: Mood, habitWin: boolean) => {
+    setBurst((b) => makeBurst(b.key, burstEmojis(voice, mood, habitWin)));
     setOfferBreath(offersBreathing(mood));
   };
 
@@ -167,6 +171,7 @@ export function CheckInScreen({ store, tracking, name, initialDate }: Props) {
               onOpen={() => setOpenSlot(slot)}
               store={store}
               tracking={tracking}
+              habits={habits}
               onSaved={onSaved}
             />
           );
@@ -187,26 +192,36 @@ type SlotCardProps = {
   onOpen: () => void;
   store: EntriesStore;
   tracking: Tracking;
-  onSaved: (mood: Mood) => void;
+  habits: Habit[];
+  onSaved: (mood: Mood, habitWin: boolean) => void;
 };
 
-function SlotCard({ date, slot, entry, open, onOpen, store, tracking, onSaved }: SlotCardProps) {
+function SlotCard({ date, slot, entry, open, onOpen, store, tracking, habits, onSaved }: SlotCardProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
+  const [habitLog, setHabitLog] = useState<HabitLog>(entry?.habits ?? EMPTY_LOG);
 
   const save = async () => {
     if (mood === null) return;
     const trimmed = note.trim();
     const now = new Date();
     try {
-      const base = { date, slot, mood, ...(trimmed ? { note: trimmed } : {}), recordedAt: now.toISOString() };
+      const logged = cleanLog(habitLog);
+      const base = {
+        date,
+        slot,
+        mood,
+        ...(trimmed ? { note: trimmed } : {}),
+        ...(logged ? { habits: logged } : {}),
+        recordedAt: now.toISOString(),
+      };
       const withCounts = await withUnlocks(base, entry, tracking.unlocks, now);
       const next = await withSteps(withCounts, entry, tracking.steps, now);
       await store.save(next);
-      onSaved(mood);
+      onSaved(mood, isWin(logged));
     } catch (e) {
       Alert.alert('Could not save', String(e));
     }
@@ -238,12 +253,17 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, onSaved }:
             {entry.note}
           </Text>
         ) : null}
+        {entry?.habits && <HabitLines log={entry.habits} habits={habits} />}
         {entry && <SignalLines entry={entry} />}
       </Pressable>
     );
   }
 
-  const unchanged = entry !== undefined && entry.mood === mood && (entry.note ?? '') === note.trim();
+  const unchanged =
+    entry !== undefined &&
+    entry.mood === mood &&
+    (entry.note ?? '') === note.trim() &&
+    sameLog(entry.habits, habitLog);
 
   return (
     <View style={[styles.card, styles.cardOpen]}>
@@ -261,6 +281,7 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, onSaved }:
         maxLength={NOTE_MAX_LENGTH}
         multiline
       />
+      <HabitLogger habits={habits} log={habitLog} onChange={setHabitLog} />
       <Button title={entry ? 'Update' : 'Save'} onPress={save} disabled={mood === null || unchanged} />
       {entry && (
         <Pressable accessibilityRole="button" onPress={clear} style={styles.removeLink}>
@@ -268,6 +289,17 @@ function SlotCard({ date, slot, entry, open, onOpen, store, tracking, onSaved }:
         </Pressable>
       )}
     </View>
+  );
+}
+
+function HabitLines({ log, habits }: { log: HabitLog; habits: Habit[] }) {
+  const styles = useThemedStyles(makeStyles);
+  const summary = describeLog(log, habits);
+  return (
+    <>
+      {summary ? <Text style={styles.unlocks}>{summary}</Text> : null}
+      {log.instead ? <Text style={styles.instead}>🌱 {log.instead}</Text> : null}
+    </>
   );
 }
 
@@ -342,6 +374,7 @@ const makeStyles = (c: Palette) =>
     badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
     notePreview: { color: c.muted },
     unlocks: { color: c.muted, fontSize: 13 },
+    instead: { color: c.accent, fontSize: 13 },
     noteInput: {
       minHeight: 64,
       borderWidth: 1,

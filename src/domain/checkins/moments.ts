@@ -22,10 +22,16 @@ export function streakLabel(days: number): string | null {
  * little sparkle, and low moods none: confetti would feel wrong there, so they
  * get the breathing offer instead.
  */
-export function burstEmojis(voice: Pick<Voice, 'moodEmoji' | 'burst'>, mood: Mood): string[] {
-  if (mood >= 4) return [voice.moodEmoji[mood], ...voice.burst.high];
-  if (mood === 3) return voice.burst.mid;
-  return [];
+export function burstEmojis(
+  voice: Pick<Voice, 'moodEmoji' | 'burst'>,
+  mood: Mood,
+  habitWin = false,
+): string[] {
+  const sprout = habitWin ? ['🌱'] : [];
+  if (mood >= 4) return [voice.moodEmoji[mood], ...voice.burst.high, ...sprout];
+  if (mood === 3) return [...voice.burst.mid, ...sprout];
+  // A low mood gets no celebration, but a habit win on a hard day still earns a quiet sprout.
+  return sprout;
 }
 
 export const offersBreathing = (mood: Mood) => mood <= 2;

@@ -59,6 +59,8 @@ export const PRESET_HABITS: Habit[] = [
       { id: 'laundry', label: 'Laundry', emoji: '🧺' },
       { id: 'drawing', label: 'Drawing', emoji: '✏️' },
       { id: 'painting', label: 'Painting', emoji: '🎨' },
+      { id: 'dancing', label: 'Dancing', emoji: '💃' },
+      { id: 'music', label: 'Listening to music', emoji: '🎧' },
     ],
   },
 ];
@@ -85,6 +87,13 @@ export const activeHabits = (habits: Habit[], kind?: HabitKind) =>
 
 export const isEmptyLog = (log: HabitLog | undefined) =>
   !log || (Object.keys(log.doses).length === 0 && log.did.length === 0 && !log.instead);
+
+/** A win worth celebrating: a zero, a good habit done, or a note on what you did instead. */
+export const isWin = (log: HabitLog | undefined) =>
+  !!log &&
+  (Object.values(log.doses).some((d) => d.count === 0) || log.did.length > 0 || !!log.instead?.trim());
+
+export const EMPTY_LOG: HabitLog = { doses: {}, did: [] };
 
 /** Picks or unpicks an option; the habit counts as done while any option is picked. */
 export function toggleOption(log: HabitLog, habitId: string, optionId: string): HabitLog {

@@ -11,9 +11,12 @@ import {
   mergeHabits,
   parseHabitLog,
   parseHabits,
+  isWin,
   sameLog,
   toggleOption,
 } from '@domain/habits/habits';
+import { burstEmojis } from '@domain/checkins/moments';
+import { VOICES } from '@domain/voices/voices';
 import {
   describeHabitWeek,
   describeLog,
@@ -196,6 +199,8 @@ describe('habits with options', () => {
       'laundry',
       'drawing',
       'painting',
+      'dancing',
+      'music',
     ]);
   });
 
@@ -240,5 +245,21 @@ describe('describing a check-in', () => {
     expect(promptHabitText(log, PRESET_HABITS)).toBe(
       'about 2 cigarettes; 0 drinks; did: walk; instead: "called a friend"',
     );
+  });
+});
+
+describe('wins', () => {
+  it('are a zero, a good habit, or a note on what you did instead', () => {
+    expect(isWin(smoked(0))).toBe(true);
+    expect(isWin(smoked(3))).toBe(false);
+    expect(isWin({ doses: {}, did: ['walk'] })).toBe(true);
+    expect(isWin({ doses: {}, did: [], instead: 'tea and a book' })).toBe(true);
+    expect(isWin(undefined)).toBe(false);
+  });
+
+  it('add a sprout to the save burst, even on a low day', () => {
+    expect(burstEmojis(VOICES.plain, 5, true)).toContain('🌱');
+    expect(burstEmojis(VOICES.plain, 2, true)).toEqual(['🌱']);
+    expect(burstEmojis(VOICES.plain, 2, false)).toEqual([]);
   });
 });

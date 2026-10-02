@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="mood_widget_surface">#2C2A30</color>
+  <color name="mood_widget_text">#ECE8F0</color>
+  <color name="mood_widget_muted">#B4ACBD</color>
+  <color name="mood_widget_accent">#D990BE</color>
+</resources>

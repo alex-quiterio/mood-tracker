@@ -276,6 +276,12 @@ export type Messages = {
     importDoneBody: (n: number) => string;
     shareDialog: string;
   };
+  widget: {
+    title: string;
+    pause: string;
+    slotEmpty: (slot: string) => string;
+    slotDone: (slot: string, mood: string) => string;
+  };
   backupSettings: {
     folder: (name: string) => string;
     noFolder: string;

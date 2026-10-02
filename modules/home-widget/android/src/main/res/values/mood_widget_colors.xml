@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Until the app sends its theme: the plain voice's light and dark palettes. -->
+<resources>
+  <color name="mood_widget_surface">#FFFFFF</color>
+  <color name="mood_widget_text">#24202A</color>
+  <color name="mood_widget_muted">#6A6371</color>
+  <color name="mood_widget_accent">#66234F</color>
+</resources>

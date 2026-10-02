@@ -35,10 +35,22 @@ type Props = {
   name: string;
   /** Opens on this day instead of today, e.g. from the calendar. */
   initialDate?: string;
+  /** Opens this slot, e.g. tapped on the home-screen widget. */
+  initialSlot?: Slot;
+  /** Opens with the pause (breathing or focus) showing. */
+  initialPause?: boolean;
   habits: Habit[];
 };
 
-export function CheckInScreen({ store, tracking, name, initialDate, habits }: Props) {
+export function CheckInScreen({
+  store,
+  tracking,
+  name,
+  initialDate,
+  initialSlot,
+  initialPause,
+  habits,
+}: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
   const days = lastNDays(7, today);
@@ -46,11 +58,13 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
   const firstEmptySlot = (day: string) =>
     SLOTS.find((s) => !store.entries.some((e) => e.date === day && e.slot === s)) ?? 'morning';
   // Today opens the slot for the current time; past days open their first empty slot.
-  const [openSlot, setOpenSlot] = useState<Slot>(date === today ? slotForTime() : firstEmptySlot(date));
+  const [openSlot, setOpenSlot] = useState<Slot>(
+    initialSlot ?? (date === today ? slotForTime() : firstEmptySlot(date)),
+  );
   const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
-  const [practicing, setPracticing] = useState(false);
+  const [practicing, setPracticing] = useState(initialPause ?? false);
   const [urging, setUrging] = useState(false);
   const reduceHabits = activeHabits(habits, 'reduce');
   const liveUnlocks = useLivePreview(previewUnlocks, tracking.unlocks, store.entries);

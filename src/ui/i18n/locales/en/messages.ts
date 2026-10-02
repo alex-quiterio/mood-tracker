@@ -247,6 +247,12 @@ export const messages: Omit<Messages, 'voices'> = {
       `Read ${n} entries. Where both had the same check-in, the newer one was kept.`,
     shareDialog: 'Save your mood data',
   },
+  widget: {
+    title: 'Today',
+    pause: 'Pause',
+    slotEmpty: (slot) => `${slot}: check in`,
+    slotDone: (slot, mood) => `${slot}: ${mood}. Tap to change.`,
+  },
   backupSettings: {
     folder: (name) => `Backup folder: ${name}`,
     noFolder: 'No backup folder chosen yet.',

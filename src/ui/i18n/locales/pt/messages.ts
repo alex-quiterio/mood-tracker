@@ -244,6 +244,12 @@ export const messages: Omit<Messages, 'voices'> = {
       `Foram lidos ${n} registos. Quando havia dois para o mesmo momento, ficou o mais recente.`,
     shareDialog: 'Guardar os teus dados',
   },
+  widget: {
+    title: 'Hoje',
+    pause: 'Pausa',
+    slotEmpty: (slot) => `${slot}: fazer registo`,
+    slotDone: (slot, mood) => `${slot}: ${mood}. Toca para mudar.`,
+  },
   backupSettings: {
     folder: (name) => `Pasta das cópias: ${name}`,
     noFolder: 'Ainda não escolheste uma pasta para as cópias.',

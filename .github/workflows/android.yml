@@ -65,6 +65,21 @@ jobs:
       # Generates android/ from app.json (Continuous Native Generation); it is never committed.
       - run: npx expo prebuild --platform android --no-install
 
+      # Gradle would otherwise download the NDK mid-build with no retry, and a corrupt
+      # download fails the whole build ("Archive is not a ZIP archive"). React Native
+      # pins the version; install it up front and retry.
+      - name: Install NDK
+        run: |
+          NDK="$(sed -n 's/^ndkVersion = "\(.*\)"/\1/p' node_modules/react-native/gradle/libs.versions.toml)"
+          for attempt in 1 2 3; do
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$NDK" > /dev/null \
+              && [ -f "$ANDROID_HOME/ndk/$NDK/source.properties" ] && exit 0
+            echo "NDK $NDK install failed (attempt $attempt), retrying"
+            rm -rf "$ANDROID_HOME/ndk/$NDK"
+            sleep 10
+          done
+          exit 1
+
       # arm64-v8a only: covers modern phones and skips three extra native builds.
       - name: Build release APK
         working-directory: android

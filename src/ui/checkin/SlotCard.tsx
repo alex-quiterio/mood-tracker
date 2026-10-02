@@ -13,6 +13,7 @@ import { withUnlocks } from '@infrastructure/signals/unlocks';
 import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';
 import { MoodPicker } from '@ui/components/MoodPicker';
+import { formatInteger } from '@ui/i18n/format';
 import { describeSleep } from '@ui/i18n/sleep';
 import { SleepLogger } from './SleepLogger';
 import { HabitLogger } from '@ui/habits/HabitLogger';
@@ -37,6 +38,9 @@ export type SlotCardProps = {
 };
 
 /** One slot of a day: collapsed it shows what was logged, open it edits the check-in. */
+/** The character count shows once a note is this close to the limit. */
+const NOTE_COUNTER_FROM = 200;
+
 export function SlotCard({
   date,
   slot,
@@ -142,6 +146,11 @@ export function SlotCard({
         maxLength={NOTE_MAX_LENGTH}
         multiline
       />
+      {note.length > NOTE_MAX_LENGTH - NOTE_COUNTER_FROM && (
+        <Text style={styles.noteCount}>
+          {formatInteger(note.length, locale)} / {formatInteger(NOTE_MAX_LENGTH, locale)}
+        </Text>
+      )}
       {asksSleep && <SleepLogger sleep={sleep} onChange={setSleep} />}
       <HabitLogger habits={habits} log={habitLog} floors={floors} onChange={setHabitLog} />
       <Button
@@ -206,7 +215,10 @@ const makeStyles = (c: Palette) =>
       fontSize: 15,
       color: c.text,
       textAlignVertical: 'top',
+      // Long notes scroll inside the box instead of pushing Save off the screen.
+      maxHeight: 240,
     },
+    noteCount: { color: c.muted, fontSize: 12, textAlign: 'right', marginTop: -spacing(2) },
     removeLink: { alignSelf: 'center', padding: spacing(1) },
     removeText: { color: c.danger },
   });

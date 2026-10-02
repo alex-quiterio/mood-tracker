@@ -4,7 +4,7 @@ import { PRESET_HABITS } from '@domain/habits/habits';
 
 import { ExportError, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
-import { mergeEntries, parseEntry, upsertEntry } from '@domain/checkins/entries';
+import { NOTE_MAX_LENGTH, mergeEntries, parseEntry, upsertEntry } from '@domain/checkins/entries';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
@@ -164,5 +164,19 @@ describe('export format', () => {
     expect(() =>
       parseExport(JSON.stringify({ format: 'mood-tracker-export', version: 1, entries: [{ date: 'x' }] })),
     ).toThrow(new ExportError('invalid'));
+  });
+});
+
+describe('note length', () => {
+  const base = { date: '2026-10-02', slot: 'evening', mood: 4, recordedAt: '2026-10-02T20:00:00.000Z' };
+
+  it('keeps notes of a few paragraphs', () => {
+    const note = 'a'.repeat(1500);
+    expect(parseEntry({ ...base, note })?.note).toBe(note);
+  });
+
+  it('trims what goes past the limit', () => {
+    expect(NOTE_MAX_LENGTH).toBe(2000);
+    expect(parseEntry({ ...base, note: 'b'.repeat(2500) })?.note).toHaveLength(NOTE_MAX_LENGTH);
   });
 });

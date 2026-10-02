@@ -314,6 +314,12 @@ export const messages: Omit<Messages, 'voices'> = {
     restoreTitle: 'Repor as citações predefinidas?',
     restoreBody: 'As tuas citações para esta voz serão removidas.',
     restoreConfirm: 'Repor',
+    rotation: 'Mudar de voz',
+    rotations: { off: 'Nunca', daily: 'Todos os dias', weekly: 'Todas as semanas' },
+    rotationBody:
+      'Toca nas vozes para escolher as que se revezam. As tuas citações de cada voz ficam como estão.',
+    today: (name) => `Agora: ${name}`,
+    inRotationA11y: (name) => `${name} entra na rotação`,
   },
   unlockSettings: {
     title: 'Desbloqueios do telemóvel',

@@ -2,6 +2,7 @@ import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@doma
 import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
 import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
 import { isValidDate } from '@domain/shared/dates';
+import { DEFAULT_ROTATION_VOICES, VOICE_ROTATIONS, VoiceRotation } from '@domain/voices/rotation';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;
@@ -24,6 +25,9 @@ export type Settings = {
   trackUnlocks: boolean;
   trackSteps: boolean;
   voice: VoiceId;
+  /** Let the voice change by itself every day or week, among `rotationVoices`. */
+  voiceRotation: VoiceRotation;
+  rotationVoices: VoiceId[];
   /** Per-voice quotes that replace the defaults. */
   customQuotes: Partial<Record<VoiceId, Quote[]>>;
   /** Habits logged with each check-in. */
@@ -52,6 +56,8 @@ export const DEFAULT_SETTINGS: Settings = {
   trackUnlocks: false,
   trackSteps: false,
   voice: 'plain',
+  voiceRotation: 'off',
+  rotationVoices: DEFAULT_ROTATION_VOICES,
   customQuotes: {},
   habits: PRESET_HABITS,
   habitsInPrompt: false,
@@ -74,6 +80,10 @@ export function parseSettings(value: unknown): Settings {
     trackUnlocks: stored.trackUnlocks === true,
     trackSteps: stored.trackSteps === true,
     voice: VOICE_IDS.includes(stored.voice as VoiceId) ? (stored.voice as VoiceId) : DEFAULT_SETTINGS.voice,
+    voiceRotation: VOICE_ROTATIONS.includes(stored.voiceRotation as VoiceRotation)
+      ? (stored.voiceRotation as VoiceRotation)
+      : DEFAULT_SETTINGS.voiceRotation,
+    rotationVoices: parseRotationVoices(stored.rotationVoices),
     customQuotes: parseCustomQuotes(stored.customQuotes),
     habits: parseHabits(stored.habits),
     habitsInPrompt: stored.habitsInPrompt === true,
@@ -108,4 +118,10 @@ function parseCustomQuotes(value: unknown): Partial<Record<VoiceId, Quote[]>> {
     if (quotes.length > 0) result[id] = quotes;
   }
   return result;
+}
+
+/** Known voices only; none at all falls back to the default list. */
+function parseRotationVoices(value: unknown): VoiceId[] {
+  const ids = Array.isArray(value) ? VOICE_IDS.filter((id) => value.includes(id)) : [];
+  return ids.length > 0 ? ids : DEFAULT_ROTATION_VOICES;
 }

@@ -343,6 +343,11 @@ export type Messages = {
     restoreTitle: string;
     restoreBody: string;
     restoreConfirm: string;
+    rotation: string;
+    rotations: { off: string; daily: string; weekly: string };
+    rotationBody: string;
+    today: (name: string) => string;
+    inRotationA11y: (name: string) => string;
   };
   unlockSettings: {
     title: string;

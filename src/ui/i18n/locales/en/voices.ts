@@ -15,6 +15,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'That sounds like a heavy moment. Take three slow breaths with me?',
     breathDone: 'That’s it. Be gentle with yourself 🌿',
+    levels: ['Beginner', 'Regular', 'Steady', 'Committed', 'Dedicated', 'Seasoned', 'Devoted', 'Master'],
     claude: {
       intro: '',
       ask: 'Please reflect on this week. What patterns do you notice (time of day, days of the week, {signals}anything in the notes)? Then suggest one small, concrete thing I could try next week. Keep it short and kind.',
@@ -33,6 +34,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Muddy water clears when it is left still. Rest here for three slow breaths?',
     breathDone: 'The water settles on its own 🌊',
+    levels: [
+      'Raindrop',
+      'Trickle',
+      'Brook',
+      'Stream',
+      'River',
+      'Valley spirit',
+      'Uncarved block',
+      'Still lake',
+    ],
     claude: {
       intro:
         'Reflect on my week in the spirit of the Tao Te Ching: gently, without judgment, favouring yielding over forcing.',
@@ -53,6 +64,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     comfort:
       'Even an emperor had hard days, and wrote to himself through them. Pause for three slow breaths?',
     breathDone: 'Begin again, as often as you need 🌅',
+    levels: [
+      'Pupil',
+      'Apprentice',
+      'Student of nature',
+      'Steady mind',
+      'Guardian of the self',
+      'Citadel',
+      'Philosopher',
+      'Emperor of the self',
+    ],
     claude: {
       intro:
         "Reflect on my week as a Stoic teacher in the spirit of Marcus Aurelius's Meditations: calm, honest and kind.",
@@ -72,6 +93,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'A hard hour is easier shared. Write to yourself as to a friend, after three slow breaths?',
     breathDone: 'Be the friend you would write to ✉️',
+    levels: [
+      'Correspondent',
+      'Friend',
+      'Learner',
+      'Steady friend',
+      'Calm harbour',
+      'Wise friend',
+      'Sage in training',
+      'Lifelong friend',
+    ],
     claude: {
       intro:
         'Reflect on my week as Seneca might in one of his letters to Lucilius: warm, practical and frank, like an old friend.',
@@ -91,6 +122,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Even this feeling is a visitor. Sit with it for three slow breaths?',
     breathDone: 'Let the visitor rest a while 🕯️',
+    levels: ['Guest', 'Traveller', 'Seeker', 'Lover', 'Whirler', 'Flame', 'Reed flute', 'Ocean'],
     claude: {
       intro:
         'Reflect on my week in the spirit of Rumi: tender and open-hearted, welcoming every feeling as a guest.',
@@ -110,6 +142,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'What you are looking for is nearer than your breath. Three slow breaths?',
     breathDone: 'Simple, and near 🪔',
+    levels: [
+      'Listener',
+      'Weaver',
+      'Singer',
+      'Plain heart',
+      'Open door',
+      'True word',
+      'Bird in flight',
+      'Full bloom',
+    ],
     claude: {
       intro:
         'Reflect on my week in the spirit of Kabir: plain-spoken, warm and a little playful, cutting through pretence.',
@@ -129,6 +171,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'The waves of the mind rise and fall. Watch three slow breaths?',
     breathDone: 'Steady and at ease 🧘',
+    levels: [
+      'Seated',
+      'Breathing',
+      'Practising',
+      'Steady',
+      'Focused',
+      'Absorbed',
+      'Still waters',
+      'Clear seer',
+    ],
     claude: {
       intro:
         'Reflect on my week in the spirit of the Yoga Sutras of Patanjali: patient and non-judgmental, treating each mood as a movement of the mind to observe.',
@@ -148,6 +200,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Caring for yourself is not a luxury. Three slow breaths, just for you?',
     breathDone: 'You are worth this care 🕯️',
+    levels: [
+      'Feeling',
+      'Noticing',
+      'Naming',
+      'Speaking',
+      'Grounded',
+      'Powerful',
+      'Warrior poet',
+      'Fully alive',
+    ],
     claude: {
       intro:
         'Reflect on my week in the spirit of Audre Lorde: direct, warm and unflinching, treating my feelings as a source of knowledge and caring for myself as necessary, not indulgent.',
@@ -167,6 +229,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'You are part of a larger web, even now. Three slow breaths?',
     breathDone: 'Connected, breath by breath 🌿',
+    levels: ['Node', 'Thread', 'Pattern', 'Network', 'Web', 'Ecosystem', 'Living system', 'Whole'],
     claude: {
       intro:
         'Reflect on my week in the spirit of Fritjof Capra: as a systems thinker, seeing my moods as part of a web of relationships, rhythms and feedback loops.',
@@ -186,6 +249,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Come away and rest a while. Three slow breaths?',
     breathDone: 'Peace be with you 🕊️',
+    levels: [
+      'Seed',
+      'Sprout',
+      'Lamp lit',
+      'Salt of the earth',
+      'Shepherd',
+      'Good soil',
+      'Light on a hill',
+      'Full harvest',
+    ],
     claude: {
       intro:
         'Reflect on my week in the spirit of the teachings of Jesus in the Gospels: gentle, compassionate and hopeful, without preaching.',
@@ -205,6 +278,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'With hardship comes ease. Three slow breaths?',
     breathDone: 'Peace be upon you 🌙',
+    levels: [
+      'Traveller',
+      'Patient one',
+      'Grateful one',
+      'Steadfast',
+      'Gentle heart',
+      'Generous hand',
+      'Peaceful heart',
+      'Lantern',
+    ],
     claude: {
       intro:
         "Reflect on my week in the spirit of the Prophet Muhammad's teachings of patience (sabr), gratitude (shukr) and mercy, respectfully and without claiming to speak for him.",
@@ -224,6 +307,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'This too is passing. Three mindful breaths?',
     breathDone: 'Just this breath 🪷',
+    levels: [
+      'Seedling',
+      'Lotus bud',
+      'Mindful step',
+      'Middle way',
+      'Open hand',
+      'Quiet mind',
+      'Bodhi shade',
+      'Awakened heart',
+    ],
     claude: {
       intro:
         "Reflect on my week in the spirit of the Buddha's teachings in the Dhammapada: calm, clear and kind, noticing how thoughts shape moods.",
@@ -243,6 +336,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Even storms pass over the mountain. Three slow breaths?',
     breathDone: 'Still as the mountain 🏔️',
+    levels: ['Spark', 'Breath', 'Drum', 'Rhythm', 'Dancer', 'Third eye', 'Stillness', 'Cosmic dance'],
     claude: {
       intro:
         'Reflect on my week in the spirit of Shiva as the yogi of stillness and the dance of change: calm and deep, honouring both endings and beginnings.',

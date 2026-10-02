@@ -126,6 +126,26 @@ export const messages: Omit<Messages, 'voices'> = {
   history: {
     calendar: 'Calendário',
   },
+  progress: {
+    title: 'O teu progresso',
+    level: (n) => `Nível ${n}`,
+    toNext: (xp) => `Faltam ${xp} XP para o próximo nível`,
+    total: (xp) => `${xp} XP no total`,
+    levelUp: (title) => `Subiste de nível! Agora: ${title} ✨`,
+    a11y: (level, title, into, size) =>
+      `Nível ${level}, ${title}. ${into} de ${size} XP para o próximo nível.`,
+    sources: {
+      checkIn: (n) => (n === 1 ? '1 registo' : `${n} registos`),
+      note: (n) => (n === 1 ? '1 nota' : `${n} notas`),
+      fullDay: (n) => (n === 1 ? '1 dia completo' : `${n} dias completos`),
+      win: (n) => (n === 1 ? '1 vitória nos hábitos' : `${n} vitórias nos hábitos`),
+      urgePassed: (n) => (n === 1 ? '1 impulso que deixaste passar' : `${n} impulsos que deixaste passar`),
+      streakWeek: (n) => (n === 1 ? '1 semana seguida' : `${n} semanas seguidas`),
+    },
+    path: 'O caminho',
+    fromLevel: (n) => `a partir do nível ${n}`,
+    hint: 'O XP só sobe. Cada registo conta o mesmo, seja qual for o humor. Um dia falhado por semana é um dia de descanso e mantém a sequência.',
+  },
   month: {
     title: 'O teu mês',
     hint: 'Os últimos 30 dias. Os padrões aparecem quando houver alguns registos.',

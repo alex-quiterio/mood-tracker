@@ -11,6 +11,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Habits**: doses of what you want less of (🚬 🌿 🍺, "≈ roughly" for estimates), good habits to tick (💧 🚶 🤝 🛠️), and what you did instead.
 - **Balance and savings**: light vs heavy points per week, and money kept compared with your usual amount (Dutch prices by default).
 - **This week**: weekly table and averages, habits, and a reflection prompt for Claude.
+- **Levels**: XP for check-ins, notes, full days, habit wins, urges let pass and streak weeks. Level titles follow your voice (Lao Tzu: raindrop → still lake). XP only goes up, a low day counts as much as a good one, and one missed day a week is a rest day that keeps your streak.
 - **History**: your month (patterns from the last 30 days, with a "Reflect on my month" prompt) and a 6-month calendar.
 - **Reflect with Claude**: shares a summary of the week to the Claude app. Habits are included only if you switch that on.
 - **Voices**: 13 voices (Lao Tzu, Marcus Aurelius, Rumi, Buddha…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day.

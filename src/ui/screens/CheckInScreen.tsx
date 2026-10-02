@@ -23,6 +23,8 @@ import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLivePreview } from '@ui/hooks/useLivePreview';
 import { PauseOrb } from '@ui/practice/PauseOrb';
 import { PracticeModal } from '@ui/practice/PracticeModal';
+import { LevelBar } from '@ui/progress/LevelBar';
+import { useProgress } from '@ui/progress/useProgress';
 import { Habit, activeHabits } from '@domain/habits/habits';
 import { UrgeModal } from '@ui/habits/UrgeModal';
 import { useLocale } from '@ui/i18n/LocaleContext';
@@ -74,6 +76,7 @@ export function CheckInScreen({
 
   const greeting = greetingFor(slotForTime(), locale);
   const streak = streakLabel(currentStreak(store.entries, today), locale);
+  const progress = useProgress(store.entries, store.urges, today);
   const week = weeklyStats(store.entries, today);
   const liveCounts: LiveCount[] = [];
   if (liveUnlocks) {
@@ -120,6 +123,7 @@ export function CheckInScreen({
             </View>
           )}
         </View>
+        <LevelBar progress={progress} />
 
         <QuoteCard date={today} />
 

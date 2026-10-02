@@ -35,10 +35,15 @@ export function FocusSession({
     const timer = setInterval(() => setNow(Date.now()), 250);
     let bellId: string | null = null;
     let finished = false;
+    let closed = false;
     scheduleBell(total, m.practice.focusDone, {
       title: m.practice.bellTitle,
       channel: m.practice.bellChannel,
-    }).then((id) => (bellId = id));
+    }).then((id) => {
+      bellId = id;
+      // Closed before the bell was scheduled: don't leave it to ring later.
+      if (closed) cancelBell(id);
+    });
     const end = setTimeout(() => {
       finished = true;
       buzz();
@@ -46,7 +51,10 @@ export function FocusSession({
     return () => {
       clearInterval(timer);
       clearTimeout(end);
-      if (!finished) cancelBell(bellId);
+      if (!finished) {
+        closed = true;
+        cancelBell(bellId);
+      }
     };
   }, [total, m]);
 

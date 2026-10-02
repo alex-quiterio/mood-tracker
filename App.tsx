@@ -34,6 +34,7 @@ import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles 
 import { EntriesStore, useEntries } from '@ui/hooks/useEntries';
 import { SettingsStore, useSettings } from '@ui/hooks/useSettings';
 import { localeFor } from '@domain/settings/language';
+import { voiceForDay } from '@domain/voices/rotation';
 import { messages } from '@ui/i18n/messages';
 import { localizeHabits } from '@ui/i18n/habits';
 import { activeVoice } from '@ui/voices/voices';
@@ -65,7 +66,10 @@ function useToday() {
 export default function App() {
   const store = useEntries();
   const settings = useSettings();
-  const { voice: voiceId, customQuotes, language } = settings.settings;
+  const { voice: chosenVoice, voiceRotation, rotationVoices, customQuotes, language } = settings.settings;
+  // With rotation on, the voice changes by itself each day or week.
+  const today = useToday();
+  const voiceId = voiceForDay(voiceRotation, rotationVoices, chosenVoice, today);
   // Follows the phone's language live (useLocales re-renders when it changes).
   const deviceTag = useLocales()[0]?.languageTag;
   const locale = localeFor(language, deviceTag);

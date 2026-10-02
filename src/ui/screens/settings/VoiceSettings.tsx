@@ -12,17 +12,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@ui/components/Button';
+import { Chip } from '@ui/components/Chip';
 import { Card } from '@ui/components/Card';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
 import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { MOODS } from '@domain/checkins/types';
 import { SettingsStore } from '@ui/hooks/useSettings';
 import { useLocale } from '@ui/i18n/LocaleContext';
+import { VOICE_ROTATIONS } from '@domain/voices/rotation';
 import { VOICE_IDS, VoiceId, formatQuotesText, parseQuotesText } from '@domain/voices/voices';
 import { voiceFor } from '@ui/voices/voices';
 import { useVoice } from '@ui/theme/voiceContext';
 
-/** Pick a voice, and edit the quotes it shows. */
+/** Pick a voice, or let several take turns, and edit the quotes it shows. */
 export function VoiceSettings({ settings }: { settings: SettingsStore }) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
@@ -30,8 +32,17 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
   const [editing, setEditing] = useState(false);
   // Collapsed by default: the list is long and rarely changed.
   const [expanded, setExpanded] = useState(false);
-  const { customQuotes } = settings.settings;
+  const { customQuotes, voiceRotation, rotationVoices } = settings.settings;
   const usingCustom = (customQuotes[voice.id]?.length ?? 0) > 0;
+  const rotating = voiceRotation !== 'off';
+
+  // While rotating, a tap adds or removes a voice from the turns; at least one stays.
+  const toggleRotation = (id: VoiceId) => {
+    const next = rotationVoices.includes(id)
+      ? rotationVoices.filter((v) => v !== id)
+      : [...rotationVoices, id];
+    if (next.length > 0) settings.update({ rotationVoices: next });
+  };
 
   return (
     <Card>
@@ -55,18 +66,41 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
       {expanded && (
         <>
           <Text style={styles.body}>{m.voiceSettings.body}</Text>
-          <View style={styles.list} accessibilityRole="radiogroup">
+          <Text style={styles.subtitle}>{m.voiceSettings.rotation}</Text>
+          <View style={styles.chips} accessibilityRole="radiogroup">
+            {VOICE_ROTATIONS.map((option) => (
+              <Chip
+                key={option}
+                label={m.voiceSettings.rotations[option]}
+                selected={option === voiceRotation}
+                onPress={() => settings.update({ voiceRotation: option })}
+              />
+            ))}
+          </View>
+          {rotating && (
+            <Text style={styles.body}>
+              {m.voiceSettings.today(voice.name)}. {m.voiceSettings.rotationBody}
+            </Text>
+          )}
+          <View style={styles.list} accessibilityRole={rotating ? undefined : 'radiogroup'}>
             {VOICE_IDS.map((id) => {
               const v = voiceFor(id, locale);
               const selected = id === voice.id;
+              const inRotation = rotationVoices.includes(id);
               return (
                 <Pressable
                   key={id}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected }}
-                  accessibilityLabel={`${v.name}: ${v.tagline}`}
-                  onPress={() => settings.update({ voice: id })}
-                  style={[styles.option, selected && styles.optionSelected]}
+                  accessibilityRole={rotating ? 'checkbox' : 'radio'}
+                  accessibilityState={rotating ? { checked: inRotation } : { selected }}
+                  accessibilityLabel={
+                    rotating ? m.voiceSettings.inRotationA11y(v.name) : `${v.name}: ${v.tagline}`
+                  }
+                  onPress={() => (rotating ? toggleRotation(id) : settings.update({ voice: id }))}
+                  style={[
+                    styles.option,
+                    selected && styles.optionSelected,
+                    rotating && !inRotation && styles.optionOut,
+                  ]}
                 >
                   <View
                     style={[styles.dot, { backgroundColor: paletteFor(settings.settings.theme, id).accent }]}
@@ -76,6 +110,7 @@ export function VoiceSettings({ settings }: { settings: SettingsStore }) {
                     <Text style={styles.optionTagline}>{v.tagline}</Text>
                   </View>
                   <Text style={styles.optionEmoji}>{MOODS.map((m) => v.moodEmoji[m]).join('')}</Text>
+                  {rotating && <Text style={styles.check}>{inRotation ? '✓' : ''}</Text>}
                 </Pressable>
               );
             })}
@@ -187,6 +222,10 @@ const makeStyles = (c: Palette) =>
       borderColor: c.border,
     },
     optionSelected: { borderColor: c.accent },
+    optionOut: { opacity: 0.45 },
+    check: { width: 16, color: c.accent, fontWeight: '700', textAlign: 'center' },
+    subtitle: { fontSize: 15, fontWeight: '600', color: c.text },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     optionText: { flex: 1 },
     dot: { width: 14, height: 14, borderRadius: 7 },
     optionName: { fontSize: 16, color: c.text },

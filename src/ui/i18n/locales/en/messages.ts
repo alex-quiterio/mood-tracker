@@ -317,6 +317,11 @@ export const messages: Omit<Messages, 'voices'> = {
     restoreTitle: 'Restore the default quotes?',
     restoreBody: 'Your own quotes for this voice will be removed.',
     restoreConfirm: 'Restore',
+    rotation: 'Change voice',
+    rotations: { off: 'Never', daily: 'Every day', weekly: 'Every week' },
+    rotationBody: 'Tap voices to choose which take turns. Your quotes for each voice stay as they are.',
+    today: (name) => `Now: ${name}`,
+    inRotationA11y: (name) => `${name} takes turns`,
   },
   unlockSettings: {
     title: 'Phone unlocks',

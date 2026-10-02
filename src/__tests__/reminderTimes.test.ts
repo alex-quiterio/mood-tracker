@@ -10,7 +10,7 @@ import {
   parseReminderTimes,
   shiftReminderTime,
 } from '@domain/reminders/times';
-import { reminderMessage } from '@ui/i18n/reminders';
+import { reminderMessage } from '@ui/foundation/i18n/reminders';
 import { SLOTS } from '@domain/checkins/types';
 
 const t = (hour: number, minute = 0) => ({ hour, minute });

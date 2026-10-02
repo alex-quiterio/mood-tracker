@@ -57,3 +57,28 @@ describe('imports', () => {
     expect(importsOf(join(SRC, file)).filter((spec) => spec.startsWith('../'))).toEqual([]);
   });
 });
+
+/**
+ * The UI in tiers: foundation (i18n, theme, voices) under a kit of plain components,
+ * app-wide state, features, and the screens that compose them. Each tier only
+ * imports the tiers below it.
+ */
+describe('ui tiers', () => {
+  const above: Record<string, string[]> = {
+    foundation: ['kit', 'state', 'features', 'screens'],
+    kit: ['state', 'features', 'screens'],
+    state: ['features', 'screens'],
+    features: ['screens'],
+  };
+
+  it.each(
+    Object.keys(above).flatMap((tier) =>
+      filesIn(join(SRC, 'ui', tier)).map((f) => [relative(SRC, f), tier] as const),
+    ),
+  )('%s only imports lower tiers', (file, tier) => {
+    const bad = importsOf(join(SRC, file)).filter((spec) =>
+      above[tier].some((t) => spec.startsWith(`@ui/${t}/`)),
+    );
+    expect(bad).toEqual([]);
+  });
+});

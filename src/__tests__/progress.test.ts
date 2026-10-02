@@ -5,7 +5,7 @@ import { Entry } from '@domain/checkins/types';
 import { Urge } from '@domain/habits/urges';
 import { XP, levelFor, titleIndex, totalXp, xpCounts, xpForLevel } from '@domain/progress/xp';
 import { lastNDays } from '@domain/shared/dates';
-import { voiceFor } from '@ui/voices/voices';
+import { voiceFor } from '@ui/foundation/voices/voices';
 import { VOICE_IDS } from '@domain/voices/voices';
 
 const entry = (date: string, slot: Entry['slot'] = 'morning', extra: Partial<Entry> = {}): Entry => ({

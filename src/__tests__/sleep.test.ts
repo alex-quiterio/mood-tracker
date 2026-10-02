@@ -5,10 +5,10 @@ import { clampSleepHours, isEmptySleep, parseSleep, sameSleep, sleepWeek } from 
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 import { LOCK_AFTER_MS, shouldLockOnReturn } from '@domain/settings/lock';
-import { formatHours } from '@ui/i18n/format';
-import { describeSleep, promptSleepText } from '@ui/i18n/sleep';
-import { buildReflectionPrompt } from '@ui/reflection/prompt';
-import { VOICES, voiceFor } from '@ui/voices/voices';
+import { formatHours } from '@ui/foundation/i18n/format';
+import { describeSleep, promptSleepText } from '@ui/foundation/i18n/sleep';
+import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
+import { VOICES, voiceFor } from '@ui/foundation/voices/voices';
 
 const today = '2026-10-01';
 const entry = (date: string, slot: Entry['slot'], mood: Entry['mood'], sleep?: Entry['sleep']): Entry => ({

@@ -19,32 +19,39 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { stepCounter } from '@modules/step-counter';
 import { localDate } from '@domain/shared/dates';
 import { configureNotificationHandler } from '@infrastructure/notifications/handler';
-import { LockScreen } from '@ui/components/LockScreen';
-import { NamePrompt } from '@ui/components/NamePrompt';
-import { useQuickCheckIn } from '@ui/hooks/useQuickCheckIn';
-import { useAutoBackup } from '@ui/hooks/useAutoBackup';
-import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/hooks/useHomeWidget';
-import { useVoice } from '@ui/theme/voiceContext';
+import { LockScreen } from '@ui/features/lock/LockScreen';
+import { NamePrompt } from '@ui/features/settings/NamePrompt';
+import { useQuickCheckIn } from '@ui/features/checkin/useQuickCheckIn';
+import { useAutoBackup } from '@ui/features/settings/useAutoBackup';
+import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/features/widget/useHomeWidget';
+import { useVoice } from '@ui/foundation/theme/voiceContext';
 import { Slot } from '@domain/checkins/types';
-import { useAppLock } from '@ui/hooks/useAppLock';
+import { useAppLock } from '@ui/features/lock/useAppLock';
 import { setScreenPrivacy } from '@infrastructure/security/screenPrivacy';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
-import { reminderMessages } from '@ui/i18n/reminders';
+import { reminderMessages } from '@ui/foundation/i18n/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';
 import { SettingsScreen } from '@ui/screens/SettingsScreen';
 import { StatsScreen } from '@ui/screens/StatsScreen';
 import { HistoryScreen } from '@ui/screens/HistoryScreen';
-import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
-import { EntriesStore, useEntries } from '@ui/hooks/useEntries';
-import { SettingsStore, useSettings } from '@ui/hooks/useSettings';
+import {
+  Palette,
+  ThemeContext,
+  paletteFor,
+  spacing,
+  useColors,
+  useThemedStyles,
+} from '@ui/foundation/theme/theme';
+import { EntriesStore, useEntries } from '@ui/state/useEntries';
+import { SettingsStore, useSettings } from '@ui/state/useSettings';
 import { localeFor } from '@domain/settings/language';
 import { timeZoneFor } from '@domain/settings/timeZone';
 import { voiceForDay } from '@domain/voices/rotation';
-import { messages } from '@ui/i18n/messages';
-import { localizeHabits } from '@ui/i18n/habits';
-import { activeVoice } from '@ui/voices/voices';
-import { LocaleContext, useLocale } from '@ui/i18n/LocaleContext';
-import { VoiceContext } from '@ui/theme/voiceContext';
+import { messages } from '@ui/foundation/i18n/messages';
+import { localizeHabits } from '@ui/foundation/i18n/habits';
+import { activeVoice } from '@ui/foundation/voices/voices';
+import { LocaleContext, useLocale } from '@ui/foundation/i18n/LocaleContext';
+import { VoiceContext } from '@ui/foundation/theme/voiceContext';
 
 configureNotificationHandler();
 

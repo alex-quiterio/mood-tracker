@@ -6,7 +6,7 @@ import { PRESET_HABITS } from '@domain/habits/habits';
 import { spent, totalSpent } from '@domain/habits/insights';
 import { parseQuickAction, quickEntry } from '@domain/reminders/quickCheckIn';
 import { parseSettings } from '@domain/settings/settings';
-import { buildMonthlyPrompt } from '@ui/reflection/monthPrompt';
+import { buildMonthlyPrompt } from '@ui/features/reflection/monthPrompt';
 
 const today = '2026-10-01'; // a Thursday
 const entry = (date: string, slot: Entry['slot'], mood: Entry['mood'], habits?: Entry['habits']): Entry => ({

@@ -12,10 +12,10 @@ import {
 } from '@domain/habits/balance';
 import { Entry } from '@domain/checkins/types';
 import { PRESET_HABITS, weightOf } from '@domain/habits/habits';
-import { changeText, verdictLabel } from '@ui/i18n/balance';
+import { changeText, verdictLabel } from '@ui/foundation/i18n/balance';
 import { weeklyStats } from '@domain/checkins/stats';
-import { buildReflectionPrompt } from '@ui/reflection/prompt';
-import { VOICES } from '@ui/voices/voices';
+import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
+import { VOICES } from '@ui/foundation/voices/voices';
 
 const today = '2026-10-01';
 const entry = (date: string, habits: Entry['habits'], slot: Entry['slot'] = 'morning'): Entry => ({

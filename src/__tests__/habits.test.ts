@@ -22,7 +22,7 @@ import {
   removeOption,
   parsePrice,
 } from '@domain/habits/habits';
-import { burstEmojis, VOICES } from '@ui/voices/voices';
+import { burstEmojis, VOICES } from '@ui/foundation/voices/voices';
 import {
   describeLog,
   dosesByDay,
@@ -32,8 +32,8 @@ import {
   savingsMilestone,
   totalSavings,
 } from '@domain/habits/insights';
-import { describeHabitWeek, promptHabitText } from '@ui/i18n/habits';
-import { formatEuros } from '@ui/i18n/format';
+import { describeHabitWeek, promptHabitText } from '@ui/foundation/i18n/habits';
+import { formatEuros } from '@ui/foundation/i18n/format';
 
 const today = '2026-10-01';
 const cigarettes: Habit = { ...PRESET_HABITS[0], usualPerDay: 10 }; // €0.55 each

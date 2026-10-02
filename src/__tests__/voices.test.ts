@@ -1,11 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildReflectionPrompt } from '@ui/reflection/prompt';
+import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
 import { DEFAULT_QUOTES, QUOTES_LICENSE } from '@domain/voices/quotes';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry, MOODS, SLOTS } from '@domain/checkins/types';
 import { VOICE_IDS, formatQuotesText, parseQuotesText, quoteOfTheDay } from '@domain/voices/voices';
-import { VOICES, activeVoice } from '@ui/voices/voices';
+import { VOICES, activeVoice } from '@ui/foundation/voices/voices';
 
 const entry: Entry = { date: '2026-10-01', slot: 'morning', mood: 2, recordedAt: '2026-10-01T08:00:00.000Z' };
 

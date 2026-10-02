@@ -34,7 +34,7 @@ npm run lint
 npm run format
 ```
 
-Code is organised in three layers, `domain/`, `infrastructure/` and `ui/`, imported via `@domain/…`, `@infrastructure/…`, `@ui/…` and `@modules/…`. Text lives in `src/ui/i18n/locales/{en,pt}`. See [AGENTS.md](AGENTS.md) for the conventions.
+Code is organised in three layers, `domain/`, `infrastructure/` and `ui/`, imported via `@domain/…`, `@infrastructure/…`, `@ui/…` and `@modules/…`. Text lives in `src/ui/foundation/i18n/locales/{en,pt}`. See [AGENTS.md](AGENTS.md) for the conventions.
 
 ## Releasing
 

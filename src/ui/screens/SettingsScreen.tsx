@@ -4,21 +4,21 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { LANGUAGE_SETTINGS } from '@domain/settings/language';
 import { TIME_ZONES } from '@domain/settings/timeZone';
-import { Card } from '@ui/components/Card';
-import { Chip } from '@ui/components/Chip';
-import { EntriesStore } from '@ui/hooks/useEntries';
-import { SettingsStore } from '@ui/hooks/useSettings';
-import { useLocale } from '@ui/i18n/LocaleContext';
-import { Palette, THEMES, paletteFor, spacing, useThemedStyles } from '@ui/theme/theme';
+import { Card } from '@ui/kit/Card';
+import { Chip } from '@ui/kit/Chip';
+import { EntriesStore } from '@ui/state/useEntries';
+import { SettingsStore } from '@ui/state/useSettings';
+import { useLocale } from '@ui/foundation/i18n/LocaleContext';
+import { Palette, THEMES, paletteFor, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 
-import { BackupSettings } from './settings/BackupSettings';
-import { HabitSettings } from './settings/HabitSettings';
-import { LockSettings } from './settings/LockSettings';
-import { NameSettings } from './settings/NameSettings';
-import { ReminderSettings } from './settings/ReminderSettings';
-import { StepSettings } from './settings/StepSettings';
-import { UnlockSettings } from './settings/UnlockSettings';
-import { VoiceSettings } from './settings/VoiceSettings';
+import { BackupSettings } from '@ui/features/settings/BackupSettings';
+import { HabitSettings } from '@ui/features/settings/HabitSettings';
+import { LockSettings } from '@ui/features/settings/LockSettings';
+import { NameSettings } from '@ui/features/settings/NameSettings';
+import { ReminderSettings } from '@ui/features/settings/ReminderSettings';
+import { StepSettings } from '@ui/features/settings/StepSettings';
+import { UnlockSettings } from '@ui/features/settings/UnlockSettings';
+import { VoiceSettings } from '@ui/features/settings/VoiceSettings';
 
 type Props = { store: EntriesStore; settings: SettingsStore };
 

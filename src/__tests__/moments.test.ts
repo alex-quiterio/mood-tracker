@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { offersBreathing } from '@domain/checkins/moments';
-import { burstEmojis, VOICES } from '@ui/voices/voices';
-import { greetingFor, streakLabel } from '@ui/i18n/greetings';
+import { burstEmojis, VOICES } from '@ui/foundation/voices/voices';
+import { greetingFor, streakLabel } from '@ui/foundation/i18n/greetings';
 import { currentStreak, weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 

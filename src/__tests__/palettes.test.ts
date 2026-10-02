@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { THEMES, paletteFor, palettes } from '@ui/theme/theme';
+import { THEMES, paletteFor, palettes } from '@ui/foundation/theme/theme';
 import { MOODS } from '@domain/checkins/types';
 import { VOICE_IDS } from '@domain/voices/voices';
 

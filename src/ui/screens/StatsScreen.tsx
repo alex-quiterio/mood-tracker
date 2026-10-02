@@ -1,20 +1,20 @@
 import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
-import { Button } from '@ui/components/Button';
-import { HabitsInPromptSwitch } from '@ui/components/HabitsInPromptSwitch';
+import { Button } from '@ui/kit/Button';
+import { HabitsInPromptSwitch } from '@ui/features/habits/HabitsInPromptSwitch';
 import { Habit } from '@domain/habits/habits';
-import { HabitsWeek } from '@ui/habits/HabitsWeek';
+import { HabitsWeek } from '@ui/features/habits/HabitsWeek';
 import { dayOfMonth } from '@domain/shared/dates';
-import { weekdayShort, formatAverage, formatHours } from '@ui/i18n/format';
-import { useLocale } from '@ui/i18n/LocaleContext';
+import { weekdayShort, formatAverage, formatHours } from '@ui/foundation/i18n/format';
+import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { sleepWeek } from '@domain/checkins/sleep';
-import { buildReflectionPrompt } from '@ui/reflection/prompt';
-import { formatSteps, formatStepsShort } from '@ui/i18n/signals';
+import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
+import { formatSteps, formatStepsShort } from '@ui/foundation/i18n/signals';
 import { weeklyStats } from '@domain/checkins/stats';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
 import { SLOTS } from '@domain/checkins/types';
-import { useVoice } from '@ui/theme/voiceContext';
-import { EntriesStore } from '@ui/hooks/useEntries';
+import { useVoice } from '@ui/foundation/theme/voiceContext';
+import { EntriesStore } from '@ui/state/useEntries';
 
 type Props = {
   store: EntriesStore;

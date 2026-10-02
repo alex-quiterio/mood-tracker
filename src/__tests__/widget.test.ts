@@ -3,10 +3,10 @@ import { describe, expect, it } from '@jest/globals';
 import { homeWidget } from '@modules/home-widget';
 import { Entry } from '@domain/checkins/types';
 import { moodsOn, parseWidgetLink, widgetLink } from '@domain/checkins/widget';
-import { homeWidgetState } from '@ui/hooks/useHomeWidget';
-import { messages } from '@ui/i18n/messages';
-import { paletteFor } from '@ui/theme/theme';
-import { activeVoice } from '@ui/voices/voices';
+import { homeWidgetState } from '@ui/features/widget/useHomeWidget';
+import { messages } from '@ui/foundation/i18n/messages';
+import { paletteFor } from '@ui/foundation/theme/theme';
+import { activeVoice } from '@ui/foundation/voices/voices';
 
 const entry = (date: string, slot: Entry['slot'], mood: Entry['mood']): Entry => ({
   date,

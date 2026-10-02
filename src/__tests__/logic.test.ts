@@ -5,7 +5,7 @@ import { PRESET_HABITS } from '@domain/habits/habits';
 import { ExportError, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
 import { NOTE_MAX_LENGTH, mergeEntries, parseEntry, saveTimes, upsertEntry } from '@domain/checkins/entries';
-import { buildReflectionPrompt } from '@ui/reflection/prompt';
+import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 

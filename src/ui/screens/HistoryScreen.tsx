@@ -2,18 +2,18 @@ import { Alert, ScrollView, Share, StyleSheet, Text } from 'react-native';
 
 import { monthReview } from '@domain/checkins/monthly';
 import { Habit } from '@domain/habits/habits';
-import { Button } from '@ui/components/Button';
-import { HabitsInPromptSwitch } from '@ui/components/HabitsInPromptSwitch';
-import { Tracking } from '@ui/checkin/SlotCard';
-import { HistoryCalendar } from '@ui/components/HistoryCalendar';
-import { MonthReviewCard } from '@ui/habits/MonthReviewCard';
-import { ProgressCard } from '@ui/progress/ProgressCard';
-import { useProgress } from '@ui/progress/useProgress';
-import { EntriesStore } from '@ui/hooks/useEntries';
-import { useLocale } from '@ui/i18n/LocaleContext';
-import { buildMonthlyPrompt } from '@ui/reflection/monthPrompt';
-import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
-import { useVoice } from '@ui/theme/voiceContext';
+import { Button } from '@ui/kit/Button';
+import { HabitsInPromptSwitch } from '@ui/features/habits/HabitsInPromptSwitch';
+import { Tracking } from '@ui/features/checkin/SlotCard';
+import { HistoryCalendar } from '@ui/features/history/HistoryCalendar';
+import { MonthReviewCard } from '@ui/features/habits/MonthReviewCard';
+import { ProgressCard } from '@ui/features/progress/ProgressCard';
+import { useProgress } from '@ui/features/progress/useProgress';
+import { EntriesStore } from '@ui/state/useEntries';
+import { useLocale } from '@ui/foundation/i18n/LocaleContext';
+import { buildMonthlyPrompt } from '@ui/features/reflection/monthPrompt';
+import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { useVoice } from '@ui/foundation/theme/voiceContext';
 
 type Props = {
   store: EntriesStore;

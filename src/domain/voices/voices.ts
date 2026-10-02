@@ -12,6 +12,8 @@ export const VOICE_IDS = [
   'muhammad',
   'buddha',
   'shiva',
+  'caeiro',
+  'nhatHanh',
 ] as const;
 export type VoiceId = (typeof VOICE_IDS)[number];
 

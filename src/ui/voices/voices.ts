@@ -88,6 +88,18 @@ export const VOICE_STYLES: Record<VoiceId, VoiceStyle> = {
     moodEmoji: { 1: '🌫️', 2: '⛈️', 3: '🏔️', 4: '🌙', 5: '🔱' },
     burst: { high: ['🔱', '🌙', '✨'], mid: ['🏔️'] },
   },
+
+  caeiro: {
+    id: 'caeiro',
+    moodEmoji: { 1: '🌫️', 2: '🌧️', 3: '🐑', 4: '🌾', 5: '☀️' },
+    burst: { high: ['☀️', '🌼', '🐑'], mid: ['🌾'] },
+  },
+
+  nhatHanh: {
+    id: 'nhatHanh',
+    moodEmoji: { 1: '🌫️', 2: '☁️', 3: '🍵', 4: '🌸', 5: '🪷' },
+    burst: { high: ['🪷', '🔔', '✨'], mid: ['🍵'] },
+  },
 };
 
 /** A voice in a language: its style plus that locale's words. */

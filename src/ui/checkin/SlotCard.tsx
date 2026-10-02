@@ -61,7 +61,9 @@ export function SlotCard({
   const loggedLine = logged ? (
     <Text style={styles.loggedAt}>
       {m.checkin.loggedAt(logged.date, logged.time)}
-      {edited ? ` · ${m.checkin.editedAt(edited.time, edited.date === logged.date ? undefined : edited.date)}` : ''}
+      {edited
+        ? ` · ${m.checkin.editedAt(edited.time, edited.date === logged.date ? undefined : edited.date)}`
+        : ''}
     </Text>
   ) : null;
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);

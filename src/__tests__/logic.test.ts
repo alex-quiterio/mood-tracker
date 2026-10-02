@@ -88,7 +88,10 @@ describe('entries', () => {
   it('merges by the latest edit, not the first record', () => {
     const existing = [entry('2026-10-01', 'morning', 2, '2026-10-01T09:00:00.000Z')];
     const incoming = [
-      { ...entry('2026-10-01', 'morning', 4, '2026-10-01T08:00:00.000Z'), updatedAt: '2026-10-01T10:00:00.000Z' },
+      {
+        ...entry('2026-10-01', 'morning', 4, '2026-10-01T08:00:00.000Z'),
+        updatedAt: '2026-10-01T10:00:00.000Z',
+      },
     ];
     expect(mergeEntries(existing, incoming)[0].mood).toBe(4);
   });
@@ -105,7 +108,9 @@ describe('entries', () => {
 
   it('reads the edit time and rejects a bad one', () => {
     const base = { date: '2026-10-01', slot: 'morning', mood: 3, recordedAt: '2026-10-01T09:00:00Z' };
-    expect(parseEntry({ ...base, updatedAt: '2026-10-01T14:00:00Z' })?.updatedAt).toBe('2026-10-01T14:00:00Z');
+    expect(parseEntry({ ...base, updatedAt: '2026-10-01T14:00:00Z' })?.updatedAt).toBe(
+      '2026-10-01T14:00:00Z',
+    );
     expect(parseEntry(base)).not.toHaveProperty('updatedAt');
     expect(parseEntry({ ...base, updatedAt: 'yesterday' })).toBeNull();
   });

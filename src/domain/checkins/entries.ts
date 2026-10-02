@@ -59,7 +59,10 @@ export function parseEntry(value: unknown): Entry | null {
   if (!SLOTS.includes(v.slot as Slot)) return null;
   if (!MOODS.includes(v.mood as Mood)) return null;
   if (typeof v.recordedAt !== 'string' || Number.isNaN(Date.parse(v.recordedAt))) return null;
-  if (v.updatedAt !== undefined && (typeof v.updatedAt !== 'string' || Number.isNaN(Date.parse(v.updatedAt)))) {
+  if (
+    v.updatedAt !== undefined &&
+    (typeof v.updatedAt !== 'string' || Number.isNaN(Date.parse(v.updatedAt)))
+  ) {
     return null;
   }
   if (v.note !== undefined && typeof v.note !== 'string') return null;

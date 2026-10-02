@@ -235,7 +235,7 @@ export const messages: Omit<Messages, 'voices'> = {
     languages: { system: 'Phone language', en: 'English', 'pt-PT': 'Português' },
     data: 'Your data',
     dataBody: (n: number) =>
-      `Everything is stored only on this phone (${n} check-ins). Uninstalling the app or switching phones deletes it, so export a backup now and then and save it somewhere safe.`,
+      `Everything is stored only on this phone (${n} check-ins). Uninstalling the app or switching phones deletes it, so choose a backup folder or export a backup now and then.`,
     export: 'Export backup (JSON)',
     import: 'Import backup',
     importHint: 'Importing merges with what is already here. Nothing is deleted.',
@@ -246,6 +246,24 @@ export const messages: Omit<Messages, 'voices'> = {
     importDoneBody: (n: number) =>
       `Read ${n} entries. Where both had the same check-in, the newer one was kept.`,
     shareDialog: 'Save your mood data',
+  },
+  backupSettings: {
+    folder: (name) => `Backup folder: ${name}`,
+    noFolder: 'No backup folder chosen yet.',
+    chooseFolder: 'Choose backup folder',
+    changeFolder: 'Change folder',
+    folderHint:
+      'Pick a folder on the phone, such as Documents: files there stay after uninstalling. Google Drive usually isn’t offered here, but a sync app can copy the folder to the cloud.',
+    backUpNow: 'Back up now',
+    done: 'Backup saved',
+    doneBody: (file, folder) => `Saved ${file} in ${folder}.`,
+    failed: 'Backup failed',
+    failedBody: 'The folder couldn’t be written to. Choose it again and try once more.',
+    auto: 'Weekly automatic backup',
+    autoBody:
+      'When you open the app and the last backup is a week old, a new one is saved to the folder. Older backups are kept.',
+    last: (date) => `Last backup: ${date}`,
+    never: 'Nothing backed up to the folder yet.',
   },
   backupErrors: {
     notJson: 'This file is not valid JSON.',

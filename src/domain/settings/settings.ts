@@ -1,6 +1,7 @@
 import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
 import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
 import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
+import { isValidDate } from '@domain/shared/dates';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
 export const THEMES = ['light', 'dim', 'dark'] as const;
@@ -35,6 +36,12 @@ export type Settings = {
   language: LanguageSetting;
   /** Ask for the phone's fingerprint, face or PIN when opening the app. */
   appLock: boolean;
+  /** The folder backups are written to (an Android content:// URI), empty until one is chosen. */
+  backupFolder: string;
+  /** Back up to that folder once a week, when the app opens. */
+  autoBackup: boolean;
+  /** Local date of the last backup to the folder, empty when there hasn't been one. */
+  lastBackup: string;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -51,6 +58,9 @@ export const DEFAULT_SETTINGS: Settings = {
   showSpending: false,
   language: 'system',
   appLock: false,
+  backupFolder: '',
+  autoBackup: false,
+  lastBackup: '',
 };
 
 /** Settings from stored JSON; anything missing or invalid falls back to its default. */
@@ -72,6 +82,9 @@ export function parseSettings(value: unknown): Settings {
       ? (stored.language as LanguageSetting)
       : DEFAULT_SETTINGS.language,
     appLock: stored.appLock === true,
+    backupFolder: typeof stored.backupFolder === 'string' ? stored.backupFolder : '',
+    autoBackup: stored.autoBackup === true,
+    lastBackup: isValidDate(stored.lastBackup) ? stored.lastBackup : '',
   };
 }
 

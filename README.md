@@ -16,7 +16,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Pause**: counted breathing, or a focus timer that ends with a bell.
 - **Optional**: reminders, phone unlock counts (needs Usage access), and steps (needs Physical activity).
 - **App lock** (optional): fingerprint, face or phone PIN on opening and after a minute away. The app is hidden in recent apps while it's on.
-- **Backup**: export or import a JSON file in Settings. Uninstalling deletes your data, so export now and then.
+- **Backup**: choose a folder on the phone once, then "Back up now" saves a dated JSON file there, and the weekly automatic backup saves one when you open the app and the last is a week old. Old backups are kept. You can still export through the share sheet or import a file. Uninstalling deletes the app's data but not the folder.
 
 ## Development
 

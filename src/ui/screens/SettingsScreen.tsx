@@ -1,11 +1,7 @@
 import Constants from 'expo-constants';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { ExportError } from '@domain/checkins/exportFormat';
-import { mergeHabits } from '@domain/habits/habits';
 import { LANGUAGE_SETTINGS } from '@domain/settings/language';
-import { exportEntries, pickImportFile } from '@infrastructure/backup/backupFiles';
-import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';
 import { Chip } from '@ui/components/Chip';
 import { EntriesStore } from '@ui/hooks/useEntries';
@@ -13,6 +9,7 @@ import { SettingsStore } from '@ui/hooks/useSettings';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { Palette, THEMES, paletteFor, spacing, useThemedStyles } from '@ui/theme/theme';
 
+import { BackupSettings } from './settings/BackupSettings';
 import { HabitSettings } from './settings/HabitSettings';
 import { LockSettings } from './settings/LockSettings';
 import { NameSettings } from './settings/NameSettings';
@@ -38,7 +35,7 @@ export function SettingsScreen({ store, settings }: Props) {
       <UnlockSettings settings={settings} />
       <StepSettings settings={settings} />
       <LockSettings settings={settings} />
-      <DataSettings store={store} settings={settings} />
+      <BackupSettings store={store} settings={settings} />
       <Text style={styles.version}>
         {m.settings.version(
           Constants.expoConfig?.version ?? '?',
@@ -107,54 +104,10 @@ function ThemeSettings({ settings }: { settings: SettingsStore }) {
   );
 }
 
-/** Backups: everything lives on this phone, so export now and then. */
-function DataSettings({ store, settings }: Props) {
-  const styles = useThemedStyles(makeStyles);
-  const { m } = useLocale();
-  const errorText = (e: unknown) =>
-    e instanceof ExportError ? m.backupErrors[e.code] : e instanceof Error ? e.message : String(e);
-
-  const doExport = async () => {
-    try {
-      await exportEntries(store.entries, settings.settings.habits, store.urges, {
-        dialogTitle: m.settings.shareDialog,
-        unavailable: m.backupErrors.unavailable,
-      });
-    } catch (e) {
-      Alert.alert(m.settings.exportFailed, errorText(e));
-    }
-  };
-
-  const doImport = async () => {
-    try {
-      const incoming = await pickImportFile();
-      if (!incoming) return;
-      await store.importEntries(incoming.entries);
-      await store.importUrges(incoming.urges);
-      await settings.update({ habits: mergeHabits(settings.settings.habits, incoming.habits) });
-      Alert.alert(m.settings.importDone, m.settings.importDoneBody(incoming.entries.length));
-    } catch (e) {
-      Alert.alert(m.settings.importFailed, errorText(e));
-    }
-  };
-
-  return (
-    <Card>
-      <Text style={styles.title}>{m.settings.data}</Text>
-      <Text style={styles.body}>{m.settings.dataBody(store.entries.length)}</Text>
-      <Button title={m.settings.export} onPress={doExport} disabled={store.entries.length === 0} />
-      <Button title={m.settings.import} variant="secondary" onPress={doImport} />
-      <Text style={styles.hint}>{m.settings.importHint}</Text>
-    </Card>
-  );
-}
-
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
-    body: { color: c.muted, lineHeight: 20 },
-    hint: { color: c.muted, fontSize: 13, textAlign: 'center' },
     version: { color: c.muted, fontSize: 12, textAlign: 'center', marginBottom: spacing(2) },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     themeRow: { flexDirection: 'row', gap: spacing(2) },

@@ -232,7 +232,7 @@ export const messages: Omit<Messages, 'voices'> = {
     languages: { system: 'Idioma do telemóvel', en: 'English', 'pt-PT': 'Português' },
     data: 'Os teus dados',
     dataBody: (n) =>
-      `Tudo fica guardado apenas neste telemóvel (${n} registos). Desinstalar a app ou mudar de telemóvel apaga tudo, por isso exporta uma cópia de segurança de vez em quando e guarda-a num sítio seguro.`,
+      `Tudo fica guardado apenas neste telemóvel (${n} registos). Desinstalar a app ou mudar de telemóvel apaga tudo, por isso escolhe uma pasta para cópias de segurança ou exporta uma de vez em quando.`,
     export: 'Exportar cópia de segurança (JSON)',
     import: 'Importar cópia de segurança',
     importHint: 'A importação junta-se ao que já existe. Nada é apagado.',
@@ -243,6 +243,24 @@ export const messages: Omit<Messages, 'voices'> = {
     importDoneBody: (n) =>
       `Foram lidos ${n} registos. Quando havia dois para o mesmo momento, ficou o mais recente.`,
     shareDialog: 'Guardar os teus dados',
+  },
+  backupSettings: {
+    folder: (name) => `Pasta das cópias: ${name}`,
+    noFolder: 'Ainda não escolheste uma pasta para as cópias.',
+    chooseFolder: 'Escolher pasta para as cópias',
+    changeFolder: 'Mudar de pasta',
+    folderHint:
+      'Escolhe uma pasta no telemóvel, como Documentos: os ficheiros lá ficam mesmo se desinstalares a app. O Google Drive normalmente não aparece aqui, mas uma app de sincronização pode copiar a pasta para a nuvem.',
+    backUpNow: 'Fazer cópia agora',
+    done: 'Cópia guardada',
+    doneBody: (file, folder) => `${file} guardado em ${folder}.`,
+    failed: 'A cópia falhou',
+    failedBody: 'Não foi possível escrever na pasta. Escolhe-a outra vez e tenta de novo.',
+    auto: 'Cópia automática semanal',
+    autoBody:
+      'Quando abres a app e a última cópia tem uma semana, é guardada uma nova na pasta. As cópias antigas ficam.',
+    last: (date) => `Última cópia: ${date}`,
+    never: 'Ainda não há cópias na pasta.',
   },
   backupErrors: {
     notJson: 'Este ficheiro não é um JSON válido.',

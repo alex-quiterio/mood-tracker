@@ -276,6 +276,22 @@ export type Messages = {
     importDoneBody: (n: number) => string;
     shareDialog: string;
   };
+  backupSettings: {
+    folder: (name: string) => string;
+    noFolder: string;
+    chooseFolder: string;
+    changeFolder: string;
+    folderHint: string;
+    backUpNow: string;
+    done: string;
+    doneBody: (file: string, folder: string) => string;
+    failed: string;
+    failedBody: string;
+    auto: string;
+    autoBody: string;
+    last: (date: string) => string;
+    never: string;
+  };
   backupErrors: {
     notJson: string;
     notExport: string;

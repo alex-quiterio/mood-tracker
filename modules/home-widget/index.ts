@@ -24,7 +24,7 @@ export type HomeWidgetState = {
   colors: { surface: string; text: string; muted: string; accent: string; empty: string; onMood: string };
   /** Morning, afternoon, evening. `emoji` and `color` are empty when the slot has no check-in. */
   slots: { label: string; emoji: string; color: string; a11yDone: string; a11yEmpty: string; link: string }[];
-  /** The 7 days ending on `date`, then tomorrow. `color` is the day's average mood, or empty. */
+  /** This week and next, Monday to Sunday. `color` is the day's average mood, or empty. */
   week: { date: string; initial: string; color: string }[];
   weekLink: string;
   /** The quote of the day for `date` and for tomorrow. */

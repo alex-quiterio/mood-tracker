@@ -6,7 +6,7 @@ import { summarizeDay } from '@domain/checkins/calendar';
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { WidgetTarget, moodsOn, parseWidgetLink, widgetLink } from '@domain/checkins/widget';
 import { Locale } from '@domain/settings/language';
-import { addDays, lastNDays, parseLocalDate } from '@domain/shared/dates';
+import { addDays, parseLocalDate } from '@domain/shared/dates';
 import { quoteOfTheDay } from '@domain/voices/voices';
 import { weekdayInitials } from '@ui/i18n/format';
 import { greetingFor, greetingText } from '@ui/i18n/greetings';
@@ -36,6 +36,8 @@ export function homeWidgetState({
 }: WidgetInput): HomeWidgetState {
   const moods = moodsOn(entries, today);
   const tomorrow = addDays(today, 1);
+  // The widget shows the current week; next week's days let it roll over on Sunday night.
+  const monday = addDays(today, -((parseLocalDate(today).getDay() + 6) % 7));
   const initials = weekdayInitials(locale);
   return {
     date: today,
@@ -63,11 +65,9 @@ export function homeWidgetState({
         link: widgetLink({ kind: 'checkin', slot }),
       };
     }),
-    week: [...lastNDays(7, today), tomorrow].map((date) => {
+    week: Array.from({ length: 14 }, (_, i) => addDays(monday, i)).map((date, i) => {
       const { mood } = summarizeDay(entries, date);
-      // Initials start on Monday.
-      const initial = initials[(parseLocalDate(date).getDay() + 6) % 7];
-      return { date, initial, color: mood ? palette.moodColors[mood] : '' };
+      return { date, initial: initials[i % 7], color: mood ? palette.moodColors[mood] : '' };
     }),
     weekLink: widgetLink({ kind: 'stats' }),
     quotes: [today, tomorrow].flatMap((date) => {

@@ -73,21 +73,30 @@ describe('homeWidgetState', () => {
     expect(parseWidgetLink(state.pauseLink)).toEqual({ kind: 'pause' });
   });
 
-  it('sends the week ending today, then tomorrow, Monday-first initials', () => {
-    expect(state.week.map((d) => d.date)).toEqual([
-      '2026-09-26',
-      '2026-09-27',
-      '2026-09-28',
-      '2026-09-29',
-      '2026-09-30',
-      '2026-10-01',
-      '2026-10-02',
-      '2026-10-03',
-    ]);
-    // 2026-09-30 is a Wednesday (Quarta); its moods 2 and 4 average to 3.
-    expect(state.week[4]).toEqual({ date: '2026-09-30', initial: 'Q', color: palette.moodColors[3] });
-    expect(state.week[7].color).toBe('');
+  it('sends this week and next, Monday to Sunday', () => {
+    // 2026-10-02 is a Friday, so the week starts on Monday 2026-09-28.
+    expect(state.week).toHaveLength(14);
+    expect(state.week[0].date).toBe('2026-09-28');
+    expect(state.week[13].date).toBe('2026-10-11');
+    expect(state.week.slice(0, 7).map((d) => d.initial)).toEqual(['S', 'T', 'Q', 'Q', 'S', 'S', 'D']);
+    // Wednesday 2026-09-30 has moods 2 and 4, which average to 3.
+    expect(state.week[2]).toEqual({ date: '2026-09-30', initial: 'Q', color: palette.moodColors[3] });
+    expect(state.week[5].color).toBe('');
     expect(parseWidgetLink(state.weekLink)).toEqual({ kind: 'stats' });
+  });
+
+  it('starts the week on Monday, also on a Sunday', () => {
+    const sunday = homeWidgetState({
+      entries: [],
+      today: '2026-10-04',
+      name: '',
+      m: messages('en'),
+      locale: 'en',
+      voice,
+      palette,
+    });
+    expect(sunday.week[0].date).toBe('2026-09-28');
+    expect(sunday.week[6].date).toBe('2026-10-04');
   });
 
   it("sends today's and tomorrow's quote, or none for a voice without quotes", () => {

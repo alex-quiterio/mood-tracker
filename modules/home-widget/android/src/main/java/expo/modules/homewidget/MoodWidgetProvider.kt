@@ -40,7 +40,7 @@ class MoodWidgetProvider : AppWidgetProvider() {
     private val SLOTS = listOf("morning", "afternoon", "evening")
 
     /** Heights (dp) from which the week and then the quote fit under the tiles. */
-    private const val WEEK_MIN_HEIGHT = 165
+    private const val WEEK_MIN_HEIGHT = 140
     private const val QUOTE_MIN_HEIGHT = 250
 
     fun saveState(context: Context, json: String) {
@@ -130,19 +130,26 @@ class MoodWidgetProvider : AppWidgetProvider() {
       return views
     }
 
-    /** The 7 days ending today, from the 8 the app sent (the week plus tomorrow). False when none fit. */
-    private fun drawWeek(views: RemoteViews, week: JSONArray?, today: String, colors: JSONObject?): Boolean {
-      if (week == null) return false
-      val end = (0 until week.length()).firstOrNull { week.optJSONObject(it)?.optString("date") == today } ?: return false
-      if (end < 6) return false
+    /**
+     * The current week, Monday to Sunday, from the two the app sent (this week and next,
+     * so Sunday night rolls over by itself). Days still to come are faint. False when
+     * today isn't among them.
+     */
+    private fun drawWeek(views: RemoteViews, weeks: JSONArray?, today: String, colors: JSONObject?): Boolean {
+      if (weeks == null) return false
+      val index = (0 until weeks.length()).firstOrNull { weeks.optJSONObject(it)?.optString("date") == today } ?: return false
+      val monday = index - index % 7
+      if (monday + 6 >= weeks.length()) return false
       val text = color(colors, "text")
       val muted = color(colors, "muted")
       val empty = color(colors, "empty")
       for (i in 0 until 7) {
-        val day = week.optJSONObject(end - 6 + i) ?: return false
+        val day = weeks.optJSONObject(monday + i) ?: return false
+        val date = day.optString("date")
         views.setTextViewText(DAY[i], day.optString("initial"))
-        (if (i == 6) text else muted)?.let { views.setTextColor(DAY[i], it) }
+        (if (date == today) text else muted)?.let { views.setTextColor(DAY[i], it) }
         (color(day, "color") ?: empty)?.let { views.setInt(DOT[i], "setColorFilter", it) }
+        views.setInt(DOT[i], "setImageAlpha", if (date > today) 90 else 255)
       }
       return true
     }

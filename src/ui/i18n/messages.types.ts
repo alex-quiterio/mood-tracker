@@ -29,6 +29,7 @@ export type Messages = {
   tabs: {
     checkin: string;
     stats: string;
+    history: string;
     settings: string;
   };
   moods: {
@@ -88,7 +89,6 @@ export type Messages = {
     reflectHint: string;
     shareFailed: string;
     habits: string;
-    history: string;
     cellA11y: (date: string, slot: string, detail: string) => string;
     moodDetail: (mood: number) => string;
     unlocksDetail: (n: number) => string;
@@ -98,6 +98,7 @@ export type Messages = {
     previousMonth: string;
     nextMonth: string;
     dayA11y: (date: string, count: number) => string;
+    dayTotal: (totals: string) => string;
     editDay: string;
     readOnly: (days: number) => string;
     hint: (months: number, days: number) => string;
@@ -144,6 +145,9 @@ export type Messages = {
     inAll: (amount: string) => string;
     perHabit: (emoji: string, amount: string) => string;
     setPrice: string;
+  };
+  history: {
+    calendar: string;
   };
   month: {
     title: string;

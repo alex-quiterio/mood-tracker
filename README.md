@@ -10,7 +10,8 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Sleep**: the morning check-in asks how you slept and for how long (in half hours). It's always part of the Claude reflection.
 - **Habits**: doses of what you want less of (🚬 🌿 🍺, "≈ roughly" for estimates), good habits to tick (💧 🚶 🤝 🛠️), and what you did instead.
 - **Balance and savings**: light vs heavy points per week, and money kept compared with your usual amount (Dutch prices by default).
-- **This week and history**: weekly table and averages, plus a 6-month calendar.
+- **This week**: weekly table and averages, habits, and a reflection prompt for Claude.
+- **History**: your month (patterns from the last 30 days, with a "Reflect on my month" prompt) and a 6-month calendar.
 - **Reflect with Claude**: shares a summary of the week to the Claude app. Habits are included only if you switch that on.
 - **Voices**: 13 voices (Lao Tzu, Marcus Aurelius, Rumi, Buddha…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day.
 - **Pause**: counted breathing, or a focus timer that ends with a bell.

@@ -20,7 +20,7 @@ export const messages: Omit<Messages, 'voices'> = {
     today: 'Hoje',
     notLogged: 'Sem registo',
   },
-  tabs: { checkin: 'Registo', stats: 'Esta semana', settings: 'Definições' },
+  tabs: { checkin: 'Registo', stats: 'Esta semana', history: 'Histórico', settings: 'Definições' },
   moods: { 1: 'Muito em baixo', 2: 'Em baixo', 3: 'Assim-assim', 4: 'Bem', 5: 'Muito bem' },
   slots: { morning: 'Manhã', afternoon: 'Tarde', evening: 'Noite' },
   greetings: { morning: 'Bom dia', afternoon: 'Boa tarde', evening: 'Boa noite' },
@@ -64,7 +64,6 @@ export const messages: Omit<Messages, 'voices'> = {
     reflectHint: 'Cria um resumo desta semana e abre o menu de partilha. Envia-o para a app do Claude.',
     shareFailed: 'Não foi possível abrir o menu de partilha',
     habits: 'Hábitos',
-    history: 'Histórico',
     cellA11y: (date, slot, detail) => `${date} ${slot}: ${detail}`,
     moodDetail: (mood) => `humor ${mood}`,
     unlocksDetail: (n) => `${n} desbloqueios`,
@@ -74,6 +73,7 @@ export const messages: Omit<Messages, 'voices'> = {
     previousMonth: 'Mês anterior',
     nextMonth: 'Mês seguinte',
     dayA11y: (date, count) => `${date}: ${count} de 3 registos`,
+    dayTotal: (totals) => `Total do dia: ${totals}`,
     editDay: 'Editar este dia',
     readOnly: (days) => `Só de leitura: tem mais de ${days} dias.`,
     hint: (months, days) =>
@@ -122,6 +122,9 @@ export const messages: Omit<Messages, 'voices'> = {
     inAll: (amount) => `${amount} no total`,
     perHabit: (emoji, amount) => `${emoji} ${amount}`,
     setPrice: 'Define um preço por dose em Definições → Hábitos para veres isto.',
+  },
+  history: {
+    calendar: 'Calendário',
   },
   month: {
     title: 'O teu mês',

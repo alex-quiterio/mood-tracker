@@ -27,7 +27,7 @@ Run lint and typecheck before declaring any task done.
 
 - Personal Android mood tracker, sideloaded (no Play Store). See README.md for the spec.
 - No backend and no API keys. All data stays on the device (AsyncStorage). Claude integration is a plain-text prompt sent through the share sheet.
-- Keep dependencies minimal. Navigation is a three-tab state switch in `App.tsx`; do not add Expo Router or React Navigation unless the screen count grows.
+- Keep dependencies minimal. Navigation is a four-tab state switch in `App.tsx`; do not add Expo Router or React Navigation unless the screen count grows.
 - Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
 - The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
@@ -45,7 +45,7 @@ Domain-driven, in three layers. Put new code in the right layer and area; don't 
 Import across areas with the path aliases `@domain/…`, `@infrastructure/…`, `@ui/…` and `@modules/…` (defined in `tsconfig.json`, mirrored in `jest.moduleNameMapper` in `package.json`; Metro reads tsconfig paths automatically). Use `./` only for files in the same folder; never `../`.
 
 ```
-App.tsx                      composition root: providers, tabs, name prompt
+App.tsx                      composition root: providers, the four tabs, name prompt
 modules/                     local native modules (Kotlin): unlock-stats, step-counter, home-widget
 src/
   domain/                    the model and its rules; returns values, never sentences.

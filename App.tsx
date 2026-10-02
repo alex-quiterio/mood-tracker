@@ -29,6 +29,7 @@ import { reminderMessages } from '@ui/i18n/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';
 import { SettingsScreen } from '@ui/screens/SettingsScreen';
 import { StatsScreen } from '@ui/screens/StatsScreen';
+import { HistoryScreen } from '@ui/screens/HistoryScreen';
 import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles } from '@ui/theme/theme';
 import { EntriesStore, useEntries } from '@ui/hooks/useEntries';
 import { SettingsStore, useSettings } from '@ui/hooks/useSettings';
@@ -44,6 +45,7 @@ configureNotificationHandler();
 const TABS = [
   { key: 'checkin', icon: '✎' },
   { key: 'stats', icon: '▦' },
+  { key: 'history', icon: '↺' },
   { key: 'settings', icon: '⚙' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
@@ -188,10 +190,19 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
               <StatsScreen
                 store={store}
                 today={today}
-                onEditDay={editDay}
                 habits={habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 showSpending={settings.settings.showSpending}
+                onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
+              />
+            )}
+            {tab === 'history' && (
+              <HistoryScreen
+                store={store}
+                today={today}
+                onEditDay={editDay}
+                habits={habits}
+                habitsInPrompt={settings.settings.habitsInPrompt}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
             )}

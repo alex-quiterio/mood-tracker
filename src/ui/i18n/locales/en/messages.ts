@@ -20,7 +20,7 @@ export const messages: Omit<Messages, 'voices'> = {
     today: 'Today',
     notLogged: 'Not logged',
   },
-  tabs: { checkin: 'Check-in', stats: 'This week', settings: 'Settings' },
+  tabs: { checkin: 'Check-in', stats: 'This week', history: 'History', settings: 'Settings' },
   moods: { 1: 'Very low', 2: 'Low', 3: 'Okay', 4: 'Good', 5: 'Very good' },
   slots: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
   greetings: { morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening' },
@@ -64,7 +64,6 @@ export const messages: Omit<Messages, 'voices'> = {
     reflectHint: 'Builds a text summary of this week and opens the share sheet. Send it to the Claude app.',
     shareFailed: 'Could not open the share sheet',
     habits: 'Habits',
-    history: 'History',
     cellA11y: (date: string, slot: string, detail: string) => `${date} ${slot}: ${detail}`,
     moodDetail: (mood: number) => `mood ${mood}`,
     unlocksDetail: (n: number) => `${n} unlocks`,
@@ -74,6 +73,7 @@ export const messages: Omit<Messages, 'voices'> = {
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
     dayA11y: (date: string, count: number) => `${date}: ${count} of 3 logged`,
+    dayTotal: (totals) => `Day total: ${totals}`,
     editDay: 'Edit this day',
     readOnly: (days: number) => `Read-only: older than ${days} days.`,
     hint: (months: number, days: number) =>
@@ -124,6 +124,9 @@ export const messages: Omit<Messages, 'voices'> = {
     inAll: (amount: string) => `${amount} in all`,
     perHabit: (emoji: string, amount: string) => `${emoji} ${amount}`,
     setPrice: 'Set a price per dose in Settings → Habits to see this.',
+  },
+  history: {
+    calendar: 'Calendar',
   },
   month: {
     title: 'Your month',

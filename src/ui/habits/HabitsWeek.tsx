@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/components/Card';
+import { lastChangedAt } from '@domain/checkins/entries';
 import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
@@ -26,7 +27,7 @@ export function HabitsWeek({ entries, urges, habits, today, showSpending }: Prop
   const days = new Set(lastNDays(7, today));
   const insteadNotes = entries
     .filter((e) => days.has(e.date) && e.habits?.instead)
-    .sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1))
+    .sort((a, b) => (lastChangedAt(a) < lastChangedAt(b) ? 1 : -1))
     .slice(0, 3)
     .map((e) => e.habits!.instead!);
 

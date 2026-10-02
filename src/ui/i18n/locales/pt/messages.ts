@@ -33,6 +33,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   checkin: {
     loggedAt: (date, time) => `Registado ${date}, às ${time}`,
+    editedAt: (time, date) => (date ? `editado ${date}, às ${time}` : `editado às ${time}`),
     addNote: 'Acrescenta uma nota (opcional)',
     couldNotSave: 'Não foi possível guardar',
     removeTitle: 'Remover este registo?',

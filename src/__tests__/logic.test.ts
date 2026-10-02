@@ -4,7 +4,7 @@ import { PRESET_HABITS } from '@domain/habits/habits';
 
 import { ExportError, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
-import { NOTE_MAX_LENGTH, mergeEntries, parseEntry, upsertEntry } from '@domain/checkins/entries';
+import { NOTE_MAX_LENGTH, mergeEntries, parseEntry, saveTimes, upsertEntry } from '@domain/checkins/entries';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
@@ -83,6 +83,31 @@ describe('entries', () => {
     const merged = mergeEntries(existing, incoming);
     expect(merged).toHaveLength(2);
     expect(merged.find((e) => e.date === '2026-10-01')?.mood).toBe(2);
+  });
+
+  it('merges by the latest edit, not the first record', () => {
+    const existing = [entry('2026-10-01', 'morning', 2, '2026-10-01T09:00:00.000Z')];
+    const incoming = [
+      { ...entry('2026-10-01', 'morning', 4, '2026-10-01T08:00:00.000Z'), updatedAt: '2026-10-01T10:00:00.000Z' },
+    ];
+    expect(mergeEntries(existing, incoming)[0].mood).toBe(4);
+  });
+
+  it('keeps the first record time when a check-in is saved again', () => {
+    const now = new Date('2026-10-01T14:30:00Z');
+    expect(saveTimes(undefined, now)).toEqual({ recordedAt: '2026-10-01T14:30:00.000Z' });
+    const first = entry('2026-10-01', 'morning', 3, '2026-10-01T09:00:00.000Z');
+    expect(saveTimes(first, now)).toEqual({
+      recordedAt: '2026-10-01T09:00:00.000Z',
+      updatedAt: '2026-10-01T14:30:00.000Z',
+    });
+  });
+
+  it('reads the edit time and rejects a bad one', () => {
+    const base = { date: '2026-10-01', slot: 'morning', mood: 3, recordedAt: '2026-10-01T09:00:00Z' };
+    expect(parseEntry({ ...base, updatedAt: '2026-10-01T14:00:00Z' })?.updatedAt).toBe('2026-10-01T14:00:00Z');
+    expect(parseEntry(base)).not.toHaveProperty('updatedAt');
+    expect(parseEntry({ ...base, updatedAt: 'yesterday' })).toBeNull();
   });
 
   it('rejects invalid entries', () => {

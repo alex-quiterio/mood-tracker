@@ -33,6 +33,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   checkin: {
     loggedAt: (date: string, time: string) => `Logged ${date} at ${time}`,
+    editedAt: (time: string, date?: string) => (date ? `edited ${date} at ${time}` : `edited at ${time}`),
     addNote: 'Add a note (optional)',
     couldNotSave: 'Could not save',
     removeTitle: 'Remove this check-in?',

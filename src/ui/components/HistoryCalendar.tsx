@@ -146,7 +146,10 @@ function DayDetail({
   const voice = useVoice();
   const loggedAt = (e: Entry) => {
     const { date: day, time } = formatMoment(new Date(e.recordedAt), timeZone, locale);
-    return m.checkin.loggedAt(day, time);
+    const logged = m.checkin.loggedAt(day, time);
+    if (!e.updatedAt) return logged;
+    const edited = formatMoment(new Date(e.updatedAt), timeZone, locale);
+    return `${logged} · ${m.checkin.editedAt(edited.time, edited.date === day ? undefined : edited.date)}`;
   };
   const label = longDate(date, locale);
   const totals = dayTotals(entries, date);

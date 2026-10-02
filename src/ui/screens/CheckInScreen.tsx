@@ -9,7 +9,7 @@ import { Burst, MoodBurst, makeBurst } from '@ui/components/MoodBurst';
 import { LiveCount, LiveCounts } from '@ui/components/LiveCounts';
 import { localDate, slotForTime } from '@domain/shared/dates';
 import { longDate } from '@ui/i18n/format';
-import { entryKey } from '@domain/checkins/entries';
+import { entryKey, lastChangedAt } from '@domain/checkins/entries';
 import { offersBreathing } from '@domain/checkins/moments';
 import { burstEmojis } from '@ui/voices/voices';
 import { greetingFor, greetingText, streakLabel } from '@ui/i18n/greetings';
@@ -139,7 +139,7 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
           return (
             <SlotCard
               // Remount when the day or saved entry changes so the draft resets.
-              key={`${entryKey(today, slot)}|${entry?.recordedAt ?? ''}`}
+              key={`${entryKey(today, slot)}|${entry ? lastChangedAt(entry) : ''}`}
               date={today}
               slot={slot}
               entry={entry}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { NOTE_MAX_LENGTH } from '@domain/checkins/entries';
+import { NOTE_MAX_LENGTH, saveTimes } from '@domain/checkins/entries';
 import { Sleep, isEmptySleep, sameSleep } from '@domain/checkins/sleep';
 import { Entry, Mood, Slot } from '@domain/checkins/types';
 import { EMPTY_LOG, Habit, HabitLog, cleanLog, isWin, sameLog } from '@domain/habits/habits';
@@ -57,8 +57,12 @@ export function SlotCard({
   const voice = useVoice();
   const { m, locale, timeZone } = useLocale();
   const logged = entry ? formatMoment(new Date(entry.recordedAt), timeZone, locale) : null;
+  const edited = entry?.updatedAt ? formatMoment(new Date(entry.updatedAt), timeZone, locale) : null;
   const loggedLine = logged ? (
-    <Text style={styles.loggedAt}>{m.checkin.loggedAt(logged.date, logged.time)}</Text>
+    <Text style={styles.loggedAt}>
+      {m.checkin.loggedAt(logged.date, logged.time)}
+      {edited ? ` · ${m.checkin.editedAt(edited.time, edited.date === logged.date ? undefined : edited.date)}` : ''}
+    </Text>
   ) : null;
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
@@ -83,7 +87,7 @@ export function SlotCard({
         ...(trimmed ? { note: trimmed } : {}),
         ...(logged ? { habits: logged } : {}),
         ...(asksSleep && !isEmptySleep(sleep) ? { sleep } : {}),
-        recordedAt: now.toISOString(),
+        ...saveTimes(entry, now),
       };
       const withCounts = await withUnlocks(base, entry, tracking.unlocks, now);
       const next = await withSteps(withCounts, entry, tracking.steps, now);

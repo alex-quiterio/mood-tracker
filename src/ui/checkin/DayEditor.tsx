@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { entryKey } from '@domain/checkins/entries';
+import { entryKey, lastChangedAt } from '@domain/checkins/entries';
 import { SLOTS, Slot } from '@domain/checkins/types';
 import { Habit } from '@domain/habits/habits';
 import { EntriesStore } from '@ui/hooks/useEntries';
@@ -24,7 +24,7 @@ export function DayEditor({ date, store, tracking, habits }: Props) {
     return (
       <SlotCard
         // Remount when the saved entry changes so the draft resets.
-        key={`${entryKey(date, slot)}|${entry?.recordedAt ?? ''}`}
+        key={`${entryKey(date, slot)}|${entry ? lastChangedAt(entry) : ''}`}
         date={date}
         slot={slot}
         entry={entry}

@@ -59,6 +59,8 @@ export type Messages = {
   checkin: {
     /** When a check-in was saved: a long date and an HH:MM time. */
     loggedAt: (date: string, time: string) => string;
+    /** When a check-in was last edited: an HH:MM time, and the long date only when it differs from the day it was logged. */
+    editedAt: (time: string, date?: string) => string;
     addNote: string;
     couldNotSave: string;
     removeTitle: string;

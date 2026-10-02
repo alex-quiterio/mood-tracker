@@ -8,6 +8,18 @@ export const NOTE_MAX_LENGTH = 2000;
 
 export const entryKey = (date: string, slot: Slot) => `${date}|${slot}`;
 
+/** When an entry last changed: its latest edit, or when it was first saved. */
+export const lastChangedAt = (e: Entry): string => e.updatedAt ?? e.recordedAt;
+
+/**
+ * The times a save stamps on an entry. A new check-in is recorded now; saving an
+ * existing one keeps when it was first recorded and marks it updated now.
+ */
+export function saveTimes(previous: Entry | undefined, now: Date): Pick<Entry, 'recordedAt' | 'updatedAt'> {
+  const at = now.toISOString();
+  return previous ? { recordedAt: previous.recordedAt, updatedAt: at } : { recordedAt: at };
+}
+
 /** Saving the same date and slot again replaces the earlier entry. */
 export function upsertEntry(entries: Entry[], entry: Entry): Entry[] {
   const key = entryKey(entry.date, entry.slot);
@@ -21,7 +33,7 @@ export function removeEntry(entries: Entry[], date: string, slot: Slot): Entry[]
 
 /**
  * Merges imported entries into existing ones. When both sides have the same
- * date and slot, the one recorded later wins, so an import never discards
+ * date and slot, the one changed last wins, so an import never discards
  * newer data.
  */
 export function mergeEntries(existing: Entry[], incoming: Entry[]): Entry[] {
@@ -29,7 +41,7 @@ export function mergeEntries(existing: Entry[], incoming: Entry[]): Entry[] {
   for (const e of [...existing, ...incoming]) {
     const key = entryKey(e.date, e.slot);
     const current = byKey.get(key);
-    if (!current || e.recordedAt > current.recordedAt) byKey.set(key, e);
+    if (!current || lastChangedAt(e) > lastChangedAt(current)) byKey.set(key, e);
   }
   return [...byKey.values()].sort(compareEntries);
 }
@@ -47,6 +59,9 @@ export function parseEntry(value: unknown): Entry | null {
   if (!SLOTS.includes(v.slot as Slot)) return null;
   if (!MOODS.includes(v.mood as Mood)) return null;
   if (typeof v.recordedAt !== 'string' || Number.isNaN(Date.parse(v.recordedAt))) return null;
+  if (v.updatedAt !== undefined && (typeof v.updatedAt !== 'string' || Number.isNaN(Date.parse(v.updatedAt)))) {
+    return null;
+  }
   if (v.note !== undefined && typeof v.note !== 'string') return null;
   const unlocks = parseCount(v.unlocks, v.unlocksFrom);
   const steps = parseCount(v.steps, v.stepsFrom);
@@ -62,6 +77,7 @@ export function parseEntry(value: unknown): Entry | null {
     mood: v.mood as Mood,
     recordedAt: v.recordedAt,
   };
+  if (typeof v.updatedAt === 'string') entry.updatedAt = v.updatedAt;
   const note = (v.note as string | undefined)?.trim().slice(0, NOTE_MAX_LENGTH);
   if (note) entry.note = note;
   if (unlocks) {

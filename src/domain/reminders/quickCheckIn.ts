@@ -1,3 +1,4 @@
+import { saveTimes } from '@domain/checkins/entries';
 import type { Entry, Mood, Slot } from '@domain/checkins/types';
 
 /**
@@ -21,7 +22,7 @@ export function parseQuickAction(actionId: string): QuickMood | null {
 
 /**
  * The entry a quick check-in saves. An existing check-in keeps its note, habits,
- * sleep and signals; only the mood and the time change.
+ * sleep, signals and first recorded time; only the mood changes, and it is marked updated.
  */
 export function quickEntry(
   existing: Entry | undefined,
@@ -30,5 +31,5 @@ export function quickEntry(
   mood: QuickMood,
   now: Date,
 ): Entry {
-  return { ...existing, date, slot, mood, recordedAt: now.toISOString() };
+  return { ...existing, date, slot, mood, ...saveTimes(existing, now) };
 }

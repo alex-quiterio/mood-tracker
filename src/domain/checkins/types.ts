@@ -14,8 +14,10 @@ export type Entry = {
   slot: Slot;
   mood: Mood;
   note?: string;
-  /** ISO 8601 timestamp of when the entry was saved. */
+  /** ISO 8601 timestamp of when the check-in was first saved; edits keep it. Before 1.12.1 every save moved it. */
   recordedAt: string;
+  /** ISO 8601 timestamp of the latest edit; absent until the check-in is saved a second time. */
+  updatedAt?: string;
   /** Phone unlocks since the previous check-in, captured when a live check-in is first saved. */
   unlocks?: number;
   /** ISO 8601 start of the window `unlocks` covers. */

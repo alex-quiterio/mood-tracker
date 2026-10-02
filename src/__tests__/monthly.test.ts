@@ -94,6 +94,17 @@ describe('quick check-in', () => {
   it('keeps what an existing check-in already has', () => {
     const existing = { ...entry('2026-10-01', 'morning', 2), note: 'slept badly' };
     const next = quickEntry(existing, '2026-10-01', 'morning', 5, new Date('2026-10-01T09:00:00Z'));
-    expect(next).toMatchObject({ mood: 5, note: 'slept badly', recordedAt: '2026-10-01T09:00:00.000Z' });
+    expect(next).toMatchObject({
+      mood: 5,
+      note: 'slept badly',
+      recordedAt: existing.recordedAt,
+      updatedAt: '2026-10-01T09:00:00.000Z',
+    });
+  });
+
+  it('records a new check-in without marking it updated', () => {
+    const next = quickEntry(undefined, '2026-10-01', 'morning', 3, new Date('2026-10-01T09:00:00Z'));
+    expect(next.recordedAt).toBe('2026-10-01T09:00:00.000Z');
+    expect(next.updatedAt).toBeUndefined();
   });
 });

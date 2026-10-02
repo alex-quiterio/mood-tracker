@@ -122,9 +122,11 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const [nameSkipped, setNameSkipped] = useState(false);
   const { name, remindersEnabled, reminderTimes } = settings.settings;
   const voice = useVoice();
+  // With App lock on, the widget doesn't show who the phone belongs to.
+  const widgetName = settings.settings.appLock ? '' : name;
   useHomeWidget(
     store.loaded
-      ? homeWidgetState({ entries: store.entries, today, name, m, locale, voice, palette: c })
+      ? homeWidgetState({ entries: store.entries, today, name: widgetName, m, locale, voice, palette: c })
       : null,
   );
 

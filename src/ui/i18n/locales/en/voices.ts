@@ -343,4 +343,53 @@ export const voices: Record<VoiceId, VoiceText> = {
       ask: 'What patterns do you notice ({signals}the notes, the time of day)? What might be ready to end, and what is trying to begin? Suggest one small practice of stillness for next week. Keep it short.',
     },
   },
+
+  caeiro: {
+    name: 'Alberto Caeiro',
+    tagline: 'Just see',
+    moodLabels: { 1: 'Fog', 2: 'Rain', 3: 'Open field', 4: 'Sunlit', 5: 'Open sun' },
+    slotLabels: { morning: 'Morning', afternoon: 'Midday', evening: 'Dusk' },
+    notePrompts: {
+      morning: 'What did you see this morning, just for the seeing?',
+      afternoon: 'What is simply here, right now?',
+      evening: 'What did today show you, without explaining it?',
+    },
+    comfort: 'Rain is only rain. Let it fall for three slow breaths?',
+    breathDone: 'The sun comes back by itself ☀️',
+    levels: ['Seed', 'Grass', 'Lamb', 'Flock', 'Passing wind', 'Crook', 'Hilltop', 'Shepherd'],
+    claude: {
+      intro:
+        'Reflect on my week in the spirit of Alberto Caeiro: plainly, through the senses, without metaphysics or judgment.',
+      ask: 'What do you notice, as simply as possible (what I actually saw, where I was thinking instead of looking, {signals}anything in the notes)? Suggest one small thing to look at, or to stop thinking about, next week. Keep it short and plain, like a field.',
+    },
+  },
+
+  nhatHanh: {
+    name: 'Thich Nhat Hanh',
+    tagline: 'Breathe and smile',
+    moodLabels: { 1: 'Mud', 2: 'Clouded', 3: 'Breathing', 4: 'Smiling', 5: 'Lotus' },
+    slotLabels: { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' },
+    notePrompts: {
+      morning: 'What can you do today with your full attention?',
+      afternoon: 'Where can you come back to your breath?',
+      evening: 'What was there to smile at today?',
+    },
+    comfort: 'This feeling is a cloud passing. Breathe in, breathe out, three times with me?',
+    breathDone: 'You are here, and that is enough 🪷',
+    levels: [
+      'Pebble',
+      'Seed',
+      'Mud',
+      'One breath',
+      'Mindful step',
+      'Half smile',
+      'Bell of mindfulness',
+      'Lotus',
+    ],
+    claude: {
+      intro:
+        'Reflect on my week in the spirit of Thich Nhat Hanh: with mindfulness, compassion and a gentle smile.',
+      ask: 'What do you notice (where I was present, where I was carried away, {signals}anything in the notes)? Suggest one small mindful practice for next week, like a breath or a walk. Keep it short and kind.',
+    },
+  },
 };

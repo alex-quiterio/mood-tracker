@@ -354,4 +354,62 @@ export const voices: Record<VoiceId, VoiceText> = {
       ask: 'Que padrões notas ({signals}as notas, a hora do dia)? O que poderá estar pronto para terminar, e o que está a tentar começar? Sugere uma pequena prática de quietude para a próxima semana. Sê breve.',
     },
   },
+
+  caeiro: {
+    name: 'Alberto Caeiro',
+    tagline: 'Ver, apenas ver',
+    moodLabels: { 1: 'Nevoeiro', 2: 'Chuva', 3: 'Campo aberto', 4: 'Ao sol', 5: 'Sol aberto' },
+    slotLabels: { morning: 'Manhã', afternoon: 'Meio-dia', evening: 'Entardecer' },
+    notePrompts: {
+      morning: 'O que viste esta manhã, só por ver?',
+      afternoon: 'O que está simplesmente aqui, agora?',
+      evening: 'O que te mostrou o dia, sem o explicares?',
+    },
+    comfort: 'A chuva é só chuva. Deixa-a cair durante três respirações lentas?',
+    breathDone: 'O sol volta sozinho ☀️',
+    levels: [
+      'Semente',
+      'Erva',
+      'Cordeirinho',
+      'Rebanho',
+      'Vento que passa',
+      'Cajado',
+      'Cimo do outeiro',
+      'Pastor',
+    ],
+    claude: {
+      intro:
+        'Reflete sobre a minha semana no espírito de Alberto Caeiro: com simplicidade, pelos sentidos, sem metafísica nem julgamento.',
+      ask: 'O que notas, da forma mais simples possível (o que eu vi de facto, onde pensei em vez de olhar, {signals}o que está nas notas)? Sugere uma coisa pequena para olhar, ou para deixar de pensar, na próxima semana. Sê breve e simples, como um campo.',
+    },
+  },
+
+  nhatHanh: {
+    name: 'Thich Nhat Hanh',
+    tagline: 'Respira e sorri',
+    moodLabels: { 1: 'Lama', 2: 'Nublado', 3: 'A respirar', 4: 'A sorrir', 5: 'Lótus' },
+    slotLabels: { morning: 'Manhã', afternoon: 'Tarde', evening: 'Noite' },
+    notePrompts: {
+      morning: 'O que podes fazer hoje com toda a atenção?',
+      afternoon: 'Onde podes voltar à tua respiração?',
+      evening: 'Houve algo hoje a que sorrir?',
+    },
+    comfort: 'Este sentimento é uma nuvem a passar. Inspira, expira, três vezes comigo?',
+    breathDone: 'Estás aqui, e isso basta 🪷',
+    levels: [
+      'Seixo',
+      'Semente',
+      'Lodo',
+      'Um respiro',
+      'Passo atento',
+      'Meio sorriso',
+      'Sino da atenção',
+      'Lótus',
+    ],
+    claude: {
+      intro:
+        'Reflete sobre a minha semana no espírito de Thich Nhat Hanh: com atenção plena, compaixão e um sorriso suave.',
+      ask: 'O que notas (onde estive presente, onde me deixei levar, {signals}o que está nas notas)? Sugere uma pequena prática de atenção plena para a próxima semana, como uma respiração ou uma caminhada. Sê breve e gentil.',
+    },
+  },
 };

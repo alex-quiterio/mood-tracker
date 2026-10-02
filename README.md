@@ -14,7 +14,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Levels**: XP for check-ins, notes, full days, habit wins, urges let pass and streak weeks. Level titles follow your voice (Lao Tzu: raindrop → still lake). XP only goes up, a low day counts as much as a good one, and one missed day a week is a rest day that keeps your streak.
 - **History**: your month (patterns from the last 30 days, with a "Reflect on my month" prompt) and a 6-month calendar.
 - **Reflect with Claude**: shares a summary of the week to the Claude app. Habits are included only if you switch that on.
-- **Voices**: 13 voices (Lao Tzu, Marcus Aurelius, Rumi, Buddha…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day.
+- **Voices**: 15 voices (Lao Tzu, Marcus Aurelius, Rumi, Alberto Caeiro, Thich Nhat Hanh…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day.
 - **Pause**: counted breathing, or a focus timer that ends with a bell.
 - **Home-screen widget**: a greeting, today's three check-ins as mood-coloured tiles, the week as dots and (when it's tall enough) the quote of the day, in your voice and theme. Tap a slot to check in, the week for stats, or Pause to breathe.
 - **Optional**: reminders, phone unlock counts (needs Usage access), and steps (needs Physical activity).

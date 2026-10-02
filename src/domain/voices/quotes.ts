@@ -6,10 +6,13 @@ const GUMMERE = (year: number) => `tr. Richard M. Gummere, ${year}`;
 const NICHOLSON = 'tr. R. A. Nicholson, 1898';
 const TAGORE = 'tr. Rabindranath Tagore, 1915';
 const JOHNSTON = 'tr. Charles Johnston, 1912';
+// Caeiro's poems are quoted in the original Portuguese (Arquivo Pessoa, Ática text), from the
+// selection Pessoa published in his lifetime.
+const ATHENA = 'Athena, nº 4, 1925';
 
 /**
- * Default quotes for each voice, verbatim from public-domain translations and
- * checked word for word against the source texts. Bracketed words are the
+ * Default quotes for each voice, verbatim from public-domain translations (or
+ * originals, for Caeiro) and checked word for word against the source texts. Bracketed words are the
  * translator's own. Users can replace them per voice in Settings.
  */
 export const DEFAULT_QUOTES: Record<VoiceId, Quote[]> = {
@@ -423,6 +426,84 @@ export const DEFAULT_QUOTES: Record<VoiceId, Quote[]> = {
       source: 'Svetasvatara Upanishad IV.21 (tr. F. Max Müller, 1884)',
     },
   ],
+  caeiro: [
+    {
+      text: 'Mas abre os olhos e vê o Sol, / E já não pode pensar em nada, / Porque a luz do Sol vale mais que os pensamentos / De todos os filósofos e de todos os poetas.',
+      source: `O Guardador de Rebanhos, V (${ATHENA})`,
+    },
+    {
+      text: 'Penso com os olhos e com os ouvidos / E com as mãos e os pés / E com o nariz e a boca.',
+      source: `O Guardador de Rebanhos, IX (${ATHENA})`,
+    },
+    {
+      text: 'Leve, leve, muito leve, / Um vento muito leve passa, / E vai-se, sempre muito leve. / E eu não sei o que penso / Nem procuro sabê-lo.',
+      source: `O Guardador de Rebanhos, XIII (${ATHENA})`,
+    },
+    {
+      text: 'O essencial é saber ver, / Saber ver sem estar a pensar, / Saber ver quando se vê, / E nem pensar quando se vê, / Nem ver quando se pensa.',
+      source: `O Guardador de Rebanhos, XXIV (${ATHENA})`,
+    },
+    {
+      text: 'O meu misticismo é não querer saber. / É viver e não pensar nisso.',
+      source: `O Guardador de Rebanhos, XXX (${ATHENA})`,
+    },
+    {
+      text: 'As coisas não têm significação: têm existência. / As coisas são o único sentido oculto das coisas.',
+      source: `O Guardador de Rebanhos, XXXIX (${ATHENA})`,
+    },
+    {
+      text: 'A borboleta é apenas borboleta / E a flor é apenas flor.',
+      source: `O Guardador de Rebanhos, XL (${ATHENA})`,
+    },
+    {
+      text: 'Nada tiramos e nada pomos; passamos e esquecemos; / E o Sol é sempre pontual todos os dias.',
+      source: `O Guardador de Rebanhos, XLII (${ATHENA})`,
+    },
+    {
+      text: 'Passa, ave, passa, e ensina-me a passar!',
+      source: `O Guardador de Rebanhos, XLIII (${ATHENA})`,
+    },
+    {
+      text: 'Oxalá a minha vida seja sempre isto: / O dia cheio de sol, ou suave de chuva, / Ou tempestuoso como se acabasse o Mundo, …',
+      source: `O Guardador de Rebanhos, XLIX (${ATHENA})`,
+    },
+  ],
+  // Short quotations; each matched word for word in a preview of the printed book (Google Books),
+  // and listed with a source on Wikiquote.
+  nhatHanh: [
+    {
+      text: 'Breath is the bridge which connects life to consciousness, which unites your body to your thoughts.',
+      source: 'The Miracle of Mindfulness (1996), p. 15',
+    },
+    {
+      text: 'Whenever your mind becomes scattered, use your breath as the means to take hold of your mind again.',
+      source: 'The Miracle of Mindfulness (1996), p. 15',
+    },
+    {
+      text: 'Drink your tea slowly and reverently, as if it is the axis on which the whole earth revolves—slowly, evenly, without rushing toward the future.',
+      source: 'The Miracle of Mindfulness (1996), p. 30',
+    },
+    {
+      text: 'Feelings, whether of compassion or irritation, should be welcomed, recognized, and treated on an absolutely equal basis; because both are ourselves.',
+      source: 'The Miracle of Mindfulness (1996), p. 61',
+    },
+    {
+      text: 'If in our daily life we can smile, if we can be peaceful and happy, not only we, but everyone will profit from it.',
+      source: 'Being Peace (1996), p. 5',
+    },
+    {
+      text: 'This is not a retreat, it is a treat.',
+      source: 'Being Peace (1996), p. 6',
+    },
+    {
+      text: 'When you feel anger arising, remember to return to your breathing and follow it.',
+      source: 'Teachings on Love (2002), p. 30',
+    },
+    {
+      text: 'The miracle is not to walk on water. The miracle is to walk on the green Earth in the present moment, to appreciate the peace and beauty that are available now.',
+      source: 'Touching Peace (2005), p. 1',
+    },
+  ],
 };
 
 /**
@@ -446,4 +527,6 @@ export const QUOTES_LICENSE: Record<VoiceId, QuotesLicense> = {
   muhammad: 'public-domain',
   buddha: 'public-domain',
   shiva: 'public-domain',
+  caeiro: 'public-domain',
+  nhatHanh: 'short-quotation',
 };

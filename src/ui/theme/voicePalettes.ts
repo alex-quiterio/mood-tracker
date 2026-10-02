@@ -466,6 +466,80 @@ export const VOICE_LOOKS: Record<Exclude<VoiceId, 'plain'>, VoiceLook> = {
     moodColors: { 1: '#BDBFC9', 2: '#C6C3D6', 3: '#CFD9E3', 4: '#BCD6EA', 5: '#D9CCF2' },
     heading: { fontFamily: 'serif' },
   },
+  // Ribatejo fields: olive leaves, sheep's wool and a dry summer sky; moods rise from fog to open sun.
+  caeiro: {
+    modes: {
+      light: {
+        background: '#F3F2EA',
+        surface: '#FFFFFF',
+        text: '#1E2117',
+        muted: '#5F6553',
+        border: '#DCDCCC',
+        accent: '#4F6B1F',
+        accentText: '#FFFFFF',
+        danger: '#A3261E',
+      },
+      dim: {
+        background: '#2F322A',
+        surface: '#3A3E34',
+        text: '#F1F2EA',
+        muted: '#C0C4B2',
+        border: '#525748',
+        accent: '#B9D27A',
+        accentText: '#1E2117',
+        danger: '#FFB4AB',
+      },
+      dark: {
+        background: '#0E100B',
+        surface: '#181B14',
+        text: '#ECEEE3',
+        muted: '#9DA290',
+        border: '#272B21',
+        accent: '#A9C46A',
+        accentText: '#0E100B',
+        danger: '#FF8A80',
+      },
+    },
+    moodColors: { 1: '#C2C4BC', 2: '#C9CDB4', 3: '#D6DDB0', 4: '#C4DE9C', 5: '#F2D774' },
+    heading: { fontFamily: 'serif' },
+  },
+  // Plum Village: brown robes, tea and a lotus opening out of the mud.
+  nhatHanh: {
+    modes: {
+      light: {
+        background: '#F5F0EC',
+        surface: '#FFFFFF',
+        text: '#26201C',
+        muted: '#6C625A',
+        border: '#E0D6CE',
+        accent: '#8C4A2F',
+        accentText: '#FFFFFF',
+        danger: '#A3261E',
+      },
+      dim: {
+        background: '#36302C',
+        surface: '#423B36',
+        text: '#F4EEEA',
+        muted: '#C6BBB2',
+        border: '#5A514A',
+        accent: '#EBAE93',
+        accentText: '#26201C',
+        danger: '#FFB4AB',
+      },
+      dark: {
+        background: '#120F0D',
+        surface: '#1C1816',
+        text: '#EFE8E3',
+        muted: '#A69A91',
+        border: '#2C2622',
+        accent: '#E09B7E',
+        accentText: '#120F0D',
+        danger: '#FF8A80',
+      },
+    },
+    moodColors: { 1: '#C4BBB2', 2: '#D0C3B5', 3: '#DCD6C0', 4: '#E9CCCB', 5: '#F2B9C8' },
+    heading: {},
+  },
 };
 
 export { ON_MOOD };

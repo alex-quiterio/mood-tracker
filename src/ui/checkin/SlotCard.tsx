@@ -13,7 +13,8 @@ import { withUnlocks } from '@infrastructure/signals/unlocks';
 import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';
 import { MoodPicker } from '@ui/components/MoodPicker';
-import { formatInteger, formatMoment } from '@ui/i18n/format';
+import { formatInteger } from '@ui/i18n/format';
+import { describeLoggedAt } from '@ui/i18n/loggedAt';
 import { describeSleep } from '@ui/i18n/sleep';
 import { SleepLogger } from './SleepLogger';
 import { HabitLogger } from '@ui/habits/HabitLogger';
@@ -56,15 +57,8 @@ export function SlotCard({
   const c = useColors();
   const voice = useVoice();
   const { m, locale, timeZone } = useLocale();
-  const logged = entry ? formatMoment(new Date(entry.recordedAt), timeZone, locale) : null;
-  const edited = entry?.updatedAt ? formatMoment(new Date(entry.updatedAt), timeZone, locale) : null;
-  const loggedLine = logged ? (
-    <Text style={styles.loggedAt}>
-      {m.checkin.loggedAt(logged.date, logged.time)}
-      {edited
-        ? ` · ${m.checkin.editedAt(edited.time, edited.date === logged.date ? undefined : edited.date)}`
-        : ''}
-    </Text>
+  const loggedLine = entry ? (
+    <Text style={styles.loggedAt}>{describeLoggedAt(entry, timeZone, locale)}</Text>
   ) : null;
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');

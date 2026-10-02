@@ -15,11 +15,12 @@ import {
   shiftMonth,
   summarizeDay,
 } from '@domain/checkins/calendar';
-import { Entry, SLOTS } from '@domain/checkins/types';
+import { SLOTS } from '@domain/checkins/types';
 import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@ui/i18n/describeSignals';
 import { formatSteps } from '@ui/i18n/signals';
-import { formatMoment, longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
+import { longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
+import { describeLoggedAt } from '@ui/i18n/loggedAt';
 import { DayEditor } from '@ui/checkin/DayEditor';
 import { Tracking } from '@ui/checkin/SlotCard';
 import { EntriesStore } from '@ui/hooks/useEntries';
@@ -144,13 +145,6 @@ function DayDetail({
   const { m, locale, timeZone } = useLocale();
   const c = useColors();
   const voice = useVoice();
-  const loggedAt = (e: Entry) => {
-    const { date: day, time } = formatMoment(new Date(e.recordedAt), timeZone, locale);
-    const logged = m.checkin.loggedAt(day, time);
-    if (!e.updatedAt) return logged;
-    const edited = formatMoment(new Date(e.updatedAt), timeZone, locale);
-    return `${logged} · ${m.checkin.editedAt(edited.time, edited.date === day ? undefined : edited.date)}`;
-  };
   const label = longDate(date, locale);
   const totals = dayTotals(entries, date);
   const totalParts = [
@@ -188,7 +182,7 @@ function DayDetail({
                     {voice.moodEmoji[e.mood]} {voice.moodLabels[e.mood]}
                   </Text>
                 </View>
-                <Text style={styles.signal}>{loggedAt(e)}</Text>
+                <Text style={styles.signal}>{describeLoggedAt(e, timeZone, locale)}</Text>
                 {e.note ? <Text style={styles.note}>{e.note}</Text> : null}
                 {e.habits && describeLog(e.habits, habits) ? (
                   <Text style={styles.signal}>{describeLog(e.habits, habits)}</Text>

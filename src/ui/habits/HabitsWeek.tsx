@@ -1,15 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/components/Card';
-import { lastChangedAt } from '@domain/checkins/entries';
 import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
 import { Urge } from '@domain/habits/urges';
-import { habitWeek, totalSavings } from '@domain/habits/insights';
+import { habitWeek, recentInsteadNotes, totalSavings } from '@domain/habits/insights';
 import { describeHabitWeek } from '@ui/i18n/habits';
 import { formatDecimal } from '@ui/i18n/format';
-import { addDays, lastNDays } from '@domain/shared/dates';
+import { addDays } from '@domain/shared/dates';
 import { Palette, spacing, useThemedStyles } from '@ui/theme/theme';
 import { useLocale } from '@ui/i18n/LocaleContext';
 
@@ -24,12 +23,7 @@ export function HabitsWeek({ entries, urges, habits, today, showSpending }: Prop
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
-  const days = new Set(lastNDays(7, today));
-  const insteadNotes = entries
-    .filter((e) => days.has(e.date) && e.habits?.instead)
-    .sort((a, b) => (lastChangedAt(a) < lastChangedAt(b) ? 1 : -1))
-    .slice(0, 3)
-    .map((e) => e.habits!.instead!);
+  const insteadNotes = recentInsteadNotes(entries, today);
 
   return (
     <View style={styles.root}>

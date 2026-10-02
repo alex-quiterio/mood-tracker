@@ -1,3 +1,4 @@
+import { lastChangedAt } from '@domain/checkins/entries';
 import { Entry } from '@domain/checkins/types';
 import { average } from '@domain/shared/math';
 import { addDays, lastNDays } from '@domain/shared/dates';
@@ -60,6 +61,16 @@ export type HabitWeek = {
   moodWithNone: number | null;
   moodWithSome: number | null;
 };
+
+/** The latest "what you did instead" notes from the last 7 days, most recently written first. */
+export function recentInsteadNotes(entries: Entry[], today: string, count = 3): string[] {
+  const days = new Set(lastNDays(7, today));
+  return entries
+    .filter((e) => days.has(e.date) && e.habits?.instead)
+    .sort((a, b) => (lastChangedAt(a) < lastChangedAt(b) ? 1 : -1))
+    .slice(0, count)
+    .map((e) => e.habits!.instead!);
+}
 
 /** This week's view of each active habit, built to show what's going right. */
 export function habitWeek(entries: Entry[], habits: Habit[], today: string): HabitWeek[] {

@@ -18,6 +18,7 @@ import { localeFor, resolveLocale } from '@domain/settings/language';
 import { messages } from '@ui/i18n/messages';
 import { pt } from '@ui/i18n/locales/pt';
 import { formatSteps } from '@ui/i18n/signals';
+import { describeLoggedAt } from '@ui/i18n/loggedAt';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
 import { VOICE_IDS } from '@domain/voices/voices';
@@ -177,5 +178,27 @@ describe('the Claude prompt in Portuguese', () => {
     expect(prompt).toContain('Médias: manhã 2,0');
     expect(prompt.trim().endsWith('Responde em português de Portugal.')).toBe(true);
     expect(prompt).not.toContain('{signals}');
+  });
+});
+
+describe('when a check-in was logged', () => {
+  const logged: Entry = {
+    date: '2026-10-01',
+    slot: 'morning',
+    mood: 3,
+    recordedAt: '2026-10-01T09:12:00.000Z',
+  };
+
+  it('shows only the first record until it is edited', () => {
+    expect(describeLoggedAt(logged, 'UTC', 'en')).toBe('Logged Thursday, 1 October at 09:12');
+  });
+
+  it('adds the edit, with its date only when it is another day', () => {
+    expect(describeLoggedAt({ ...logged, updatedAt: '2026-10-01T14:30:00.000Z' }, 'UTC', 'en')).toBe(
+      'Logged Thursday, 1 October at 09:12 · edited at 14:30',
+    );
+    expect(describeLoggedAt({ ...logged, updatedAt: '2026-10-02T08:05:00.000Z' }, 'UTC', 'pt-PT')).toBe(
+      'Registado quinta-feira, 1 de outubro, às 09:12 · editado sexta-feira, 2 de outubro, às 08:05',
+    );
   });
 });

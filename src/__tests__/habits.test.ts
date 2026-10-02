@@ -27,6 +27,7 @@ import {
   describeLog,
   dosesByDay,
   habitWeek,
+  recentInsteadNotes,
   savings,
   savingsMilestone,
   totalSavings,
@@ -349,5 +350,26 @@ describe('urges', () => {
     expect(parseExport(serializeExport([], PRESET_HABITS, [a])).urges).toEqual([a]);
     const v2 = JSON.stringify({ format: 'mood-tracker-export', version: 2, exportedAt: '', entries: [] });
     expect(parseExport(v2).urges).toEqual([]);
+  });
+});
+
+describe('what you did instead', () => {
+  const instead = (date: string, slot: Entry['slot'], text: string, updatedAt?: string): Entry => ({
+    ...entry(date, slot, 3, { doses: {}, did: [], instead: text }),
+    ...(updatedAt ? { updatedAt } : {}),
+  });
+
+  it('shows the latest notes from this week, most recently written first', () => {
+    const notes = recentInsteadNotes(
+      [
+        instead('2026-09-20', 'morning', 'too old'),
+        instead('2026-09-30', 'morning', 'walked'),
+        instead('2026-10-01', 'morning', 'read'),
+        instead('2026-09-29', 'evening', 'called a friend', '2026-10-01T20:00:00.000Z'),
+        entry('2026-10-01', 'evening', 4),
+      ],
+      '2026-10-01',
+    );
+    expect(notes).toEqual(['called a friend', 'read', 'walked']);
   });
 });

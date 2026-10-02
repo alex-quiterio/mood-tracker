@@ -149,6 +149,25 @@ export type Messages = {
   history: {
     calendar: string;
   };
+  progress: {
+    title: string;
+    level: (n: number) => string;
+    toNext: (xp: string) => string;
+    total: (xp: string) => string;
+    levelUp: (title: string) => string;
+    a11y: (level: number, title: string, into: string, size: string) => string;
+    sources: {
+      checkIn: (n: number) => string;
+      note: (n: number) => string;
+      fullDay: (n: number) => string;
+      win: (n: number) => string;
+      urgePassed: (n: number) => string;
+      streakWeek: (n: number) => string;
+    };
+    path: string;
+    fromLevel: (n: number) => string;
+    hint: string;
+  };
   month: {
     title: string;
     hint: string;

@@ -16,6 +16,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Parece um momento pesado. Fazes três respirações lentas comigo?',
     breathDone: 'Pronto. Sê gentil contigo 🌿',
+    levels: [
+      'Principiante',
+      'Assíduo',
+      'Constante',
+      'Comprometido',
+      'Dedicado',
+      'Experiente',
+      'Devoto',
+      'Mestre',
+    ],
     claude: {
       intro: '',
       ask: 'Reflete sobre esta semana. Que padrões notas (hora do dia, dias da semana, {signals}o que está nas notas)? Depois sugere uma coisa pequena e concreta que eu possa experimentar na próxima semana. Sê breve e gentil.',
@@ -34,6 +44,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'A água turva clareia quando a deixam parada. Descansa aqui três respirações lentas?',
     breathDone: 'A água assenta sozinha 🌊',
+    levels: [
+      'Gota de chuva',
+      'Fio de água',
+      'Regato',
+      'Ribeiro',
+      'Rio',
+      'Espírito do vale',
+      'Bloco por talhar',
+      'Lago parado',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito do Tao Te Ching: com suavidade, sem julgar, preferindo ceder a forçar.',
@@ -54,6 +74,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     comfort:
       'Até um imperador teve dias difíceis, e escreveu para si próprio através deles. Paras três respirações lentas?',
     breathDone: 'Recomeça, as vezes que precisares 🌅',
+    levels: [
+      'Pupilo',
+      'Aprendiz',
+      'Estudante da natureza',
+      'Mente firme',
+      'Guardião de si',
+      'Cidadela',
+      'Filósofo',
+      'Imperador de si',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana como um mestre estoico, no espírito das Meditações de Marco Aurélio: calmo, honesto e gentil.',
@@ -74,6 +104,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     comfort:
       'Uma hora difícil pesa menos partilhada. Escreve-te como a um amigo, depois de três respirações lentas?',
     breathDone: 'Sê o amigo a quem escreverias ✉️',
+    levels: [
+      'Correspondente',
+      'Amigo',
+      'Aprendiz',
+      'Amigo constante',
+      'Porto calmo',
+      'Amigo sábio',
+      'Sábio em formação',
+      'Amigo para a vida',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana como Séneca faria numa das cartas a Lucílio: caloroso, prático e franco, como um velho amigo.',
@@ -93,6 +133,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Até este sentimento é um visitante. Ficas com ele três respirações lentas?',
     breathDone: 'Deixa o visitante descansar um pouco 🕯️',
+    levels: ['Hóspede', 'Viajante', 'Buscador', 'Amante', 'Dervixe', 'Chama', 'Flauta de cana', 'Oceano'],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito de Rumi: terno, de coração aberto, acolhendo cada sentimento como um hóspede.',
@@ -112,6 +153,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'O que procuras está mais perto do que a tua respiração. Três respirações lentas?',
     breathDone: 'Simples, e perto 🪔',
+    levels: [
+      'Ouvinte',
+      'Tecelão',
+      'Cantor',
+      'Coração simples',
+      'Porta aberta',
+      'Palavra certa',
+      'Pássaro em voo',
+      'Em plena flor',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito de Kabir: direto, caloroso e um pouco brincalhão, sem rodeios.',
@@ -131,6 +182,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'As ondas da mente sobem e descem. Observas três respirações lentas?',
     breathDone: 'Firme e à vontade 🧘',
+    levels: [
+      'Sentado',
+      'A respirar',
+      'Em prática',
+      'Firme',
+      'Concentrado',
+      'Absorto',
+      'Águas quietas',
+      'Vidente claro',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito dos Yoga Sutras de Patanjali: paciente e sem julgar, tratando cada humor como um movimento da mente a observar.',
@@ -150,6 +211,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Cuidar de ti não é um luxo. Três respirações lentas, só para ti?',
     breathDone: 'Mereces este cuidado 🕯️',
+    levels: [
+      'A sentir',
+      'A reparar',
+      'A nomear',
+      'A falar',
+      'Com chão',
+      'Com poder',
+      'Guerreira poeta',
+      'Plenamente viva',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito de Audre Lorde: direta, calorosa e sem desviar o olhar, tratando os meus sentimentos como fonte de conhecimento e o cuidado comigo como necessário, não como indulgência.',
@@ -169,6 +240,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Fazes parte de uma teia maior, mesmo agora. Três respirações lentas?',
     breathDone: 'Ligado, respiração a respiração 🌿',
+    levels: ['Nó', 'Fio', 'Padrão', 'Rede', 'Teia', 'Ecossistema', 'Sistema vivo', 'Todo'],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito de Fritjof Capra: como alguém que pensa em sistemas, vendo os meus humores como parte de uma teia de relações, ritmos e ciclos de feedback.',
@@ -188,6 +260,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Vem descansar um pouco. Três respirações lentas?',
     breathDone: 'A paz esteja contigo 🕊️',
+    levels: [
+      'Semente',
+      'Rebento',
+      'Candeia acesa',
+      'Sal da terra',
+      'Pastor',
+      'Boa terra',
+      'Luz no monte',
+      'Colheita plena',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito dos ensinamentos de Jesus nos Evangelhos: gentil, compassivo e esperançoso, sem sermões.',
@@ -207,6 +289,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Com a dificuldade vem a facilidade. Três respirações lentas?',
     breathDone: 'Que a paz esteja contigo 🌙',
+    levels: [
+      'Viajante',
+      'Paciente',
+      'Grato',
+      'Perseverante',
+      'Coração gentil',
+      'Mão generosa',
+      'Coração em paz',
+      'Lanterna',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito dos ensinamentos do Profeta Maomé sobre a paciência (sabr), a gratidão (shukr) e a misericórdia, com respeito e sem pretender falar por ele.',
@@ -226,6 +318,16 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Também isto passa. Três respirações atentas?',
     breathDone: 'Só esta respiração 🪷',
+    levels: [
+      'Rebento',
+      'Botão de lótus',
+      'Passo atento',
+      'Caminho do meio',
+      'Mão aberta',
+      'Mente quieta',
+      'Sombra da bodhi',
+      'Coração desperto',
+    ],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito dos ensinamentos do Buda no Dhammapada: calmo, claro e bondoso, reparando em como os pensamentos moldam os humores.',
@@ -245,6 +347,7 @@ export const voices: Record<VoiceId, VoiceText> = {
     },
     comfort: 'Até as tempestades passam por cima da montanha. Três respirações lentas?',
     breathDone: 'Quieto como a montanha 🏔️',
+    levels: ['Faísca', 'Sopro', 'Tambor', 'Ritmo', 'Bailarino', 'Terceiro olho', 'Quietude', 'Dança cósmica'],
     claude: {
       intro:
         'Reflete sobre a minha semana no espírito de Shiva, o iogue da quietude e a dança da mudança: calmo e profundo, honrando tanto os fins como os começos.',

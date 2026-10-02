@@ -70,17 +70,50 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
   };
 }
 
+/** How far one missed day must be from the last one to count as a rest day. */
+export const REST_DAY_EVERY = 7;
+
+export type StreakHistory = {
+  /** Days with a check-in in the current run; rest days aren't counted. */
+  current: number;
+  /** How many times any run reached a full week (7, 14, 21… days with a check-in). */
+  weeks: number;
+};
+
 /**
- * Consecutive days with at least one check-in, ending today. A day without a
- * check-in yet today doesn't break the streak until it's over.
+ * Streaks that forgive: one missed day a week is a rest day and keeps the run going,
+ * as long as the next day has a check-in. Two days missed in a row, or a second miss
+ * within a week, start over. Today isn't missed until it's over.
  */
-export function currentStreak(entries: Entry[], today: string): number {
+export function streakHistory(entries: Entry[], today: string): StreakHistory {
   const logged = new Set(entries.map((e) => e.date));
-  let day = logged.has(today) ? today : addDays(today, -1);
-  let streak = 0;
-  while (logged.has(day)) {
-    streak++;
-    day = addDays(day, -1);
+  const first = [...logged].sort()[0];
+  if (!first) return { current: 0, weeks: 0 };
+  let run = 0;
+  let weeks = 0;
+  let lastRest: string | null = null;
+  for (let day = first; day <= today; day = addDays(day, 1)) {
+    if (logged.has(day)) {
+      run++;
+      if (run % REST_DAY_EVERY === 0) weeks++;
+      continue;
+    }
+    if (day === today) continue;
+    const next = addDays(day, 1);
+    const canRest =
+      run > 0 &&
+      (logged.has(next) || next === today) &&
+      (lastRest === null || addDays(lastRest, REST_DAY_EVERY) <= day);
+    if (canRest) {
+      lastRest = day;
+    } else {
+      run = 0;
+      lastRest = null;
+    }
   }
-  return streak;
+  return { current: run, weeks };
 }
+
+/** Days with a check-in in the current streak, rest days forgiven. */
+export const currentStreak = (entries: Entry[], today: string): number =>
+  streakHistory(entries, today).current;

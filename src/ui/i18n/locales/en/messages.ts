@@ -128,6 +128,26 @@ export const messages: Omit<Messages, 'voices'> = {
   history: {
     calendar: 'Calendar',
   },
+  progress: {
+    title: 'Your progress',
+    level: (n) => `Level ${n}`,
+    toNext: (xp) => `${xp} XP to the next level`,
+    total: (xp) => `${xp} XP in total`,
+    levelUp: (title) => `Level up! You're now ${title} ✨`,
+    a11y: (level, title, into, size) =>
+      `Level ${level}, ${title}. ${into} of ${size} XP towards the next level.`,
+    sources: {
+      checkIn: (n) => (n === 1 ? '1 check-in' : `${n} check-ins`),
+      note: (n) => (n === 1 ? '1 note' : `${n} notes`),
+      fullDay: (n) => (n === 1 ? '1 full day' : `${n} full days`),
+      win: (n) => (n === 1 ? '1 habit win' : `${n} habit wins`),
+      urgePassed: (n) => (n === 1 ? '1 urge let pass' : `${n} urges let pass`),
+      streakWeek: (n) => (n === 1 ? '1 streak week' : `${n} streak weeks`),
+    },
+    path: 'The path',
+    fromLevel: (n) => `from level ${n}`,
+    hint: 'XP only goes up. Every check-in counts the same, whatever the mood. One missed day a week is a rest day and keeps your streak.',
+  },
   month: {
     title: 'Your month',
     hint: 'The last 30 days. Patterns appear once there are a few check-ins.',

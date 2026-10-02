@@ -21,6 +21,8 @@ export type Voice = {
   comfort: string;
   /** Last line of the breathing moment. */
   breathDone: string;
+  /** Level titles, lowest first: the voice's path. Each covers two levels. */
+  levels: string[];
   /** Claude prompt: who to reflect as, and what to ask for. */
   claude: { intro: string; ask: string };
 };
@@ -31,7 +33,15 @@ export type VoiceStyle = Pick<Voice, 'id' | 'moodEmoji' | 'burst'>;
 /** The words of a voice, provided by each locale (ui/i18n/locales); emojis, colours and quotes don't change. */
 export type VoiceText = Pick<
   Voice,
-  'name' | 'tagline' | 'moodLabels' | 'slotLabels' | 'notePrompts' | 'comfort' | 'breathDone' | 'claude'
+  | 'name'
+  | 'tagline'
+  | 'moodLabels'
+  | 'slotLabels'
+  | 'notePrompts'
+  | 'comfort'
+  | 'breathDone'
+  | 'levels'
+  | 'claude'
 >;
 
 /** A voice with the quotes it shows: the user's own, or the defaults. */

@@ -6,6 +6,8 @@ import { Button } from '@ui/components/Button';
 import { HabitsInPromptSwitch } from '@ui/components/HabitsInPromptSwitch';
 import { HistoryCalendar } from '@ui/components/HistoryCalendar';
 import { MonthReviewCard } from '@ui/habits/MonthReviewCard';
+import { ProgressCard } from '@ui/progress/ProgressCard';
+import { useProgress } from '@ui/progress/useProgress';
 import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { buildMonthlyPrompt } from '@ui/reflection/monthPrompt';
@@ -34,6 +36,7 @@ export function HistoryScreen({
   const voice = useVoice();
   const { m, locale } = useLocale();
   const month = monthReview(store.entries, habits, today);
+  const progress = useProgress(store.entries, store.urges, today);
 
   const reflectMonth = async () => {
     try {
@@ -48,6 +51,7 @@ export function HistoryScreen({
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <ProgressCard progress={progress} />
       <MonthReviewCard review={month} />
       <HabitsInPromptSwitch value={habitsInPrompt} onChange={onHabitsInPromptChange} />
       <Button title={m.month.reflect} onPress={reflectMonth} disabled={month.logged === 0} />

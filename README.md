@@ -14,6 +14,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Reflect with Claude**: shares a summary of the week to the Claude app. Habits are included only if you switch that on.
 - **Voices**: 13 voices (Lao Tzu, Marcus Aurelius, Rumi, Buddha…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day.
 - **Pause**: counted breathing, or a focus timer that ends with a bell.
+- **Home-screen widget**: a greeting, today's three check-ins as mood-coloured tiles, the week as dots and (when it's tall enough) the quote of the day, in your voice and theme. Tap a slot to check in, the week for stats, or Pause to breathe.
 - **Optional**: reminders, phone unlock counts (needs Usage access), and steps (needs Physical activity).
 - **App lock** (optional): fingerprint, face or phone PIN on opening and after a minute away. The app is hidden in recent apps while it's on.
 - **Backup**: choose a folder on the phone once, then "Back up now" saves a dated JSON file there, and the weekly automatic backup saves one when you open the app and the last is a week old. Old backups are kept. You can still export through the share sheet or import a file. Uninstalling deletes the app's data but not the folder.

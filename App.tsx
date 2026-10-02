@@ -19,6 +19,9 @@ import { LockScreen } from '@ui/components/LockScreen';
 import { NamePrompt } from '@ui/components/NamePrompt';
 import { useQuickCheckIn } from '@ui/hooks/useQuickCheckIn';
 import { useAutoBackup } from '@ui/hooks/useAutoBackup';
+import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/hooks/useHomeWidget';
+import { useVoice } from '@ui/theme/voiceContext';
+import { Slot } from '@domain/checkins/types';
 import { useAppLock } from '@ui/hooks/useAppLock';
 import { setScreenPrivacy } from '@infrastructure/security/screenPrivacy';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
@@ -99,15 +102,33 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     () => localizeHabits(settings.settings.habits, locale),
     [settings.settings.habits, locale],
   );
-  // A day picked in the calendar; the check-in screen opens on it.
-  const [checkInDay, setCheckInDay] = useState<{ date: string; key: number } | null>(null);
-  const editDay = (date: string) => {
-    setCheckInDay((d) => ({ date, key: (d?.key ?? 0) + 1 }));
+  // A day picked in the calendar, or a slot or pause tapped on the widget; the check-in screen opens on it.
+  const [checkInDay, setCheckInDay] = useState<{
+    date: string;
+    slot?: Slot;
+    pause?: boolean;
+    key: number;
+  } | null>(null);
+  const openCheckIn = (date: string, open: { slot?: Slot; pause?: boolean } = {}) => {
+    setCheckInDay((d) => ({ date, ...open, key: (d?.key ?? 0) + 1 }));
     setTab('checkin');
   };
+  const editDay = (date: string) => openCheckIn(date);
+  useWidgetLinks((target) => {
+    if (target.kind === 'stats') setTab('stats');
+    else openCheckIn(localDate(), target.kind === 'pause' ? { pause: true } : { slot: target.slot });
+  });
   // "Not now" hides the name prompt until the next launch.
   const [nameSkipped, setNameSkipped] = useState(false);
   const { name, remindersEnabled, reminderTimes } = settings.settings;
+  const voice = useVoice();
+  // With App lock on, the widget doesn't show who the phone belongs to.
+  const widgetName = settings.settings.appLock ? '' : name;
+  useHomeWidget(
+    store.loaded
+      ? homeWidgetState({ entries: store.entries, today, name: widgetName, m, locale, voice, palette: c })
+      : null,
+  );
 
   const saveName = async (next: string) => {
     await settings.update({ name: next });
@@ -158,6 +179,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 tracking={tracking}
                 name={name}
                 initialDate={checkInDay?.date}
+                initialSlot={checkInDay?.slot}
+                initialPause={checkInDay?.pause}
                 habits={habits}
               />
             )}

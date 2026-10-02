@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- The home-screen widget: today's three check-ins and a pause. -->
+    <receiver
+      android:name="expo.modules.homewidget.MoodWidgetProvider"
+      android:exported="true"
+      android:label="@string/mood_widget_label">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/mood_widget_info" />
+    </receiver>
+  </application>
+</manifest>

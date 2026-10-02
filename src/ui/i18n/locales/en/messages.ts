@@ -73,6 +73,7 @@ export const messages: Omit<Messages, 'voices'> = {
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
     dayA11y: (date: string, count: number) => `${date}: ${count} of 3 logged`,
+    dayTotal: (totals) => `Day total: ${totals}`,
     editDay: 'Edit this day',
     readOnly: (days: number) => `Read-only: older than ${days} days.`,
     hint: (months: number, days: number) =>

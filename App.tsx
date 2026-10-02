@@ -42,7 +42,7 @@ configureNotificationHandler();
 const TABS = [
   { key: 'checkin', icon: '✎' },
   { key: 'stats', icon: '▦' },
-  { key: 'history', icon: '◷' },
+  { key: 'history', icon: '↺' },
   { key: 'settings', icon: '⚙' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];

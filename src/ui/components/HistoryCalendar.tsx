@@ -11,12 +11,14 @@ import {
   isVisible,
   monthGrid,
   monthOf,
+  dayTotals,
   shiftMonth,
   summarizeDay,
 } from '@domain/checkins/calendar';
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@ui/i18n/describeSignals';
+import { formatSteps } from '@ui/i18n/signals';
 import { longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { describeSleep } from '@ui/i18n/sleep';
@@ -126,10 +128,20 @@ function DayDetail({
   const c = useColors();
   const voice = useVoice();
   const label = longDate(date, locale);
+  const totals = dayTotals(entries, date);
+  const totalParts = [
+    ...(totals.unlocks === null ? [] : [`📱 ${totals.unlocks} ${m.signals.unlocks(totals.unlocks)}`]),
+    ...(totals.steps === null
+      ? []
+      : [`👟 ${formatSteps(totals.steps, locale)} ${m.signals.steps(totals.steps)}`]),
+  ];
 
   return (
     <View style={styles.detail}>
       <Text style={styles.detailTitle}>{date === today ? m.common.today : label}</Text>
+      {totalParts.length > 0 && (
+        <Text style={styles.total}>{m.calendar.dayTotal(totalParts.join(' · '))}</Text>
+      )}
       {SLOTS.map((slot) => {
         const e = entries.find((x) => x.date === date && x.slot === slot);
         return (
@@ -223,6 +235,7 @@ const makeStyles = (c: Palette) =>
     badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
     note: { color: c.text },
     signal: { color: c.muted, fontSize: 12 },
+    total: { color: c.text, fontSize: 13, fontWeight: '600' },
     instead: { color: c.accent, fontSize: 12 },
     empty: { color: c.muted, paddingTop: spacing(1) },
     readOnly: { color: c.muted, fontSize: 13, textAlign: 'center' },

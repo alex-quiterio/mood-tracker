@@ -8,6 +8,7 @@ import {
   monthGrid,
   monthOf,
   shiftMonth,
+  dayTotals,
   summarizeDay,
 } from '@domain/checkins/calendar';
 import { Entry } from '@domain/checkins/types';
@@ -71,5 +72,30 @@ describe('day summary', () => {
     ];
     expect(summarizeDay(entries, today)).toEqual({ count: 3, average: 8 / 3, mood: 3 });
     expect(summarizeDay(entries, '2026-09-29')).toEqual({ count: 0, average: null, mood: null });
+  });
+});
+
+describe('dayTotals', () => {
+  const at = (slot: Entry['slot'], extra: Partial<Entry>): Entry => ({
+    date: '2026-10-02',
+    slot,
+    mood: 3,
+    recordedAt: '2026-10-02T09:00:00.000Z',
+    ...extra,
+  });
+
+  it('adds up unlocks and steps over the day', () => {
+    const entries = [
+      at('morning', { unlocks: 10, steps: 1200 }),
+      at('afternoon', { unlocks: 25 }),
+      at('evening', { unlocks: 7, steps: 4300 }),
+      { ...at('morning', { unlocks: 99, steps: 9999 }), date: '2026-10-01' },
+    ];
+    expect(dayTotals(entries, '2026-10-02')).toEqual({ unlocks: 42, steps: 5500 });
+  });
+
+  it('is null for a signal no check-in counted, and keeps a counted zero', () => {
+    expect(dayTotals([at('morning', {})], '2026-10-02')).toEqual({ unlocks: null, steps: null });
+    expect(dayTotals([at('morning', { steps: 0 })], '2026-10-02')).toEqual({ unlocks: null, steps: 0 });
   });
 });

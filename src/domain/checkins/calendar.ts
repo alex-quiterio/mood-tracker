@@ -62,3 +62,19 @@ export function summarizeDay(entries: Entry[], date: string): DaySummary {
   if (mean === null) return { count: 0, average: null, mood: null };
   return { count: moods.length, average: mean, mood: Math.min(5, Math.max(1, Math.round(mean))) as Mood };
 }
+
+export type DayTotals = { unlocks: number | null; steps: number | null };
+
+/**
+ * Unlocks and steps added up over a day's check-ins, or null when none of them
+ * counted that signal. Each check-in counts since the one before, so the morning's
+ * share starts the evening before.
+ */
+export function dayTotals(entries: Entry[], date: string): DayTotals {
+  const day = entries.filter((e) => e.date === date);
+  const total = (values: (number | undefined)[]) => {
+    const counted = values.filter((v): v is number => v !== undefined);
+    return counted.length === 0 ? null : counted.reduce((sum, v) => sum + v, 0);
+  };
+  return { unlocks: total(day.map((e) => e.unlocks)), steps: total(day.map((e) => e.steps)) };
+}

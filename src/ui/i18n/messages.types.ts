@@ -98,6 +98,7 @@ export type Messages = {
     previousMonth: string;
     nextMonth: string;
     dayA11y: (date: string, count: number) => string;
+    dayTotal: (totals: string) => string;
     editDay: string;
     readOnly: (days: number) => string;
     hint: (months: number, days: number) => string;

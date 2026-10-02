@@ -3,7 +3,8 @@ import { isValidDate } from '@domain/shared/dates';
 import { parseSleep } from './sleep';
 import { Entry, MOODS, Mood, SLOTS, Slot } from './types';
 
-export const NOTE_MAX_LENGTH = 280;
+/** Room for a few paragraphs. Was 280 up to 1.9.0; longer limits never cut older notes. */
+export const NOTE_MAX_LENGTH = 2000;
 
 export const entryKey = (date: string, slot: Slot) => `${date}|${slot}`;
 

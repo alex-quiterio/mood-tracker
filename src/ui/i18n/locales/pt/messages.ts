@@ -33,6 +33,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   checkin: {
     dayA11y: (date, count) => `${date}, ${count} de 3 registos`,
+    lockedA11y: (date) => `${date}, abre amanhã`,
     addNote: 'Acrescenta uma nota (opcional)',
     couldNotSave: 'Não foi possível guardar',
     removeTitle: 'Remover este registo?',

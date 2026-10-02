@@ -184,7 +184,11 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
               key={t.key}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
-              onPress={() => setTab(t.key)}
+              onPress={() => {
+                // A day opened from the calendar is for that visit; Check-in opens on today again.
+                if (t.key !== 'checkin') setCheckInDay(null);
+                setTab(t.key);
+              }}
               style={styles.tab}
             >
               <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>

@@ -7,7 +7,8 @@ import { QuoteCard } from '@ui/components/QuoteCard';
 import { Button } from '@ui/components/Button';
 import { Burst, MoodBurst, makeBurst } from '@ui/components/MoodBurst';
 import { LiveCount, LiveCounts } from '@ui/components/LiveCounts';
-import { dayOfMonth, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
+import { checkInDays, isLocked } from '@domain/checkins/calendar';
+import { dayOfMonth, localDate, slotForTime } from '@domain/shared/dates';
 import { weekdayShort } from '@ui/i18n/format';
 import { entryKey } from '@domain/checkins/entries';
 import { offersBreathing } from '@domain/checkins/moments';
@@ -41,7 +42,8 @@ type Props = {
 export function CheckInScreen({ store, tracking, name, initialDate, habits }: Props) {
   const styles = useThemedStyles(makeStyles);
   const today = localDate();
-  const days = lastNDays(7, today);
+  // Yesterday, today and a locked tomorrow, plus a day opened from the calendar.
+  const days = checkInDays(today, initialDate);
   const [date, setDate] = useState(initialDate && days.includes(initialDate) ? initialDate : today);
   const firstEmptySlot = (day: string) =>
     SLOTS.find((s) => !store.entries.some((e) => e.date === day && e.slot === s)) ?? 'morning';
@@ -138,23 +140,24 @@ export function CheckInScreen({ store, tracking, name, initialDate, habits }: Pr
         <View style={styles.dayStrip}>
           {days.map((d) => {
             const selected = d === date;
+            const locked = isLocked(d, today);
             const count = store.entries.filter((e) => e.date === d).length;
             return (
               <Pressable
                 key={d}
                 accessibilityRole="button"
-                accessibilityState={{ selected }}
-                accessibilityLabel={m.checkin.dayA11y(d, count)}
+                accessibilityState={{ selected, disabled: locked }}
+                accessibilityLabel={locked ? m.checkin.lockedA11y(d) : m.checkin.dayA11y(d, count)}
+                disabled={locked}
                 onPress={() => selectDate(d)}
-                style={[styles.day, selected && styles.daySelected]}
+                style={[styles.day, selected && styles.daySelected, locked && styles.dayLocked]}
               >
                 <Text style={[styles.dayName, selected && styles.daySelectedText]}>
                   {d === today ? m.common.today : weekdayShort(d, locale)}
                 </Text>
                 <Text style={[styles.dayNumber, selected && styles.daySelectedText]}>{dayOfMonth(d)}</Text>
                 <Text style={[styles.dayDots, selected && styles.daySelectedText]}>
-                  {'●'.repeat(count)}
-                  {'○'.repeat(3 - count)}
+                  {locked ? '🔒' : `${'●'.repeat(count)}${'○'.repeat(3 - count)}`}
                 </Text>
               </Pressable>
             );
@@ -228,6 +231,7 @@ const makeStyles = (c: Palette) =>
     },
     daySelected: { backgroundColor: c.accent, borderColor: c.accent },
     daySelectedText: { color: c.accentText },
+    dayLocked: { opacity: 0.5 },
     dayName: { fontSize: 11, color: c.muted },
     dayNumber: { fontSize: 17, fontWeight: '600', color: c.text },
     dayDots: { fontSize: 7, color: c.muted, letterSpacing: 1, marginTop: 2 },

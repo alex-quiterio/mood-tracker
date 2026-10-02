@@ -62,3 +62,15 @@ export function summarizeDay(entries: Entry[], date: string): DaySummary {
   if (mean === null) return { count: 0, average: null, mood: null };
   return { count: moods.length, average: mean, mood: Math.min(5, Math.max(1, Math.round(mean))) as Mood };
 }
+
+/**
+ * The days on the check-in screen: yesterday, today and tomorrow (shown locked).
+ * A day opened from the calendar joins them for that visit, if it can still be edited.
+ */
+export function checkInDays(today: string, opened?: string): string[] {
+  const days = [addDays(today, -1), today, addDays(today, 1)];
+  return opened && isEditable(opened, today) && !days.includes(opened) ? [opened, ...days] : days;
+}
+
+/** Days after today can't be checked in yet. */
+export const isLocked = (date: string, today: string) => date > today;

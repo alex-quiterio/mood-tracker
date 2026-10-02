@@ -2,8 +2,10 @@ import { describe, expect, it } from '@jest/globals';
 
 import {
   canShowMonth,
+  checkInDays,
   earliestDay,
   isEditable,
+  isLocked,
   isVisible,
   monthGrid,
   monthOf,
@@ -71,5 +73,24 @@ describe('day summary', () => {
     ];
     expect(summarizeDay(entries, today)).toEqual({ count: 3, average: 8 / 3, mood: 3 });
     expect(summarizeDay(entries, '2026-09-29')).toEqual({ count: 0, average: null, mood: null });
+  });
+});
+
+describe('check-in days', () => {
+  it('shows yesterday, today and a locked tomorrow', () => {
+    expect(checkInDays('2026-10-01')).toEqual(['2026-09-30', '2026-10-01', '2026-10-02']);
+    expect(isLocked('2026-10-02', '2026-10-01')).toBe(true);
+    expect(isLocked('2026-10-01', '2026-10-01')).toBe(false);
+  });
+
+  it('adds a day opened from the calendar while it can still be edited', () => {
+    expect(checkInDays('2026-10-01', '2026-09-27')).toEqual([
+      '2026-09-27',
+      '2026-09-30',
+      '2026-10-01',
+      '2026-10-02',
+    ]);
+    expect(checkInDays('2026-10-01', '2026-09-30')).toHaveLength(3);
+    expect(checkInDays('2026-10-01', '2026-09-01')).toHaveLength(3);
   });
 });

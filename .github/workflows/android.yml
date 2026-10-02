@@ -1,13 +1,15 @@
 name: Android APK
 
 # Pushes and PRs only run the checks. The APK is built when a GitHub release is
-# published, and attached to it.
+# published, and attached to it. "Run workflow" (any branch) builds a test APK and
+# keeps it as a workflow artifact, without a release.
 on:
   push:
     branches: [main]
   pull_request:
   release:
     types: [published]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,13 +35,14 @@ jobs:
 
   build:
     needs: check
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
       # Fail fast, before the long build, if the tag and app.json disagree.
       - name: Check tag matches app version
+        if: github.event_name == 'release'
         run: |
           VERSION="$(node -p 'require("./app.json").expo.version')"
           if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
@@ -83,9 +86,17 @@ jobs:
           rm "$RUNNER_TEMP/release.jks"
 
       - name: Attach to release
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           APK="mood-tracker-${GITHUB_REF_NAME#v}.apk"
           mv android/app/build/outputs/apk/release/app-release.apk "$APK"
           gh release upload "$GITHUB_REF_NAME" "$APK" --clobber
+
+      - name: Keep the test APK
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mood-tracker-${{ github.sha }}
+          path: android/app/build/outputs/apk/release/app-release.apk

@@ -8,18 +8,27 @@ type HomeWidgetNative = {
 // Optional: the module is missing in Expo Go, on iOS and web, and in tests.
 const native = requireOptionalNativeModule<HomeWidgetNative>('HomeWidget');
 
-/** What the widget draws. Words arrive translated; links are opened in the app when tapped. */
+/**
+ * What the widget draws. Words arrive translated; links are opened in the app when tapped.
+ * Colours are #RRGGBB. Days and quotes include tomorrow's, so the widget moves on at midnight.
+ */
 export type HomeWidgetState = {
-  /** Local date the moods belong to; after midnight the widget shows empty slots. */
+  /** Local date the slots belong to; after midnight the widget shows them empty. */
   date: string;
-  title: string;
+  /** Morning, afternoon and evening greetings; the widget picks one by the clock. */
+  greetings: string[];
   pause: string;
   pauseLink: string;
   /** Shown in a slot with no check-in yet. */
   empty: string;
-  colors: { surface: string; text: string; muted: string; accent: string };
-  /** Morning, afternoon, evening. `emoji` is empty when the slot has no check-in. */
-  slots: { label: string; emoji: string; a11y: string; link: string }[];
+  colors: { surface: string; text: string; muted: string; accent: string; empty: string; onMood: string };
+  /** Morning, afternoon, evening. `emoji` and `color` are empty when the slot has no check-in. */
+  slots: { label: string; emoji: string; color: string; a11yDone: string; a11yEmpty: string; link: string }[];
+  /** The 7 days ending on `date`, then tomorrow. `color` is the day's average mood, or empty. */
+  week: { date: string; initial: string; color: string }[];
+  weekLink: string;
+  /** The quote of the day for `date` and for tomorrow. */
+  quotes: { date: string; text: string; source: string }[];
 };
 
 /** The Android home-screen widget. Every call is safe when the native module is missing. */

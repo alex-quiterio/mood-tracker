@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 3×2 cells. The app refreshes it on every check-in; the 30-minute update clears yesterday after midnight. -->
+<!--
+  4×2 by default: tiles and the week. Taller adds the quote; shorter keeps only the tiles.
+  The app redraws it on every change; the 30-minute update moves the greeting, the day
+  and the quote along when the app isn't opened.
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
   android:description="@string/mood_widget_description"
   android:initialLayout="@layout/mood_widget"
-  android:minWidth="180dp"
+  android:minWidth="250dp"
   android:minHeight="110dp"
+  android:minResizeWidth="180dp"
+  android:minResizeHeight="110dp"
   android:previewLayout="@layout/mood_widget"
   android:resizeMode="horizontal|vertical"
-  android:targetCellWidth="3"
+  android:targetCellWidth="4"
   android:targetCellHeight="2"
   android:updatePeriodMillis="1800000"
   android:widgetCategory="home_screen" />

@@ -245,7 +245,6 @@ export const messages: Omit<Messages, 'voices'> = {
     shareDialog: 'Guardar os teus dados',
   },
   widget: {
-    title: 'Hoje',
     pause: 'Pausa',
     slotEmpty: (slot) => `${slot}: fazer registo`,
     slotDone: (slot, mood) => `${slot}: ${mood}. Toca para mudar.`,

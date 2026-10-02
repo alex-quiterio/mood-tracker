@@ -248,7 +248,6 @@ export const messages: Omit<Messages, 'voices'> = {
     shareDialog: 'Save your mood data',
   },
   widget: {
-    title: 'Today',
     pause: 'Pause',
     slotEmpty: (slot) => `${slot}: check in`,
     slotDone: (slot, mood) => `${slot}: ${mood}. Tap to change.`,

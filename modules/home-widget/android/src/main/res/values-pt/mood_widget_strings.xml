@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="mood_widget_label">Humor de hoje</string>
-  <string name="mood_widget_description">Os três registos de hoje e uma pausa num toque.</string>
+  <string name="mood_widget_description">Os registos de hoje, a tua semana, uma citação e uma pausa num toque.</string>
   <string name="mood_widget_today">Hoje</string>
   <string name="mood_widget_pause">Pausa</string>
   <string name="mood_widget_morning">Manhã</string>

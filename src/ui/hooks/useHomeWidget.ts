@@ -2,37 +2,77 @@ import { useEffect, useRef } from 'react';
 import { Linking } from 'react-native';
 
 import { HomeWidgetState, homeWidget } from '@modules/home-widget';
+import { summarizeDay } from '@domain/checkins/calendar';
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { WidgetTarget, moodsOn, parseWidgetLink, widgetLink } from '@domain/checkins/widget';
+import { Locale } from '@domain/settings/language';
+import { addDays, lastNDays, parseLocalDate } from '@domain/shared/dates';
+import { quoteOfTheDay } from '@domain/voices/voices';
+import { weekdayInitials } from '@ui/i18n/format';
+import { greetingFor, greetingText } from '@ui/i18n/greetings';
 import { Messages } from '@ui/i18n/messages';
 import { Palette } from '@ui/theme/theme';
-import { Voice } from '@ui/voices/voices';
+import { ActiveVoice } from '@ui/voices/voices';
 
-/** What the widget shows for a day: each slot's mood emoji in the current voice, words and colours. */
-export function homeWidgetState(
-  entries: Entry[],
-  date: string,
-  m: Messages,
-  voice: Pick<Voice, 'moodEmoji' | 'moodLabels' | 'slotLabels'>,
-  palette: Pick<Palette, 'surface' | 'text' | 'muted' | 'accent'>,
-): HomeWidgetState {
-  const moods = moodsOn(entries, date);
+type WidgetInput = {
+  entries: Entry[];
+  today: string;
+  name: string;
+  m: Messages;
+  locale: Locale;
+  voice: Pick<ActiveVoice, 'moodEmoji' | 'moodLabels' | 'slotLabels' | 'quotes'>;
+  palette: Pick<Palette, 'surface' | 'background' | 'text' | 'muted' | 'accent' | 'onMood' | 'moodColors'>;
+};
+
+/** What the widget shows: today's check-ins in the current voice, the week, the quote, words and colours. */
+export function homeWidgetState({
+  entries,
+  today,
+  name,
+  m,
+  locale,
+  voice,
+  palette,
+}: WidgetInput): HomeWidgetState {
+  const moods = moodsOn(entries, today);
+  const tomorrow = addDays(today, 1);
+  const initials = weekdayInitials(locale);
   return {
-    date,
-    title: m.widget.title,
+    date: today,
+    greetings: SLOTS.map((slot) => `${greetingFor(slot, locale).emoji} ${greetingText(slot, name, locale)}`),
     pause: m.widget.pause,
     pauseLink: widgetLink({ kind: 'pause' }),
     empty: '○',
-    colors: { surface: palette.surface, text: palette.text, muted: palette.muted, accent: palette.accent },
+    colors: {
+      surface: palette.surface,
+      text: palette.text,
+      muted: palette.muted,
+      accent: palette.accent,
+      empty: palette.background,
+      onMood: palette.onMood,
+    },
     slots: SLOTS.map((slot) => {
       const mood = moods[slot];
       const label = voice.slotLabels[slot];
       return {
         label,
         emoji: mood ? voice.moodEmoji[mood] : '',
-        a11y: mood ? m.widget.slotDone(label, voice.moodLabels[mood]) : m.widget.slotEmpty(label),
+        color: mood ? palette.moodColors[mood] : '',
+        a11yDone: mood ? m.widget.slotDone(label, voice.moodLabels[mood]) : '',
+        a11yEmpty: m.widget.slotEmpty(label),
         link: widgetLink({ kind: 'checkin', slot }),
       };
+    }),
+    week: [...lastNDays(7, today), tomorrow].map((date) => {
+      const { mood } = summarizeDay(entries, date);
+      // Initials start on Monday.
+      const initial = initials[(parseLocalDate(date).getDay() + 6) % 7];
+      return { date, initial, color: mood ? palette.moodColors[mood] : '' };
+    }),
+    weekLink: widgetLink({ kind: 'stats' }),
+    quotes: [today, tomorrow].flatMap((date) => {
+      const quote = quoteOfTheDay(voice.quotes, date);
+      return quote ? [{ date, text: quote.text, source: quote.source ?? '' }] : [];
     }),
   };
 }

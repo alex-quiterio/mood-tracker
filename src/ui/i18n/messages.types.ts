@@ -277,7 +277,6 @@ export type Messages = {
     shareDialog: string;
   };
   widget: {
-    title: string;
     pause: string;
     slotEmpty: (slot: string) => string;
     slotDone: (slot: string, mood: string) => string;

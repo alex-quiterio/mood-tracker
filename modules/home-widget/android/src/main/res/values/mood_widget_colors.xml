@@ -4,5 +4,6 @@
   <color name="mood_widget_surface">#FFFFFF</color>
   <color name="mood_widget_text">#24202A</color>
   <color name="mood_widget_muted">#6A6371</color>
+  <color name="mood_widget_empty">#F4F1EC</color>
   <color name="mood_widget_accent">#66234F</color>
 </resources>

@@ -114,14 +114,19 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     setTab('checkin');
   };
   const editDay = (date: string) => openCheckIn(date);
-  useWidgetLinks((target) =>
-    openCheckIn(localDate(), target.kind === 'pause' ? { pause: true } : { slot: target.slot }),
-  );
-  const voice = useVoice();
-  useHomeWidget(store.loaded ? homeWidgetState(store.entries, today, m, voice, c) : null);
+  useWidgetLinks((target) => {
+    if (target.kind === 'stats') setTab('stats');
+    else openCheckIn(localDate(), target.kind === 'pause' ? { pause: true } : { slot: target.slot });
+  });
   // "Not now" hides the name prompt until the next launch.
   const [nameSkipped, setNameSkipped] = useState(false);
   const { name, remindersEnabled, reminderTimes } = settings.settings;
+  const voice = useVoice();
+  useHomeWidget(
+    store.loaded
+      ? homeWidgetState({ entries: store.entries, today, name, m, locale, voice, palette: c })
+      : null,
+  );
 
   const saveName = async (next: string) => {
     await settings.update({ name: next });

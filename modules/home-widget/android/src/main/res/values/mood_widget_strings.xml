@@ -2,7 +2,7 @@
 <!-- Shown in the widget picker and until the app first opens; after that the app sends its own text. -->
 <resources>
   <string name="mood_widget_label">Mood today</string>
-  <string name="mood_widget_description">Today\'s three check-ins and a one-tap pause.</string>
+  <string name="mood_widget_description">Today\'s check-ins, your week, a quote and a one-tap pause.</string>
   <string name="mood_widget_today">Today</string>
   <string name="mood_widget_pause">Pause</string>
   <string name="mood_widget_morning">Morning</string>

@@ -84,7 +84,6 @@ describe('the Portuguese catalogue', () => {
     'practice.minutesOption',
     'streak',
     'prompt.answerIn',
-    'checkin.dayA11y',
     'stats.cellA11y',
   ]);
 

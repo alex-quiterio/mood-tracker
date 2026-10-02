@@ -4,6 +4,7 @@ import { monthReview } from '@domain/checkins/monthly';
 import { Habit } from '@domain/habits/habits';
 import { Button } from '@ui/components/Button';
 import { HabitsInPromptSwitch } from '@ui/components/HabitsInPromptSwitch';
+import { Tracking } from '@ui/checkin/SlotCard';
 import { HistoryCalendar } from '@ui/components/HistoryCalendar';
 import { MonthReviewCard } from '@ui/habits/MonthReviewCard';
 import { ProgressCard } from '@ui/progress/ProgressCard';
@@ -17,17 +18,17 @@ import { useVoice } from '@ui/theme/voiceContext';
 type Props = {
   store: EntriesStore;
   today: string;
-  onEditDay: (date: string) => void;
+  tracking: Tracking;
   habits: Habit[];
   habitsInPrompt: boolean;
   onHabitsInPromptChange: (include: boolean) => void;
 };
 
-/** The longer view: the last 30 days with a reflection for Claude, and six months of calendar. */
+/** The longer view: the last 30 days with a reflection for Claude, and six months of calendar (the last week editable). */
 export function HistoryScreen({
   store,
   today,
-  onEditDay,
+  tracking,
   habits,
   habitsInPrompt,
   onHabitsInPromptChange,
@@ -58,7 +59,7 @@ export function HistoryScreen({
       <Text style={styles.hint}>{m.month.reflectHint}</Text>
 
       <Text style={styles.sectionTitle}>{m.history.calendar}</Text>
-      <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} habits={habits} />
+      <HistoryCalendar store={store} tracking={tracking} today={today} habits={habits} />
     </ScrollView>
   );
 }

@@ -57,8 +57,8 @@ export type Messages = {
     settingsTitle: string;
   };
   checkin: {
-    dayA11y: (date: string, count: number) => string;
-    lockedA11y: (date: string) => string;
+    /** When a check-in was saved: a long date and an HH:MM time. */
+    loggedAt: (date: string, time: string) => string;
     addNote: string;
     couldNotSave: string;
     removeTitle: string;
@@ -101,6 +101,7 @@ export type Messages = {
     dayA11y: (date: string, count: number) => string;
     dayTotal: (totals: string) => string;
     editDay: string;
+    doneEditing: string;
     readOnly: (days: number) => string;
     hint: (months: number, days: number) => string;
   };
@@ -288,6 +289,9 @@ export type Messages = {
       en: string;
       'pt-PT': string;
     };
+    timeZone: string;
+    timeZoneAuto: (zone: string) => string;
+    timeZoneHint: string;
     data: string;
     dataBody: (n: number) => string;
     export: string;

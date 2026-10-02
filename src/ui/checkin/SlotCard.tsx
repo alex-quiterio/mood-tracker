@@ -13,7 +13,7 @@ import { withUnlocks } from '@infrastructure/signals/unlocks';
 import { Button } from '@ui/components/Button';
 import { Card } from '@ui/components/Card';
 import { MoodPicker } from '@ui/components/MoodPicker';
-import { formatInteger } from '@ui/i18n/format';
+import { formatInteger, formatMoment } from '@ui/i18n/format';
 import { describeSleep } from '@ui/i18n/sleep';
 import { SleepLogger } from './SleepLogger';
 import { HabitLogger } from '@ui/habits/HabitLogger';
@@ -55,7 +55,11 @@ export function SlotCard({
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const voice = useVoice();
-  const { m, locale } = useLocale();
+  const { m, locale, timeZone } = useLocale();
+  const logged = entry ? formatMoment(new Date(entry.recordedAt), timeZone, locale) : null;
+  const loggedLine = logged ? (
+    <Text style={styles.loggedAt}>{m.checkin.loggedAt(logged.date, logged.time)}</Text>
+  ) : null;
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
   const floors = urgeFloors(store.urges, date, slot);
@@ -111,6 +115,7 @@ export function SlotCard({
             <Text style={styles.muted}>{m.common.notLogged}</Text>
           )}
         </View>
+        {loggedLine}
         {entry?.note ? (
           <Text style={styles.notePreview} numberOfLines={2}>
             {entry.note}
@@ -136,6 +141,7 @@ export function SlotCard({
         <Text style={styles.slotTitle}>{voice.slotLabels[slot]}</Text>
         {mood !== null && <Text style={styles.muted}>{voice.moodLabels[mood]}</Text>}
       </View>
+      {loggedLine}
       <MoodPicker value={mood} onChange={setMood} />
       <TextInput
         style={styles.noteInput}
@@ -204,6 +210,7 @@ const makeStyles = (c: Palette) =>
     badgeText: { color: c.onMood },
     badge: { paddingHorizontal: spacing(3), paddingVertical: spacing(1), borderRadius: 999 },
     notePreview: { color: c.muted },
+    loggedAt: { color: c.muted, fontSize: 12, marginTop: -spacing(2) },
     unlocks: { color: c.muted, fontSize: 13 },
     instead: { color: c.accent, fontSize: 13 },
     noteInput: {

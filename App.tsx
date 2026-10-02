@@ -1,14 +1,18 @@
-import { useLocales } from 'expo-localization';
+import { useCalendars, useLocales } from 'expo-localization';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   AppState,
   KeyboardAvoidingView,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
@@ -34,6 +38,7 @@ import { Palette, ThemeContext, paletteFor, spacing, useColors, useThemedStyles 
 import { EntriesStore, useEntries } from '@ui/hooks/useEntries';
 import { SettingsStore, useSettings } from '@ui/hooks/useSettings';
 import { localeFor } from '@domain/settings/language';
+import { timeZoneFor } from '@domain/settings/timeZone';
 import { voiceForDay } from '@domain/voices/rotation';
 import { messages } from '@ui/i18n/messages';
 import { localizeHabits } from '@ui/i18n/habits';
@@ -73,7 +78,10 @@ export default function App() {
   // Follows the phone's language live (useLocales re-renders when it changes).
   const deviceTag = useLocales()[0]?.languageTag;
   const locale = localeFor(language, deviceTag);
-  const localeValue = useMemo(() => ({ locale, m: messages(locale) }), [locale]);
+  // Check-in times show in the phone's zone (following it when you travel) or a fixed one.
+  const deviceZone = useCalendars()[0]?.timeZone;
+  const timeZone = timeZoneFor(settings.settings.timeZone, deviceZone);
+  const localeValue = useMemo(() => ({ locale, m: messages(locale), timeZone }), [locale, timeZone]);
   const voice = useMemo(() => activeVoice(voiceId, customQuotes, locale), [voiceId, customQuotes, locale]);
   const { theme } = settings.settings;
   const palette = useMemo(() => paletteFor(theme, voiceId), [theme, voiceId]);
@@ -101,6 +109,19 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   useQuickCheckIn(store);
   useAutoBackup(store, settings, today);
   const [tab, setTab] = useState<TabKey>('checkin');
+  // The tabs sit side by side in a pager: swipe between them, or tap one in the tab bar.
+  const { width } = useWindowDimensions();
+  const pager = useRef<ScrollView>(null);
+  const tabIndex = TABS.findIndex((t) => t.key === tab);
+  const showTab = (key: TabKey) => {
+    setTab(key);
+    pager.current?.scrollTo({ x: TABS.findIndex((t) => t.key === key) * width, animated: true });
+  };
+  const onSwiped = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / width);
+    const swipedTo = TABS[Math.min(TABS.length - 1, Math.max(0, index))].key;
+    if (swipedTo !== tab) setTab(swipedTo);
+  };
   const { m, locale } = useLocale();
   const lock = useAppLock(settings.settings.appLock, { prompt: m.lock.prompt, cancel: m.common.cancel });
   // Untouched preset habits show in the app's language.
@@ -108,21 +129,15 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     () => localizeHabits(settings.settings.habits, locale),
     [settings.settings.habits, locale],
   );
-  // A day picked in the calendar, or a slot or pause tapped on the widget; the check-in screen opens on it.
-  const [checkInDay, setCheckInDay] = useState<{
-    date: string;
-    slot?: Slot;
-    pause?: boolean;
-    key: number;
-  } | null>(null);
-  const openCheckIn = (date: string, open: { slot?: Slot; pause?: boolean } = {}) => {
-    setCheckInDay((d) => ({ date, ...open, key: (d?.key ?? 0) + 1 }));
-    setTab('checkin');
+  // A slot or pause tapped on the widget; the check-in screen opens on it.
+  const [checkInOpen, setCheckInOpen] = useState<{ slot?: Slot; pause?: boolean; key: number } | null>(null);
+  const openCheckIn = (open: { slot?: Slot; pause?: boolean } = {}) => {
+    setCheckInOpen((o) => ({ ...open, key: (o?.key ?? 0) + 1 }));
+    showTab('checkin');
   };
-  const editDay = (date: string) => openCheckIn(date);
   useWidgetLinks((target) => {
-    if (target.kind === 'stats') setTab('stats');
-    else openCheckIn(localDate(), target.kind === 'pause' ? { pause: true } : { slot: target.slot });
+    if (target.kind === 'stats') showTab('stats');
+    else openCheckIn(target.kind === 'pause' ? { pause: true } : { slot: target.slot });
   });
   // "Not now" hides the name prompt until the next launch.
   const [nameSkipped, setNameSkipped] = useState(false);
@@ -177,20 +192,29 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
           <ActivityIndicator style={styles.content} color={c.accent} />
         ) : (
           // Keyed on the date so screens reset to "today" after midnight.
-          <View key={today} style={styles.content}>
-            {tab === 'checkin' && (
+          <ScrollView
+            key={today}
+            ref={pager}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentOffset={{ x: tabIndex * width, y: 0 }}
+            onMomentumScrollEnd={onSwiped}
+            style={styles.content}
+          >
+            <View style={[styles.page, { width }]}>
               <CheckInScreen
-                key={checkInDay?.key ?? 0}
+                key={checkInOpen?.key ?? 0}
                 store={store}
                 tracking={tracking}
                 name={name}
-                initialDate={checkInDay?.date}
-                initialSlot={checkInDay?.slot}
-                initialPause={checkInDay?.pause}
+                initialSlot={checkInOpen?.slot}
+                initialPause={checkInOpen?.pause}
                 habits={habits}
               />
-            )}
-            {tab === 'stats' && (
+            </View>
+            <View style={[styles.page, { width }]}>
               <StatsScreen
                 store={store}
                 today={today}
@@ -199,19 +223,21 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 showSpending={settings.settings.showSpending}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
-            )}
-            {tab === 'history' && (
+            </View>
+            <View style={[styles.page, { width }]}>
               <HistoryScreen
                 store={store}
                 today={today}
-                onEditDay={editDay}
+                tracking={tracking}
                 habits={habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
-            )}
-            {tab === 'settings' && <SettingsScreen store={store} settings={settings} />}
-          </View>
+            </View>
+            <View style={[styles.page, { width }]}>
+              <SettingsScreen store={store} settings={settings} />
+            </View>
+          </ScrollView>
         )}
       </KeyboardAvoidingView>
       <View style={styles.tabBar}>
@@ -222,11 +248,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
               key={t.key}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
-              onPress={() => {
-                // A day opened from the calendar is for that visit; Check-in opens on today again.
-                if (t.key !== 'checkin') setCheckInDay(null);
-                setTab(t.key);
-              }}
+              onPress={() => showTab(t.key)}
               style={styles.tab}
             >
               <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
@@ -252,6 +274,7 @@ const makeStyles = (c: Palette) =>
       ...c.heading,
     },
     content: { flex: 1 },
+    page: { flex: 1 },
     tabBar: {
       flexDirection: 'row',
       borderTopWidth: 1,

@@ -6,13 +6,15 @@ A personal Android app for logging your mood three times a day, growing good hab
 
 ## Features
 
-- **Check-ins**: morning, afternoon and evening; mood 1–5 plus a note. The last 7 days are editable.
+- **Check-ins**: morning, afternoon and evening; mood 1–5 plus a note, each showing the date and time it was logged. The Check-in tab is for today; the last 7 days can be edited from the History calendar.
 - **Sleep**: the morning check-in asks how you slept and for how long (in half hours). It's always part of the Claude reflection.
 - **Habits**: doses of what you want less of (🚬 🌿 🍺, "≈ roughly" for estimates), good habits to tick (💧 🚶 🤝 🛠️), and what you did instead.
 - **Balance and savings**: light vs heavy points per week, and money kept compared with your usual amount (Dutch prices by default).
 - **This week**: weekly table and averages, habits, and a reflection prompt for Claude.
 - **Levels**: XP for check-ins, notes, full days, habit wins, urges let pass and streak weeks. Level titles follow your voice (Lao Tzu: raindrop → still lake). XP only goes up, a low day counts as much as a good one, and one missed day a week is a rest day that keeps your streak.
 - **History**: your month (patterns from the last 30 days, with a "Reflect on my month" prompt) and a 6-month calendar.
+- **Swipe between tabs**: Check-in, This week, History and Settings sit side by side; swipe left or right, or tap the tab bar.
+- **Time zone**: check-in times are shown in the phone's time zone (automatic, follows you when you travel) or a fixed one you pick in Settings.
 - **Reflect with Claude**: shares a summary of the week to the Claude app. Habits are included only if you switch that on.
 - **Voices**: 15 voices (Lao Tzu, Marcus Aurelius, Rumi, Alberto Caeiro, Thich Nhat Hanh…) change the wording, emojis, colours and Claude prompt, and show a sourced quote of the day. They can also take turns, changing every day or every week among the voices you pick.
 - **Pause**: counted breathing, or a focus timer that ends with a bell.

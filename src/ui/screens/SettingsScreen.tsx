@@ -1,7 +1,9 @@
 import Constants from 'expo-constants';
+import { useCalendars } from 'expo-localization';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { LANGUAGE_SETTINGS } from '@domain/settings/language';
+import { TIME_ZONES } from '@domain/settings/timeZone';
 import { Card } from '@ui/components/Card';
 import { Chip } from '@ui/components/Chip';
 import { EntriesStore } from '@ui/hooks/useEntries';
@@ -28,6 +30,7 @@ export function SettingsScreen({ store, settings }: Props) {
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <NameSettings settings={settings} />
       <LanguageSettings settings={settings} />
+      <TimeZoneSettings settings={settings} />
       <ThemeSettings settings={settings} />
       <VoiceSettings settings={settings} />
       <HabitSettings settings={settings} />
@@ -59,6 +62,37 @@ function LanguageSettings({ settings }: { settings: SettingsStore }) {
             label={m.settings.languages[option]}
             selected={option === settings.settings.language}
             onPress={() => settings.update({ language: option })}
+          />
+        ))}
+      </View>
+    </Card>
+  );
+}
+
+/** Automatic follows the phone's zone (and changes when you travel); or pick a fixed one. */
+function TimeZoneSettings({ settings }: { settings: SettingsStore }) {
+  const styles = useThemedStyles(makeStyles);
+  const { m } = useLocale();
+  const deviceZone = useCalendars()[0]?.timeZone ?? '–';
+  const chosen = settings.settings.timeZone;
+  const zones = chosen === 'system' || TIME_ZONES.includes(chosen) ? TIME_ZONES : [chosen, ...TIME_ZONES];
+  const label = (zone: string) => zone.replace(/_/g, ' ');
+  return (
+    <Card>
+      <Text style={styles.title}>{m.settings.timeZone}</Text>
+      <Text style={styles.hint}>{m.settings.timeZoneHint}</Text>
+      <View style={styles.chips} accessibilityRole="radiogroup">
+        <Chip
+          label={m.settings.timeZoneAuto(label(deviceZone))}
+          selected={chosen === 'system'}
+          onPress={() => settings.update({ timeZone: 'system' })}
+        />
+        {zones.map((zone) => (
+          <Chip
+            key={zone}
+            label={label(zone)}
+            selected={zone === chosen}
+            onPress={() => settings.update({ timeZone: zone })}
           />
         ))}
       </View>
@@ -108,6 +142,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
     title: { fontSize: 18, fontWeight: '600', color: c.text },
+    hint: { color: c.muted, fontSize: 13 },
     version: { color: c.muted, fontSize: 12, textAlign: 'center', marginBottom: spacing(2) },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     themeRow: { flexDirection: 'row', gap: spacing(2) },

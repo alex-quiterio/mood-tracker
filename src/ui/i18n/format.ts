@@ -1,6 +1,7 @@
 import { parseLocalDate } from '@domain/shared/dates';
 
 import { Locale } from '@domain/settings/language';
+import { wallClock } from '@domain/settings/timeZone';
 
 /**
  * Locale-aware formatting without relying on the JS engine's Intl data, which
@@ -106,3 +107,9 @@ export const formatAverage = (value: number | null, locale: Locale = 'en') =>
 /** Hours of sleep: 8 → "8", 7.5 → "7.5" · "7,5". */
 export const formatHours = (hours: number, locale: Locale = 'en') =>
   Number.isInteger(hours) ? String(hours) : formatDecimal(hours, 1, locale);
+
+/** When an instant happened, in a time zone: "Friday, 2 October", "08:14". */
+export function formatMoment(instant: Date, timeZone: string | null, locale: Locale) {
+  const { date, time } = wallClock(instant, timeZone);
+  return { date: longDate(date, locale), time };
+}

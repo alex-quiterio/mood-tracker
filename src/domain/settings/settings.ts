@@ -1,6 +1,7 @@
 import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
 import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
 import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
+import { TimeZoneSetting, parseTimeZone } from '@domain/settings/timeZone';
 import { isValidDate } from '@domain/shared/dates';
 import { DEFAULT_ROTATION_VOICES, VOICE_ROTATIONS, VoiceRotation } from '@domain/voices/rotation';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
@@ -38,6 +39,8 @@ export type Settings = {
   showSpending: boolean;
   /** Follow the phone's language, or a fixed one. */
   language: LanguageSetting;
+  /** Shows check-in times in the phone's time zone, or a fixed one. */
+  timeZone: TimeZoneSetting;
   /** Ask for the phone's fingerprint, face or PIN when opening the app. */
   appLock: boolean;
   /** The folder backups are written to (an Android content:// URI), empty until one is chosen. */
@@ -63,6 +66,7 @@ export const DEFAULT_SETTINGS: Settings = {
   habitsInPrompt: false,
   showSpending: false,
   language: 'system',
+  timeZone: 'system',
   appLock: false,
   backupFolder: '',
   autoBackup: false,
@@ -91,6 +95,7 @@ export function parseSettings(value: unknown): Settings {
     language: LANGUAGE_SETTINGS.includes(stored.language as LanguageSetting)
       ? (stored.language as LanguageSetting)
       : DEFAULT_SETTINGS.language,
+    timeZone: parseTimeZone(stored.timeZone),
     appLock: stored.appLock === true,
     backupFolder: typeof stored.backupFolder === 'string' ? stored.backupFolder : '',
     autoBackup: stored.autoBackup === true,

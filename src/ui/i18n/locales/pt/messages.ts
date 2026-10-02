@@ -32,8 +32,7 @@ export const messages: Omit<Messages, 'voices'> = {
     settingsTitle: 'O teu nome',
   },
   checkin: {
-    dayA11y: (date, count) => `${date}, ${count} de 3 registos`,
-    lockedA11y: (date) => `${date}, abre amanhã`,
+    loggedAt: (date, time) => `Registado ${date}, às ${time}`,
     addNote: 'Acrescenta uma nota (opcional)',
     couldNotSave: 'Não foi possível guardar',
     removeTitle: 'Remover este registo?',
@@ -76,9 +75,10 @@ export const messages: Omit<Messages, 'voices'> = {
     dayA11y: (date, count) => `${date}: ${count} de 3 registos`,
     dayTotal: (totals) => `Total do dia: ${totals}`,
     editDay: 'Editar este dia',
+    doneEditing: 'Concluído',
     readOnly: (days) => `Só de leitura: tem mais de ${days} dias.`,
     hint: (months, days) =>
-      `Mostra os últimos ${months} meses. Só os últimos ${days} dias podem ser editados.`,
+      `Mostra os últimos ${months} meses. Os últimos ${days} dias podem ser editados aqui.`,
   },
   habits: {
     sinceLastCheckIn: 'Desde o último registo',
@@ -254,6 +254,9 @@ export const messages: Omit<Messages, 'voices'> = {
     themes: { light: 'Claro', dim: 'Suave', dark: 'Escuro' },
     language: 'Idioma',
     languages: { system: 'Idioma do telemóvel', en: 'English', 'pt-PT': 'Português' },
+    timeZone: 'Fuso horário',
+    timeZoneAuto: (zone) => `Automático (${zone})`,
+    timeZoneHint: 'As horas dos registos aparecem neste fuso horário. Automático segue o telemóvel.',
     data: 'Os teus dados',
     dataBody: (n) =>
       `Tudo fica guardado apenas neste telemóvel (${n} registos). Desinstalar a app ou mudar de telemóvel apaga tudo, por isso escolhe uma pasta para cópias de segurança ou exporta uma de vez em quando.`,

@@ -27,7 +27,9 @@ Run lint and typecheck before declaring any task done.
 
 - Personal Android mood tracker, sideloaded (no Play Store). See README.md for the spec.
 - No backend and no API keys. All data stays on the device (AsyncStorage). Claude integration is a plain-text prompt sent through the share sheet.
-- Keep dependencies minimal. Navigation is a four-tab state switch in `App.tsx`; do not add Expo Router or React Navigation unless the screen count grows.
+- Keep dependencies minimal. Navigation is a four-tab horizontal pager (a paging `ScrollView`) in `App.tsx`, swiped or switched from the tab bar; do not add Expo Router or React Navigation unless the screen count grows.
+- The Check-in tab is for today only. Past days (the last `EDITABLE_DAYS`) are edited inline in the History calendar.
+- Check-in timestamps are shown in the `timeZone` setting (`src/domain/settings/timeZone.ts`): 'system' follows the phone. Entry dates stay local `YYYY-MM-DD`.
 - Dates are local `YYYY-MM-DD` (see `src/domain/shared/dates.ts`), never UTC.
 - The export file format (`src/domain/checkins/exportFormat.ts`) is versioned; keep old versions importable.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).

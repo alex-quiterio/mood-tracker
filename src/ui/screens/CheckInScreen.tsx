@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/components/Card';
 import { BreathingModal } from '@ui/components/BreathingModal';
@@ -7,9 +7,8 @@ import { QuoteCard } from '@ui/components/QuoteCard';
 import { Button } from '@ui/components/Button';
 import { Burst, MoodBurst, makeBurst } from '@ui/components/MoodBurst';
 import { LiveCount, LiveCounts } from '@ui/components/LiveCounts';
-import { checkInDays, isLocked } from '@domain/checkins/calendar';
-import { dayOfMonth, localDate, slotForTime } from '@domain/shared/dates';
-import { weekdayShort } from '@ui/i18n/format';
+import { localDate, slotForTime } from '@domain/shared/dates';
+import { longDate } from '@ui/i18n/format';
 import { entryKey } from '@domain/checkins/entries';
 import { offersBreathing } from '@domain/checkins/moments';
 import { burstEmojis } from '@ui/voices/voices';
@@ -36,8 +35,6 @@ type Props = {
   store: EntriesStore;
   tracking: Tracking;
   name: string;
-  /** Opens on this day instead of today, e.g. from the calendar. */
-  initialDate?: string;
   /** Opens this slot, e.g. tapped on the home-screen widget. */
   initialSlot?: Slot;
   /** Opens with the pause (breathing or focus) showing. */
@@ -45,26 +42,11 @@ type Props = {
   habits: Habit[];
 };
 
-export function CheckInScreen({
-  store,
-  tracking,
-  name,
-  initialDate,
-  initialSlot,
-  initialPause,
-  habits,
-}: Props) {
+export function CheckInScreen({ store, tracking, name, initialSlot, initialPause, habits }: Props) {
   const styles = useThemedStyles(makeStyles);
+  // Only today can be checked in; past days are read-only in History.
   const today = localDate();
-  // Yesterday, today and a locked tomorrow, plus a day opened from the calendar.
-  const days = checkInDays(today, initialDate);
-  const [date, setDate] = useState(initialDate && days.includes(initialDate) ? initialDate : today);
-  const firstEmptySlot = (day: string) =>
-    SLOTS.find((s) => !store.entries.some((e) => e.date === day && e.slot === s)) ?? 'morning';
-  // Today opens the slot for the current time; past days open their first empty slot.
-  const [openSlot, setOpenSlot] = useState<Slot>(
-    initialSlot ?? (date === today ? slotForTime() : firstEmptySlot(date)),
-  );
+  const [openSlot, setOpenSlot] = useState<Slot>(initialSlot ?? slotForTime());
   const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
@@ -106,12 +88,7 @@ export function CheckInScreen({
     setOfferBreath(offersBreathing(mood));
   };
 
-  const entryFor = (slot: Slot) => store.entries.find((e) => e.date === date && e.slot === slot);
-
-  const selectDate = (next: string) => {
-    setDate(next);
-    setOpenSlot(next === today ? slotForTime() : firstEmptySlot(next));
-  };
+  const entryFor = (slot: Slot) => store.entries.find((e) => e.date === today && e.slot === slot);
 
   return (
     <View style={styles.root}>
@@ -133,7 +110,7 @@ export function CheckInScreen({
           <Button title={m.urge.button} variant="secondary" onPress={() => setUrging(true)} />
         )}
 
-        {date === today && <LiveCounts counts={liveCounts} today={today} />}
+        <LiveCounts counts={liveCounts} today={today} />
 
         {offerBreath && (
           <Card accent>
@@ -155,40 +132,15 @@ export function CheckInScreen({
           </Card>
         )}
 
-        <View style={styles.dayStrip}>
-          {days.map((d) => {
-            const selected = d === date;
-            const locked = isLocked(d, today);
-            const count = store.entries.filter((e) => e.date === d).length;
-            return (
-              <Pressable
-                key={d}
-                accessibilityRole="button"
-                accessibilityState={{ selected, disabled: locked }}
-                accessibilityLabel={locked ? m.checkin.lockedA11y(d) : m.checkin.dayA11y(d, count)}
-                disabled={locked}
-                onPress={() => selectDate(d)}
-                style={[styles.day, selected && styles.daySelected, locked && styles.dayLocked]}
-              >
-                <Text style={[styles.dayName, selected && styles.daySelectedText]}>
-                  {d === today ? m.common.today : weekdayShort(d, locale)}
-                </Text>
-                <Text style={[styles.dayNumber, selected && styles.daySelectedText]}>{dayOfMonth(d)}</Text>
-                <Text style={[styles.dayDots, selected && styles.daySelectedText]}>
-                  {locked ? '🔒' : `${'●'.repeat(count)}${'○'.repeat(3 - count)}`}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <Text style={styles.dateHeading}>{longDate(today, locale)}</Text>
 
         {SLOTS.map((slot) => {
           const entry = entryFor(slot);
           return (
             <SlotCard
               // Remount when the day or saved entry changes so the draft resets.
-              key={`${entryKey(date, slot)}|${entry?.recordedAt ?? ''}`}
-              date={date}
+              key={`${entryKey(today, slot)}|${entry?.recordedAt ?? ''}`}
+              date={today}
               slot={slot}
               entry={entry}
               open={openSlot === slot}
@@ -237,20 +189,5 @@ const makeStyles = (c: Palette) =>
     streakText: { color: c.text, fontSize: 13, fontWeight: '600' },
     comfortText: { color: c.text, fontSize: 15, lineHeight: 21 },
     comfortActions: { flexDirection: 'row', gap: spacing(2) },
-    dayStrip: { flexDirection: 'row', gap: spacing(1), marginBottom: spacing(1) },
-    day: {
-      flex: 1,
-      alignItems: 'center',
-      paddingVertical: spacing(2),
-      borderRadius: 10,
-      backgroundColor: c.surface,
-      borderWidth: 1,
-      borderColor: c.border,
-    },
-    daySelected: { backgroundColor: c.accent, borderColor: c.accent },
-    daySelectedText: { color: c.accentText },
-    dayLocked: { opacity: 0.5 },
-    dayName: { fontSize: 11, color: c.muted },
-    dayNumber: { fontSize: 17, fontWeight: '600', color: c.text },
-    dayDots: { fontSize: 7, color: c.muted, letterSpacing: 1, marginTop: 2 },
+    dateHeading: { fontSize: 15, fontWeight: '600', color: c.muted, marginTop: spacing(1), ...c.heading },
   });

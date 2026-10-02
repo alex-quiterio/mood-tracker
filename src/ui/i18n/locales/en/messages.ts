@@ -32,8 +32,7 @@ export const messages: Omit<Messages, 'voices'> = {
     settingsTitle: 'Your name',
   },
   checkin: {
-    dayA11y: (date: string, count: number) => `${date}, ${count} of 3 logged`,
-    lockedA11y: (date: string) => `${date}, opens tomorrow`,
+    loggedAt: (date: string, time: string) => `Logged ${date} at ${time}`,
     addNote: 'Add a note (optional)',
     couldNotSave: 'Could not save',
     removeTitle: 'Remove this check-in?',
@@ -76,9 +75,10 @@ export const messages: Omit<Messages, 'voices'> = {
     dayA11y: (date: string, count: number) => `${date}: ${count} of 3 logged`,
     dayTotal: (totals) => `Day total: ${totals}`,
     editDay: 'Edit this day',
+    doneEditing: 'Done',
     readOnly: (days: number) => `Read-only: older than ${days} days.`,
     hint: (months: number, days: number) =>
-      `Shows the last ${months} months. Only the last ${days} days can be edited.`,
+      `Shows the last ${months} months. The last ${days} days can be edited here.`,
   },
   habits: {
     sinceLastCheckIn: 'Since your last check-in',
@@ -257,6 +257,9 @@ export const messages: Omit<Messages, 'voices'> = {
     themes: { light: 'Light', dim: 'Dim', dark: 'Dark' },
     language: 'Language',
     languages: { system: 'Phone language', en: 'English', 'pt-PT': 'Português' },
+    timeZone: 'Time zone',
+    timeZoneAuto: (zone: string) => `Automatic (${zone})`,
+    timeZoneHint: 'Check-in times are shown in this time zone. Automatic follows the phone.',
     data: 'Your data',
     dataBody: (n: number) =>
       `Everything is stored only on this phone (${n} check-ins). Uninstalling the app or switching phones deletes it, so choose a backup folder or export a backup now and then.`,

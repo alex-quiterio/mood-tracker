@@ -19,7 +19,10 @@ import { Entry, SLOTS } from '@domain/checkins/types';
 import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@ui/i18n/describeSignals';
 import { formatSteps } from '@ui/i18n/signals';
-import { longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
+import { formatMoment, longDate, monthTitle, weekdayInitials } from '@ui/i18n/format';
+import { DayEditor } from '@ui/checkin/DayEditor';
+import { Tracking } from '@ui/checkin/SlotCard';
+import { EntriesStore } from '@ui/hooks/useEntries';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { describeSleep } from '@ui/i18n/sleep';
 import { Habit } from '@domain/habits/habits';
@@ -30,15 +33,19 @@ import { useVoice } from '@ui/theme/voiceContext';
 import { Button } from './Button';
 
 type Props = {
-  entries: Entry[];
+  store: EntriesStore;
+  /** Which phone signals to count when a day is edited here. */
+  tracking: Tracking;
   today: string;
-  /** Opens a day on the check-in screen; only offered for the last week. */
-  onEditDay: (date: string) => void;
   habits: Habit[];
 };
 
-/** Six months of check-ins, a month at a time. The last week can be edited; older days are read-only. */
-export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
+/**
+ * Six months of check-ins, a month at a time. The last week can be edited right here
+ * (the check-in screen is for today only); older days are read-only.
+ */
+export function HistoryCalendar({ store, tracking, today, habits }: Props) {
+  const { entries } = store;
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const c = useColors();
@@ -104,29 +111,43 @@ export function HistoryCalendar({ entries, today, onEditDay, habits }: Props) {
         </View>
       ))}
 
-      <DayDetail entries={entries} date={selected} today={today} onEditDay={onEditDay} habits={habits} />
+      <DayDetail
+        // A new day starts out read, not edited.
+        key={selected}
+        store={store}
+        tracking={tracking}
+        date={selected}
+        today={today}
+        habits={habits}
+      />
       <Text style={styles.hint}>{m.calendar.hint(HISTORY_MONTHS, EDITABLE_DAYS)}</Text>
     </Card>
   );
 }
 
 function DayDetail({
-  entries,
+  store,
+  tracking,
   date,
   today,
-  onEditDay,
   habits,
 }: {
-  entries: Entry[];
+  store: EntriesStore;
+  tracking: Tracking;
   date: string;
   today: string;
-  onEditDay: (date: string) => void;
   habits: Habit[];
 }) {
   const styles = useThemedStyles(makeStyles);
-  const { m, locale } = useLocale();
+  const { entries } = store;
+  const [editing, setEditing] = useState(false);
+  const { m, locale, timeZone } = useLocale();
   const c = useColors();
   const voice = useVoice();
+  const loggedAt = (e: Entry) => {
+    const { date: day, time } = formatMoment(new Date(e.recordedAt), timeZone, locale);
+    return m.checkin.loggedAt(day, time);
+  };
   const label = longDate(date, locale);
   const totals = dayTotals(entries, date);
   const totalParts = [
@@ -135,6 +156,16 @@ function DayDetail({
       ? []
       : [`👟 ${formatSteps(totals.steps, locale)} ${m.signals.steps(totals.steps)}`]),
   ];
+
+  if (editing && isEditable(date, today)) {
+    return (
+      <View style={styles.detail}>
+        <Text style={styles.detailTitle}>{date === today ? m.common.today : label}</Text>
+        <DayEditor date={date} store={store} tracking={tracking} habits={habits} />
+        <Button title={m.calendar.doneEditing} variant="secondary" onPress={() => setEditing(false)} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.detail}>
@@ -154,6 +185,7 @@ function DayDetail({
                     {voice.moodEmoji[e.mood]} {voice.moodLabels[e.mood]}
                   </Text>
                 </View>
+                <Text style={styles.signal}>{loggedAt(e)}</Text>
                 {e.note ? <Text style={styles.note}>{e.note}</Text> : null}
                 {e.habits && describeLog(e.habits, habits) ? (
                   <Text style={styles.signal}>{describeLog(e.habits, habits)}</Text>
@@ -173,7 +205,7 @@ function DayDetail({
         );
       })}
       {isEditable(date, today) ? (
-        <Button title={m.calendar.editDay} variant="secondary" onPress={() => onEditDay(date)} />
+        <Button title={m.calendar.editDay} variant="secondary" onPress={() => setEditing(true)} />
       ) : (
         <Text style={styles.readOnly}>{m.calendar.readOnly(EDITABLE_DAYS)}</Text>
       )}

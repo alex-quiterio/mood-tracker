@@ -1,16 +1,13 @@
-import { Alert, ScrollView, Share, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@ui/components/Button';
-import { HistoryCalendar } from '@ui/components/HistoryCalendar';
+import { HabitsInPromptSwitch } from '@ui/components/HabitsInPromptSwitch';
 import { Habit } from '@domain/habits/habits';
 import { HabitsWeek } from '@ui/habits/HabitsWeek';
 import { dayOfMonth } from '@domain/shared/dates';
 import { weekdayShort, formatAverage, formatHours } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { sleepWeek } from '@domain/checkins/sleep';
-import { MonthReviewCard } from '@ui/habits/MonthReviewCard';
-import { monthReview } from '@domain/checkins/monthly';
-import { buildMonthlyPrompt } from '@ui/reflection/monthPrompt';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { formatSteps, formatStepsShort } from '@ui/i18n/signals';
 import { weeklyStats } from '@domain/checkins/stats';
@@ -22,7 +19,6 @@ import { EntriesStore } from '@ui/hooks/useEntries';
 type Props = {
   store: EntriesStore;
   today: string;
-  onEditDay: (date: string) => void;
   habits: Habit[];
   habitsInPrompt: boolean;
   onHabitsInPromptChange: (include: boolean) => void;
@@ -32,7 +28,6 @@ type Props = {
 export function StatsScreen({
   store,
   today,
-  onEditDay,
   habits,
   habitsInPrompt,
   onHabitsInPromptChange,
@@ -44,7 +39,6 @@ export function StatsScreen({
   const { m, locale } = useLocale();
   const stats = weeklyStats(store.entries);
   const sleep = sleepWeek(store.entries, today);
-  const month = monthReview(store.entries, habits, today);
 
   const share = async (message: string) => {
     try {
@@ -55,8 +49,6 @@ export function StatsScreen({
     }
   };
   const reflect = () => share(buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null, locale));
-  const reflectMonth = () =>
-    share(buildMonthlyPrompt(month, store.entries, voice, habitsInPrompt ? habits : null, locale));
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -161,16 +153,7 @@ export function StatsScreen({
         )}
       </View>
 
-      <View style={styles.promptRow}>
-        <Text style={styles.promptLabel}>{m.stats.includeHabits}</Text>
-        <Switch
-          value={habitsInPrompt}
-          onValueChange={onHabitsInPromptChange}
-          trackColor={{ true: c.accent, false: c.border }}
-          thumbColor={c.surface}
-          accessibilityLabel={m.stats.includeHabitsA11y}
-        />
-      </View>
+      <HabitsInPromptSwitch value={habitsInPrompt} onChange={onHabitsInPromptChange} />
       <Button title={m.stats.reflect} onPress={reflect} disabled={stats.logged === 0} />
       <Text style={styles.hint}>{m.stats.reflectHint}</Text>
 
@@ -182,18 +165,6 @@ export function StatsScreen({
         today={today}
         showSpending={showSpending}
       />
-
-      <MonthReviewCard review={month} />
-      <Button
-        title={m.month.reflect}
-        variant="secondary"
-        onPress={reflectMonth}
-        disabled={month.logged === 0}
-      />
-      <Text style={styles.hint}>{m.month.reflectHint}</Text>
-
-      <Text style={styles.sectionTitle}>{m.stats.history}</Text>
-      <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} habits={habits} />
     </ScrollView>
   );
 }
@@ -255,7 +226,5 @@ const makeStyles = (c: Palette) =>
     },
     averageText: { fontWeight: '700', color: c.text },
     hint: { color: c.muted, textAlign: 'center', fontSize: 13 },
-    promptRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    promptLabel: { color: c.text, fontSize: 15 },
     sectionTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: spacing(2), ...c.heading },
   });

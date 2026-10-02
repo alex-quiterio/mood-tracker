@@ -78,3 +78,15 @@ export function dayTotals(entries: Entry[], date: string): DayTotals {
   };
   return { unlocks: total(day.map((e) => e.unlocks)), steps: total(day.map((e) => e.steps)) };
 }
+
+/**
+ * The days on the check-in screen: yesterday, today and tomorrow (shown locked).
+ * A day opened from the calendar joins them for that visit, if it can still be edited.
+ */
+export function checkInDays(today: string, opened?: string): string[] {
+  const days = [addDays(today, -1), today, addDays(today, 1)];
+  return opened && isEditable(opened, today) && !days.includes(opened) ? [opened, ...days] : days;
+}
+
+/** Days after today can't be checked in yet. */
+export const isLocked = (date: string, today: string) => date > today;

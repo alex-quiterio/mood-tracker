@@ -33,6 +33,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   checkin: {
     dayA11y: (date: string, count: number) => `${date}, ${count} of 3 logged`,
+    lockedA11y: (date: string) => `${date}, opens tomorrow`,
     addNote: 'Add a note (optional)',
     couldNotSave: 'Could not save',
     removeTitle: 'Remove this check-in?',

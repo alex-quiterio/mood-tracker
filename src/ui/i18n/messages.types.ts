@@ -58,6 +58,7 @@ export type Messages = {
   };
   checkin: {
     dayA11y: (date: string, count: number) => string;
+    lockedA11y: (date: string) => string;
     addNote: string;
     couldNotSave: string;
     removeTitle: string;

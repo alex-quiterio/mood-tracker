@@ -118,6 +118,28 @@ export const messages: Omit<Messages, 'voices'> = {
     heavierThanLast: (diff: number) => `${diff} vs last week — tomorrow is a fresh start`,
     same: 'Same as last week',
   },
+  spending: {
+    title: 'Spent on habits',
+    thisWeek: (amount: string) => `${amount} this week`,
+    inAll: (amount: string) => `${amount} in all`,
+    perHabit: (emoji: string, amount: string) => `${emoji} ${amount}`,
+    setPrice: 'Set a price per dose in Settings → Habits to see this.',
+  },
+  month: {
+    title: 'Your month',
+    hint: 'The last 30 days. Patterns appear once there are a few check-ins.',
+    notEnough: 'A few more check-ins and patterns will show up here.',
+    best: (weekday: string, average: string) => `🌤️ Best day: ${weekday} (${average})`,
+    hardest: (weekday: string, average: string) =>
+      `🌧️ Hardest day: ${weekday} (${average}). Be gentle with it.`,
+    lowestSlot: (slot: string, average: string) =>
+      `🕰️ Lowest time of day: ${slot.toLowerCase()} (${average})`,
+    habitMoods: (emoji: string, name: string, none: string, some: string) =>
+      `${emoji} Mood on days with no ${name.toLowerCase()} ${none} · with some ${some}`,
+    reflect: 'Reflect on my month',
+    reflectHint:
+      'Builds a text summary of the last 30 days and opens the share sheet. Send it to the Claude app.',
+  },
   savings: {
     title: 'Kept in your pocket',
     thisWeek: (amount: string) => `${amount} this week`,
@@ -197,6 +219,7 @@ export const messages: Omit<Messages, 'voices'> = {
     notificationTitle: (slot: string) => `${slot} check-in`,
     bodyNamed: (name: string) => `How are you feeling, ${name}?`,
     body: 'How are you feeling right now?',
+    quickMoods: { 1: '😞 Low', 3: '😐 Okay', 5: '😊 Good' },
     earlier: (slot: string) => `Earlier ${slot.toLowerCase()} reminder`,
     later: (slot: string) => `Later ${slot.toLowerCase()} reminder`,
     atA11y: (slot: string, time: string) => `${slot} reminder at ${time}`,
@@ -293,6 +316,7 @@ export const messages: Omit<Messages, 'voices'> = {
     toGrow: '🌱 To grow',
     toReduce: '🪨 To reduce',
     inPrompt: 'Include habits in the Claude prompt',
+    showSpending: 'Show what doses cost (neutral, next to the savings jar)',
   },
   /** Names of the preset habits, shown while you haven't renamed them. */
   presets: {
@@ -372,5 +396,15 @@ export const messages: Omit<Messages, 'voices'> = {
     sleepMoods: (good, short) =>
       `Average mood on days after 7h+ of sleep: ${good}; after under 6h: ${short}.`,
     answerIn: '',
+    monthIntro: (first: string, last: string) =>
+      `Here are my mood check-ins for the past month (${first} to ${last}).`,
+    monthPatterns: 'Patterns I found myself:',
+    monthBest: (weekday: string, average: string) => `Best weekday: ${weekday} (average ${average}).`,
+    monthHardest: (weekday: string, average: string) => `Hardest weekday: ${weekday} (average ${average}).`,
+    monthLowestSlot: (slot: string, average: string) => `Lowest time of day: ${slot} (average ${average}).`,
+    monthHabitMoods: (name: string, none: string, some: string) =>
+      `Average mood on days with no ${name}: ${none}; on days with some: ${some}.`,
+    monthAsk:
+      'Please reflect on this month. What patterns do you notice (days of the week, time of day, anything in the notes)? What seemed to help, and what changed from the start of the month to the end? Then suggest one small, concrete thing I could try next month. Keep it short and kind.',
   },
 };

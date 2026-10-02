@@ -116,6 +116,26 @@ export const messages: Omit<Messages, 'voices'> = {
     heavierThanLast: (diff) => `${diff} face à semana passada — amanhã é um novo começo`,
     same: 'Igual à semana passada',
   },
+  spending: {
+    title: 'Gasto em hábitos',
+    thisWeek: (amount) => `${amount} esta semana`,
+    inAll: (amount) => `${amount} no total`,
+    perHabit: (emoji, amount) => `${emoji} ${amount}`,
+    setPrice: 'Define um preço por dose em Definições → Hábitos para veres isto.',
+  },
+  month: {
+    title: 'O teu mês',
+    hint: 'Os últimos 30 dias. Os padrões aparecem quando houver alguns registos.',
+    notEnough: 'Com mais alguns registos, os padrões aparecem aqui.',
+    best: (weekday, average) => `🌤️ Melhor dia: ${weekday} (${average})`,
+    hardest: (weekday, average) => `🌧️ Dia mais difícil: ${weekday} (${average}). Sê gentil contigo.`,
+    lowestSlot: (slot, average) => `🕰️ Altura do dia mais baixa: ${slot.toLowerCase()} (${average})`,
+    habitMoods: (emoji, name, none, some) =>
+      `${emoji} Humor nos dias sem ${name.toLowerCase()} ${none} · com alguma ${some}`,
+    reflect: 'Refletir sobre o meu mês',
+    reflectHint:
+      'Cria um resumo em texto dos últimos 30 dias e abre o menu de partilha. Envia-o para a app do Claude.',
+  },
   savings: {
     title: 'No teu bolso',
     thisWeek: (amount) => `${amount} esta semana`,
@@ -196,6 +216,7 @@ export const messages: Omit<Messages, 'voices'> = {
     notificationTitle: (slot) => `Registo da ${slot.toLowerCase()}`,
     bodyNamed: (name) => `Como te estás a sentir, ${name}?`,
     body: 'Como te estás a sentir agora?',
+    quickMoods: { 1: '😞 Em baixo', 3: '😐 Assim-assim', 5: '😊 Bem' },
     earlier: (slot) => `Lembrete da ${slot.toLowerCase()} mais cedo`,
     later: (slot) => `Lembrete da ${slot.toLowerCase()} mais tarde`,
     atA11y: (slot, time) => `Lembrete da ${slot.toLowerCase()} às ${time}`,
@@ -296,6 +317,7 @@ export const messages: Omit<Messages, 'voices'> = {
     toGrow: '🌱 A cultivar',
     toReduce: '🪨 A reduzir',
     inPrompt: 'Incluir os hábitos no texto para o Claude',
+    showSpending: 'Mostrar quanto custam as doses (neutro, junto ao mealheiro)',
   },
   presets: {
     cigarettes: { name: 'Cigarros', unit: 'cigarros' },
@@ -372,5 +394,14 @@ export const messages: Omit<Messages, 'voices'> = {
     sleepMoods: (good, short) =>
       `Humor médio nos dias depois de 7 h ou mais de sono: ${good}; depois de menos de 6 h: ${short}.`,
     answerIn: 'Responde em português de Portugal.',
+    monthIntro: (first, last) => `Aqui estão os meus registos de humor do último mês (${first} a ${last}).`,
+    monthPatterns: 'Padrões que encontrei:',
+    monthBest: (weekday, average) => `Melhor dia da semana: ${weekday} (média ${average}).`,
+    monthHardest: (weekday, average) => `Dia da semana mais difícil: ${weekday} (média ${average}).`,
+    monthLowestSlot: (slot, average) => `Altura do dia mais baixa: ${slot} (média ${average}).`,
+    monthHabitMoods: (name, none, some) =>
+      `Humor médio nos dias sem ${name}: ${none}; nos dias com alguma: ${some}.`,
+    monthAsk:
+      'Reflete sobre este mês, por favor. Que padrões notas (dias da semana, altura do dia, o que está nas notas)? O que parece ter ajudado e o que mudou do início para o fim do mês? Depois sugere uma coisa pequena e concreta que eu possa experimentar no próximo mês. Sê breve e gentil.',
   },
 };

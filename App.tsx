@@ -17,6 +17,7 @@ import { localDate } from '@domain/shared/dates';
 import { configureNotificationHandler } from '@infrastructure/notifications/handler';
 import { LockScreen } from '@ui/components/LockScreen';
 import { NamePrompt } from '@ui/components/NamePrompt';
+import { useQuickCheckIn } from '@ui/hooks/useQuickCheckIn';
 import { useAppLock } from '@ui/hooks/useAppLock';
 import { setScreenPrivacy } from '@infrastructure/security/screenPrivacy';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
@@ -87,6 +88,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const today = useToday();
+  useQuickCheckIn(store);
   const [tab, setTab] = useState<TabKey>('checkin');
   const { m, locale } = useLocale();
   const lock = useAppLock(settings.settings.appLock, { prompt: m.lock.prompt, cancel: m.common.cancel });
@@ -164,6 +166,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 onEditDay={editDay}
                 habits={habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
+                showSpending={settings.settings.showSpending}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
             )}

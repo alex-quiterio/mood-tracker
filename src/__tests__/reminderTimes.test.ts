@@ -79,10 +79,12 @@ describe('reminder text', () => {
     expect(reminderMessage('morning', 'Alex')).toEqual({
       title: 'Morning check-in',
       body: 'How are you feeling, Alex?',
+      actions: { 1: '😞 Low', 3: '😐 Okay', 5: '😊 Good' },
     });
     expect(reminderMessage('evening', '')).toEqual({
       title: 'Evening check-in',
       body: 'How are you feeling right now?',
+      actions: { 1: '😞 Low', 3: '😐 Okay', 5: '😊 Good' },
     });
   });
 });

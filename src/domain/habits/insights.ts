@@ -29,6 +29,22 @@ export function savings(entries: Entry[], habit: Habit, fromDate?: string, toDat
   return Math.round(total * 100) / 100;
 }
 
+/** What the doses cost: doses × price per dose, over the logged days in the range. */
+export function spent(entries: Entry[], habit: Habit, fromDate?: string, toDate?: string): number {
+  if (!habit.pricePerDose) return 0;
+  let doses = 0;
+  for (const [date, count] of dosesByDay(entries, habit.id)) {
+    if ((fromDate && date < fromDate) || (toDate && date > toDate)) continue;
+    doses += count;
+  }
+  return Math.round(doses * habit.pricePerDose * 100) / 100;
+}
+
+export const totalSpent = (entries: Entry[], habits: Habit[], fromDate?: string, toDate?: string) =>
+  Math.round(
+    habits.reduce((sum, h) => sum + (h.kind === 'reduce' ? spent(entries, h, fromDate, toDate) : 0), 0) * 100,
+  ) / 100;
+
 export const totalSavings = (entries: Entry[], habits: Habit[], fromDate?: string, toDate?: string) =>
   habits.reduce((sum, h) => sum + (h.kind === 'reduce' ? savings(entries, h, fromDate, toDate) : 0), 0);
 

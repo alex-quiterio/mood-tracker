@@ -1,3 +1,4 @@
+import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { VoiceId } from '@domain/voices/voices';
 import type { VoiceText } from '@ui/voices/voices.types';
 
@@ -137,6 +138,24 @@ export type Messages = {
     heavierThanLast: (diff: number) => string;
     same: string;
   };
+  spending: {
+    title: string;
+    thisWeek: (amount: string) => string;
+    inAll: (amount: string) => string;
+    perHabit: (emoji: string, amount: string) => string;
+    setPrice: string;
+  };
+  month: {
+    title: string;
+    hint: string;
+    notEnough: string;
+    best: (weekday: string, average: string) => string;
+    hardest: (weekday: string, average: string) => string;
+    lowestSlot: (slot: string, average: string) => string;
+    habitMoods: (emoji: string, name: string, none: string, some: string) => string;
+    reflect: string;
+    reflectHint: string;
+  };
   savings: {
     title: string;
     thisWeek: (amount: string) => string;
@@ -225,6 +244,8 @@ export type Messages = {
     earlier: (slot: string) => string;
     later: (slot: string) => string;
     atA11y: (slot: string, time: string) => string;
+    /** Labels of the mood buttons on the notification (Android shows three). */
+    quickMoods: Record<QuickMood, string>;
     offTitle: string;
     offBody: string;
     failed: string;
@@ -321,6 +342,7 @@ export type Messages = {
     toGrow: string;
     toReduce: string;
     inPrompt: string;
+    showSpending: string;
   };
   /** Names of the preset habits, shown while you haven't renamed them. */
   presets: Record<
@@ -363,6 +385,13 @@ export type Messages = {
     sleepWeek: (hours: string, quality: string) => string;
     sleepMoods: (good: string, short: string) => string;
     answerIn: string;
+    monthIntro: (first: string, last: string) => string;
+    monthPatterns: string;
+    monthBest: (weekday: string, average: string) => string;
+    monthHardest: (weekday: string, average: string) => string;
+    monthLowestSlot: (slot: string, average: string) => string;
+    monthHabitMoods: (name: string, none: string, some: string) => string;
+    monthAsk: string;
   };
   sleep: {
     title: string;

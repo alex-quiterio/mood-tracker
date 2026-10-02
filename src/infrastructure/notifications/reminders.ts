@@ -3,13 +3,23 @@ import { Platform } from 'react-native';
 
 import { SLOTS, Slot } from '@domain/checkins/types';
 import { ReminderTimes } from '@domain/reminders/times';
+import {
+  QUICK_MOODS,
+  QuickMood,
+  REMINDER_CATEGORY,
+  REMINDER_KIND,
+  quickActionId,
+} from '@domain/reminders/quickCheckIn';
 
 import { BELL_KIND } from './bell';
 
 const CHANNEL_ID = 'check-in-reminders';
 
 /** What each reminder says. The UI writes it in the user's language; this adapter only schedules. */
-export type ReminderText = Record<Slot, { title: string; body: string }>;
+export type ReminderText = Record<
+  Slot,
+  { title: string; body: string; /** Labels of the mood buttons. */ actions: Record<QuickMood, string> }
+>;
 
 // Reminders get fixed ids. Cancelling clears every scheduled notification except the practice
 // bell, which also removes reminders scheduled by older versions without ids.
@@ -35,10 +45,24 @@ const serialize = <T>(task: () => Promise<T>): Promise<T> => {
 export function scheduleReminders(times: ReminderTimes, text: ReminderText): Promise<void> {
   return serialize(async () => {
     await cancelReminders();
+    // Buttons that log a mood from the notification. They open the app, which saves it.
+    await Notifications.setNotificationCategoryAsync(
+      REMINDER_CATEGORY,
+      QUICK_MOODS.map((mood) => ({
+        identifier: quickActionId(mood),
+        buttonTitle: text.morning.actions[mood],
+        options: { opensAppToForeground: true },
+      })),
+    );
     for (const slot of SLOTS) {
       await Notifications.scheduleNotificationAsync({
         identifier: reminderId(slot),
-        content: text[slot],
+        content: {
+          title: text[slot].title,
+          body: text[slot].body,
+          categoryIdentifier: REMINDER_CATEGORY,
+          data: { kind: REMINDER_KIND, slot },
+        },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: times[slot].hour,

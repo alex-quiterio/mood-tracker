@@ -29,6 +29,8 @@ export type Settings = {
   habits: Habit[];
   /** Habit data is sensitive, so it only goes into the Claude prompt when you choose. */
   habitsInPrompt: boolean;
+  /** Show what doses cost next to the savings jar. Off by default; it's optional and neutral. */
+  showSpending: boolean;
   /** Follow the phone's language, or a fixed one. */
   language: LanguageSetting;
   /** Ask for the phone's fingerprint, face or PIN when opening the app. */
@@ -46,6 +48,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customQuotes: {},
   habits: PRESET_HABITS,
   habitsInPrompt: false,
+  showSpending: false,
   language: 'system',
   appLock: false,
 };
@@ -64,6 +67,7 @@ export function parseSettings(value: unknown): Settings {
     customQuotes: parseCustomQuotes(stored.customQuotes),
     habits: parseHabits(stored.habits),
     habitsInPrompt: stored.habitsInPrompt === true,
+    showSpending: stored.showSpending === true,
     language: LANGUAGE_SETTINGS.includes(stored.language as LanguageSetting)
       ? (stored.language as LanguageSetting)
       : DEFAULT_SETTINGS.language,

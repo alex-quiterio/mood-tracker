@@ -28,7 +28,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
   const c = useColors();
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const { habits, habitsInPrompt } = settings.settings;
+  const { habits, habitsInPrompt, showSpending } = settings.settings;
   const { m, locale } = useLocale();
   const setHabits = (next: Habit[]) => settings.update({ habits: next });
   const tracked = habits.filter((h) => !h.archived);
@@ -75,6 +75,15 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
             <Switch
               value={habitsInPrompt}
               onValueChange={(v) => settings.update({ habitsInPrompt: v })}
+              trackColor={{ true: c.accent, false: c.border }}
+              thumbColor={c.surface}
+            />
+          </View>
+          <View style={styles.switchRow}>
+            <Text style={[styles.body, styles.flex]}>{m.habitSettings.showSpending}</Text>
+            <Switch
+              value={showSpending}
+              onValueChange={(v) => settings.update({ showSpending: v })}
               trackColor={{ true: c.accent, false: c.border }}
               thumbColor={c.surface}
             />

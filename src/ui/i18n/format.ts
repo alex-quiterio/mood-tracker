@@ -81,6 +81,8 @@ const MONTHS: Record<Locale, string[]> = {
 export const weekdayShort = (date: string, locale: Locale = 'en') =>
   WEEKDAYS[locale][parseLocalDate(date).getDay()];
 
+/** Full weekday name; 0 = Sunday … 6 = Saturday. */
+export const weekdayName = (weekday: number, locale: Locale = 'en') => WEEKDAYS_LONG[locale][weekday];
 export const weekdayInitials = (locale: Locale) => WEEKDAY_INITIALS[locale];
 
 /** "October 2026" · "Outubro de 2026" */

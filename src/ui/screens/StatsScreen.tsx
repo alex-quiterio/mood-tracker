@@ -8,6 +8,9 @@ import { dayOfMonth } from '@domain/shared/dates';
 import { weekdayShort, formatAverage, formatHours } from '@ui/i18n/format';
 import { useLocale } from '@ui/i18n/LocaleContext';
 import { sleepWeek } from '@domain/checkins/sleep';
+import { MonthReviewCard } from '@ui/habits/MonthReviewCard';
+import { monthReview } from '@domain/checkins/monthly';
+import { buildMonthlyPrompt } from '@ui/reflection/monthPrompt';
 import { buildReflectionPrompt } from '@ui/reflection/prompt';
 import { formatSteps, formatStepsShort } from '@ui/i18n/signals';
 import { weeklyStats } from '@domain/checkins/stats';
@@ -23,6 +26,7 @@ type Props = {
   habits: Habit[];
   habitsInPrompt: boolean;
   onHabitsInPromptChange: (include: boolean) => void;
+  showSpending: boolean;
 };
 
 export function StatsScreen({
@@ -32,6 +36,7 @@ export function StatsScreen({
   habits,
   habitsInPrompt,
   onHabitsInPromptChange,
+  showSpending,
 }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
@@ -39,17 +44,19 @@ export function StatsScreen({
   const { m, locale } = useLocale();
   const stats = weeklyStats(store.entries);
   const sleep = sleepWeek(store.entries, today);
+  const month = monthReview(store.entries, habits, today);
 
-  const reflect = async () => {
+  const share = async (message: string) => {
     try {
       // Opens Android's share sheet; pick the Claude app. No API calls involved.
-      await Share.share({
-        message: buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null, locale),
-      });
+      await Share.share({ message });
     } catch (e) {
       Alert.alert(m.stats.shareFailed, String(e));
     }
   };
+  const reflect = () => share(buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null, locale));
+  const reflectMonth = () =>
+    share(buildMonthlyPrompt(month, store.entries, voice, habitsInPrompt ? habits : null, locale));
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -168,7 +175,22 @@ export function StatsScreen({
       <Text style={styles.hint}>{m.stats.reflectHint}</Text>
 
       <Text style={styles.sectionTitle}>{m.stats.habits}</Text>
-      <HabitsWeek entries={store.entries} urges={store.urges} habits={habits} today={today} />
+      <HabitsWeek
+        entries={store.entries}
+        urges={store.urges}
+        habits={habits}
+        today={today}
+        showSpending={showSpending}
+      />
+
+      <MonthReviewCard review={month} />
+      <Button
+        title={m.month.reflect}
+        variant="secondary"
+        onPress={reflectMonth}
+        disabled={month.logged === 0}
+      />
+      <Text style={styles.hint}>{m.month.reflectHint}</Text>
 
       <Text style={styles.sectionTitle}>{m.stats.history}</Text>
       <HistoryCalendar entries={store.entries} today={today} onEditDay={onEditDay} habits={habits} />

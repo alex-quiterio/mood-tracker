@@ -14,11 +14,12 @@ import { useLocale } from '@ui/i18n/LocaleContext';
 
 import { BalanceBoard } from './BalanceBoard';
 import { SavingsJar } from './SavingsJar';
+import { SpendingCard } from './SpendingCard';
 
 /** The weekly habits view: balance, savings, and what went right. */
-type Props = { entries: Entry[]; urges: Urge[]; habits: Habit[]; today: string };
+type Props = { entries: Entry[]; urges: Urge[]; habits: Habit[]; today: string; showSpending: boolean };
 
-export function HabitsWeek({ entries, urges, habits, today }: Props) {
+export function HabitsWeek({ entries, urges, habits, today, showSpending }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
@@ -37,6 +38,7 @@ export function HabitsWeek({ entries, urges, habits, today }: Props) {
         total={totalSavings(entries, habits)}
         habits={habits}
       />
+      {showSpending && <SpendingCard entries={entries} habits={habits} today={today} />}
       <Card>
         {week.map((w) => (
           <View key={w.habit.id} style={styles.line}>

@@ -6,7 +6,7 @@ import { summarizeDay } from '@domain/checkins/calendar';
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { WidgetTarget, moodsOn, parseWidgetLink, widgetLink } from '@domain/checkins/widget';
 import { Locale } from '@domain/settings/language';
-import { addDays, parseLocalDate } from '@domain/shared/dates';
+import { addDays, weekStart } from '@domain/shared/dates';
 import { quoteOfTheDay } from '@domain/voices/voices';
 import { weekdayInitials } from '@ui/foundation/i18n/format';
 import { greetingFor, greetingText } from '@ui/foundation/i18n/greetings';
@@ -37,7 +37,7 @@ export function homeWidgetState({
   const moods = moodsOn(entries, today);
   const tomorrow = addDays(today, 1);
   // The widget shows the current week; next week's days let it roll over on Sunday night.
-  const monday = addDays(today, -((parseLocalDate(today).getDay() + 6) % 7));
+  const monday = weekStart(today);
   const initials = weekdayInitials(locale);
   return {
     date: today,

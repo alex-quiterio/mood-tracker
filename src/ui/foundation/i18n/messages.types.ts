@@ -82,7 +82,7 @@ export type Messages = {
     logged: string;
     unlocksPerCheckIn: string;
     stepsPerCheckIn: string;
-    last7Days: string;
+    thisWeek: string;
     average: string;
     unlocksRow: string;
     stepsRow: string;

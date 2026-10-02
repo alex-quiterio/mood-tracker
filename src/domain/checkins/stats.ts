@@ -1,10 +1,12 @@
-import { addDays, lastNDays } from '@domain/shared/dates';
+import { addDays, lastNDays, localDate, weekOf } from '@domain/shared/dates';
 import { average } from '@domain/shared/math';
 import { entryKey } from './entries';
 import { Entry, SLOTS, Slot } from './types';
 
 export type DayRow = {
   date: string;
+  /** A day of the week still to come: shown, but not counted as missed. */
+  future: boolean;
   entries: Record<Slot, Entry | undefined>;
 };
 
@@ -22,11 +24,23 @@ export type WeeklyStats = {
   possible: number;
 };
 
-/** Stats for the 7 days ending at `today` (inclusive). */
-export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
+/** The Monday-to-Sunday week `today` falls in, for the This week tab. */
+export const thisWeekStats = (entries: Entry[], today: string = localDate()) =>
+  weeklyStats(entries, today, weekOf(today));
+
+/**
+ * Stats over `days`: by default the 7 days ending at `today` (inclusive). Days after
+ * `today` are marked future and not counted as possible check-ins.
+ */
+export function weeklyStats(
+  entries: Entry[],
+  today: string = localDate(),
+  days: string[] = lastNDays(7, today),
+): WeeklyStats {
   const byKey = new Map(entries.map((e) => [entryKey(e.date, e.slot), e]));
-  const days: DayRow[] = lastNDays(7, today).map((date) => ({
+  const rows: DayRow[] = days.map((date) => ({
     date,
+    future: date > today,
     entries: {
       morning: byKey.get(entryKey(date, 'morning')),
       afternoon: byKey.get(entryKey(date, 'afternoon')),
@@ -34,7 +48,7 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     },
   }));
 
-  const weekEntries = days
+  const weekEntries = rows
     .flatMap((d) => SLOTS.map((s) => d.entries[s]))
     .filter((e): e is Entry => e !== undefined);
 
@@ -58,7 +72,7 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     ) as Record<Slot, number | null>;
 
   return {
-    days,
+    days: rows,
     slotAverages,
     overallAverage: average(weekEntries.map((e) => e.mood)),
     unlockAverage: average(valuesOf(weekEntries, 'unlocks')),
@@ -66,7 +80,7 @@ export function weeklyStats(entries: Entry[], today?: string): WeeklyStats {
     stepAverage: average(valuesOf(weekEntries, 'steps')),
     slotStepAverages: perSlot('steps'),
     logged: weekEntries.length,
-    possible: days.length * SLOTS.length,
+    possible: rows.filter((d) => !d.future).length * SLOTS.length,
   };
 }
 

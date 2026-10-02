@@ -1,7 +1,7 @@
 import { lastChangedAt } from '@domain/checkins/entries';
 import { Entry } from '@domain/checkins/types';
 import { average } from '@domain/shared/math';
-import { addDays, lastNDays } from '@domain/shared/dates';
+import { weekSoFar, weekStart } from '@domain/shared/dates';
 
 import { Habit, HabitLog, activeHabits } from './habits';
 
@@ -62,9 +62,9 @@ export type HabitWeek = {
   moodWithSome: number | null;
 };
 
-/** The latest "what you did instead" notes from the last 7 days, most recently written first. */
+/** The latest "what you did instead" notes this week, most recently written first. */
 export function recentInsteadNotes(entries: Entry[], today: string, count = 3): string[] {
-  const days = new Set(lastNDays(7, today));
+  const days = new Set(weekSoFar(today));
   return entries
     .filter((e) => days.has(e.date) && e.habits?.instead)
     .sort((a, b) => (lastChangedAt(a) < lastChangedAt(b) ? 1 : -1))
@@ -72,9 +72,9 @@ export function recentInsteadNotes(entries: Entry[], today: string, count = 3): 
     .map((e) => e.habits!.instead!);
 }
 
-/** This week's view of each active habit, built to show what's going right. */
+/** This week's view (Monday to today) of each active habit, built to show what's going right. */
 export function habitWeek(entries: Entry[], habits: Habit[], today: string): HabitWeek[] {
-  const days = new Set(lastNDays(7, today));
+  const days = new Set(weekSoFar(today));
   const week = entries.filter((e) => days.has(e.date));
   return activeHabits(habits).map((habit) => {
     if (habit.kind === 'grow') {
@@ -98,7 +98,7 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
       logged: logged.length,
       wins: none.length,
       total: logged.reduce((sum, e) => sum + e.habits!.doses[habit.id].count, 0),
-      saved: savings(entries, habit, addDays(today, -6), today),
+      saved: savings(entries, habit, weekStart(today), today),
       moodWithNone: average(none.map((e) => e.mood)),
       moodWithSome: average(some.map((e) => e.mood)),
     };

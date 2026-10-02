@@ -77,13 +77,23 @@ describe('week balance', () => {
     entry('2026-09-30', { doses: { cigarettes: { count: 0 } }, did: ['walk'] }, 'evening'),
     entry(today, { doses: {}, did: ['friend'], instead: 'tea' }),
     entry('2026-09-22', { doses: { drinks: { count: 3 } }, did: [] }), // the week before
+    entry('2026-09-26', { doses: { drinks: { count: 5 } }, did: [] }), // last Saturday: not yet this week
   ];
 
-  it('adds up days and compares with last week', () => {
+  it('adds up Monday to Sunday and compares with the same days of last week', () => {
     const week = weekBalance(entries, PRESET_HABITS, today);
-    expect(week.days).toHaveLength(7);
-    expect(week.days.at(-2)).toMatchObject({ date: '2026-09-30', light: 3, heavy: 4, net: -1, logged: true });
-    expect(week.days.at(-1)).toMatchObject({ light: 5, heavy: 0, net: 5 });
+    expect(week.days.map((d) => d.date)).toEqual([
+      '2026-09-28',
+      '2026-09-29',
+      '2026-09-30',
+      '2026-10-01',
+      '2026-10-02',
+      '2026-10-03',
+      '2026-10-04',
+    ]);
+    expect(week.days[2]).toMatchObject({ light: 3, heavy: 4, net: -1, logged: true });
+    expect(week.days[3]).toMatchObject({ light: 5, heavy: 0, net: 5 });
+    expect(week.days[4]).toMatchObject({ logged: false });
     expect(week).toMatchObject({ light: 8, heavy: 4, net: 4, previousNet: -6 });
     expect(week.verdict).toEqual({ kind: 'leaningLight', emoji: '🌱' });
   });

@@ -1,5 +1,5 @@
 import { Entry } from '@domain/checkins/types';
-import { addDays, lastNDays } from '@domain/shared/dates';
+import { addDays, weekOf, weekSoFar } from '@domain/shared/dates';
 
 import { Habit, HabitLog, weightOf } from './habits';
 import { URGE_POINTS, Urge, passedOn } from './urges';
@@ -97,8 +97,9 @@ export function weekBalance(
   today: string,
   urges: Urge[] = [],
 ): WeekBalance {
-  const days = balanceDays(entries, habits, lastNDays(7, today), urges);
-  const previous = balanceDays(entries, habits, lastNDays(7, addDays(today, -7)), urges);
+  // Monday to Sunday, compared with the same days of last week so far.
+  const days = balanceDays(entries, habits, weekOf(today), urges);
+  const previous = balanceDays(entries, habits, weekSoFar(addDays(today, -7)), urges);
   const light = days.reduce((s, d) => s + d.light, 0);
   const heavy = days.reduce((s, d) => s + d.heavy, 0);
   return {

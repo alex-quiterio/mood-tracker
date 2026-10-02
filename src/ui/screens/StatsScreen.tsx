@@ -10,7 +10,7 @@ import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { sleepWeek } from '@domain/checkins/sleep';
 import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
 import { formatSteps, formatStepsShort } from '@ui/foundation/i18n/signals';
-import { weeklyStats } from '@domain/checkins/stats';
+import { thisWeekStats } from '@domain/checkins/stats';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
 import { SLOTS } from '@domain/checkins/types';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
@@ -37,7 +37,7 @@ export function StatsScreen({
   const c = useColors();
   const voice = useVoice();
   const { m, locale } = useLocale();
-  const stats = weeklyStats(store.entries);
+  const stats = thisWeekStats(store.entries, today);
   const sleep = sleepWeek(store.entries, today);
 
   const share = async (message: string) => {
@@ -71,7 +71,7 @@ export function StatsScreen({
 
       <View style={styles.table}>
         <View style={styles.row}>
-          <Text style={[styles.dayCell, styles.headerText]}>{m.stats.last7Days}</Text>
+          <Text style={[styles.dayCell, styles.headerText]}>{m.stats.thisWeek}</Text>
           {SLOTS.map((slot) => (
             <Text key={slot} style={[styles.cell, styles.headerText]}>
               {voice.slotLabels[slot]}
@@ -80,7 +80,7 @@ export function StatsScreen({
         </View>
 
         {stats.days.map((day) => (
-          <View key={day.date} style={styles.row}>
+          <View key={day.date} style={[styles.row, day.future && styles.futureRow]}>
             <Text style={styles.dayCell}>
               {weekdayShort(day.date, locale)} {dayOfMonth(day.date)}
             </Text>
@@ -205,6 +205,7 @@ const makeStyles = (c: Palette) =>
       gap: spacing(1),
     },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing(1) },
+    futureRow: { opacity: 0.4 },
     dayCell: { width: 76, color: c.text },
     cell: { flex: 1, textAlign: 'center' },
     headerText: { fontSize: 12, color: c.muted, fontWeight: '600' },

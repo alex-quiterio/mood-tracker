@@ -55,7 +55,7 @@ export const messages: Omit<Messages, 'voices'> = {
     logged: 'Check-ins logged',
     unlocksPerCheckIn: 'Unlocks per check-in',
     stepsPerCheckIn: 'Steps per check-in',
-    last7Days: 'Last 7 days',
+    thisWeek: 'This week',
     average: 'Average',
     unlocksRow: '📱 Unlocks',
     stepsRow: '👟 Steps',

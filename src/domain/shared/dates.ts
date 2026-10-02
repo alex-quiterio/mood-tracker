@@ -24,6 +24,18 @@ export function lastNDays(count: number, end: string = localDate()): string[] {
   return Array.from({ length: count }, (_, i) => addDays(end, i - (count - 1)));
 }
 
+/** The Monday of the week `date` falls in; weeks start on Monday. */
+export function weekStart(date: string): string {
+  return addDays(date, -((parseLocalDate(date).getDay() + 6) % 7));
+}
+
+/** The Monday-to-Sunday week `date` falls in. */
+export const weekOf = (date: string): string[] =>
+  Array.from({ length: 7 }, (_, i) => addDays(weekStart(date), i));
+
+/** This week from Monday up to and including `today`. */
+export const weekSoFar = (today: string): string[] => weekOf(today).filter((d) => d <= today);
+
 /** Before 12:00 is morning, before 18:00 is afternoon, otherwise evening. */
 export function slotForTime(d: Date = new Date()): Slot {
   const h = d.getHours();

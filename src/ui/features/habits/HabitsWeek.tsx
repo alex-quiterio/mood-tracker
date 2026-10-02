@@ -8,7 +8,7 @@ import { Urge } from '@domain/habits/urges';
 import { habitWeek, recentInsteadNotes, totalSavings } from '@domain/habits/insights';
 import { describeHabitWeek } from '@ui/foundation/i18n/habits';
 import { formatDecimal } from '@ui/foundation/i18n/format';
-import { addDays } from '@domain/shared/dates';
+import { weekStart } from '@domain/shared/dates';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
@@ -29,7 +29,7 @@ export function HabitsWeek({ entries, urges, habits, today, showSpending }: Prop
     <View style={styles.root}>
       <BalanceBoard week={weekBalance(entries, habits, today, urges)} />
       <SavingsJar
-        week={totalSavings(entries, habits, addDays(today, -6), today)}
+        week={totalSavings(entries, habits, weekStart(today), today)}
         total={totalSavings(entries, habits)}
         habits={habits}
       />

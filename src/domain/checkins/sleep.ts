@@ -1,4 +1,4 @@
-import { lastNDays } from '@domain/shared/dates';
+import { weekSoFar } from '@domain/shared/dates';
 import { average } from '@domain/shared/math';
 
 import { Entry, MOODS, Mood } from './types';
@@ -45,9 +45,9 @@ export type SleepWeek = {
   moodAfterShort: number | null;
 };
 
-/** Sleep over the 7 days ending today, and how the days after good and short nights went. */
+/** Sleep this week (Monday to today), and how the days after good and short nights went. */
 export function sleepWeek(entries: Entry[], today: string): SleepWeek {
-  const days = new Set(lastNDays(7, today));
+  const days = new Set(weekSoFar(today));
   const nights = entries.filter((e) => days.has(e.date) && !isEmptySleep(e.sleep));
   const dayMood = (date: string) => average(entries.filter((e) => e.date === date).map((e) => e.mood));
   const moodsAfter = (keep: (hours: number) => boolean) =>

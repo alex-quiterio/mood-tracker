@@ -33,10 +33,12 @@ export function buildReflectionPrompt(
   const m = messages(locale);
   const p = m.prompt;
   const slotName = (slot: (typeof SLOTS)[number]) => m.slots[slot].toLowerCase();
-  const first = stats.days[0].date;
-  const last = stats.days[stats.days.length - 1].date;
+  // Days still to come this week stay out of the prompt.
+  const days = stats.days.filter((d) => !d.future);
+  const first = days[0].date;
+  const last = days[days.length - 1].date;
 
-  const dayLines = stats.days.map((day) => {
+  const dayLines = days.map((day) => {
     const slotLines = SLOTS.map((slot) => {
       const e = day.entries[slot];
       if (!e) return `  ${slotName(slot)}: ${p.notLogged}`;
@@ -96,7 +98,7 @@ function habitSummary(
 ): string[] {
   const p = messages(locale).prompt;
   const entries = stats.days.flatMap((d) => SLOTS.flatMap((s) => d.entries[s] ?? []));
-  const today = stats.days[stats.days.length - 1].date;
+  const today = stats.days.filter((d) => !d.future).at(-1)!.date;
   const lines = habitWeek(entries, habits, today)
     .filter((w) => w.logged > 0)
     .map((w) => {
@@ -123,7 +125,7 @@ function habitSummary(
 function sleepSummary(stats: WeeklyStats, locale: Locale): string[] {
   const p = messages(locale).prompt;
   const entries = stats.days.flatMap((d) => SLOTS.flatMap((s) => d.entries[s] ?? []));
-  const week = sleepWeek(entries, stats.days[stats.days.length - 1].date);
+  const week = sleepWeek(entries, stats.days.filter((d) => !d.future).at(-1)!.date);
   if (week.nights === 0) return [];
   const lines: string[] = [];
   if (week.averageHours !== null || week.averageQuality !== null) {

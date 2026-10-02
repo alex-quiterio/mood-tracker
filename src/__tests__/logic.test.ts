@@ -3,10 +3,19 @@ import { describe, expect, it } from '@jest/globals';
 import { PRESET_HABITS } from '@domain/habits/habits';
 
 import { ExportError, parseExport, serializeExport } from '@domain/checkins/exportFormat';
-import { addDays, isValidDate, lastNDays, localDate, slotForTime } from '@domain/shared/dates';
+import {
+  addDays,
+  isValidDate,
+  lastNDays,
+  localDate,
+  slotForTime,
+  weekOf,
+  weekSoFar,
+  weekStart,
+} from '@domain/shared/dates';
 import { NOTE_MAX_LENGTH, mergeEntries, parseEntry, saveTimes, upsertEntry } from '@domain/checkins/entries';
 import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
-import { weeklyStats } from '@domain/checkins/stats';
+import { thisWeekStats, weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 
 const entry = (
@@ -208,5 +217,33 @@ describe('note length', () => {
   it('trims what goes past the limit', () => {
     expect(NOTE_MAX_LENGTH).toBe(2000);
     expect(parseEntry({ ...base, note: 'b'.repeat(2500) })?.note).toHaveLength(NOTE_MAX_LENGTH);
+  });
+});
+
+describe('the current week', () => {
+  // 1 October 2026 is a Thursday.
+  it('runs Monday to Sunday', () => {
+    expect(weekStart('2026-10-01')).toBe('2026-09-28');
+    expect(weekStart('2026-09-28')).toBe('2026-09-28');
+    expect(weekStart('2026-10-04')).toBe('2026-09-28');
+    expect(weekOf('2026-10-01')).toEqual(lastNDays(7, '2026-10-04'));
+    expect(weekSoFar('2026-10-01')).toEqual(['2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01']);
+  });
+
+  it('shows the whole week but only counts the days so far', () => {
+    const entries = [entry('2026-09-27', 'morning', 1), entry('2026-09-28', 'morning', 4)];
+    const stats = thisWeekStats(entries, '2026-10-01');
+    expect(stats.days.map((d) => [d.date, d.future])).toEqual(
+      weekOf('2026-10-01').map((date) => [date, date > '2026-10-01']),
+    );
+    expect(stats.logged).toBe(1);
+    expect(stats.possible).toBe(12);
+    expect(stats.overallAverage).toBe(4);
+  });
+
+  it('keeps days still to come out of the Claude prompt', () => {
+    const prompt = buildReflectionPrompt(thisWeekStats([entry('2026-09-28', 'morning', 4)], '2026-10-01'));
+    expect(prompt).toContain('2026-10-01');
+    expect(prompt).not.toContain('2026-10-02');
   });
 });

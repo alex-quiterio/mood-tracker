@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { Draft, isDraftChanged } from '@domain/checkins/drafts';
 import { NOTE_MAX_LENGTH, saveTimes } from '@domain/checkins/entries';
 import { Sleep, isEmptySleep, sameSleep } from '@domain/checkins/sleep';
 import { Entry, Mood, Slot } from '@domain/checkins/types';
@@ -17,6 +18,7 @@ import { formatInteger } from '@ui/foundation/i18n/format';
 import { describeLoggedAt } from '@ui/foundation/i18n/loggedAt';
 import { describeSleep } from '@ui/foundation/i18n/sleep';
 import { SleepLogger } from './SleepLogger';
+import { useDraft } from './useDraft';
 import { HabitLogger } from '@ui/features/habits/HabitLogger';
 import { EntriesStore } from '@ui/state/useEntries';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
@@ -69,6 +71,20 @@ export function SlotCard({
   // Only the morning check-in asks about last night.
   const asksSleep = slot === 'morning';
   const [sleep, setSleep] = useState<Sleep>(entry?.sleep ?? {});
+  const draft: Draft = { mood, note, habits: draftLog, sleep };
+  const { discard } = useDraft({
+    date,
+    slot,
+    entry,
+    asksSleep,
+    draft,
+    restore: (d) => {
+      setMood(d.mood);
+      setNote(d.note);
+      setHabitLog(d.habits);
+      setSleep(d.sleep);
+    },
+  });
 
   const save = async () => {
     if (mood === null) return;
@@ -88,6 +104,7 @@ export function SlotCard({
       const withCounts = await withUnlocks(base, entry, tracking.unlocks, now);
       const next = await withSteps(withCounts, entry, tracking.steps, now);
       await store.save(next);
+      await discard();
       onSaved(mood, isWin(logged));
     } catch (e) {
       Alert.alert(m.checkin.couldNotSave, String(e));
@@ -116,6 +133,7 @@ export function SlotCard({
           )}
         </View>
         {loggedLine}
+        {isDraftChanged(entry, draft, asksSleep) && <Text style={styles.instead}>{m.checkin.draftKept}</Text>}
         {entry?.note ? (
           <Text style={styles.notePreview} numberOfLines={2}>
             {entry.note}

@@ -63,6 +63,8 @@ export type Messages = {
     editedAt: (time: string, date?: string) => string;
     addNote: string;
     couldNotSave: string;
+    /** Shown on a collapsed check-in that has unsaved words kept. */
+    draftKept: string;
     removeTitle: string;
     removeLink: string;
     breatheWithMe: string;

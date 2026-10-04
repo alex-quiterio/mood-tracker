@@ -36,6 +36,7 @@ export const messages: Omit<Messages, 'voices'> = {
     editedAt: (time, date) => (date ? `editado ${date}, às ${time}` : `editado às ${time}`),
     addNote: 'Acrescenta uma nota (opcional)',
     couldNotSave: 'Não foi possível guardar',
+    draftKept: '✏️ Rascunho guardado, toca para terminar',
     removeTitle: 'Remover este registo?',
     removeLink: 'Remover registo',
     breatheWithMe: 'Respira comigo',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@ui/kit/Card';
@@ -16,6 +16,7 @@ import { greetingFor, greetingText, streakLabel } from '@ui/foundation/i18n/gree
 import { currentStreak, weeklyStats } from '@domain/checkins/stats';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 import { Mood, SLOTS, Slot } from '@domain/checkins/types';
+import { pruneDrafts } from '@infrastructure/storage/draftsRepository';
 import { previewSteps } from '@infrastructure/signals/steps';
 import { formatSteps } from '@ui/foundation/i18n/signals';
 import { previewUnlocks } from '@infrastructure/signals/unlocks';
@@ -57,6 +58,10 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
   const liveSteps = useLivePreview(previewSteps, tracking.steps, store.entries);
   const voice = useVoice();
   const { m, locale } = useLocale();
+
+  useEffect(() => {
+    pruneDrafts(today).catch(() => {});
+  }, [today]);
 
   const greeting = greetingFor(slotForTime(), locale);
   const streak = streakLabel(currentStreak(store.entries, today), locale);

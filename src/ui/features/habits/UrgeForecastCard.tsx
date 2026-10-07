@@ -1,4 +1,5 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { UrgeForecast } from '@domain/habits/urges';
 import { Button } from '@ui/kit/Button';

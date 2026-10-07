@@ -1,4 +1,5 @@
-import { Alert, ScrollView, Share, StyleSheet, Text } from 'react-native';
+import { Alert, ScrollView, Share, StyleSheet } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { monthReview } from '@domain/checkins/monthly';
 import { Habit } from '@domain/habits/habits';

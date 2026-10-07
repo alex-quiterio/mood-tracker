@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { DaySeries, MonthTotals } from '@domain/checkins/monthTotals';
 import { Mood } from '@domain/checkins/types';

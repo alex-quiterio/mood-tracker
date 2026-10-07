@@ -1,14 +1,7 @@
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
+import { TextInput } from '@ui/kit/TextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@ui/kit/Button';

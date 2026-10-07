@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { LEVELS_PER_TITLE, XP, XpSource, titleIndex } from '@domain/progress/xp';
 import { Card } from '@ui/kit/Card';

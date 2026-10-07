@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { Card } from '@ui/kit/Card';
 import { RoundButton } from '@ui/kit/RoundButton';

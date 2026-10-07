@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';

@@ -1,6 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { FocusObject, formatClock } from '@domain/practice/practices';
 import { buzz, cancelBell, scheduleBell } from '@infrastructure/notifications/bell';

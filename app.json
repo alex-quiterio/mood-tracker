@@ -24,6 +24,28 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-sharing", "expo-notifications", "expo-localization", "expo-local-authentication"]
+    "plugins": [
+      "expo-sharing",
+      "expo-notifications",
+      "expo-localization",
+      "expo-local-authentication",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Figtree-Regular.ttf",
+            "./assets/fonts/Figtree-Medium.ttf",
+            "./assets/fonts/Figtree-SemiBold.ttf",
+            "./assets/fonts/Figtree-Bold.ttf",
+            "./assets/fonts/Figtree-ExtraBold.ttf",
+            "./assets/fonts/Fraunces-Regular.ttf",
+            "./assets/fonts/Fraunces-SemiBold.ttf",
+            "./assets/fonts/Fraunces-Bold.ttf",
+            "./assets/fonts/Fraunces-Italic.ttf",
+            "./assets/fonts/Fraunces-SemiBoldItalic.ttf"
+          ]
+        }
+      ]
+    ]
   }
 }

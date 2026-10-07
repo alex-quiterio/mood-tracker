@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, AppState, Linking, PermissionsAndroid, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, AppState, Linking, PermissionsAndroid, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { stepCounter } from '@modules/step-counter';
 import { Button } from '@ui/kit/Button';

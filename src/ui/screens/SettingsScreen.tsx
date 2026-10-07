@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import { useCalendars } from 'expo-localization';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { LANGUAGE_SETTINGS } from '@domain/settings/language';
 import { TIME_ZONES } from '@domain/settings/timeZone';

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { ArrowButton } from '@ui/kit/ArrowButton';
 import { Button } from '@ui/kit/Button';

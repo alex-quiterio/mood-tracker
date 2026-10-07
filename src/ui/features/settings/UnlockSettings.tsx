@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Alert, AppState, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, AppState, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { saveUnlockCheckpoint } from '@infrastructure/storage/checkpoints';
 import { unlockStats } from '@modules/unlock-stats';

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 import { Chip } from '@ui/kit/Chip';
 import { Card } from '@ui/kit/Card';
 import { SafeAreaView } from 'react-native-safe-area-context';

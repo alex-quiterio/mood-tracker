@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { ArrowButton } from '@ui/kit/ArrowButton';
 import { Card } from '@ui/kit/Card';

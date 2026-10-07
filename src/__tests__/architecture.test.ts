@@ -82,3 +82,19 @@ describe('ui tiers', () => {
     expect(bad).toEqual([]);
   });
 });
+
+/** Text is drawn in the app's typefaces: everything goes through the kit's Text and TextInput. */
+describe('typefaces', () => {
+  const wrappers = ['ui/kit/Text.tsx', 'ui/kit/TextInput.tsx'];
+  it.each(
+    filesIn(SRC)
+      .map((f) => relative(SRC, f))
+      .filter((f) => !wrappers.includes(f)),
+  )('%s takes Text and TextInput from the kit', (file) => {
+    const source = readFileSync(join(SRC, file), 'utf8');
+    const native = [...source.matchAll(/import \{([^}]*)\} from 'react-native'/g)].flatMap((m) =>
+      m[1].split(',').map((n) => n.trim()),
+    );
+    expect(native.filter((n) => n === 'Text' || n === 'TextInput')).toEqual([]);
+  });
+});

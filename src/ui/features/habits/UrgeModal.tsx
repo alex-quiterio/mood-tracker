@@ -9,6 +9,7 @@ import {
   URGE_BREATHS,
   URGE_FEELINGS,
   URGE_POINTS,
+  URGE_WAIT_MINUTES,
   Urge,
   UrgeFeeling,
   UrgeOutcome,
@@ -23,6 +24,8 @@ import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { MappedFeeling } from '@ui/foundation/i18n/messages.types';
 import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
+import { UrgeWait } from './UrgeWait';
+
 type Props = {
   visible: boolean;
   /** Habits to reduce that can be picked. */
@@ -33,12 +36,13 @@ type Props = {
 
 type Step =
   | { kind: 'pick' }
-  | { kind: 'feel' | 'map' | 'breathe' | 'outcome'; habit: Habit }
+  | { kind: 'feel' | 'map' | 'breathe' | 'wait' | 'outcome'; habit: Habit }
   | { kind: 'done'; outcome: UrgeOutcome };
 
 /**
  * An urge: pick the habit, name what you felt just before, read the craving map for
- * those feelings, breathe for two minutes, then say whether it passed.
+ * those feelings, then either breathe for two minutes or give it ten minutes of
+ * something else, and say whether it passed.
  */
 export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
   const styles = useThemedStyles(makeStyles);
@@ -54,7 +58,6 @@ export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
     setFeelings([]);
     onClose();
   };
-  const afterFeeling = (habit: Habit) => setStep({ kind: mapped.length > 0 ? 'map' : 'breathe', habit });
   const record = (habit: Habit, outcome: UrgeOutcome) => {
     onRecord({
       date: localDate(),
@@ -100,7 +103,7 @@ export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
             <Button
               title={feelings.length > 0 ? m.urge.feelNext : m.urge.feelSkip}
               variant={feelings.length > 0 ? 'primary' : 'secondary'}
-              onPress={() => afterFeeling(current.habit)}
+              onPress={() => setStep({ kind: 'map', habit: current.habit })}
             />
           </ScrollView>
         )}
@@ -118,7 +121,15 @@ export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
               title={m.urge.mapNext}
               onPress={() => setStep({ kind: 'breathe', habit: current.habit })}
             />
+            <Button
+              title={m.urge.waitButton(URGE_WAIT_MINUTES)}
+              variant="secondary"
+              onPress={() => setStep({ kind: 'wait', habit: current.habit })}
+            />
           </ScrollView>
+        )}
+        {current.kind === 'wait' && (
+          <UrgeWait minutes={URGE_WAIT_MINUTES} onOutcome={(outcome) => record(current.habit, outcome)} />
         )}
         {current.kind === 'breathe' && (
           <>

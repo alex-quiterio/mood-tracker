@@ -298,6 +298,13 @@ export const messages: Omit<Messages, 'voices'> = {
         'It is the time, not the feeling. Move the cue: different chair, different hour, tea in the hand instead.',
     },
     mapNext: 'Breathe first',
+    waitButton: (minutes: number) => `Give it ${minutes} minutes`,
+    waitTitle: (minutes: number) => `${minutes} minutes of something else`,
+    waitHint:
+      'Go and do it. The phone will ring softly when the time is up; come back and say how it went. You can answer sooner too.',
+    waitOver: 'Time is up. How is it now?',
+    waitBellTitle: '🌊 Ten minutes',
+    waitBellBody: 'How is the urge now? Come back and say how it went.',
     forecast: (count: number, from: string, to: string) =>
       `🌊 Heads-up: ${count} urges came between ${from} and ${to} in the last four weeks. Knowing the wave is coming makes it easier to ride.`,
     forecastFeeling: (feeling: string) => `They often started with ${feeling}.`,

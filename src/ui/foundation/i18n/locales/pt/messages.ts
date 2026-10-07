@@ -295,6 +295,13 @@ export const messages: Omit<Messages, 'voices'> = {
         'É a hora, não o sentimento. Muda a deixa: outra cadeira, outra hora, um chá na mão em vez disso.',
     },
     mapNext: 'Primeiro, respirar',
+    waitButton: (minutes) => `Dar-lhe ${minutes} minutos`,
+    waitTitle: (minutes) => `${minutes} minutos de outra coisa`,
+    waitHint:
+      'Vai fazê-la. O telemóvel toca baixinho quando o tempo acabar; volta e diz como correu. Também podes responder antes.',
+    waitOver: 'O tempo acabou. E agora?',
+    waitBellTitle: '🌊 Dez minutos',
+    waitBellBody: 'Como está a vontade agora? Volta e diz como correu.',
     forecast: (count, from, to) =>
       `🌊 Atenção: ${count} vontades vieram entre as ${from} e as ${to} nas últimas quatro semanas. Saber que a onda vem torna mais fácil surfá-la.`,
     forecastFeeling: (feeling) => `Começaram muitas vezes com ${feeling}.`,

@@ -308,6 +308,12 @@ export type Messages = {
     /** The craving map: what to do with the feelings it has a line for. */
     map: Record<MappedFeeling, string>;
     mapNext: string;
+    waitButton: (minutes: number) => string;
+    waitTitle: (minutes: number) => string;
+    waitHint: string;
+    waitOver: string;
+    waitBellTitle: string;
+    waitBellBody: string;
     /** The urge forecast on the check-in screen. Hours are already formatted, e.g. "18:00". */
     forecast: (count: number, from: string, to: string) => string;
     forecastFeeling: (feeling: string) => string;

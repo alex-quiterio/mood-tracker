@@ -47,6 +47,9 @@ export const URGE_POINTS = 2;
 /** The pause before choosing: 12 calm breaths of 10 seconds. */
 export const URGE_BREATHS = 12;
 
+/** Or the other way through: this long of something else, then a gentle bell to check in. */
+export const URGE_WAIT_MINUTES = 10;
+
 export const addUrge = (urges: Urge[], urge: Urge): Urge[] => mergeUrges(urges, [urge]);
 
 /** Adds urges that aren't known yet, oldest first. */

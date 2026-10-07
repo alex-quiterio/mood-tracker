@@ -27,7 +27,21 @@ export type StatementImport = {
   skipped: number;
 };
 
-const KIND_OF_TYPE: Record<string, PaymentKind> = { CARD_PAYMENT: 'card', ATM: 'cash', FEE: 'fee' };
+/**
+ * Types as Revolut writes them, normalised: newer exports say "Card Payment",
+ * older ones "CARD_PAYMENT"; both become CARD_PAYMENT.
+ */
+const KIND_OF_TYPE: Record<string, PaymentKind> = {
+  CARD_PAYMENT: 'card',
+  ATM: 'cash',
+  CASH_WITHDRAWAL: 'cash',
+  FEE: 'fee',
+};
+const typeOf = (value: string) =>
+  value
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_');
 const SPENT_STATES = new Set(['COMPLETED', 'PENDING']);
 const REQUIRED = ['Type', 'Started Date', 'Description', 'Amount', 'Currency', 'State'];
 
@@ -51,7 +65,7 @@ export function parseRevolutCsv(text: string): StatementImport {
   const payments: Payment[] = [];
   let skipped = 0;
   for (const row of rows) {
-    const kind = KIND_OF_TYPE[cell(row, 'Type').trim()];
+    const kind = KIND_OF_TYPE[typeOf(cell(row, 'Type'))];
     const at = wallClockOf(cell(row, 'Started Date'));
     const amount = numberOf(cell(row, 'Amount'));
     const fee = column.has('Fee') ? numberOf(cell(row, 'Fee')) : 0;

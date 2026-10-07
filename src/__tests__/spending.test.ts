@@ -68,6 +68,25 @@ describe('Revolut statements', () => {
     expect(payments.map(slotOfPayment)).toEqual(['morning', 'afternoon', 'evening', 'afternoon', 'evening']);
   });
 
+  it('reads the newer export, where types are written "Card Payment"', () => {
+    // The shape of a real 2026 export (LF line ends, title-case types), with made-up rows.
+    const newer = [
+      HEADER,
+      'Card Payment,Current,2026-09-30 09:09:25,2026-10-01 10:29:36,Corner Cafe,-4.75,0.00,EUR,COMPLETED,65.32',
+      'Transfer,Current,2026-10-01 19:24:41,2026-10-01 19:24:41,From Instant Access Savings,25.00,0.00,EUR,COMPLETED,90.32',
+      'Topup,Current,2026-10-02 08:00:00,2026-10-02 08:00:00,Top-up by *0000,50.00,0.00,EUR,COMPLETED,140.32',
+      'Card Payment,Current,2026-10-02 19:31:52,,Supermarket,-31.99,0.00,EUR,PENDING,108.33',
+      'Atm,Current,2026-10-03 12:00:00,2026-10-03 12:00:00,Cash,-20.00,0.00,EUR,COMPLETED,88.33',
+    ].join('\n');
+    const read = parseRevolutCsv(newer);
+    expect(read.payments.map((p) => [p.description, p.amount, p.kind])).toEqual([
+      ['Corner Cafe', 4.75, 'card'],
+      ['Supermarket', 31.99, 'card'],
+      ['Cash', 20, 'cash'],
+    ]);
+    expect(read.skipped).toBe(2);
+  });
+
   it('finds the columns by name, in any order', () => {
     const shuffled = [
       'State,Currency,Amount,Description,Started Date,Type',

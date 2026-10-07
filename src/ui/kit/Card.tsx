@@ -1,7 +1,9 @@
 import { ReactNode } from 'react';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 import { Palette, spacing, useThemedStyles, radius } from '@ui/foundation/theme/theme';
+
+import { Appear } from './Appear';
 
 type Props = {
   children: ReactNode;
@@ -10,10 +12,10 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-/** The rounded surface every section of the app sits on. */
+/** The rounded surface every section of the app sits on; it fades in as it appears. */
 export function Card({ children, accent, style }: Props) {
   const styles = useThemedStyles(makeStyles);
-  return <View style={[styles.card, accent && styles.accent, style]}>{children}</View>;
+  return <Appear style={[styles.card, accent && styles.accent, style]}>{children}</Appear>;
 }
 
 const makeStyles = (c: Palette) =>

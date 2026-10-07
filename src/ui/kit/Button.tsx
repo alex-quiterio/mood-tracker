@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
 import { Palette, radius, spacing, useThemedStyles, withAlpha } from '@ui/foundation/theme/theme';
@@ -14,7 +15,7 @@ export function Button({ title, onPress, variant = 'primary', disabled }: Props)
   const styles = useThemedStyles(makeStyles);
   const primary = variant === 'primary';
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       onPress={onPress}
       disabled={disabled}
@@ -25,7 +26,7 @@ export function Button({ title, onPress, variant = 'primary', disabled }: Props)
       ]}
     >
       <Text style={[styles.text, primary ? styles.primaryText : styles.secondaryText]}>{title}</Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 

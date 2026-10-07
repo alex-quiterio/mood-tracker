@@ -1,5 +1,7 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { PressableScale } from '@ui/kit/PressableScale';
 import { Text } from '@ui/kit/Text';
+import { Pop } from '@ui/kit/Pop';
 
 import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 import { MOODS, Mood } from '@domain/checkins/types';
@@ -19,7 +21,7 @@ export function MoodPicker({ value, onChange }: Props) {
       {MOODS.map((mood) => {
         const selected = value === mood;
         return (
-          <Pressable
+          <PressableScale
             key={mood}
             accessibilityRole="radio"
             accessibilityState={{ selected }}
@@ -30,9 +32,11 @@ export function MoodPicker({ value, onChange }: Props) {
               selected && { backgroundColor: c.moodColors[mood], borderColor: c.onMood },
             ]}
           >
-            <Text style={styles.emoji}>{voice.moodEmoji[mood]}</Text>
+            <Pop active={selected}>
+              <Text style={styles.emoji}>{voice.moodEmoji[mood]}</Text>
+            </Pop>
             <Text style={[styles.number, selected && styles.numberSelected]}>{mood}</Text>
-          </Pressable>
+          </PressableScale>
         );
       })}
     </View>

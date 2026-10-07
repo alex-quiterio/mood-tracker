@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
@@ -16,7 +17,7 @@ type Props = {
 export function Chip({ label, selected, onPress, role = 'radio', accessibilityLabel }: Props) {
   const styles = useThemedStyles(makeStyles);
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole={role}
       accessibilityState={
         role === 'radio' ? { selected } : role === 'checkbox' ? { checked: selected } : undefined
@@ -26,7 +27,7 @@ export function Chip({ label, selected, onPress, role = 'radio', accessibilityLa
       style={[styles.chip, selected && styles.selected]}
     >
       <Text style={[styles.text, selected && styles.textSelected]}>{label}</Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 

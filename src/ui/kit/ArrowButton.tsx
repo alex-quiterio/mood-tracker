@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { PressableScale } from './PressableScale';
 import { Text } from './Text';
 
 import { Palette, useThemedStyles } from '@ui/foundation/theme/theme';
@@ -16,7 +17,7 @@ type Props = {
 export function ArrowButton({ label, hint, disabled, onPress }: Props) {
   const styles = useThemedStyles(makeStyles);
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={hint}
       accessibilityState={{ disabled }}
@@ -26,7 +27,7 @@ export function ArrowButton({ label, hint, disabled, onPress }: Props) {
       style={[styles.arrow, disabled && styles.disabled]}
     >
       <Text style={styles.arrowText}>{label}</Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 

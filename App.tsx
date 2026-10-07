@@ -3,11 +3,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   AppState,
   KeyboardAvoidingView,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -32,6 +32,8 @@ import { reminderMessages } from '@ui/foundation/i18n/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';
 import { SettingsScreen } from '@ui/screens/SettingsScreen';
 import { StatsScreen } from '@ui/screens/StatsScreen';
+import { Appear } from '@ui/kit/Appear';
+import { TabBar } from '@ui/kit/TabBar';
 import { Text } from '@ui/kit/Text';
 import { HistoryScreen } from '@ui/screens/HistoryScreen';
 import {
@@ -41,9 +43,7 @@ import {
   spacing,
   useColors,
   useThemedStyles,
-  radius,
   typeScale,
-  withAlpha,
 } from '@ui/foundation/theme/theme';
 import { EntriesStore, useEntries } from '@ui/state/useEntries';
 import { SettingsStore, useSettings } from '@ui/state/useSettings';
@@ -123,6 +123,13 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const { width } = useWindowDimensions();
   const pager = useRef<ScrollView>(null);
   const tabIndex = TABS.findIndex((t) => t.key === tab);
+  // The pager's scroll, in tabs, so the tab bar's highlight slides along with a swipe.
+  const [pagerX] = useState(() => new Animated.Value(tabIndex * width));
+  const pagerPosition = useMemo(() => Animated.divide(pagerX, width), [pagerX, width]);
+  const onPagerScroll = useMemo(
+    () => Animated.event([{ nativeEvent: { contentOffset: { x: pagerX } } }], { useNativeDriver: true }),
+    [pagerX],
+  );
   const showTab = (key: TabKey) => {
     setTab(key);
     pager.current?.scrollTo({ x: TABS.findIndex((t) => t.key === key) * width, animated: true });
@@ -196,13 +203,15 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
       <StatusBar style={c.isDark ? 'light' : 'dark'} />
-      <Text style={styles.header}>{m.tabs[tab]}</Text>
+      <Appear key={tab}>
+        <Text style={styles.header}>{m.tabs[tab]}</Text>
+      </Appear>
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         {!store.loaded ? (
           <ActivityIndicator style={styles.content} color={c.accent} />
         ) : (
           // Keyed on the date so screens reset to "today" after midnight.
-          <ScrollView
+          <Animated.ScrollView
             key={today}
             ref={pager}
             horizontal
@@ -211,6 +220,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
             keyboardShouldPersistTaps="handled"
             contentOffset={{ x: tabIndex * width, y: 0 }}
             onMomentumScrollEnd={onSwiped}
+            onScroll={onPagerScroll}
+            scrollEventThrottle={16}
             style={styles.content}
           >
             <View style={[styles.page, { width }]}>
@@ -247,26 +258,15 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
             <View style={[styles.page, { width }]}>
               <SettingsScreen store={store} settings={settings} />
             </View>
-          </ScrollView>
+          </Animated.ScrollView>
         )}
       </KeyboardAvoidingView>
-      <View style={styles.tabBar}>
-        {TABS.map((t) => {
-          const selected = t.key === tab;
-          return (
-            <Pressable
-              key={t.key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected }}
-              onPress={() => showTab(t.key)}
-              style={[styles.tab, selected && styles.tabActive]}
-            >
-              <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
-              <Text style={[styles.tabText, selected && styles.tabSelected]}>{m.tabs[t.key]}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <TabBar
+        tabs={TABS.map((t) => ({ key: t.key, icon: t.icon, label: m.tabs[t.key] }))}
+        selected={tab}
+        onSelect={(key) => showTab(key as TabKey)}
+        position={pagerPosition}
+      />
       <NamePrompt visible={!name && !nameSkipped} onSave={saveName} onSkip={() => setNameSkipped(true)} />
     </SafeAreaView>
   );
@@ -284,24 +284,4 @@ const makeStyles = (c: Palette) =>
     },
     content: { flex: 1 },
     page: { flex: 1 },
-    tabBar: {
-      flexDirection: 'row',
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: c.border,
-      backgroundColor: c.surface,
-      padding: spacing(2),
-      gap: spacing(2),
-    },
-    tab: {
-      flex: 1,
-      alignItems: 'center',
-      gap: 2,
-      paddingVertical: spacing(2),
-      borderRadius: radius.md,
-    },
-    // The whole selected tab, icon and label, sits on a soft block of the accent colour.
-    tabActive: { backgroundColor: withAlpha(c.accent, 0.16) },
-    tabIcon: { fontSize: 20, color: c.muted },
-    tabText: { ...typeScale.caption, color: c.muted },
-    tabSelected: { color: c.accent, fontWeight: '700' },
   });

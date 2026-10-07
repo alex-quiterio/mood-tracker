@@ -446,7 +446,6 @@ export const messages: Omit<Messages, 'voices'> = {
   /** Names of the preset habits, shown while you haven't renamed them. */
   presets: {
     cigarettes: { name: 'Cigarettes', unit: 'cigarettes' },
-    weed: { name: 'Weed', unit: 'joints' },
     drinks: { name: 'Drinks', unit: 'drinks' },
     water: { name: 'Water', unit: '' },
     walk: { name: 'Walk', unit: '' },

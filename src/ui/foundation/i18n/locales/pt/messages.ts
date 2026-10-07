@@ -447,7 +447,6 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   presets: {
     cigarettes: { name: 'Cigarros', unit: 'cigarros' },
-    weed: { name: 'Erva', unit: 'charros' },
     drinks: { name: 'Bebidas', unit: 'bebidas' },
     water: { name: 'Água', unit: '' },
     walk: { name: 'Caminhada', unit: '' },

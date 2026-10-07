@@ -9,10 +9,11 @@ import { formatEuros } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, useThemedStyles } from '@ui/foundation/theme/theme';
 
-type Props = { entries: Entry[]; habits: Habit[]; today: string };
+/** `today` is the last day of the week shown; `past` when that week isn't the current one. */
+type Props = { entries: Entry[]; habits: Habit[]; today: string; past?: boolean };
 
 /** What doses cost: neutral numbers (doses × price), with no judgment and no red. Optional in Settings. */
-export function SpendingCard({ entries, habits, today }: Props) {
+export function SpendingCard({ entries, habits, today, past = false }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const priced = activeHabits(habits, 'reduce').filter((h) => h.pricePerDose);
@@ -26,8 +27,13 @@ export function SpendingCard({ entries, habits, today }: Props) {
       ) : (
         <>
           <Text style={styles.body}>
-            {m.spending.thisWeek(formatEuros(totalSpent(entries, priced, weekFrom, today), locale))} ·{' '}
-            {m.spending.inAll(formatEuros(totalSpent(entries, priced), locale))}
+            {(past ? m.spending.thatWeek : m.spending.thisWeek)(
+              formatEuros(totalSpent(entries, priced, weekFrom, today), locale),
+            )}{' '}
+            ·{' '}
+            {(past ? m.spending.byThen : m.spending.inAll)(
+              formatEuros(totalSpent(entries, priced, undefined, today), locale),
+            )}
           </Text>
           <Text style={styles.muted}>
             {priced

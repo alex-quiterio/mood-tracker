@@ -17,9 +17,18 @@ import { SavingsJar } from './SavingsJar';
 import { SpendingCard } from './SpendingCard';
 
 /** The weekly habits view: balance, savings, and what went right. */
-type Props = { entries: Entry[]; urges: Urge[]; habits: Habit[]; today: string; showSpending: boolean };
+type Props = {
+  entries: Entry[];
+  urges: Urge[];
+  habits: Habit[];
+  /** The last day of the week shown: today, or a past week's Sunday. */
+  today: string;
+  /** The week shown is an earlier one. */
+  past?: boolean;
+  showSpending: boolean;
+};
 
-export function HabitsWeek({ entries, urges, habits, today, showSpending }: Props) {
+export function HabitsWeek({ entries, urges, habits, today, past = false, showSpending }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
@@ -28,13 +37,14 @@ export function HabitsWeek({ entries, urges, habits, today, showSpending }: Prop
 
   return (
     <View style={styles.root}>
-      <BalanceBoard week={weekBalance(entries, habits, today, urges)} />
+      <BalanceBoard week={weekBalance(entries, habits, today, urges)} past={past} />
       <SavingsJar
         week={totalSavings(entries, habits, weekStart(today), today)}
-        total={totalSavings(entries, habits)}
+        total={totalSavings(entries, habits, undefined, today)}
         habits={habits}
+        past={past}
       />
-      {showSpending && <SpendingCard entries={entries} habits={habits} today={today} />}
+      {showSpending && <SpendingCard entries={entries} habits={habits} today={today} past={past} />}
       <Card>
         {week.map((w) => (
           <View key={w.habit.id} style={styles.line}>

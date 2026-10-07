@@ -259,11 +259,9 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               onPress={() => showTab(t.key)}
-              style={styles.tab}
+              style={[styles.tab, selected && styles.tabActive]}
             >
-              <View style={[styles.tabPill, selected && styles.tabPillSelected]}>
-                <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
-              </View>
+              <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
               <Text style={[styles.tabText, selected && styles.tabSelected]}>{m.tabs[t.key]}</Text>
             </Pressable>
           );
@@ -291,13 +289,18 @@ const makeStyles = (c: Palette) =>
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: c.border,
       backgroundColor: c.surface,
-      paddingTop: spacing(2),
-      paddingBottom: spacing(1),
+      padding: spacing(2),
+      gap: spacing(2),
     },
-    tab: { flex: 1, alignItems: 'center', gap: spacing(1) },
-    // The selected tab's icon sits in a soft pill of the accent colour.
-    tabPill: { paddingHorizontal: spacing(5), paddingVertical: spacing(1), borderRadius: radius.pill },
-    tabPillSelected: { backgroundColor: withAlpha(c.accent, 0.16) },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 2,
+      paddingVertical: spacing(2),
+      borderRadius: radius.md,
+    },
+    // The whole selected tab, icon and label, sits on a soft block of the accent colour.
+    tabActive: { backgroundColor: withAlpha(c.accent, 0.16) },
     tabIcon: { fontSize: 20, color: c.muted },
     tabText: { ...typeScale.caption, color: c.muted },
     tabSelected: { color: c.accent, fontWeight: '700' },

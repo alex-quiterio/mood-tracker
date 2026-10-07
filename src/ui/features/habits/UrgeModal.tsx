@@ -21,7 +21,7 @@ import { Chip } from '@ui/kit/Chip';
 import { BreathSession } from '@ui/features/practice/BreathSession';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { MappedFeeling } from '@ui/foundation/i18n/messages.types';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 type Props = {
   visible: boolean;
@@ -170,6 +170,6 @@ const makeStyles = (c: Palette) =>
     mapFeeling: { color: c.text, fontWeight: '700', marginBottom: spacing(1) },
     mapText: { color: c.text, lineHeight: 20 },
     header: { padding: spacing(4), paddingBottom: 0, gap: spacing(2) },
-    title: { fontSize: 24, fontWeight: '700', color: c.text, ...c.heading },
+    title: { ...typeScale.title, color: c.text, ...c.heading },
     body: { color: c.muted, lineHeight: 20 },
   });

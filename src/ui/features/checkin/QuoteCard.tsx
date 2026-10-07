@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 import { quoteOfTheDay } from '@domain/voices/voices';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
@@ -34,7 +34,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     card: {
       backgroundColor: c.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       paddingVertical: spacing(3),
       paddingHorizontal: spacing(4),
       borderLeftWidth: 3,

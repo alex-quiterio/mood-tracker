@@ -22,7 +22,7 @@ import { Chip } from '@ui/kit/Chip';
 import { Stepper } from '@ui/kit/Stepper';
 import { SettingsStore } from '@ui/state/useSettings';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 
 /** Which habits to log, their prices, usual amounts, weights and options. Collapsed by default. */
 export function HabitSettings({ settings }: { settings: SettingsStore }) {
@@ -325,7 +325,7 @@ const makeStyles = (c: Palette) =>
     input: {
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 10,
+      borderRadius: radius.sm,
       paddingHorizontal: spacing(3),
       paddingVertical: spacing(2),
       color: c.text,

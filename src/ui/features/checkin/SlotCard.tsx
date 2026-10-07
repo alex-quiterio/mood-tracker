@@ -24,7 +24,7 @@ import { useDraft } from './useDraft';
 import { HabitLogger } from '@ui/features/habits/HabitLogger';
 import { EntriesStore } from '@ui/state/useEntries';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
 /** Which phone signals to count when a live check-in is saved. */
@@ -218,7 +218,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     card: {
       backgroundColor: c.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       padding: spacing(4),
       borderWidth: 1,
       borderColor: c.border,
@@ -237,7 +237,7 @@ const makeStyles = (c: Palette) =>
       minHeight: 64,
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 12,
+      borderRadius: radius.md,
       padding: spacing(3),
       fontSize: 15,
       color: c.text,

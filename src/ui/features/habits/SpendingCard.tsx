@@ -8,7 +8,7 @@ import { spent, totalSpent } from '@domain/habits/insights';
 import { weekStart } from '@domain/shared/dates';
 import { formatEuros } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 /** `today` is the last day of the week shown; `past` when that week isn't the current one. */
 type Props = { entries: Entry[]; habits: Habit[]; today: string; past?: boolean };
@@ -51,7 +51,7 @@ export function SpendingCard({ entries, habits, today, past = false }: Props) {
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    title: { fontSize: 15, fontWeight: '600', color: c.text, ...c.heading },
+    title: { ...typeScale.heading, color: c.text, ...c.heading },
     body: { color: c.text, fontSize: 14 },
     muted: { color: c.muted, fontSize: 13 },
   });

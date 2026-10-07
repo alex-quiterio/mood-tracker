@@ -10,7 +10,7 @@ import { Chip } from '@ui/kit/Chip';
 import { EntriesStore } from '@ui/state/useEntries';
 import { SettingsStore } from '@ui/state/useSettings';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, THEMES, paletteFor, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, THEMES, paletteFor, spacing, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 
 import { BackupSettings } from '@ui/features/settings/BackupSettings';
 import { HabitSettings } from '@ui/features/settings/HabitSettings';
@@ -152,7 +152,7 @@ const makeStyles = (c: Palette) =>
       alignItems: 'center',
       gap: spacing(2),
       padding: spacing(2),
-      borderRadius: 12,
+      borderRadius: radius.md,
       borderWidth: 2,
       borderColor: 'transparent',
     },
@@ -160,7 +160,7 @@ const makeStyles = (c: Palette) =>
     swatch: {
       width: '100%',
       height: 56,
-      borderRadius: 8,
+      borderRadius: radius.sm,
       borderWidth: 1,
       padding: spacing(2),
       justifyContent: 'space-between',

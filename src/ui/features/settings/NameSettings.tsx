@@ -9,7 +9,7 @@ import { reminderMessages } from '@ui/foundation/i18n/reminders';
 import { Card } from '@ui/kit/Card';
 import { SettingsStore } from '@ui/state/useSettings';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 
 /** What the app calls you; saved when you finish typing. */
 export function NameSettings({ settings }: { settings: SettingsStore }) {
@@ -53,7 +53,7 @@ const makeStyles = (c: Palette) =>
     input: {
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 12,
+      borderRadius: radius.md,
       padding: spacing(3),
       fontSize: 16,
       color: c.text,

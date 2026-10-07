@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 
 type Props = {
   children: ReactNode;
@@ -20,11 +20,11 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     card: {
       backgroundColor: c.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       padding: spacing(4),
-      borderWidth: 1,
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: c.border,
       gap: spacing(3),
     },
-    accent: { borderColor: c.accent },
+    accent: { borderColor: c.accent, borderWidth: 1.5 },
   });

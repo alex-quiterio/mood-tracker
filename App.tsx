@@ -41,6 +41,9 @@ import {
   spacing,
   useColors,
   useThemedStyles,
+  radius,
+  typeScale,
+  withAlpha,
 } from '@ui/foundation/theme/theme';
 import { EntriesStore, useEntries } from '@ui/state/useEntries';
 import { SettingsStore, useSettings } from '@ui/state/useSettings';
@@ -258,7 +261,9 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
               onPress={() => showTab(t.key)}
               style={styles.tab}
             >
-              <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
+              <View style={[styles.tabPill, selected && styles.tabPillSelected]}>
+                <Text style={[styles.tabIcon, selected && styles.tabSelected]}>{t.icon}</Text>
+              </View>
               <Text style={[styles.tabText, selected && styles.tabSelected]}>{m.tabs[t.key]}</Text>
             </Pressable>
           );
@@ -273,8 +278,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: c.background },
     header: {
-      fontSize: 26,
-      fontWeight: '700',
+      ...typeScale.display,
       color: c.text,
       paddingHorizontal: spacing(4),
       paddingTop: spacing(3),
@@ -284,12 +288,17 @@ const makeStyles = (c: Palette) =>
     page: { flex: 1 },
     tabBar: {
       flexDirection: 'row',
-      borderTopWidth: 1,
+      borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: c.border,
       backgroundColor: c.surface,
+      paddingTop: spacing(2),
+      paddingBottom: spacing(1),
     },
-    tab: { flex: 1, alignItems: 'center', paddingVertical: spacing(2) },
+    tab: { flex: 1, alignItems: 'center', gap: spacing(1) },
+    // The selected tab's icon sits in a soft pill of the accent colour.
+    tabPill: { paddingHorizontal: spacing(5), paddingVertical: spacing(1), borderRadius: radius.pill },
+    tabPillSelected: { backgroundColor: withAlpha(c.accent, 0.16) },
     tabIcon: { fontSize: 20, color: c.muted },
-    tabText: { fontSize: 12, color: c.muted },
-    tabSelected: { color: c.accent, fontWeight: '600' },
+    tabText: { ...typeScale.caption, color: c.muted },
+    tabSelected: { color: c.accent, fontWeight: '700' },
   });

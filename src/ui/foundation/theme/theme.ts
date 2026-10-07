@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo } from 'react';
+import type { TextStyle } from 'react-native';
 
 import { Mood } from '@domain/checkins/types';
 import { ThemeName } from '@domain/settings/settings';
@@ -80,6 +81,29 @@ export const palettes: Record<ThemeName, Palette> = {
 };
 
 export const spacing = (n: number) => n * 4;
+
+/** Corner radii: small for cells and tiles, medium for inputs, large for cards, pill for buttons and chips. */
+export const radius = { sm: 10, md: 14, lg: 22, pill: 999 } as const;
+
+/**
+ * The type scale. Sizes and weights only: the font file follows from the weight
+ * (see fonts.ts), and headings add the voice's `heading` on top.
+ */
+export const typeScale = {
+  display: { fontSize: 32, fontWeight: '700', letterSpacing: -0.6 },
+  title: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
+  heading: { fontSize: 17, fontWeight: '600', letterSpacing: -0.1 },
+  body: { fontSize: 15, lineHeight: 21 },
+  caption: { fontSize: 12, lineHeight: 16 },
+} satisfies Record<string, TextStyle>;
+
+/** A palette colour, `#RRGGBB`, at an opacity from 0 to 1, for tints like a selected tab's pill. */
+export function withAlpha(hex: string, alpha: number): string {
+  const a = Math.round(Math.min(1, Math.max(0, alpha)) * 255)
+    .toString(16)
+    .padStart(2, '0');
+  return `${hex.slice(0, 7)}${a}`;
+}
 
 /** The palette for a theme mode in a voice: each voice has its own Light, Dim and Dark tones. */
 export function paletteFor(theme: ThemeName, voice: VoiceId): Palette {

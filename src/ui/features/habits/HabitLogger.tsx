@@ -12,7 +12,7 @@ import {
 } from '@domain/habits/habits';
 import { Chip } from '@ui/kit/Chip';
 import { RoundButton } from '@ui/kit/RoundButton';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
 type Props = {
@@ -181,7 +181,7 @@ const makeStyles = (c: Palette) =>
     instead: {
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 12,
+      borderRadius: radius.md,
       padding: spacing(3),
       fontSize: 15,
       color: c.text,

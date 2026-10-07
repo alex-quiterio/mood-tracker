@@ -6,7 +6,7 @@ import { Mood } from '@domain/checkins/types';
 import { formatAverage, formatEuros, formatHours, formatInteger, longDate } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { formatStepsShort } from '@ui/foundation/i18n/signals';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
 
 type Props = {
   totals: MonthTotals;
@@ -198,13 +198,13 @@ const makeStyles = (c: Palette) =>
       borderTopWidth: 1,
       borderTopColor: c.border,
     },
-    title: { fontSize: 15, fontWeight: '600', color: c.text, ...c.heading },
+    title: { ...typeScale.heading, color: c.text, ...c.heading },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     tile: {
       flexBasis: '45%',
       flexGrow: 1,
       padding: spacing(2),
-      borderRadius: 10,
+      borderRadius: radius.sm,
       backgroundColor: c.background,
       gap: 2,
     },

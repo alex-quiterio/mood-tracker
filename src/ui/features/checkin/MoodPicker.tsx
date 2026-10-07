@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 import { MOODS, Mood } from '@domain/checkins/types';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
@@ -46,7 +46,7 @@ const makeStyles = (c: Palette) =>
       flex: 1,
       alignItems: 'center',
       paddingVertical: spacing(2),
-      borderRadius: 12,
+      borderRadius: radius.md,
       borderWidth: 1,
       borderColor: c.border,
       backgroundColor: c.background,

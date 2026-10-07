@@ -16,7 +16,7 @@ import {
   formatClock,
 } from '@domain/practice/practices';
 import { Button } from '@ui/kit/Button';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
 import { BreathSession } from './BreathSession';
@@ -126,7 +126,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: c.background },
     menu: { padding: spacing(4), gap: spacing(4) },
-    title: { fontSize: 26, fontWeight: '700', color: c.text, ...c.heading },
+    title: { ...typeScale.title, color: c.text, ...c.heading },
     cardTitle: { fontSize: 18, fontWeight: '600', color: c.text, ...c.heading },
     body: { color: c.muted, lineHeight: 20 },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },

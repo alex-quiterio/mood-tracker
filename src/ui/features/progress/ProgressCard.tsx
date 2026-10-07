@@ -5,7 +5,7 @@ import { LEVELS_PER_TITLE, XP, XpSource, titleIndex } from '@domain/progress/xp'
 import { Card } from '@ui/kit/Card';
 import { formatInteger } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 import { ProgressTrack } from './LevelBar';
 import { Progress } from './useProgress';
@@ -73,13 +73,13 @@ export function ProgressCard({ progress }: { progress: Progress }) {
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     heading: { fontSize: 18, fontWeight: '600', color: c.text, ...c.heading },
-    level: { fontSize: 22, fontWeight: '700', color: c.text, ...c.heading },
+    level: { ...typeScale.title, color: c.text, ...c.heading },
     row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: spacing(2) },
     muted: { color: c.muted, fontSize: 12 },
     sources: { gap: spacing(1), marginTop: spacing(2) },
     source: { color: c.text, flexShrink: 1 },
     xp: { color: c.accent, fontWeight: '600', fontVariant: ['tabular-nums'] },
-    subheading: { fontSize: 15, fontWeight: '600', color: c.text, marginTop: spacing(2), ...c.heading },
+    subheading: { ...typeScale.heading, color: c.text, marginTop: spacing(2), ...c.heading },
     path: { gap: spacing(1) },
     step: { color: c.muted },
     reached: { color: c.text },

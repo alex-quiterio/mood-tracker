@@ -15,7 +15,7 @@ import { offersBreathing } from '@domain/checkins/moments';
 import { burstEmojis } from '@ui/foundation/voices/voices';
 import { greetingFor, greetingText, streakLabel } from '@ui/foundation/i18n/greetings';
 import { currentStreak, weeklyStats } from '@domain/checkins/stats';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 import { Mood, SLOTS, Slot } from '@domain/checkins/types';
 import { pruneDrafts } from '@infrastructure/storage/draftsRepository';
 import { previewSteps } from '@infrastructure/signals/steps';
@@ -201,5 +201,5 @@ const makeStyles = (c: Palette) =>
     streakText: { color: c.text, fontSize: 13, fontWeight: '600' },
     comfortText: { color: c.text, fontSize: 15, lineHeight: 21 },
     comfortActions: { flexDirection: 'row', gap: spacing(2) },
-    dateHeading: { fontSize: 15, fontWeight: '600', color: c.muted, marginTop: spacing(1), ...c.heading },
+    dateHeading: { ...typeScale.heading, color: c.muted, marginTop: spacing(1), ...c.heading },
   });

@@ -14,7 +14,7 @@ import { sleepWeek } from '@domain/checkins/sleep';
 import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
 import { formatSteps, formatStepsShort } from '@ui/foundation/i18n/signals';
 import { firstWeekStart, thisWeekStats, weekShownUntil } from '@domain/checkins/stats';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
 import { SLOTS } from '@domain/checkins/types';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 import { EntriesStore } from '@ui/state/useEntries';
@@ -218,13 +218,13 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
     weekPicker: { flexDirection: 'row', alignItems: 'center' },
-    weekTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
+    weekTitle: { flex: 1, textAlign: 'center', ...typeScale.heading, color: c.text, ...c.heading },
     summary: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(3) },
     tile: {
       flexGrow: 1,
       flexBasis: '30%',
       backgroundColor: c.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       padding: spacing(4),
       borderWidth: 1,
       borderColor: c.border,
@@ -233,7 +233,7 @@ const makeStyles = (c: Palette) =>
     tileLabel: { color: c.muted, marginTop: spacing(1) },
     table: {
       backgroundColor: c.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       padding: spacing(3),
       borderWidth: 1,
       borderColor: c.border,
@@ -248,7 +248,7 @@ const makeStyles = (c: Palette) =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: spacing(2),
-      borderRadius: 8,
+      borderRadius: radius.sm,
       backgroundColor: c.background,
     },
     moodText: { color: c.onMood },
@@ -262,5 +262,5 @@ const makeStyles = (c: Palette) =>
     },
     averageText: { fontWeight: '700', color: c.text },
     hint: { color: c.muted, textAlign: 'center', fontSize: 13 },
-    sectionTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: spacing(2), ...c.heading },
+    sectionTitle: { ...typeScale.title, color: c.text, marginTop: spacing(2), ...c.heading },
   });

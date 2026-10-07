@@ -4,7 +4,7 @@ import { TextInput } from '@ui/kit/TextInput';
 import { Text } from '@ui/kit/Text';
 
 import { NAME_MAX_LENGTH } from '@domain/settings/settings';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
 import { Button } from '@ui/kit/Button';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
@@ -55,12 +55,12 @@ const makeStyles = (c: Palette) =>
     },
     card: { backgroundColor: c.surface, borderRadius: 20, padding: spacing(6), gap: spacing(3) },
     wave: { fontSize: 36 },
-    title: { fontSize: 22, fontWeight: '700', color: c.text },
+    title: { ...typeScale.title, color: c.text },
     body: { color: c.muted, lineHeight: 20 },
     input: {
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 12,
+      borderRadius: radius.md,
       padding: spacing(3),
       fontSize: 17,
       color: c.text,

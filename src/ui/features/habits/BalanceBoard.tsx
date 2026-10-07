@@ -7,7 +7,7 @@ import { WeekBalance, changeFromLastWeek, formatPoints } from '@domain/habits/ba
 import { changeText, verdictLabel } from '@ui/foundation/i18n/balance';
 import { weekdayShort } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 /**
  * Light vs heavy, a diverging pair checked for colour-blind separation and
@@ -127,7 +127,7 @@ function Legend({ color, label }: { color: string; label: string }) {
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    title: { fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
+    title: { ...typeScale.heading, color: c.text, ...c.heading },
     muted: { color: c.muted, fontSize: 13 },
     heroRow: { flexDirection: 'row', alignItems: 'flex-start' },
     verdict: { color: c.text, marginTop: spacing(1) },

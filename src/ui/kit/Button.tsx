@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Text } from './Text';
 
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, radius, spacing, useThemedStyles, withAlpha } from '@ui/foundation/theme/theme';
 
 type Props = {
   title: string;
@@ -32,15 +32,15 @@ export function Button({ title, onPress, variant = 'primary', disabled }: Props)
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     base: {
-      paddingVertical: spacing(3),
-      paddingHorizontal: spacing(4),
-      borderRadius: 12,
+      paddingVertical: spacing(3) + 2,
+      paddingHorizontal: spacing(5),
+      borderRadius: radius.pill,
       alignItems: 'center',
     },
     primary: { backgroundColor: c.accent },
-    secondary: { backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
+    secondary: { backgroundColor: withAlpha(c.accent, 0.1) },
     dimmed: { opacity: 0.6 },
-    text: { fontSize: 16, fontWeight: '600' },
+    text: { fontSize: 16, fontWeight: '700', letterSpacing: 0.1 },
     primaryText: { color: c.accentText },
-    secondaryText: { color: c.text },
+    secondaryText: { color: c.accent },
   });

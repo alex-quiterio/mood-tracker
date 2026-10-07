@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 import { Button } from '@ui/kit/Button';
 
@@ -34,7 +34,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing(8), gap: spacing(3) },
     icon: { fontSize: 48 },
-    title: { fontSize: 22, fontWeight: '700', color: c.text, textAlign: 'center', ...c.heading },
+    title: { ...typeScale.title, color: c.text, textAlign: 'center', ...c.heading },
     body: { color: c.muted, textAlign: 'center' },
     action: { alignSelf: 'stretch', marginTop: spacing(4) },
   });

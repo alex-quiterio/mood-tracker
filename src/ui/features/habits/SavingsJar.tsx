@@ -5,7 +5,7 @@ import { Card } from '@ui/kit/Card';
 import { Habit } from '@domain/habits/habits';
 import { savingsMilestone } from '@domain/habits/insights';
 import { formatEuros } from '@ui/foundation/i18n/format';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
 type Props = {
@@ -64,7 +64,7 @@ const makeStyles = (c: Palette) =>
     jar: {
       width: 56,
       height: 72,
-      borderRadius: 14,
+      borderRadius: radius.md,
       borderWidth: 2,
       borderColor: c.border,
       overflow: 'hidden',
@@ -74,7 +74,7 @@ const makeStyles = (c: Palette) =>
     fill: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: c.moodColors[5] },
     jarEmoji: { fontSize: 26, marginBottom: spacing(4) },
     text: { flex: 1, gap: 2 },
-    title: { fontSize: 15, fontWeight: '600', color: c.text, ...c.heading },
+    title: { ...typeScale.heading, color: c.text, ...c.heading },
     amount: { fontSize: 28, fontWeight: '800', color: c.text, fontVariant: ['tabular-nums'] },
     body: { color: c.text, fontSize: 13 },
     muted: { color: c.muted, fontSize: 13 },

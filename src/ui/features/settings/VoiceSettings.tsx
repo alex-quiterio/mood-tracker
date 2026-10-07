@@ -8,7 +8,15 @@ import { Button } from '@ui/kit/Button';
 import { Chip } from '@ui/kit/Chip';
 import { Card } from '@ui/kit/Card';
 import { DEFAULT_QUOTES } from '@domain/voices/quotes';
-import { Palette, paletteFor, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import {
+  Palette,
+  paletteFor,
+  spacing,
+  useColors,
+  useThemedStyles,
+  radius,
+  typeScale,
+} from '@ui/foundation/theme/theme';
 import { MOODS } from '@domain/checkins/types';
 import { SettingsStore } from '@ui/state/useSettings';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
@@ -210,14 +218,14 @@ const makeStyles = (c: Palette) =>
       alignItems: 'center',
       gap: spacing(3),
       padding: spacing(3),
-      borderRadius: 12,
+      borderRadius: radius.md,
       borderWidth: 2,
       borderColor: c.border,
     },
     optionSelected: { borderColor: c.accent },
     optionOut: { opacity: 0.45 },
     check: { width: 16, color: c.accent, fontWeight: '700', textAlign: 'center' },
-    subtitle: { fontSize: 15, fontWeight: '600', color: c.text },
+    subtitle: { ...typeScale.heading, color: c.text },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     optionText: { flex: 1 },
     dot: { width: 14, height: 14, borderRadius: 7 },
@@ -228,13 +236,13 @@ const makeStyles = (c: Palette) =>
     quotesRow: { flexDirection: 'row', alignItems: 'center' },
     editorRoot: { flex: 1, backgroundColor: c.background },
     editor: { flex: 1, padding: spacing(4), gap: spacing(3) },
-    editorTitle: { fontSize: 24, fontWeight: '700', color: c.text },
+    editorTitle: { ...typeScale.title, color: c.text },
     editorInput: {
       flex: 1,
       backgroundColor: c.surface,
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 12,
+      borderRadius: radius.md,
       padding: spacing(3),
       fontSize: 15,
       lineHeight: 21,

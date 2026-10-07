@@ -31,7 +31,7 @@ import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { describeSleep } from '@ui/foundation/i18n/sleep';
 import { Habit } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
-import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useColors, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
 import { Button } from '@ui/kit/Button';
@@ -225,14 +225,14 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     card: { padding: spacing(3), gap: spacing(1) },
     header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing(2) },
-    month: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
+    month: { flex: 1, textAlign: 'center', ...typeScale.heading, color: c.text, ...c.heading },
     week: { flexDirection: 'row', gap: spacing(1) },
     cell: { flex: 1, aspectRatio: 1 },
     weekday: { aspectRatio: undefined, textAlign: 'center', fontSize: 11, color: c.muted, fontWeight: '600' },
     day: {
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 8,
+      borderRadius: radius.sm,
       backgroundColor: c.background,
     },
     dayText: { fontSize: 13, color: c.text, fontVariant: ['tabular-nums'] },
@@ -240,7 +240,7 @@ const makeStyles = (c: Palette) =>
     selected: { borderWidth: 2, borderColor: c.text },
     outside: { opacity: 0.3 },
     detail: { marginTop: spacing(3), gap: spacing(2) },
-    detailTitle: { fontSize: 16, fontWeight: '600', color: c.text, ...c.heading },
+    detailTitle: { ...typeScale.heading, color: c.text, ...c.heading },
     detailRow: { flexDirection: 'row', gap: spacing(3), alignItems: 'flex-start' },
     detailSlot: { width: 80, color: c.muted, paddingTop: spacing(1) },
     detailBody: { flex: 1, gap: spacing(1), alignItems: 'flex-start' },

@@ -5,7 +5,7 @@ import { Card } from '@ui/kit/Card';
 import { MonthReview } from '@domain/checkins/monthly';
 import { formatDecimal, weekdayName } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { Palette, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 /** Simple patterns from the last 30 days: best and hardest weekday, lowest time of day, mood by habit. */
 export function MonthReviewCard({ review }: { review: MonthReview }) {
@@ -51,7 +51,7 @@ export function MonthReviewCard({ review }: { review: MonthReview }) {
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    title: { fontSize: 15, fontWeight: '600', color: c.text, ...c.heading },
+    title: { ...typeScale.heading, color: c.text, ...c.heading },
     line: { color: c.text, fontSize: 14 },
     muted: { color: c.muted, fontSize: 12 },
   });

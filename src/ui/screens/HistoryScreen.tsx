@@ -13,7 +13,7 @@ import { useProgress } from '@ui/features/progress/useProgress';
 import { EntriesStore } from '@ui/state/useEntries';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { buildMonthlyPrompt } from '@ui/features/reflection/monthPrompt';
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
 type Props = {
@@ -76,5 +76,5 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
     hint: { color: c.muted, textAlign: 'center', fontSize: 13 },
-    sectionTitle: { fontSize: 20, fontWeight: '700', color: c.text, marginTop: spacing(2), ...c.heading },
+    sectionTitle: { ...typeScale.title, color: c.text, marginTop: spacing(2), ...c.heading },
   });

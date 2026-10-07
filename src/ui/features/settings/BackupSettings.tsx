@@ -5,7 +5,6 @@ import { backupFileName, isBackupDue } from '@domain/checkins/backups';
 import { ExportError } from '@domain/checkins/exportFormat';
 import { mergeHabits } from '@domain/habits/habits';
 import { localDate } from '@domain/shared/dates';
-import { settingsForBackup } from '@domain/settings/settings';
 import {
   exportEntries,
   folderLabel,
@@ -20,6 +19,8 @@ import { SettingsStore } from '@ui/state/useSettings';
 import { longDate } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
+
+import { backupContents } from './backupContents';
 
 type Props = { store: EntriesStore; settings: SettingsStore };
 
@@ -37,7 +38,7 @@ export function BackupSettings({ store, settings }: Props) {
   const backUp = async (folder: string, confirm: boolean) => {
     const today = localDate();
     try {
-      writeBackup(folder, store.entries, habits, store.urges, settingsForBackup(settings.settings), today);
+      writeBackup(folder, backupContents(store, settings.settings), today);
       await settings.update({ lastBackup: today });
       if (confirm) {
         Alert.alert(
@@ -70,7 +71,7 @@ export function BackupSettings({ store, settings }: Props) {
 
   const doExport = async () => {
     try {
-      await exportEntries(store.entries, habits, store.urges, settingsForBackup(settings.settings), {
+      await exportEntries(backupContents(store, settings.settings), {
         dialogTitle: m.settings.shareDialog,
         unavailable: m.backupErrors.unavailable,
       });
@@ -85,6 +86,7 @@ export function BackupSettings({ store, settings }: Props) {
       if (!incoming) return;
       await store.importEntries(incoming.entries);
       await store.importUrges(incoming.urges);
+      await store.importPayments(incoming.payments);
       await settings.update({ ...incoming.settings, habits: mergeHabits(habits, incoming.habits) });
       const body = m.settings.importDoneBody(incoming.entries.length);
       Alert.alert(

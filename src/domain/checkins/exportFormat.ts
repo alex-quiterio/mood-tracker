@@ -1,6 +1,7 @@
 import { Habit, parseHabits } from '@domain/habits/habits';
 import { Urge, parseUrges } from '@domain/habits/urges';
 import { PortableSettings, parsePortableSettings } from '@domain/settings/settings';
+import { Payment, parsePayments } from '@domain/spending/payments';
 
 import { parseEntry } from './entries';
 import { Entry } from './types';
@@ -18,8 +19,9 @@ export class ExportError extends Error {
 const FORMAT = 'mood-tracker-export';
 // v2 adds habit definitions, so logged habits keep their names on another phone.
 // v3 adds urges.
-// v4 adds the portable settings. Older versions still import.
-const VERSION = 4;
+// v4 adds the portable settings.
+// v5 adds payments imported from bank statements. Older versions still import.
+const VERSION = 5;
 
 type ExportFile = {
   format: typeof FORMAT;
@@ -29,21 +31,29 @@ type ExportFile = {
   habits?: Habit[];
   urges?: Urge[];
   settings?: Partial<PortableSettings>;
+  payments?: Payment[];
 };
 
 export type ImportedData = {
   entries: Entry[];
   habits: Habit[];
   urges: Urge[];
+  payments: Payment[];
   /** Present when the file carries settings (version 4, and not left out of the backup). */
   settings?: Partial<PortableSettings>;
 };
 
+/** What goes into a backup. Settings are left out when the user chose to. */
+export type BackupContents = {
+  entries: Entry[];
+  habits: Habit[];
+  urges?: Urge[];
+  payments?: Payment[];
+  settings?: Partial<PortableSettings>;
+};
+
 export function serializeExport(
-  entries: Entry[],
-  habits: Habit[],
-  urges: Urge[] = [],
-  settings?: Partial<PortableSettings>,
+  { entries, habits, urges = [], payments = [], settings }: BackupContents,
   now: Date = new Date(),
 ): string {
   const file: ExportFile = {
@@ -53,6 +63,7 @@ export function serializeExport(
     entries,
     habits,
     urges,
+    payments,
     ...(settings ? { settings } : {}),
   };
   return JSON.stringify(file, null, 2);
@@ -77,12 +88,13 @@ export function parseExport(text: string): ImportedData {
   if (entries.some((e) => e === null)) {
     throw new ExportError('invalid');
   }
-  // v1 files have no habit definitions, and files before v3 have no urges.
+  // v1 files have no habit definitions, files before v3 no urges, and before v5 no payments.
   const settings = parsePortableSettings(file.settings);
   return {
     entries: entries as Entry[],
     habits: Array.isArray(file.habits) ? parseHabits(file.habits) : [],
     urges: parseUrges(file.urges),
+    payments: parsePayments(file.payments),
     ...(settings ? { settings } : {}),
   };
 }

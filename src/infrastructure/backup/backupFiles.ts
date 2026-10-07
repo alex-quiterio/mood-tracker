@@ -4,24 +4,17 @@ import * as Sharing from 'expo-sharing';
 
 import { localDate } from '@domain/shared/dates';
 import { backupFileName } from '@domain/checkins/backups';
-import { ImportedData, parseExport, serializeExport } from '@domain/checkins/exportFormat';
-import { Habit } from '@domain/habits/habits';
-import { Urge } from '@domain/habits/urges';
-import { PortableSettings } from '@domain/settings/settings';
-import { Entry } from '@domain/checkins/types';
+import { BackupContents, ImportedData, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 
-/** Writes all entries (and habit definitions, urges, portable settings) to a JSON file and opens the share sheet to save it elsewhere. */
+/** Writes a backup (entries, habit definitions, urges, payments, portable settings) to a JSON file and opens the share sheet to save it elsewhere. */
 export async function exportEntries(
-  entries: Entry[],
-  habits: Habit[],
-  urges: Urge[],
-  settings: Partial<PortableSettings> | undefined,
+  contents: BackupContents,
   text: { dialogTitle: string; unavailable: string },
 ): Promise<void> {
   const file = new File(Paths.cache, backupFileName(localDate()));
   if (file.exists) file.delete();
   file.create();
-  file.write(serializeExport(entries, habits, urges, settings));
+  file.write(serializeExport(contents));
 
   if (!(await Sharing.isAvailableAsync())) throw new Error(text.unavailable);
   await Sharing.shareAsync(file.uri, {
@@ -51,14 +44,7 @@ export async function pickBackupFolder(): Promise<string | null> {
 }
 
 /** Writes today's backup into the chosen folder. A second backup on the same day replaces the first. */
-export function writeBackup(
-  folderUri: string,
-  entries: Entry[],
-  habits: Habit[],
-  urges: Urge[],
-  settings: Partial<PortableSettings> | undefined,
-  date: string = localDate(),
-): void {
+export function writeBackup(folderUri: string, contents: BackupContents, date: string = localDate()): void {
   const folder = new Directory(folderUri);
   const name = backupFileName(date);
   // Delete rather than overwrite: SAF's "w" mode doesn't always truncate, which could leave a broken file.
@@ -66,7 +52,7 @@ export function writeBackup(
     .list()
     .find((item) => item instanceof File && item.name === name)
     ?.delete();
-  folder.createFile(name, 'application/json').write(serializeExport(entries, habits, urges, settings));
+  folder.createFile(name, 'application/json').write(serializeExport(contents));
 }
 
 /** A readable name for a picked folder, e.g. "Documents/Mood" from a content://…/tree/primary%3ADocuments%2FMood URI. */

@@ -6,23 +6,30 @@ import { Entry } from '@domain/checkins/types';
 import { Habit, activeHabits } from '@domain/habits/habits';
 import { spent, totalSpent } from '@domain/habits/insights';
 import { weekStart } from '@domain/shared/dates';
-import { formatEuros } from '@ui/foundation/i18n/format';
+import { formatEuros, formatMoneys } from '@ui/foundation/i18n/format';
+import { Payment } from '@domain/spending/payments';
+import { realVsEstimate } from '@domain/spending/realVsEstimate';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, useThemedStyles, typeScale } from '@ui/foundation/theme/theme';
 
 /** `today` is the last day of the week shown; `past` when that week isn't the current one. */
-type Props = { entries: Entry[]; habits: Habit[]; today: string; past?: boolean };
+type Props = { entries: Entry[]; habits: Habit[]; payments: Payment[]; today: string; past?: boolean };
 
 /** What doses cost: neutral numbers (doses × price), with no judgment and no red. Optional in Settings. */
-export function SpendingCard({ entries, habits, today, past = false }: Props) {
+export function SpendingCard({ entries, habits, payments, today, past = false }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const priced = activeHabits(habits, 'reduce').filter((h) => h.pricePerDose);
   const weekFrom = weekStart(today);
+  // What the imported statement says was really spent, above the habits' estimate.
+  const week = realVsEstimate(entries, habits, payments, weekFrom, today);
 
   return (
     <Card>
       <Text style={styles.title}>{m.spending.title}</Text>
+      {week.real && (
+        <Text style={styles.body}>{m.statement.week(formatMoneys(week.real, week.currency, locale))}</Text>
+      )}
       {priced.length === 0 ? (
         <Text style={styles.muted}>{m.spending.setPrice}</Text>
       ) : (

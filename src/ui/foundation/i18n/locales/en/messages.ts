@@ -130,6 +130,30 @@ export const messages: Omit<Messages, 'voices'> = {
     heavierThanBefore: (diff: number) => `${diff} vs the week before`,
     sameAsBefore: 'Same as the week before',
   },
+  statement: {
+    title: 'Bank statement',
+    hint: 'Import a Revolut statement (CSV) to see what you really spent next to each check-in, beside what your habits estimate. Card payments, cash withdrawals and fees count; transfers, top-ups and exchanges are left out. It all stays on this phone.',
+    importButton: 'Import Revolut CSV',
+    covered: (count: number, from: string, to: string) =>
+      `${count} ${count === 1 ? 'payment' : 'payments'}, ${from} to ${to}`,
+    importedTitle: 'Statement imported',
+    importedBody: (added: number, skipped: number) =>
+      `${added} new ${added === 1 ? 'payment' : 'payments'} added.${skipped > 0 ? ` ${skipped} other ${skipped === 1 ? 'row' : 'rows'} (transfers, top-ups…) left out.` : ''}`,
+    failed: 'Could not import',
+    notRevolut:
+      "This doesn't look like a Revolut statement. In Revolut, open the account, choose Statement, pick Excel (CSV) and try again.",
+    empty: 'No card payments, withdrawals or fees in this file.',
+    removeButton: 'Remove imported payments',
+    removeTitle: 'Remove all imported payments?',
+    removeBody: 'Your check-ins stay as they are. You can import a statement again any time.',
+    remove: 'Remove',
+    real: (amount: string, payments: number) =>
+      `💳 ${amount} spent (${payments} ${payments === 1 ? 'payment' : 'payments'})`,
+    estimate: (amount: string) => `🧾 ${amount} estimated on habits`,
+    notCovered: '💳 Not in the imported statement',
+    week: (real: string) => `💳 ${real} really spent by card`,
+    monthCaption: (estimate: string) => `spent by card · ${estimate} estimated on habits`,
+  },
   spending: {
     title: 'Spent on habits',
     thisWeek: (amount: string) => `${amount} this week`,

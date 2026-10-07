@@ -82,11 +82,11 @@ describe('settings in backups', () => {
 
   it('leaves them out when turned off', () => {
     expect(settingsForBackup({ ...custom, backupSettings: false })).toBeUndefined();
-    expect(parseExport(serializeExport([], [], [])).settings).toBeUndefined();
+    expect(parseExport(serializeExport({ entries: [], habits: [], urges: [] })).settings).toBeUndefined();
   });
 
   it('round-trips through an export, and older files simply have none', () => {
-    const file = serializeExport([], [], [], settingsForBackup(custom));
+    const file = serializeExport({ entries: [], habits: [], urges: [], settings: settingsForBackup(custom) });
     expect(parseExport(file).settings).toMatchObject({ name: 'Ana', theme: 'dark', language: 'pt-PT' });
     const v3 = JSON.stringify({ format: 'mood-tracker-export', version: 3, exportedAt: 'x', entries: [] });
     expect(parseExport(v3).settings).toBeUndefined();

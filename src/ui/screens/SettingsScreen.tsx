@@ -17,6 +17,7 @@ import { HabitSettings } from '@ui/features/settings/HabitSettings';
 import { LockSettings } from '@ui/features/settings/LockSettings';
 import { NameSettings } from '@ui/features/settings/NameSettings';
 import { ReminderSettings } from '@ui/features/settings/ReminderSettings';
+import { StatementSettings } from '@ui/features/settings/StatementSettings';
 import { StepSettings } from '@ui/features/settings/StepSettings';
 import { UnlockSettings } from '@ui/features/settings/UnlockSettings';
 import { VoiceSettings } from '@ui/features/settings/VoiceSettings';
@@ -35,6 +36,7 @@ export function SettingsScreen({ store, settings }: Props) {
       <ThemeSettings settings={settings} />
       <VoiceSettings settings={settings} />
       <HabitSettings settings={settings} />
+      <StatementSettings store={store} />
       <ReminderSettings settings={settings} />
       <UnlockSettings settings={settings} />
       <StepSettings settings={settings} />

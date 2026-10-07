@@ -18,13 +18,15 @@ import {
   summarizeDay,
 } from '@domain/checkins/calendar';
 import { monthTotals } from '@domain/checkins/monthTotals';
+import { realVsEstimate } from '@domain/spending/realVsEstimate';
 import { SLOTS } from '@domain/checkins/types';
 import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@ui/foundation/i18n/describeSignals';
 import { formatSteps } from '@ui/foundation/i18n/signals';
-import { longDate, monthTitle, weekdayInitials } from '@ui/foundation/i18n/format';
+import { longDate, monthTitle, weekdayInitials, formatMoneys } from '@ui/foundation/i18n/format';
 import { describeLoggedAt } from '@ui/foundation/i18n/loggedAt';
 import { DayEditor } from '@ui/features/checkin/DayEditor';
+import { RealVsEstimateLines } from '@ui/features/spending/RealVsEstimateLines';
 import { Tracking } from '@ui/features/checkin/SlotCard';
 import { EntriesStore } from '@ui/state/useEntries';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
@@ -129,7 +131,7 @@ export function HistoryCalendar({ store, tracking, today, habits }: Props) {
       <Text style={styles.hint}>{m.calendar.hint(HISTORY_MONTHS, EDITABLE_DAYS)}</Text>
 
       <MonthTotalsChart
-        totals={monthTotals(entries, store.urges, habits, month, today)}
+        totals={monthTotals(entries, store.urges, habits, month, today, store.payments)}
         selected={selected}
         onSelect={(date) => isVisible(date, today) && setSelected(date)}
       />
@@ -158,11 +160,15 @@ function DayDetail({
   const voice = useVoice();
   const label = longDate(date, locale);
   const totals = dayTotals(entries, date);
+  const daySpend = realVsEstimate(entries, habits, store.payments, date, date);
   const totalParts = [
     ...(totals.unlocks === null ? [] : [`📱 ${totals.unlocks} ${m.signals.unlocks(totals.unlocks)}`]),
     ...(totals.steps === null
       ? []
       : [`👟 ${formatSteps(totals.steps, locale)} ${m.signals.steps(totals.steps)}`]),
+    ...(daySpend.real === null || daySpend.payments === 0
+      ? []
+      : [`💳 ${formatMoneys(daySpend.real, daySpend.currency, locale)}`]),
   ];
 
   if (editing && isEditable(date, today)) {
@@ -205,9 +211,17 @@ function DayDetail({
                     {line}
                   </Text>
                 ))}
+                <RealVsEstimateLines
+                  value={realVsEstimate(entries, habits, store.payments, date, date, slot)}
+                />
               </View>
             ) : (
-              <Text style={styles.empty}>{m.common.notLogged}</Text>
+              <View style={styles.detailBody}>
+                <Text style={styles.empty}>{m.common.notLogged}</Text>
+                <RealVsEstimateLines
+                  value={realVsEstimate(entries, habits, store.payments, date, date, slot)}
+                />
+              </View>
             )}
           </View>
         );

@@ -2,6 +2,8 @@ import { Habit } from '@domain/habits/habits';
 import { savings } from '@domain/habits/insights';
 import { Urge } from '@domain/habits/urges';
 import { average } from '@domain/shared/math';
+import { Payment, mainCurrency, paymentsIn, statementSpan } from '@domain/spending/payments';
+import { habitEstimate } from '@domain/spending/realVsEstimate';
 
 import { MonthRef, monthGrid } from './calendar';
 import { Entry } from './types';
@@ -31,6 +33,11 @@ export type MonthTotals = {
   urges: { total: number; passed: number; perDay: DaySeries } | null;
   /** Euros kept by having less than usual. */
   saved: number;
+  /**
+   * Spent by card per the imported statement, in its main currency, with the habits'
+   * estimate beside it. Days the statement doesn't cover stay empty; null without one.
+   */
+  card: { total: number; currency: string; perDay: DaySeries; estimate: number } | null;
 };
 
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
@@ -42,6 +49,7 @@ export function monthTotals(
   habits: Habit[],
   month: MonthRef,
   today: string,
+  payments: Payment[] = [],
 ): MonthTotals {
   const days = monthGrid(month)
     .flat()
@@ -87,6 +95,16 @@ export function monthTotals(
     return d <= today ? n : null;
   });
 
+  const span = statementSpan(payments);
+  const monthPayments = paymentsIn(payments, first, last);
+  const currency = mainCurrency(monthPayments.length ? monthPayments : payments);
+  const cardPerDay: DaySeries = days.map((d) => {
+    if (!span || d < span.from || d > span.to || d > today) return null;
+    const spent = monthPayments.filter((p) => p.date === d && p.currency === currency);
+    return Math.round(sum(spent.map((p) => p.amount)) * 100) / 100;
+  });
+  const cardDays = cardPerDay.filter((v): v is number => v !== null);
+
   return {
     days,
     checkIns: {
@@ -113,5 +131,13 @@ export function monthTotals(
       (total, h) => total + (h.kind === 'reduce' ? savings(entries, h, first, last) : 0),
       0,
     ),
+    card: cardDays.length
+      ? {
+          total: Math.round(sum(cardDays) * 100) / 100,
+          currency,
+          perDay: cardPerDay,
+          estimate: habitEstimate(monthEntries, habits),
+        }
+      : null,
   };
 }

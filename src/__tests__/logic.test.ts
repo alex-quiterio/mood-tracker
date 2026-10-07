@@ -180,10 +180,11 @@ describe('weekly stats and prompt', () => {
 describe('export format', () => {
   it('round-trips entries and habit definitions', () => {
     const entries = [entry('2026-10-01', 'morning', 3, undefined, 'ok')];
-    expect(parseExport(serializeExport(entries, PRESET_HABITS))).toEqual({
+    expect(parseExport(serializeExport({ entries, habits: PRESET_HABITS }))).toEqual({
       entries,
       habits: PRESET_HABITS,
       urges: [],
+      payments: [],
     });
   });
 
@@ -195,7 +196,7 @@ describe('export format', () => {
       exportedAt: '2026-10-01T00:00:00Z',
       entries,
     });
-    expect(parseExport(v1)).toEqual({ entries, habits: [], urges: [] });
+    expect(parseExport(v1)).toEqual({ entries, habits: [], urges: [], payments: [] });
   });
 
   it('rejects files that are not exports', () => {

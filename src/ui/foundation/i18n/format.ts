@@ -100,6 +100,28 @@ export function longDate(date: string, locale: Locale): string {
   return locale === 'pt-PT' ? `${day}, ${d.getDate()} de ${month}` : `${day}, ${d.getDate()} ${month}`;
 }
 
+/** Money in any currency: euros as formatEuros, others as "12.40 GBP". */
+export function formatMoney(amount: number, currency: string, locale: Locale = 'en'): string {
+  return currency === 'EUR' ? formatEuros(amount, locale) : `${formatDecimal(amount, 2, locale)} ${currency}`;
+}
+
+/** Amounts in several currencies, the main one first: "€42 + 12.40 GBP". Zero in the main currency when empty. */
+export function formatMoneys(money: Record<string, number>, main: string, locale: Locale = 'en'): string {
+  const others = Object.entries(money).filter(([currency, amount]) => currency !== main && amount > 0);
+  return [
+    formatMoney(money[main] ?? 0, main, locale),
+    ...others.map(([cur, amt]) => formatMoney(amt, cur, locale)),
+  ].join(' + ');
+}
+
+/** A full date: "5 October 2026" · "5 de outubro de 2026". */
+export function fullDate(date: string, locale: Locale): string {
+  const year = date.slice(0, 4);
+  return locale === 'pt-PT'
+    ? `${dayAndMonth(date, locale)} de ${year}`
+    : `${dayAndMonth(date, locale)} ${year}`;
+}
+
 /** A day and its month: "29 September" · "29 de setembro". */
 export function dayAndMonth(date: string, locale: Locale): string {
   const d = parseLocalDate(date);

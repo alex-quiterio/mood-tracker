@@ -3,7 +3,14 @@ import { Text } from '@ui/kit/Text';
 
 import { DaySeries, MonthTotals } from '@domain/checkins/monthTotals';
 import { Mood } from '@domain/checkins/types';
-import { formatAverage, formatEuros, formatHours, formatInteger, longDate } from '@ui/foundation/i18n/format';
+import {
+  formatAverage,
+  formatEuros,
+  formatHours,
+  formatInteger,
+  formatMoney,
+  longDate,
+} from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { formatStepsShort } from '@ui/foundation/i18n/signals';
 import { Palette, spacing, useColors, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
@@ -85,6 +92,17 @@ export function MonthTotalsChart({ totals, selected, onSelect }: Props) {
           : t.grow(h.habit.name.toLowerCase()),
       values: h.perDay,
     })),
+    ...(totals.card
+      ? [
+          {
+            key: 'card',
+            icon: '💳',
+            value: formatMoney(totals.card.total, totals.card.currency, locale),
+            caption: m.statement.monthCaption(formatEuros(totals.card.estimate, locale)),
+            values: totals.card.perDay,
+          },
+        ]
+      : []),
     ...(totals.urges
       ? [
           {
@@ -101,7 +119,7 @@ export function MonthTotalsChart({ totals, selected, onSelect }: Props) {
   return (
     <View style={styles.root}>
       <Text style={styles.title}>{t.title}</Text>
-      {totals.checkIns.count === 0 && totals.urges === null ? (
+      {totals.checkIns.count === 0 && totals.urges === null && totals.card === null ? (
         <Text style={styles.muted}>{t.empty}</Text>
       ) : (
         <>

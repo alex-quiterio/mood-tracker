@@ -193,6 +193,7 @@ export function StatsScreen({
       <HabitsWeek
         entries={store.entries}
         urges={store.urges}
+        payments={store.payments}
         habits={habits}
         today={shownUntil}
         past={!isThisWeek}

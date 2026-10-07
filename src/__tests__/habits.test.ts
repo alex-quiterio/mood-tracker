@@ -361,7 +361,9 @@ describe('urges', () => {
 
   it('survive an export round trip, and older files import without them', () => {
     const a = urge('passed', '09:00:00');
-    expect(parseExport(serializeExport([], PRESET_HABITS, [a])).urges).toEqual([a]);
+    expect(parseExport(serializeExport({ entries: [], habits: PRESET_HABITS, urges: [a] })).urges).toEqual([
+      a,
+    ]);
     const v2 = JSON.stringify({ format: 'mood-tracker-export', version: 2, exportedAt: '', entries: [] });
     expect(parseExport(v2).urges).toEqual([]);
   });
@@ -429,7 +431,10 @@ describe('feelings before an urge', () => {
 
   it('travels through the export file', () => {
     const urges = parseUrges([urge('2026-10-05', ['sadness', 'emptiness'])]);
-    expect(parseExport(serializeExport([], [], urges)).urges[0].feelings).toEqual(['sadness', 'emptiness']);
+    expect(parseExport(serializeExport({ entries: [], habits: [], urges })).urges[0].feelings).toEqual([
+      'sadness',
+      'emptiness',
+    ]);
   });
 });
 

@@ -162,6 +162,28 @@ export type Messages = {
     heavierThanBefore: (diff: number) => string;
     sameAsBefore: string;
   };
+  /** Payments imported from a bank statement, next to the habits' estimate. */
+  statement: {
+    title: string;
+    hint: string;
+    importButton: string;
+    covered: (count: number, from: string, to: string) => string;
+    importedTitle: string;
+    importedBody: (added: number, skipped: number) => string;
+    failed: string;
+    notRevolut: string;
+    empty: string;
+    removeButton: string;
+    removeTitle: string;
+    removeBody: string;
+    remove: string;
+    /** A check-in or day: what was really spent, and what the habits estimate. */
+    real: (amount: string, payments: number) => string;
+    estimate: (amount: string) => string;
+    notCovered: string;
+    week: (real: string) => string;
+    monthCaption: (estimate: string) => string;
+  };
   spending: {
     title: string;
     thisWeek: (amount: string) => string;

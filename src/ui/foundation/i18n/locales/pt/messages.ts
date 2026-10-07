@@ -128,6 +128,29 @@ export const messages: Omit<Messages, 'voices'> = {
     heavierThanBefore: (diff) => `${diff} face à semana anterior`,
     sameAsBefore: 'Igual à semana anterior',
   },
+  statement: {
+    title: 'Extrato bancário',
+    hint: 'Importa um extrato do Revolut (CSV) para veres o que gastaste de facto junto de cada registo, ao lado do que os teus hábitos estimam. Contam pagamentos com cartão, levantamentos e comissões; transferências, carregamentos e câmbios ficam de fora. Tudo fica neste telemóvel.',
+    importButton: 'Importar CSV do Revolut',
+    covered: (count, from, to) => `${count} ${count === 1 ? 'pagamento' : 'pagamentos'}, de ${from} a ${to}`,
+    importedTitle: 'Extrato importado',
+    importedBody: (added, skipped) =>
+      `${added} ${added === 1 ? 'pagamento novo adicionado' : 'pagamentos novos adicionados'}.${skipped > 0 ? ` ${skipped} ${skipped === 1 ? 'outra linha' : 'outras linhas'} (transferências, carregamentos…) ficaram de fora.` : ''}`,
+    failed: 'Não foi possível importar',
+    notRevolut:
+      'Isto não parece um extrato do Revolut. No Revolut, abre a conta, escolhe Extrato, seleciona Excel (CSV) e tenta de novo.',
+    empty: 'Este ficheiro não tem pagamentos com cartão, levantamentos nem comissões.',
+    removeButton: 'Remover pagamentos importados',
+    removeTitle: 'Remover todos os pagamentos importados?',
+    removeBody: 'Os teus registos ficam como estão. Podes importar um extrato de novo quando quiseres.',
+    remove: 'Remover',
+    real: (amount, payments) =>
+      `💳 ${amount} gastos (${payments} ${payments === 1 ? 'pagamento' : 'pagamentos'})`,
+    estimate: (amount) => `🧾 ${amount} estimados nos hábitos`,
+    notCovered: '💳 Fora do extrato importado',
+    week: (real) => `💳 ${real} gastos de facto com cartão`,
+    monthCaption: (estimate) => `gastos com cartão · ${estimate} estimados nos hábitos`,
+  },
   spending: {
     title: 'Gasto em hábitos',
     thisWeek: (amount) => `${amount} esta semana`,

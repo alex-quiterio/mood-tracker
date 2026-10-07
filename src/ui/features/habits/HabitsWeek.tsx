@@ -6,6 +6,7 @@ import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
 import { Urge, feelingsBefore } from '@domain/habits/urges';
+import { Payment } from '@domain/spending/payments';
 import { habitWeek, recentInsteadNotes, totalSavings } from '@domain/habits/insights';
 import { describeFeelings, describeHabitWeek } from '@ui/foundation/i18n/habits';
 import { formatDecimal } from '@ui/foundation/i18n/format';
@@ -21,6 +22,7 @@ import { SpendingCard } from './SpendingCard';
 type Props = {
   entries: Entry[];
   urges: Urge[];
+  payments: Payment[];
   habits: Habit[];
   /** The last day of the week shown: today, or a past week's Sunday. */
   today: string;
@@ -29,7 +31,7 @@ type Props = {
   showSpending: boolean;
 };
 
-export function HabitsWeek({ entries, urges, habits, today, past = false, showSpending }: Props) {
+export function HabitsWeek({ entries, urges, payments, habits, today, past = false, showSpending }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
@@ -45,7 +47,9 @@ export function HabitsWeek({ entries, urges, habits, today, past = false, showSp
         habits={habits}
         past={past}
       />
-      {showSpending && <SpendingCard entries={entries} habits={habits} today={today} past={past} />}
+      {showSpending && (
+        <SpendingCard entries={entries} habits={habits} payments={payments} today={today} past={past} />
+      )}
       <Card>
         {week.map((w) => (
           <View key={w.habit.id} style={styles.line}>

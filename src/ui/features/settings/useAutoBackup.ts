@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 import { isBackupDue } from '@domain/checkins/backups';
-import { settingsForBackup } from '@domain/settings/settings';
 import { writeBackup } from '@infrastructure/backup/backupFiles';
 
 import { EntriesStore } from '@ui/state/useEntries';
+
+import { backupContents } from './backupContents';
 import { SettingsStore } from '@ui/state/useSettings';
 
 /**
@@ -13,15 +14,15 @@ import { SettingsStore } from '@ui/state/useSettings';
  */
 export function useAutoBackup(store: EntriesStore, settings: SettingsStore, today: string) {
   const tried = useRef<string | null>(null);
-  const { loaded, entries, urges } = store;
-  const { autoBackup, backupFolder, lastBackup, habits } = settings.settings;
+  const { loaded, entries } = store;
+  const { autoBackup, backupFolder, lastBackup } = settings.settings;
 
   useEffect(() => {
     if (!loaded || !autoBackup || !backupFolder || entries.length === 0) return;
     if (!isBackupDue(lastBackup || null, today) || tried.current === today) return;
     tried.current = today;
     try {
-      writeBackup(backupFolder, entries, habits, urges, settingsForBackup(settings.settings), today);
+      writeBackup(backupFolder, backupContents(store, settings.settings), today);
       settings.update({ lastBackup: today }).catch(() => {});
     } catch {
       // The folder may be gone or its permission revoked; Settings shows the last good backup.

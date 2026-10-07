@@ -100,6 +100,13 @@ export function longDate(date: string, locale: Locale): string {
   return locale === 'pt-PT' ? `${day}, ${d.getDate()} de ${month}` : `${day}, ${d.getDate()} ${month}`;
 }
 
+/** A day and its month: "29 September" · "29 de setembro". */
+export function dayAndMonth(date: string, locale: Locale): string {
+  const d = parseLocalDate(date);
+  const month = MONTHS[locale][d.getMonth()];
+  return locale === 'pt-PT' ? `${d.getDate()} de ${month}` : `${d.getDate()} ${month}`;
+}
+
 /** An average mood: "3.5" · "3,5", or a dash when there is none. */
 export const formatAverage = (value: number | null, locale: Locale = 'en') =>
   value === null ? '–' : formatDecimal(value, 1, locale);

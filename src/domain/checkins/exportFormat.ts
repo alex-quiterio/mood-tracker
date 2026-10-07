@@ -1,5 +1,6 @@
 import { Habit, parseHabits } from '@domain/habits/habits';
 import { Urge, parseUrges } from '@domain/habits/urges';
+import { PortableSettings, parsePortableSettings } from '@domain/settings/settings';
 
 import { parseEntry } from './entries';
 import { Entry } from './types';
@@ -16,8 +17,9 @@ export class ExportError extends Error {
 /** The backup file format. Versioned: keep older versions importable. */
 const FORMAT = 'mood-tracker-export';
 // v2 adds habit definitions, so logged habits keep their names on another phone.
-// v3 adds urges. Older versions still import.
-const VERSION = 3;
+// v3 adds urges.
+// v4 adds the portable settings. Older versions still import.
+const VERSION = 4;
 
 type ExportFile = {
   format: typeof FORMAT;
@@ -26,14 +28,22 @@ type ExportFile = {
   entries: Entry[];
   habits?: Habit[];
   urges?: Urge[];
+  settings?: Partial<PortableSettings>;
 };
 
-export type ImportedData = { entries: Entry[]; habits: Habit[]; urges: Urge[] };
+export type ImportedData = {
+  entries: Entry[];
+  habits: Habit[];
+  urges: Urge[];
+  /** Present when the file carries settings (version 4, and not left out of the backup). */
+  settings?: Partial<PortableSettings>;
+};
 
 export function serializeExport(
   entries: Entry[],
   habits: Habit[],
   urges: Urge[] = [],
+  settings?: Partial<PortableSettings>,
   now: Date = new Date(),
 ): string {
   const file: ExportFile = {
@@ -43,6 +53,7 @@ export function serializeExport(
     entries,
     habits,
     urges,
+    ...(settings ? { settings } : {}),
   };
   return JSON.stringify(file, null, 2);
 }
@@ -67,9 +78,11 @@ export function parseExport(text: string): ImportedData {
     throw new ExportError('invalid');
   }
   // v1 files have no habit definitions, and files before v3 have no urges.
+  const settings = parsePortableSettings(file.settings);
   return {
     entries: entries as Entry[],
     habits: Array.isArray(file.habits) ? parseHabits(file.habits) : [],
     urges: parseUrges(file.urges),
+    ...(settings ? { settings } : {}),
   };
 }

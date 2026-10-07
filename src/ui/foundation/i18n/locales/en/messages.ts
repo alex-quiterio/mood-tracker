@@ -57,6 +57,10 @@ export const messages: Omit<Messages, 'voices'> = {
     unlocksPerCheckIn: 'Unlocks per check-in',
     stepsPerCheckIn: 'Steps per check-in',
     thisWeek: 'This week',
+    week: 'Week',
+    weekRange: (from: string, to: string) => `${from} – ${to}`,
+    previousWeek: 'Previous week',
+    nextWeek: 'Next week',
     average: 'Average',
     unlocksRow: '📱 Unlocks',
     stepsRow: '👟 Steps',
@@ -99,6 +103,7 @@ export const messages: Omit<Messages, 'voices'> = {
       `${emoji} None in ${wins} of ${logged} check-ins · ${total} ${unit} in all`,
     moodWithNone: (none: string, some: string) => `Mood with none ${none} · with some ${some}`,
     insteadTitle: '🌱 What you did instead',
+    feelingsBefore: (list: string) => `🌊 Before your urges this week: ${list}`,
   },
   balance: {
     title: '⚖️ Balance',
@@ -238,6 +243,40 @@ export const messages: Omit<Messages, 'voices'> = {
       'It counts as at least one in the check-in for that part of the day. Next time you can try again.',
     done: 'Done',
     floorHint: (n: number) => `At least ${n}: you noted it with the urge button`,
+    feelTitle: 'What were you feeling just before?',
+    feelHint: 'Pick any that fit. Naming it already loosens its grip a little.',
+    feelNext: 'Continue',
+    feelSkip: 'Not sure, skip',
+    feelings: {
+      restlessness: 'Restlessness',
+      boredom: 'Boredom',
+      fear: 'Fear',
+      anxiety: 'Anxiety',
+      anger: 'Anger',
+      sadness: 'Sadness',
+      emptiness: 'Emptiness',
+      habit: 'Just habit',
+      loneliness: 'Loneliness',
+      hopelessness: 'Hopelessness',
+      tiredness: 'Tiredness',
+      shame: 'Shame',
+    },
+    mapTitle: 'The craving map',
+    mapIntro:
+      'The urge rises, peaks and falls if it is not fed. Ten minutes of something else is usually enough to let it pass.',
+    map: {
+      sadness:
+        'Let it be sad, out loud. Write three lines, or call your mother. Grief needs a channel, not a wall.',
+      restlessness:
+        'Move the body. Ten minutes outside, stairs, a round of sun salutations. The horse needs to run, not to sleep.',
+      emptiness:
+        'Make something small with your hands, or find five minutes of wordless contact with Erica. The two things that fill you: being useful, being looked at.',
+      boredom:
+        'Change room, change light, change task. Boredom is energy cut off from its object, so give it one.',
+      habit:
+        'It is the time, not the feeling. Move the cue: different chair, different hour, tea in the hand instead.',
+    },
+    mapNext: 'Breathe first',
   },
   reminders: {
     title: 'Daily reminders',
@@ -274,6 +313,7 @@ export const messages: Omit<Messages, 'voices'> = {
     importDone: 'Import complete',
     importDoneBody: (n: number) =>
       `Read ${n} entries. Where both had the same check-in, the newer one was kept.`,
+    importSettingsRestored: 'Your settings were restored too.',
     shareDialog: 'Save your mood data',
   },
   widget: {
@@ -296,6 +336,9 @@ export const messages: Omit<Messages, 'voices'> = {
     auto: 'Weekly automatic backup',
     autoBody:
       'When you open the app and the last backup is a week old, a new one is saved to the folder. Older backups are kept.',
+    includeSettings: 'Include settings',
+    includeSettingsBody:
+      'Backups and exports also carry your name, theme, voice, language and quotes. Reminders, the lock and the backup folder stay on this phone.',
     last: (date) => `Last backup: ${date}`,
     never: 'Nothing backed up to the folder yet.',
   },
@@ -463,5 +506,12 @@ export const messages: Omit<Messages, 'voices'> = {
       `Average mood on days with no ${name}: ${none}; on days with some: ${some}.`,
     monthAsk:
       'Please reflect on this month. What patterns do you notice (days of the week, time of day, anything in the notes)? What seemed to help, and what changed from the start of the month to the end? Then suggest one small, concrete thing I could try next month. Keep it short and kind.',
+    urgesTitle: 'Urges (I paused to breathe before choosing):',
+    urgeLine: (day: string, slot: string, habit: string, passed: boolean, feelings: string) =>
+      `- ${day}, ${slot}, ${habit}: ${passed ? 'let it pass' : 'had one'}${feelings ? `; felt before: ${feelings}` : ''}`,
+    urgeCount: (total: number, passed: number) => `${total} urges, ${passed} let pass.`,
+    urgeFeelings: (list: string) => `What I felt before the urges: ${list}.`,
+    urgeAsk:
+      'Please also notice which feelings tend to come before my urges, and suggest one kind thing I could do when they show up.',
   },
 };

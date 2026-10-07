@@ -49,6 +49,8 @@ export type Settings = {
   autoBackup: boolean;
   /** Local date of the last backup to the folder, empty when there hasn't been one. */
   lastBackup: string;
+  /** Put the settings in backups and exports too. On by default. */
+  backupSettings: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -71,6 +73,7 @@ export const DEFAULT_SETTINGS: Settings = {
   backupFolder: '',
   autoBackup: false,
   lastBackup: '',
+  backupSettings: true,
 };
 
 /** Settings from stored JSON; anything missing or invalid falls back to its default. */
@@ -100,7 +103,43 @@ export function parseSettings(value: unknown): Settings {
     backupFolder: typeof stored.backupFolder === 'string' ? stored.backupFolder : '',
     autoBackup: stored.autoBackup === true,
     lastBackup: isValidDate(stored.lastBackup) ? stored.lastBackup : '',
+    backupSettings: stored.backupSettings !== false,
   };
+}
+
+/**
+ * The settings a backup carries. Left out: habits (the file has them already), and whatever
+ * belongs to this phone: permissions (reminders, unlocks, steps), the lock and the backup folder.
+ */
+export const PORTABLE_SETTINGS = [
+  'name',
+  'reminderTimes',
+  'theme',
+  'voice',
+  'voiceRotation',
+  'rotationVoices',
+  'customQuotes',
+  'habitsInPrompt',
+  'showSpending',
+  'language',
+  'timeZone',
+  'backupSettings',
+] as const satisfies readonly (keyof Settings)[];
+
+export type PortableSettings = Pick<Settings, (typeof PORTABLE_SETTINGS)[number]>;
+
+/** What goes into a backup: the portable settings, or nothing when `backupSettings` is off. */
+export function settingsForBackup(settings: Settings): Partial<PortableSettings> | undefined {
+  if (!settings.backupSettings) return undefined;
+  return Object.fromEntries(PORTABLE_SETTINGS.map((key) => [key, settings[key]]));
+}
+
+/** Portable settings from a backup: only the ones the file has, each checked like stored settings. */
+export function parsePortableSettings(value: unknown): Partial<PortableSettings> | undefined {
+  if (typeof value !== 'object' || value === null) return undefined;
+  const parsed = parseSettings(value);
+  const present = PORTABLE_SETTINGS.filter((key) => key in value);
+  return present.length > 0 ? Object.fromEntries(present.map((key) => [key, parsed[key]])) : undefined;
 }
 
 /** Trims and shortens a name; anything that isn't a string becomes empty. */

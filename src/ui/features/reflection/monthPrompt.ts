@@ -1,10 +1,13 @@
 import { MonthReview } from '@domain/checkins/monthly';
 import { Entry, SLOTS } from '@domain/checkins/types';
 import { Habit } from '@domain/habits/habits';
+import { Urge } from '@domain/habits/urges';
 import { Locale } from '@domain/settings/language';
 import { formatAverage, formatDecimal, weekdayName, weekdayShort } from '@ui/foundation/i18n/format';
 import { messages } from '@ui/foundation/i18n/messages';
 import { VOICES, Voice } from '@ui/foundation/voices/voices';
+
+import { urgeLines } from './urgeLines';
 
 /**
  * Plain-text prompt for the Claude app covering the last 30 days: one line per day that has
@@ -17,6 +20,8 @@ export function buildMonthlyPrompt(
   voice: Pick<Voice, 'claude'> = VOICES.plain,
   habits: Habit[] | null = null,
   locale: Locale = 'en',
+  /** The month's urges join the habits, so they need `habits` too. */
+  urges: Urge[] = [],
 ): string {
   const m = messages(locale);
   const p = m.prompt;
@@ -65,6 +70,9 @@ export function buildMonthlyPrompt(
       formatAverage(review.overallAverage, locale),
     ),
     ...(patterns.length ? ['', p.monthPatterns, ...patterns.map((line) => `- ${line}`)] : []),
+    ...(habits
+      ? urgeLines(urges, habits, review.days[0], review.days[review.days.length - 1], locale, false)
+      : []),
     '',
     p.monthAsk,
     ...(p.answerIn ? [p.answerIn] : []),

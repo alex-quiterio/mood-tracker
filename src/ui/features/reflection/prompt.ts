@@ -10,6 +10,7 @@ import { sleepWeek } from '@domain/checkins/sleep';
 import { SLOTS } from '@domain/checkins/types';
 import { checkInPoints } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
+import { Urge } from '@domain/habits/urges';
 import { habitWeek, totalSavings } from '@domain/habits/insights';
 import { promptHabitText, promptHabitWeek } from '@ui/foundation/i18n/habits';
 import { Locale } from '@domain/settings/language';
@@ -17,6 +18,8 @@ import { messages } from '@ui/foundation/i18n/messages';
 import { promptSleepText } from '@ui/foundation/i18n/sleep';
 
 import { VOICES, Voice } from '@ui/foundation/voices/voices';
+
+import { urgeLines } from './urgeLines';
 
 /**
  * Plain-text prompt for the Claude app: the week's entries plus a request for patterns
@@ -29,6 +32,8 @@ export function buildReflectionPrompt(
   /** Habit data is sensitive: only included when the user turned it on. */
   habits: Habit[] | null = null,
   locale: Locale = 'en',
+  /** The week's urges join the habits, so they need `habits` too. */
+  urges: Urge[] = [],
 ): string {
   const m = messages(locale);
   const p = m.prompt;
@@ -83,6 +88,7 @@ export function buildReflectionPrompt(
     ...(hasSteps ? [p.averageSteps(Math.round(stats.stepAverage!))] : []),
     ...sleepSummary(stats, locale),
     ...(hasHabits ? habitSummary(stats, habits!, balance, locale) : []),
+    ...(habits ? urgeLines(urges, habits, first, last, locale, true) : []),
     '',
     ask,
     ...(p.answerIn ? [p.answerIn] : []),

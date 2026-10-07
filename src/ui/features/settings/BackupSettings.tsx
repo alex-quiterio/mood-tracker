@@ -4,6 +4,7 @@ import { backupFileName, isBackupDue } from '@domain/checkins/backups';
 import { ExportError } from '@domain/checkins/exportFormat';
 import { mergeHabits } from '@domain/habits/habits';
 import { localDate } from '@domain/shared/dates';
+import { settingsForBackup } from '@domain/settings/settings';
 import {
   exportEntries,
   folderLabel,
@@ -26,7 +27,7 @@ export function BackupSettings({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m, locale } = useLocale();
-  const { backupFolder, autoBackup, lastBackup, habits } = settings.settings;
+  const { backupFolder, autoBackup, lastBackup, habits, backupSettings } = settings.settings;
   const hasEntries = store.entries.length > 0;
   const errorText = (e: unknown) =>
     e instanceof ExportError ? m.backupErrors[e.code] : e instanceof Error ? e.message : String(e);
@@ -35,7 +36,7 @@ export function BackupSettings({ store, settings }: Props) {
   const backUp = async (folder: string, confirm: boolean) => {
     const today = localDate();
     try {
-      writeBackup(folder, store.entries, habits, store.urges, today);
+      writeBackup(folder, store.entries, habits, store.urges, settingsForBackup(settings.settings), today);
       await settings.update({ lastBackup: today });
       if (confirm) {
         Alert.alert(
@@ -68,7 +69,7 @@ export function BackupSettings({ store, settings }: Props) {
 
   const doExport = async () => {
     try {
-      await exportEntries(store.entries, habits, store.urges, {
+      await exportEntries(store.entries, habits, store.urges, settingsForBackup(settings.settings), {
         dialogTitle: m.settings.shareDialog,
         unavailable: m.backupErrors.unavailable,
       });
@@ -83,8 +84,12 @@ export function BackupSettings({ store, settings }: Props) {
       if (!incoming) return;
       await store.importEntries(incoming.entries);
       await store.importUrges(incoming.urges);
-      await settings.update({ habits: mergeHabits(habits, incoming.habits) });
-      Alert.alert(m.settings.importDone, m.settings.importDoneBody(incoming.entries.length));
+      await settings.update({ ...incoming.settings, habits: mergeHabits(habits, incoming.habits) });
+      const body = m.settings.importDoneBody(incoming.entries.length);
+      Alert.alert(
+        m.settings.importDone,
+        incoming.settings ? `${body} ${m.settings.importSettingsRestored}` : body,
+      );
     } catch (e) {
       Alert.alert(m.settings.importFailed, errorText(e));
     }
@@ -126,6 +131,17 @@ export function BackupSettings({ store, settings }: Props) {
           </Text>
         </>
       )}
+
+      <View style={styles.switchRow}>
+        <Text style={styles.label}>{m.backupSettings.includeSettings}</Text>
+        <Switch
+          value={backupSettings}
+          onValueChange={(on) => settings.update({ backupSettings: on })}
+          trackColor={{ true: c.accent, false: c.border }}
+          thumbColor={c.surface}
+        />
+      </View>
+      <Text style={styles.body}>{m.backupSettings.includeSettingsBody}</Text>
 
       <View style={styles.divider} />
       <Button title={m.settings.export} variant="secondary" onPress={doExport} disabled={!hasEntries} />

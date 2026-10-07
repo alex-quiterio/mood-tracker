@@ -1,7 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { BACKUP_INTERVAL_DAYS, backupFileName, isBackupDue } from '@domain/checkins/backups';
-import { DEFAULT_SETTINGS, parseSettings } from '@domain/settings/settings';
+import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
+import {
+  DEFAULT_SETTINGS,
+  parsePortableSettings,
+  parseSettings,
+  settingsForBackup,
+} from '@domain/settings/settings';
 
 describe('isBackupDue', () => {
   it('is due when there has never been a backup', () => {
@@ -51,5 +57,46 @@ describe('backup settings', () => {
       autoBackup: false,
       lastBackup: '',
     });
+  });
+});
+
+describe('settings in backups', () => {
+  const custom = parseSettings({
+    name: 'Ana',
+    theme: 'dark',
+    language: 'pt-PT',
+    appLock: true,
+    remindersEnabled: true,
+    backupFolder: 'content://folder',
+  });
+
+  it('is on by default and carries only the portable settings', () => {
+    expect(DEFAULT_SETTINGS.backupSettings).toBe(true);
+    expect(parseSettings({ backupSettings: false }).backupSettings).toBe(false);
+    const portable = settingsForBackup(custom);
+    expect(portable).toMatchObject({ name: 'Ana', theme: 'dark', language: 'pt-PT' });
+    for (const key of ['appLock', 'remindersEnabled', 'backupFolder', 'autoBackup', 'habits', 'trackSteps']) {
+      expect(portable).not.toHaveProperty(key);
+    }
+  });
+
+  it('leaves them out when turned off', () => {
+    expect(settingsForBackup({ ...custom, backupSettings: false })).toBeUndefined();
+    expect(parseExport(serializeExport([], [], [])).settings).toBeUndefined();
+  });
+
+  it('round-trips through an export, and older files simply have none', () => {
+    const file = serializeExport([], [], [], settingsForBackup(custom));
+    expect(parseExport(file).settings).toMatchObject({ name: 'Ana', theme: 'dark', language: 'pt-PT' });
+    const v3 = JSON.stringify({ format: 'mood-tracker-export', version: 3, exportedAt: 'x', entries: [] });
+    expect(parseExport(v3).settings).toBeUndefined();
+  });
+
+  it('keeps only the settings the file has, and ignores a device-bound one', () => {
+    expect(parsePortableSettings({ theme: 'dim', appLock: true, language: 'klingon' })).toEqual({
+      theme: 'dim',
+      language: 'system',
+    });
+    expect(parsePortableSettings('x')).toBeUndefined();
   });
 });

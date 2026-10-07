@@ -1,5 +1,6 @@
 import { Habit, HabitLog, PRESET_HABITS } from '@domain/habits/habits';
 import { HabitWeek } from '@domain/habits/insights';
+import { UrgeFeeling } from '@domain/habits/urges';
 import { Locale } from '@domain/settings/language';
 
 import { messages } from './messages';
@@ -65,4 +66,12 @@ export function promptHabitText(log: HabitLog | undefined, habits: Habit[], loca
   if (did.length) parts.push(m.did(did.join(', ')));
   if (log.instead) parts.push(m.insteadNote(log.instead));
   return parts.join('; ');
+}
+
+/** Feelings with how often they came, e.g. "boredom ×3, fear"; lower case to sit inside a sentence. */
+export function describeFeelings(counts: { feeling: UrgeFeeling; count: number }[], locale: Locale): string {
+  const names = messages(locale).urge.feelings;
+  return counts
+    .map(({ feeling, count }) => `${names[feeling].toLowerCase()}${count > 1 ? ` ×${count}` : ''}`)
+    .join(', ');
 }

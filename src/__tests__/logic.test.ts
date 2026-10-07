@@ -15,7 +15,8 @@ import {
 } from '@domain/shared/dates';
 import { NOTE_MAX_LENGTH, mergeEntries, parseEntry, saveTimes, upsertEntry } from '@domain/checkins/entries';
 import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
-import { thisWeekStats, weeklyStats } from '@domain/checkins/stats';
+import { firstWeekStart, thisWeekStats, weekShownUntil, weeklyStats } from '@domain/checkins/stats';
+import { parseUrges } from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 
 const entry = (
@@ -245,5 +246,64 @@ describe('the current week', () => {
     const prompt = buildReflectionPrompt(thisWeekStats([entry('2026-09-28', 'morning', 4)], '2026-10-01'));
     expect(prompt).toContain('2026-10-01');
     expect(prompt).not.toContain('2026-10-02');
+  });
+});
+
+describe('earlier weeks', () => {
+  it('go back as far as the week of the first check-in', () => {
+    const entries = [entry('2026-09-17', 'morning', 3), entry('2026-10-01', 'morning', 4)];
+    expect(firstWeekStart(entries, '2026-10-07')).toBe('2026-09-14');
+    expect(firstWeekStart([], '2026-10-07')).toBe('2026-10-05');
+  });
+
+  it('are seen whole, while this week stops at today', () => {
+    expect(weekShownUntil('2026-09-28', '2026-10-07')).toBe('2026-10-04');
+    expect(weekShownUntil('2026-10-05', '2026-10-07')).toBe('2026-10-07');
+    const stats = thisWeekStats(
+      [entry('2026-09-30', 'morning', 4)],
+      weekShownUntil('2026-09-28', '2026-10-07'),
+    );
+    expect(stats.possible).toBe(21);
+    expect(stats.days.every((d) => !d.future)).toBe(true);
+  });
+});
+
+describe('urges in the Claude prompt', () => {
+  const entries = [entry('2026-10-05', 'morning', 3)];
+  const urges = parseUrges([
+    {
+      date: '2026-10-05',
+      habitId: 'drinks',
+      outcome: 'passed',
+      recordedAt: '2026-10-05T19:00:00',
+      feelings: ['boredom', 'restlessness'],
+    },
+    {
+      date: '2026-10-06',
+      habitId: 'drinks',
+      outcome: 'gaveIn',
+      recordedAt: '2026-10-06T19:00:00',
+      feelings: ['boredom'],
+    },
+    {
+      date: '2026-09-30',
+      habitId: 'drinks',
+      outcome: 'passed',
+      recordedAt: '2026-09-30T19:00:00',
+      feelings: ['fear'],
+    },
+  ]);
+  const stats = thisWeekStats(entries, '2026-10-07');
+
+  it('lists the week’s urges with what was felt before', () => {
+    const prompt = buildReflectionPrompt(stats, undefined, PRESET_HABITS, 'en', urges);
+    expect(prompt).toContain('let it pass; felt before: restlessness, boredom');
+    expect(prompt).toContain('had one; felt before: boredom');
+    expect(prompt).toContain('What I felt before the urges: boredom ×2, restlessness.');
+    expect(prompt).not.toContain('fear');
+  });
+
+  it('stays out unless habits are in the prompt', () => {
+    expect(buildReflectionPrompt(stats, undefined, null, 'en', urges)).not.toContain('felt before');
   });
 });

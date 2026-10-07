@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ArrowButton } from '@ui/kit/ArrowButton';
 import { Card } from '@ui/kit/Card';
 import {
   EDITABLE_DAYS,
@@ -210,39 +211,11 @@ function DayDetail({
   );
 }
 
-function ArrowButton({
-  label,
-  hint,
-  disabled,
-  onPress,
-}: {
-  label: string;
-  hint: string;
-  disabled: boolean;
-  onPress: () => void;
-}) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={hint}
-      disabled={disabled}
-      onPress={onPress}
-      hitSlop={8}
-      style={[styles.arrow, disabled && styles.outside]}
-    >
-      <Text style={styles.arrowText}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     card: { padding: spacing(3), gap: spacing(1) },
     header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing(2) },
     month: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
-    arrow: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-    arrowText: { fontSize: 26, color: c.accent, lineHeight: 28 },
     week: { flexDirection: 'row', gap: spacing(1) },
     cell: { flex: 1, aspectRatio: 1 },
     weekday: { aspectRatio: undefined, textAlign: 'center', fontSize: 11, color: c.muted, fontWeight: '600' },

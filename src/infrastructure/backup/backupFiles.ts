@@ -7,19 +7,21 @@ import { backupFileName } from '@domain/checkins/backups';
 import { ImportedData, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { Habit } from '@domain/habits/habits';
 import { Urge } from '@domain/habits/urges';
+import { PortableSettings } from '@domain/settings/settings';
 import { Entry } from '@domain/checkins/types';
 
-/** Writes all entries (and habit definitions) to a JSON file and opens the share sheet to save it elsewhere. */
+/** Writes all entries (and habit definitions, urges, portable settings) to a JSON file and opens the share sheet to save it elsewhere. */
 export async function exportEntries(
   entries: Entry[],
   habits: Habit[],
   urges: Urge[],
+  settings: Partial<PortableSettings> | undefined,
   text: { dialogTitle: string; unavailable: string },
 ): Promise<void> {
   const file = new File(Paths.cache, backupFileName(localDate()));
   if (file.exists) file.delete();
   file.create();
-  file.write(serializeExport(entries, habits, urges));
+  file.write(serializeExport(entries, habits, urges, settings));
 
   if (!(await Sharing.isAvailableAsync())) throw new Error(text.unavailable);
   await Sharing.shareAsync(file.uri, {
@@ -54,6 +56,7 @@ export function writeBackup(
   entries: Entry[],
   habits: Habit[],
   urges: Urge[],
+  settings: Partial<PortableSettings> | undefined,
   date: string = localDate(),
 ): void {
   const folder = new Directory(folderUri);
@@ -63,7 +66,7 @@ export function writeBackup(
     .list()
     .find((item) => item instanceof File && item.name === name)
     ?.delete();
-  folder.createFile(name, 'application/json').write(serializeExport(entries, habits, urges));
+  folder.createFile(name, 'application/json').write(serializeExport(entries, habits, urges, settings));
 }
 
 /** A readable name for a picked folder, e.g. "Documents/Mood" from a content://…/tree/primary%3ADocuments%2FMood URI. */

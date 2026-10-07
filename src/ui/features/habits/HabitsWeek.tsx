@@ -4,9 +4,9 @@ import { Card } from '@ui/kit/Card';
 import { Entry } from '@domain/checkins/types';
 import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
-import { Urge } from '@domain/habits/urges';
+import { Urge, feelingsBefore } from '@domain/habits/urges';
 import { habitWeek, recentInsteadNotes, totalSavings } from '@domain/habits/insights';
-import { describeHabitWeek } from '@ui/foundation/i18n/habits';
+import { describeFeelings, describeHabitWeek } from '@ui/foundation/i18n/habits';
 import { formatDecimal } from '@ui/foundation/i18n/format';
 import { weekStart } from '@domain/shared/dates';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
@@ -24,6 +24,7 @@ export function HabitsWeek({ entries, urges, habits, today, showSpending }: Prop
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
   const insteadNotes = recentInsteadNotes(entries, today);
+  const feelings = feelingsBefore(urges, weekStart(today), today);
 
   return (
     <View style={styles.root}>
@@ -48,6 +49,11 @@ export function HabitsWeek({ entries, urges, habits, today, showSpending }: Prop
             )}
           </View>
         ))}
+        {feelings.length > 0 && (
+          <View style={styles.line}>
+            <Text style={styles.text}>{m.habits.feelingsBefore(describeFeelings(feelings, locale))}</Text>
+          </View>
+        )}
         {insteadNotes.length > 0 && (
           <View style={styles.line}>
             <Text style={styles.text}>{m.habits.insteadTitle}</Text>

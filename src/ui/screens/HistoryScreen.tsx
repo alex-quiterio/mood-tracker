@@ -43,7 +43,14 @@ export function HistoryScreen({
     try {
       // Opens Android's share sheet; pick the Claude app. No API calls involved.
       await Share.share({
-        message: buildMonthlyPrompt(month, store.entries, voice, habitsInPrompt ? habits : null, locale),
+        message: buildMonthlyPrompt(
+          month,
+          store.entries,
+          voice,
+          habitsInPrompt ? habits : null,
+          locale,
+          store.urges,
+        ),
       });
     } catch (e) {
       Alert.alert(m.stats.shareFailed, String(e));

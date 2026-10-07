@@ -3,7 +3,16 @@ import { describe, expect, it } from '@jest/globals';
 import { parseEntry } from '@domain/checkins/entries';
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import { balanceDays } from '@domain/habits/balance';
-import { URGE_POINTS, Urge, applyUrgeFloors, mergeUrges, parseUrges, urgeFloors } from '@domain/habits/urges';
+import {
+  URGE_POINTS,
+  Urge,
+  applyUrgeFloors,
+  feelingsBefore,
+  mergeUrges,
+  parseUrges,
+  toggleFeeling,
+  urgeFloors,
+} from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 import {
   Habit,
@@ -371,5 +380,50 @@ describe('what you did instead', () => {
       '2026-10-01',
     );
     expect(notes).toEqual(['called a friend', 'read', 'walked']);
+  });
+});
+
+describe('feelings before an urge', () => {
+  const urge = (date: string, feelings?: unknown): unknown => ({
+    date,
+    habitId: 'alcohol',
+    outcome: 'passed',
+    recordedAt: `${date}T12:00:00.000Z`,
+    ...(feelings === undefined ? {} : { feelings }),
+  });
+
+  it('keeps known feelings in a fixed order and drops the rest', () => {
+    const [u] = parseUrges([urge('2026-10-05', ['shame', 'boredom', 'nope', 3])]);
+    expect(u.feelings).toEqual(['boredom', 'shame']);
+  });
+
+  it('leaves feelings out when none were picked, so older urges still parse', () => {
+    expect(parseUrges([urge('2026-10-05'), urge('2026-10-06', [])])).toEqual([
+      expect.not.objectContaining({ feelings: expect.anything() }),
+      expect.not.objectContaining({ feelings: expect.anything() }),
+    ]);
+  });
+
+  it('toggles a feeling', () => {
+    expect(toggleFeeling(['boredom'], 'restlessness')).toEqual(['restlessness', 'boredom']);
+    expect(toggleFeeling(['restlessness', 'boredom'], 'boredom')).toEqual(['restlessness']);
+  });
+
+  it('counts feelings in a date range, most frequent first', () => {
+    const urges = parseUrges([
+      urge('2026-09-28', ['fear']),
+      urge('2026-10-05', ['restlessness', 'boredom']),
+      urge('2026-10-06', ['boredom']),
+      urge('2026-10-13', ['boredom']),
+    ]);
+    expect(feelingsBefore(urges, '2026-10-05', '2026-10-11')).toEqual([
+      { feeling: 'boredom', count: 2 },
+      { feeling: 'restlessness', count: 1 },
+    ]);
+  });
+
+  it('travels through the export file', () => {
+    const urges = parseUrges([urge('2026-10-05', ['sadness', 'emptiness'])]);
+    expect(parseExport(serializeExport([], [], urges)).urges[0].feelings).toEqual(['sadness', 'emptiness']);
   });
 });

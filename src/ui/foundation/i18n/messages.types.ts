@@ -1,6 +1,13 @@
+import type { UrgeFeeling } from '@domain/habits/urges';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { VoiceId } from '@domain/voices/voices';
 import type { VoiceText } from '@ui/foundation/voices/voices.types';
+
+/** Feelings the craving map has a line for. */
+export type MappedFeeling = Extract<
+  UrgeFeeling,
+  'sadness' | 'restlessness' | 'emptiness' | 'boredom' | 'habit'
+>;
 
 /**
  * The shape of the app's text: every locale (see ./locales) provides exactly these
@@ -85,6 +92,10 @@ export type Messages = {
     unlocksPerCheckIn: string;
     stepsPerCheckIn: string;
     thisWeek: string;
+    week: string;
+    weekRange: (from: string, to: string) => string;
+    previousWeek: string;
+    nextWeek: string;
     average: string;
     unlocksRow: string;
     stepsRow: string;
@@ -124,6 +135,8 @@ export type Messages = {
     reduceWeek: (emoji: string, wins: number, logged: number, total: number, unit: string) => string;
     moodWithNone: (none: string, some: string) => string;
     insteadTitle: string;
+    /** Feelings before this week's urges, already joined, e.g. "boredom ×3, fear". */
+    feelingsBefore: (list: string) => string;
   };
   balance: {
     title: string;
@@ -263,6 +276,16 @@ export type Messages = {
     hadOneBody: string;
     done: string;
     floorHint: (n: number) => string;
+    feelTitle: string;
+    feelHint: string;
+    feelNext: string;
+    feelSkip: string;
+    feelings: Record<UrgeFeeling, string>;
+    mapTitle: string;
+    mapIntro: string;
+    /** The craving map: what to do with the feelings it has a line for. */
+    map: Record<MappedFeeling, string>;
+    mapNext: string;
   };
   reminders: {
     title: string;
@@ -306,6 +329,7 @@ export type Messages = {
     importFailed: string;
     importDone: string;
     importDoneBody: (n: number) => string;
+    importSettingsRestored: string;
     shareDialog: string;
   };
   widget: {
@@ -326,6 +350,8 @@ export type Messages = {
     failedBody: string;
     auto: string;
     autoBody: string;
+    includeSettings: string;
+    includeSettingsBody: string;
     last: (date: string) => string;
     never: string;
   };
@@ -450,6 +476,11 @@ export type Messages = {
     monthLowestSlot: (slot: string, average: string) => string;
     monthHabitMoods: (name: string, none: string, some: string) => string;
     monthAsk: string;
+    urgesTitle: string;
+    urgeLine: (day: string, slot: string, habit: string, passed: boolean, feelings: string) => string;
+    urgeCount: (total: number, passed: number) => string;
+    urgeFeelings: (list: string) => string;
+    urgeAsk: string;
   };
   sleep: {
     title: string;

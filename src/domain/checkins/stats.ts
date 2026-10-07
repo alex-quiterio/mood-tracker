@@ -1,4 +1,4 @@
-import { addDays, lastNDays, localDate, weekOf } from '@domain/shared/dates';
+import { addDays, lastNDays, localDate, weekOf, weekStart } from '@domain/shared/dates';
 import { average } from '@domain/shared/math';
 import { entryKey } from './entries';
 import { Entry, SLOTS, Slot } from './types';
@@ -27,6 +27,21 @@ export type WeeklyStats = {
 /** The Monday-to-Sunday week `today` falls in, for the This week tab. */
 export const thisWeekStats = (entries: Entry[], today: string = localDate()) =>
   weeklyStats(entries, today, weekOf(today));
+
+/** The Monday of the week with the first check-in: the furthest back the week tab goes. */
+export function firstWeekStart(entries: Entry[], today: string = localDate()): string {
+  const first = entries.reduce((min, e) => (e.date < min ? e.date : min), today);
+  return weekStart(first);
+}
+
+/**
+ * The day a week is seen from: its Sunday for a past week, `today` for this one,
+ * so days still to come stay out.
+ */
+export const weekShownUntil = (monday: string, today: string = localDate()): string => {
+  const sunday = addDays(monday, 6);
+  return sunday < today ? sunday : today;
+};
 
 /**
  * Stats over `days`: by default the 7 days ending at `today` (inclusive). Days after

@@ -1,16 +1,18 @@
+import { useState } from 'react';
 import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
+import { ArrowButton } from '@ui/kit/ArrowButton';
 import { Button } from '@ui/kit/Button';
 import { HabitsInPromptSwitch } from '@ui/features/habits/HabitsInPromptSwitch';
 import { Habit } from '@domain/habits/habits';
 import { HabitsWeek } from '@ui/features/habits/HabitsWeek';
-import { dayOfMonth } from '@domain/shared/dates';
-import { weekdayShort, formatAverage, formatHours } from '@ui/foundation/i18n/format';
+import { addDays, dayOfMonth, weekStart } from '@domain/shared/dates';
+import { dayAndMonth, weekdayShort, formatAverage, formatHours } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { sleepWeek } from '@domain/checkins/sleep';
 import { buildReflectionPrompt } from '@ui/features/reflection/prompt';
 import { formatSteps, formatStepsShort } from '@ui/foundation/i18n/signals';
-import { thisWeekStats } from '@domain/checkins/stats';
+import { firstWeekStart, thisWeekStats, weekShownUntil } from '@domain/checkins/stats';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
 import { SLOTS } from '@domain/checkins/types';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
@@ -37,8 +39,14 @@ export function StatsScreen({
   const c = useColors();
   const voice = useVoice();
   const { m, locale } = useLocale();
-  const stats = thisWeekStats(store.entries, today);
-  const sleep = sleepWeek(store.entries, today);
+  // Weeks back from this one, as far as the week of the first check-in.
+  const [weeksBack, setWeeksBack] = useState(0);
+  const monday = addDays(weekStart(today), -7 * weeksBack);
+  const canGoBack = addDays(monday, -7) >= firstWeekStart(store.entries, today);
+  const shownUntil = weekShownUntil(monday, today);
+  const isThisWeek = weeksBack === 0;
+  const stats = thisWeekStats(store.entries, shownUntil);
+  const sleep = sleepWeek(store.entries, shownUntil);
 
   const share = async (message: string) => {
     try {
@@ -48,10 +56,31 @@ export function StatsScreen({
       Alert.alert(m.stats.shareFailed, String(e));
     }
   };
-  const reflect = () => share(buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null, locale));
+  const reflect = () =>
+    share(buildReflectionPrompt(stats, voice, habitsInPrompt ? habits : null, locale, store.urges));
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.weekPicker}>
+        <ArrowButton
+          label="‹"
+          hint={m.stats.previousWeek}
+          disabled={!canGoBack}
+          onPress={() => setWeeksBack((n) => n + 1)}
+        />
+        <Text style={styles.weekTitle}>
+          {isThisWeek
+            ? m.stats.thisWeek
+            : m.stats.weekRange(dayAndMonth(monday, locale), dayAndMonth(addDays(monday, 6), locale))}
+        </Text>
+        <ArrowButton
+          label="›"
+          hint={m.stats.nextWeek}
+          disabled={isThisWeek}
+          onPress={() => setWeeksBack((n) => Math.max(0, n - 1))}
+        />
+      </View>
+
       <View style={styles.summary}>
         <SummaryTile label={m.stats.overallAverage} value={formatAverage(stats.overallAverage, locale)} />
         <SummaryTile label={m.stats.logged} value={`${stats.logged} / ${stats.possible}`} />
@@ -71,7 +100,9 @@ export function StatsScreen({
 
       <View style={styles.table}>
         <View style={styles.row}>
-          <Text style={[styles.dayCell, styles.headerText]}>{m.stats.thisWeek}</Text>
+          <Text style={[styles.dayCell, styles.headerText]}>
+            {isThisWeek ? m.stats.thisWeek : m.stats.week}
+          </Text>
           {SLOTS.map((slot) => (
             <Text key={slot} style={[styles.cell, styles.headerText]}>
               {voice.slotLabels[slot]}
@@ -162,7 +193,7 @@ export function StatsScreen({
         entries={store.entries}
         urges={store.urges}
         habits={habits}
-        today={today}
+        today={shownUntil}
         showSpending={showSpending}
       />
     </ScrollView>
@@ -184,6 +215,8 @@ function SummaryTile({ label, value }: { label: string; value: string }) {
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
+    weekPicker: { flexDirection: 'row', alignItems: 'center' },
+    weekTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: c.text, ...c.heading },
     summary: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(3) },
     tile: {
       flexGrow: 1,

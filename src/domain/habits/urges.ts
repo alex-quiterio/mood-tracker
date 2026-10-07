@@ -12,11 +12,31 @@ import { MAX_DOSES, type HabitLog } from './habits';
 
 export type UrgeOutcome = 'passed' | 'gaveIn';
 
+/** What was felt just before the urge. Any number can be picked, or none. */
+export const URGE_FEELINGS = [
+  'restlessness',
+  'boredom',
+  'sadness',
+  'emptiness',
+  'habit',
+  'loneliness',
+  'fear',
+  'anxiety',
+  'anger',
+  'hopelessness',
+  'tiredness',
+  'shame',
+] as const;
+
+export type UrgeFeeling = (typeof URGE_FEELINGS)[number];
+
 export type Urge = {
   /** Local calendar date, YYYY-MM-DD. */
   date: string;
   habitId: string;
   outcome: UrgeOutcome;
+  /** What was felt before the urge; left out when none was picked (and on urges saved before 1.14). */
+  feelings?: UrgeFeeling[];
   /** ISO 8601 timestamp; with the habit it identifies the urge. */
   recordedAt: string;
 };
@@ -46,7 +66,36 @@ export function parseUrge(value: unknown): Urge | null {
   if (typeof v.habitId !== 'string' || v.habitId === '') return null;
   if (v.outcome !== 'passed' && v.outcome !== 'gaveIn') return null;
   if (typeof v.recordedAt !== 'string' || Number.isNaN(Date.parse(v.recordedAt))) return null;
-  return { date: v.date, habitId: v.habitId, outcome: v.outcome, recordedAt: v.recordedAt };
+  const feelings = Array.isArray(v.feelings)
+    ? URGE_FEELINGS.filter((f) => (v.feelings as unknown[]).includes(f))
+    : [];
+  return {
+    date: v.date,
+    habitId: v.habitId,
+    outcome: v.outcome,
+    ...(feelings.length > 0 ? { feelings } : {}),
+    recordedAt: v.recordedAt,
+  };
+}
+
+/** Adds or removes a feeling, keeping them in the order of URGE_FEELINGS. */
+export const toggleFeeling = (feelings: UrgeFeeling[], feeling: UrgeFeeling): UrgeFeeling[] =>
+  URGE_FEELINGS.filter((f) => (f === feeling ? !feelings.includes(f) : feelings.includes(f)));
+
+/** How often each feeling came before an urge between two dates (inclusive), most frequent first. */
+export function feelingsBefore(
+  urges: Urge[],
+  fromDate: string,
+  toDate: string,
+): { feeling: UrgeFeeling; count: number }[] {
+  const counts = new Map<UrgeFeeling, number>();
+  for (const u of urges) {
+    if (u.date < fromDate || u.date > toDate) continue;
+    for (const f of u.feelings ?? []) counts.set(f, (counts.get(f) ?? 0) + 1);
+  }
+  return URGE_FEELINGS.filter((f) => counts.has(f))
+    .map((feeling) => ({ feeling, count: counts.get(feeling)! }))
+    .sort((a, b) => b.count - a.count);
 }
 
 /** Stored urges; anything that isn't valid is dropped. */

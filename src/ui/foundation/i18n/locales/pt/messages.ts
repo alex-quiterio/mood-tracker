@@ -57,6 +57,10 @@ export const messages: Omit<Messages, 'voices'> = {
     unlocksPerCheckIn: 'Desbloqueios por registo',
     stepsPerCheckIn: 'Passos por registo',
     thisWeek: 'Esta semana',
+    week: 'Semana',
+    weekRange: (from, to) => `${from} – ${to}`,
+    previousWeek: 'Semana anterior',
+    nextWeek: 'Semana seguinte',
     average: 'Média',
     unlocksRow: '📱 Desbloq.',
     stepsRow: '👟 Passos',
@@ -98,6 +102,7 @@ export const messages: Omit<Messages, 'voices'> = {
       `${emoji} Nenhum em ${wins} de ${logged} registos · ${total} ${unit} no total`,
     moodWithNone: (none, some) => `Humor sem nenhum ${none} · com algum ${some}`,
     insteadTitle: '🌱 O que fizeste em vez disso',
+    feelingsBefore: (list: string) => `🌊 Antes das tuas vontades esta semana: ${list}`,
   },
   balance: {
     title: '⚖️ Equilíbrio',
@@ -235,6 +240,40 @@ export const messages: Omit<Messages, 'voices'> = {
       'Conta como pelo menos uma no check-in dessa parte do dia. Da próxima vez podes tentar de novo.',
     done: 'Concluir',
     floorHint: (n: number) => `Pelo menos ${n}: registaste no botão da vontade`,
+    feelTitle: 'O que estavas a sentir mesmo antes?',
+    feelHint: 'Escolhe os que se aplicam. Dar-lhe um nome já lhe tira alguma força.',
+    feelNext: 'Continuar',
+    feelSkip: 'Não sei, saltar',
+    feelings: {
+      restlessness: 'Inquietação',
+      boredom: 'Tédio',
+      fear: 'Medo',
+      anxiety: 'Ansiedade',
+      anger: 'Raiva',
+      sadness: 'Tristeza',
+      emptiness: 'Vazio',
+      habit: 'Só hábito',
+      loneliness: 'Solidão',
+      hopelessness: 'Desesperança',
+      tiredness: 'Cansaço',
+      shame: 'Vergonha',
+    },
+    mapTitle: 'O mapa da vontade',
+    mapIntro:
+      'A vontade sobe, atinge o pico e desce, se não for alimentada. Dez minutos de outra coisa costumam chegar para a deixar passar.',
+    map: {
+      sadness:
+        'Deixa a tristeza ser triste, em voz alta. Escreve três linhas, ou liga à tua mãe. O luto precisa de um canal, não de um muro.',
+      restlessness:
+        'Mexe o corpo. Dez minutos lá fora, escadas, uma ronda de saudações ao sol. O cavalo precisa de correr, não de dormir.',
+      emptiness:
+        'Faz algo pequeno com as mãos, ou encontra cinco minutos de contacto sem palavras com a Erica. As duas coisas que te enchem: ser útil, ser visto.',
+      boredom:
+        'Muda de divisão, de luz, de tarefa. O tédio é energia cortada do seu objeto, por isso dá-lhe um.',
+      habit:
+        'É a hora, não o sentimento. Muda a deixa: outra cadeira, outra hora, um chá na mão em vez disso.',
+    },
+    mapNext: 'Primeiro, respirar',
   },
   reminders: {
     title: 'Lembretes diários',
@@ -271,6 +310,7 @@ export const messages: Omit<Messages, 'voices'> = {
     importDone: 'Importação concluída',
     importDoneBody: (n) =>
       `Foram lidos ${n} registos. Quando havia dois para o mesmo momento, ficou o mais recente.`,
+    importSettingsRestored: 'As tuas definições também foram repostas.',
     shareDialog: 'Guardar os teus dados',
   },
   widget: {
@@ -293,6 +333,9 @@ export const messages: Omit<Messages, 'voices'> = {
     auto: 'Cópia automática semanal',
     autoBody:
       'Quando abres a app e a última cópia tem uma semana, é guardada uma nova na pasta. As cópias antigas ficam.',
+    includeSettings: 'Incluir definições',
+    includeSettingsBody:
+      'As cópias e exportações levam também o teu nome, tema, voz, idioma e citações. Os lembretes, o bloqueio e a pasta das cópias ficam neste telemóvel.',
     last: (date) => `Última cópia: ${date}`,
     never: 'Ainda não há cópias na pasta.',
   },
@@ -461,5 +504,12 @@ export const messages: Omit<Messages, 'voices'> = {
       `Humor médio nos dias sem ${name}: ${none}; nos dias com alguma: ${some}.`,
     monthAsk:
       'Reflete sobre este mês, por favor. Que padrões notas (dias da semana, altura do dia, o que está nas notas)? O que parece ter ajudado e o que mudou do início para o fim do mês? Depois sugere uma coisa pequena e concreta que eu possa experimentar no próximo mês. Sê breve e gentil.',
+    urgesTitle: 'Vontades (fiz uma pausa para respirar antes de escolher):',
+    urgeLine: (day, slot, habit, passed, feelings) =>
+      `- ${day}, ${slot}, ${habit}: ${passed ? 'deixei passar' : 'cedi'}${feelings ? `; antes senti: ${feelings}` : ''}`,
+    urgeCount: (total, passed) => `${total} vontades, deixei passar ${passed}.`,
+    urgeFeelings: (list) => `O que senti antes das vontades: ${list}.`,
+    urgeAsk:
+      'Repara também que sentimentos costumam vir antes das minhas vontades e sugere uma coisa gentil que eu possa fazer quando aparecem.',
   },
 };

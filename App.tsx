@@ -280,6 +280,7 @@ const makeStyles = (c: Palette) =>
       color: c.text,
       paddingHorizontal: spacing(4),
       paddingTop: spacing(3),
+      paddingBottom: spacing(2),
       ...c.heading,
     },
     content: { flex: 1 },

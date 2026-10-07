@@ -1,4 +1,5 @@
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, useColors, useThemedStyles } from '@ui/foundation/theme/theme';

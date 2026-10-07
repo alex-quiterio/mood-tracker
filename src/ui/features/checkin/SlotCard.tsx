@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { TextInput } from '@ui/kit/TextInput';
+import { Text } from '@ui/kit/Text';
 
 import { Draft, isDraftChanged } from '@domain/checkins/drafts';
 import { NOTE_MAX_LENGTH, saveTimes } from '@domain/checkins/entries';

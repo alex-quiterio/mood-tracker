@@ -10,7 +10,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -33,6 +32,7 @@ import { reminderMessages } from '@ui/foundation/i18n/reminders';
 import { CheckInScreen } from '@ui/screens/CheckInScreen';
 import { SettingsScreen } from '@ui/screens/SettingsScreen';
 import { StatsScreen } from '@ui/screens/StatsScreen';
+import { Text } from '@ui/kit/Text';
 import { HistoryScreen } from '@ui/screens/HistoryScreen';
 import {
   Palette,

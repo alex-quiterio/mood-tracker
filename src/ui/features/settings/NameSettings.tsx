@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { TextInput } from '@ui/kit/TextInput';
+import { Text } from '@ui/kit/Text';
 
 import { NAME_MAX_LENGTH, cleanName } from '@domain/settings/settings';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';

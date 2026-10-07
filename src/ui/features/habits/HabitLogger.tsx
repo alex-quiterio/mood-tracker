@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { TextInput } from '@ui/kit/TextInput';
+import { Text } from '@ui/kit/Text';
 
 import {
   Habit,

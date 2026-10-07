@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { Card } from '@ui/kit/Card';
 import { BreathingModal } from '@ui/features/practice/BreathingModal';

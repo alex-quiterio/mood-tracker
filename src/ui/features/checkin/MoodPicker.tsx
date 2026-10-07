@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
 import { MOODS, Mood } from '@domain/checkins/types';

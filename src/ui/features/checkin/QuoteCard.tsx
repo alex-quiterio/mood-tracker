@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 import { quoteOfTheDay } from '@domain/voices/voices';

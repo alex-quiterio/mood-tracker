@@ -1,4 +1,5 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Text } from '@ui/kit/Text';
 
 import { Card } from '@ui/kit/Card';
 import { Entry } from '@domain/checkins/types';

@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, StyleSheet, View } from 'react-native';
+import { TextInput } from '@ui/kit/TextInput';
+import { Text } from '@ui/kit/Text';
 
 import { NAME_MAX_LENGTH } from '@domain/settings/settings';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';

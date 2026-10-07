@@ -1,5 +1,5 @@
 import type { Slot } from '@domain/checkins/types';
-import { isValidDate, slotForTime } from '@domain/shared/dates';
+import { addDays, isValidDate, localDate, slotForTime } from '@domain/shared/dates';
 
 import { MAX_DOSES, type HabitLog } from './habits';
 
@@ -119,4 +119,42 @@ export function applyUrgeFloors(log: HabitLog, floors: Record<string, number>): 
     if ((doses[id]?.count ?? 0) < floor) doses[id] = { ...doses[id], count: floor };
   }
   return { ...log, doses };
+}
+
+/** How far back the urge forecast looks, and how many urges at an hour make a pattern. */
+export const FORECAST_DAYS = 28;
+export const FORECAST_MIN_URGES = 3;
+/** The day is split into windows of this many hours. */
+const FORECAST_WINDOW_HOURS = 3;
+
+export type UrgeForecast = {
+  /** Local hours, the window `now` falls in: [fromHour, toHour). */
+  fromHour: number;
+  toHour: number;
+  /** Urges in that window over the last FORECAST_DAYS. */
+  count: number;
+  /** The feeling that most often came before them, if any was named. */
+  feeling: UrgeFeeling | null;
+};
+
+/**
+ * A heads-up when urges have tended to come at this time of day, so the next one
+ * can be met prepared rather than surprised. Null when there's no pattern yet.
+ */
+export function urgeForecast(urges: Urge[], now: Date = new Date()): UrgeForecast | null {
+  const today = localDate(now);
+  const from = addDays(today, -(FORECAST_DAYS - 1));
+  const fromHour = Math.floor(now.getHours() / FORECAST_WINDOW_HOURS) * FORECAST_WINDOW_HOURS;
+  const toHour = fromHour + FORECAST_WINDOW_HOURS;
+  const matching = urges.filter((u) => {
+    const hour = new Date(u.recordedAt).getHours();
+    return u.date >= from && u.date <= today && hour >= fromHour && hour < toHour;
+  });
+  if (matching.length < FORECAST_MIN_URGES) return null;
+  return {
+    fromHour,
+    toHour,
+    count: matching.length,
+    feeling: feelingsBefore(matching, from, today)[0]?.feeling ?? null,
+  };
 }

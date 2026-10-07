@@ -171,6 +171,24 @@ export const messages: Omit<Messages, 'voices'> = {
     reflectHint:
       'Builds a text summary of the last 30 days and opens the share sheet. Send it to the Claude app.',
   },
+  monthTotals: {
+    title: 'Month totals',
+    empty: 'Nothing logged this month yet.',
+    checkIns: (count: number, possible: number, average: string) =>
+      `🙂 ${count} of ${possible} check-ins · mood ${average}`,
+    steps: (total: string) => `👟 ${total} steps`,
+    unlocks: (total: string) => `📱 ${total} unlocks`,
+    sleep: (hours: string, nights: number) =>
+      `😴 ${hours} a night, over ${nights} ${nights === 1 ? 'night' : 'nights'}`,
+    reduce: (emoji: string, name: string, zeroDays: number, total: number, unit: string) =>
+      `${emoji} ${name}: ${zeroDays} ${zeroDays === 1 ? 'day' : 'days'} with none · ${total} ${unit}`,
+    grow: (emoji: string, name: string, days: number) =>
+      `${emoji} ${name}: done on ${days} ${days === 1 ? 'day' : 'days'}`,
+    urges: (total: number, passed: number) =>
+      `🌊 ${total} ${total === 1 ? 'urge' : 'urges'} · ${passed} let pass`,
+    saved: (amount: string) => `🫙 ${amount} kept by having less`,
+    hint: 'One bar per day. Tap a bar to open that day.',
+  },
   savings: {
     title: 'Kept in your pocket',
     thisWeek: (amount: string) => `${amount} this week`,
@@ -277,6 +295,10 @@ export const messages: Omit<Messages, 'voices'> = {
         'It is the time, not the feeling. Move the cue: different chair, different hour, tea in the hand instead.',
     },
     mapNext: 'Breathe first',
+    forecast: (count: number, from: string, to: string) =>
+      `🌊 Heads-up: ${count} urges came between ${from} and ${to} in the last four weeks. Knowing the wave is coming makes it easier to ride.`,
+    forecastFeeling: (feeling: string) => `They often started with ${feeling}.`,
+    forecastAction: 'I feel it now',
   },
   reminders: {
     title: 'Daily reminders',

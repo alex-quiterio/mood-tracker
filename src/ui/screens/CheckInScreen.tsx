@@ -27,6 +27,8 @@ import { PracticeModal } from '@ui/features/practice/PracticeModal';
 import { LevelBar } from '@ui/features/progress/LevelBar';
 import { useProgress } from '@ui/features/progress/useProgress';
 import { Habit, activeHabits } from '@domain/habits/habits';
+import { urgeForecast } from '@domain/habits/urges';
+import { UrgeForecastCard } from '@ui/features/habits/UrgeForecastCard';
 import { UrgeModal } from '@ui/features/habits/UrgeModal';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { SlotCard, Tracking } from '@ui/features/checkin/SlotCard';
@@ -67,6 +69,7 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
   const streak = streakLabel(currentStreak(store.entries, today), locale);
   const progress = useProgress(store.entries, store.urges, today);
   const week = weeklyStats(store.entries, today);
+  const forecast = urgeForecast(store.urges);
   const liveCounts: LiveCount[] = [];
   if (liveUnlocks) {
     liveCounts.push({
@@ -111,7 +114,10 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
 
         <QuoteCard date={today} />
 
-        {reduceHabits.length > 0 && (
+        {reduceHabits.length > 0 && forecast && (
+          <UrgeForecastCard forecast={forecast} onUrge={() => setUrging(true)} />
+        )}
+        {reduceHabits.length > 0 && !forecast && (
           <Button title={m.urge.button} variant="secondary" onPress={() => setUrging(true)} />
         )}
 

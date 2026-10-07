@@ -12,6 +12,8 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Balance and savings**: light vs heavy points per week, and money kept compared with your usual amount (Dutch prices by default).
 - **This week**: weekly table and averages, habits, and a reflection prompt for Claude. The arrows step back through earlier weeks, as far as your first check-in.
 - **Urges**: the 🌊 button names the habit and what you felt just before (restlessness, boredom, sadness, emptiness, fear…), shows the craving map's line for those feelings, then two minutes of breathing. The week shows which feelings came before your urges, and they go into backups and, with habits on, the Claude prompt.
+- **Urge forecast**: when three or more urges in the last four weeks came at this time of day (in three-hour windows), the check-in screen gives a heads-up, names the feeling that usually came first and shows its craving-map line.
+- **Month totals**: under the History calendar, every total for the month shown (check-ins and mood, steps, unlocks, sleep, each habit, urges, money kept), each over a row of daily bars; tap a bar to open that day.
 - **Levels**: XP for check-ins, notes, full days, habit wins, urges let pass and streak weeks. Level titles follow your voice (Lao Tzu: raindrop → still lake). XP only goes up, a low day counts as much as a good one, and one missed day a week is a rest day that keeps your streak.
 - **History**: your month (patterns from the last 30 days, with a "Reflect on my month" prompt) and a 6-month calendar.
 - **Swipe between tabs**: Check-in, This week, History and Settings sit side by side; swipe left or right, or tap the tab bar.

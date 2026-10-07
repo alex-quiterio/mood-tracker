@@ -12,6 +12,7 @@ import {
   parseUrges,
   toggleFeeling,
   urgeFloors,
+  urgeForecast,
 } from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 import {
@@ -425,5 +426,43 @@ describe('feelings before an urge', () => {
   it('travels through the export file', () => {
     const urges = parseUrges([urge('2026-10-05', ['sadness', 'emptiness'])]);
     expect(parseExport(serializeExport([], [], urges)).urges[0].feelings).toEqual(['sadness', 'emptiness']);
+  });
+});
+
+describe('urge forecast', () => {
+  // Local times, so the hour is the phone's.
+  const at = (date: string, time: string, feelings?: string[]) => ({
+    date,
+    habitId: 'drinks',
+    outcome: 'passed',
+    recordedAt: new Date(`${date}T${time}`).toISOString(),
+    ...(feelings ? { feelings } : {}),
+  });
+  const now = new Date('2026-10-07T19:30:00');
+
+  it('gives a heads-up when urges keep coming at this time of day', () => {
+    const urges = parseUrges([
+      at('2026-10-01', '18:10', ['boredom']),
+      at('2026-10-03', '19:45', ['boredom', 'restlessness']),
+      at('2026-10-05', '20:59', ['restlessness']),
+      at('2026-10-06', '20:30', ['boredom']),
+      at('2026-10-06', '12:00', ['fear']),
+    ]);
+    expect(urgeForecast(urges, now)).toEqual({ fromHour: 18, toHour: 21, count: 4, feeling: 'boredom' });
+  });
+
+  it('stays quiet without a pattern, or when the urges are old', () => {
+    expect(urgeForecast(parseUrges([at('2026-10-01', '18:10'), at('2026-10-02', '19:10')]), now)).toBeNull();
+    const old = parseUrges([at('2026-08-01', '18:10'), at('2026-08-02', '19:10'), at('2026-08-03', '20:10')]);
+    expect(urgeForecast(old, now)).toBeNull();
+  });
+
+  it('has no feeling when none was named', () => {
+    const urges = parseUrges([
+      at('2026-10-01', '18:10'),
+      at('2026-10-02', '19:10'),
+      at('2026-10-03', '20:10'),
+    ]);
+    expect(urgeForecast(urges, now)?.feeling).toBeNull();
   });
 });

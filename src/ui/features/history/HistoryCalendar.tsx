@@ -16,6 +16,7 @@ import {
   shiftMonth,
   summarizeDay,
 } from '@domain/checkins/calendar';
+import { monthTotals } from '@domain/checkins/monthTotals';
 import { SLOTS } from '@domain/checkins/types';
 import { dayOfMonth } from '@domain/shared/dates';
 import { describeSignals } from '@ui/foundation/i18n/describeSignals';
@@ -33,6 +34,8 @@ import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/the
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
 import { Button } from '@ui/kit/Button';
+
+import { MonthTotalsChart } from './MonthTotalsChart';
 
 type Props = {
   store: EntriesStore;
@@ -123,6 +126,12 @@ export function HistoryCalendar({ store, tracking, today, habits }: Props) {
         habits={habits}
       />
       <Text style={styles.hint}>{m.calendar.hint(HISTORY_MONTHS, EDITABLE_DAYS)}</Text>
+
+      <MonthTotalsChart
+        totals={monthTotals(entries, store.urges, habits, month, today)}
+        selected={selected}
+        onSelect={(date) => isVisible(date, today) && setSelected(date)}
+      />
     </Card>
   );
 }

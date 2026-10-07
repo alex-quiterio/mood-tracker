@@ -198,6 +198,19 @@ export type Messages = {
     reflect: string;
     reflectHint: string;
   };
+  monthTotals: {
+    title: string;
+    empty: string;
+    checkIns: (count: number, possible: number, average: string) => string;
+    steps: (total: string) => string;
+    unlocks: (total: string) => string;
+    sleep: (hours: string, nights: number) => string;
+    reduce: (emoji: string, name: string, zeroDays: number, total: number, unit: string) => string;
+    grow: (emoji: string, name: string, days: number) => string;
+    urges: (total: number, passed: number) => string;
+    saved: (amount: string) => string;
+    hint: string;
+  };
   savings: {
     title: string;
     thisWeek: (amount: string) => string;
@@ -286,6 +299,10 @@ export type Messages = {
     /** The craving map: what to do with the feelings it has a line for. */
     map: Record<MappedFeeling, string>;
     mapNext: string;
+    /** The urge forecast on the check-in screen. Hours are already formatted, e.g. "18:00". */
+    forecast: (count: number, from: string, to: string) => string;
+    forecastFeeling: (feeling: string) => string;
+    forecastAction: string;
   };
   reminders: {
     title: string;

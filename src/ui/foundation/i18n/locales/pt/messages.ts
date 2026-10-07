@@ -167,6 +167,21 @@ export const messages: Omit<Messages, 'voices'> = {
     reflectHint:
       'Cria um resumo em texto dos últimos 30 dias e abre o menu de partilha. Envia-o para a app do Claude.',
   },
+  monthTotals: {
+    title: 'Totais do mês',
+    empty: 'Ainda não há nada registado este mês.',
+    checkIns: (count, possible, average) => `🙂 ${count} de ${possible} registos · humor ${average}`,
+    steps: (total) => `👟 ${total} passos`,
+    unlocks: (total) => `📱 ${total} desbloqueios`,
+    sleep: (hours, nights) => `😴 ${hours} por noite, em ${nights} ${nights === 1 ? 'noite' : 'noites'}`,
+    reduce: (emoji, name, zeroDays, total, unit) =>
+      `${emoji} ${name}: ${zeroDays} ${zeroDays === 1 ? 'dia' : 'dias'} sem nenhum · ${total} ${unit}`,
+    grow: (emoji, name, days) => `${emoji} ${name}: feito em ${days} ${days === 1 ? 'dia' : 'dias'}`,
+    urges: (total, passed) =>
+      `🌊 ${total} ${total === 1 ? 'vontade' : 'vontades'} · deixaste passar ${passed}`,
+    saved: (amount) => `🫙 ${amount} poupados por teres menos`,
+    hint: 'Uma barra por dia. Toca numa barra para abrir esse dia.',
+  },
   savings: {
     title: 'No teu bolso',
     thisWeek: (amount) => `${amount} esta semana`,
@@ -274,6 +289,10 @@ export const messages: Omit<Messages, 'voices'> = {
         'É a hora, não o sentimento. Muda a deixa: outra cadeira, outra hora, um chá na mão em vez disso.',
     },
     mapNext: 'Primeiro, respirar',
+    forecast: (count, from, to) =>
+      `🌊 Atenção: ${count} vontades vieram entre as ${from} e as ${to} nas últimas quatro semanas. Saber que a onda vem torna mais fácil surfá-la.`,
+    forecastFeeling: (feeling) => `Começaram muitas vezes com ${feeling}.`,
+    forecastAction: 'Sinto-a agora',
   },
   reminders: {
     title: 'Lembretes diários',

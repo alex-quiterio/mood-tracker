@@ -151,6 +151,24 @@ export const messages: Omit<Messages, 'voices'> = {
     week: (real) => `💳 ${real} gastos de facto com cartão`,
     monthCaption: (estimate) => `gastos com cartão · ${estimate} estimados nos hábitos`,
   },
+  compare: {
+    title: 'Estimado vs gasto',
+    thisWeek: 'Esta semana',
+    thatWeek: 'Essa semana',
+    last30: 'Últimos 30 dias',
+    estimated: 'Estimado',
+    spent: 'Gasto',
+    unlinked: (amount) => `🛒 ${amount} gastos em comerciantes sem hábito associado`,
+    noCategories:
+      'Associa um comerciante a um hábito aqui em baixo para comparares o custo real com a estimativa.',
+    notCovered: 'O extrato importado não cobre estes dias.',
+    merchantsTitle: 'Para onde foi o dinheiro',
+    merchantsHint:
+      'Toca num comerciante para o associares a um hábito. As associações ficam para todos os extratos.',
+    merchant: (total, count) => `${total} · ${count} ${count === 1 ? 'pagamento' : 'pagamentos'}`,
+    notAHabit: 'Não é um hábito',
+    showAll: (count) => `Mostrar os ${count}`,
+  },
   spending: {
     title: 'Gasto em hábitos',
     thisWeek: (amount) => `${amount} esta semana`,

@@ -25,6 +25,7 @@ import { useAutoBackup } from '@ui/features/settings/useAutoBackup';
 import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/features/widget/useHomeWidget';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 import { Slot } from '@domain/checkins/types';
+import { linkMerchant } from '@domain/spending/categories';
 import { useAppLock } from '@ui/features/lock/useAppLock';
 import { setScreenPrivacy } from '@infrastructure/security/screenPrivacy';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
@@ -242,6 +243,12 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 habits={habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 showSpending={settings.settings.showSpending}
+                merchantHabits={settings.settings.merchantHabits}
+                onLinkMerchant={(merchant, habitId) =>
+                  settings.update({
+                    merchantHabits: linkMerchant(settings.settings.merchantHabits, merchant, habitId),
+                  })
+                }
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
             </View>

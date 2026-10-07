@@ -184,6 +184,23 @@ export type Messages = {
     week: (real: string) => string;
     monthCaption: (estimate: string) => string;
   };
+  /** Estimated against really spent, per habit, with merchants linked to habits. */
+  compare: {
+    title: string;
+    thisWeek: string;
+    thatWeek: string;
+    last30: string;
+    estimated: string;
+    spent: string;
+    unlinked: (amount: string) => string;
+    noCategories: string;
+    notCovered: string;
+    merchantsTitle: string;
+    merchantsHint: string;
+    merchant: (total: string, count: number) => string;
+    notAHabit: string;
+    showAll: (count: number) => string;
+  };
   spending: {
     title: string;
     thisWeek: (amount: string) => string;

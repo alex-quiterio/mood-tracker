@@ -14,6 +14,8 @@ import {
 } from '@domain/spending/payments';
 import { StatementError, parseRevolutCsv } from '@domain/spending/revolut';
 import { habitEstimate, realVsEstimate } from '@domain/spending/realVsEstimate';
+import { linkMerchant, parseMerchantLinks, spendingByCategory } from '@domain/spending/categories';
+import { parseSettings, settingsForBackup } from '@domain/settings/settings';
 import { formatMoneys } from '@ui/foundation/i18n/format';
 
 const HEADER = 'Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance';
@@ -151,5 +153,62 @@ describe('real spending against the habits’ estimate', () => {
     expect(totals.card).toMatchObject({ total: 59.3, currency: 'EUR', estimate: 9 });
     expect(totals.card?.perDay.slice(3, 8)).toEqual([null, 57.2, 2.1, 0, null]);
     expect(moneyOf(payments)).toEqual({ EUR: 59.3, GBP: 6.4 });
+  });
+});
+
+describe('estimated against spent, per habit', () => {
+  const drinks = PRESET_HABITS.find((h) => h.id === 'drinks')!; // €3 a drink
+  const cigarettes = PRESET_HABITS.find((h) => h.id === 'cigarettes')!; // €0.55 each
+  const pay = (date: string, description: string, amount: number, currency = 'EUR') => ({
+    at: `${date}T20:00:00`,
+    date,
+    amount,
+    currency,
+    description,
+    kind: 'card' as const,
+  });
+  const payments = [
+    pay('2026-10-05', 'De Republiek', 18),
+    pay('2026-10-06', 'de  republiek ', 6.5),
+    pay('2026-10-06', 'Albert Heijn', 42.1),
+    pay('2026-10-07', 'Tabacaria', 5.5),
+    pay('2026-10-07', 'Pret London', 6, 'GBP'),
+  ];
+  const entries = [entry('2026-10-05', 'evening', 4), entry('2026-10-06', 'evening', 2)];
+
+  it('links merchants however their name is spelled, and unlinks them', () => {
+    const links = linkMerchant({}, 'De Republiek', 'drinks');
+    expect(links).toEqual({ 'de republiek': 'drinks' });
+    expect(linkMerchant(links, ' DE  REPUBLIEK', null)).toEqual({});
+    expect(parseMerchantLinks({ 'Bar X ': 'drinks', '': 'x', y: 3 })).toEqual({ 'bar x': 'drinks' });
+  });
+
+  it('puts each habit’s estimate beside what its merchants really took', () => {
+    const links = { ...linkMerchant({}, 'De Republiek', 'drinks'), tabacaria: 'cigarettes' };
+    const result = spendingByCategory(entries, PRESET_HABITS, payments, links, '2026-10-05', '2026-10-11')!;
+    expect(result.categories).toEqual([
+      { habit: drinks, estimate: 18, spent: 24.5 },
+      { habit: cigarettes, estimate: 0, spent: 5.5 },
+    ]);
+    expect(result.unlinked).toBe(42.1);
+    // Euros only: estimates are in euros.
+    expect(result.merchants.map((m) => [m.name, m.total, m.count, m.habitId])).toEqual([
+      ['Albert Heijn', 42.1, 1, null],
+      ['De Republiek', 24.5, 2, 'drinks'],
+      ['Tabacaria', 5.5, 1, 'cigarettes'],
+    ]);
+  });
+
+  it('shows estimates alone until merchants are linked, and nothing outside the statement', () => {
+    const unlinked = spendingByCategory(entries, PRESET_HABITS, payments, {}, '2026-10-05', '2026-10-11')!;
+    expect(unlinked.categories).toEqual([{ habit: drinks, estimate: 18, spent: 0 }]);
+    expect(unlinked.unlinked).toBe(72.1);
+    expect(spendingByCategory(entries, PRESET_HABITS, payments, {}, '2026-09-01', '2026-09-07')).toBeNull();
+  });
+
+  it('keeps links in the settings, and in backups', () => {
+    const links = { 'de republiek': 'drinks' };
+    expect(parseSettings({ merchantHabits: links }).merchantHabits).toEqual(links);
+    expect(settingsForBackup(parseSettings({ merchantHabits: links }))?.merchantHabits).toEqual(links);
   });
 });

@@ -6,6 +6,8 @@ import { ArrowButton } from '@ui/kit/ArrowButton';
 import { Button } from '@ui/kit/Button';
 import { HabitsInPromptSwitch } from '@ui/features/habits/HabitsInPromptSwitch';
 import { Habit } from '@domain/habits/habits';
+import { MerchantLinks } from '@domain/spending/categories';
+import { EstimateVsSpentCard } from '@ui/features/spending/EstimateVsSpentCard';
 import { HabitsWeek } from '@ui/features/habits/HabitsWeek';
 import { addDays, dayOfMonth, weekStart } from '@domain/shared/dates';
 import { dayAndMonth, weekdayShort, formatAverage, formatHours } from '@ui/foundation/i18n/format';
@@ -26,6 +28,8 @@ type Props = {
   habitsInPrompt: boolean;
   onHabitsInPromptChange: (include: boolean) => void;
   showSpending: boolean;
+  merchantHabits: MerchantLinks;
+  onLinkMerchant: (merchant: string, habitId: string | null) => void;
 };
 
 export function StatsScreen({
@@ -35,6 +39,8 @@ export function StatsScreen({
   habitsInPrompt,
   onHabitsInPromptChange,
   showSpending,
+  merchantHabits,
+  onLinkMerchant,
 }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
@@ -199,6 +205,17 @@ export function StatsScreen({
         past={!isThisWeek}
         showSpending={showSpending}
       />
+      {store.payments.length > 0 && (
+        <EstimateVsSpentCard
+          entries={store.entries}
+          habits={habits}
+          payments={store.payments}
+          links={merchantHabits}
+          onLink={onLinkMerchant}
+          today={shownUntil}
+          past={!isThisWeek}
+        />
+      )}
     </ScrollView>
   );
 }

@@ -3,6 +3,7 @@ import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
 import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
 import { TimeZoneSetting, parseTimeZone } from '@domain/settings/timeZone';
 import { isValidDate } from '@domain/shared/dates';
+import { MerchantLinks, parseMerchantLinks } from '@domain/spending/categories';
 import { DEFAULT_ROTATION_VOICES, VOICE_ROTATIONS, VoiceRotation } from '@domain/voices/rotation';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
@@ -37,6 +38,8 @@ export type Settings = {
   habitsInPrompt: boolean;
   /** Show what doses cost next to the savings jar. Off by default; it's optional and neutral. */
   showSpending: boolean;
+  /** Merchants from bank statements linked to the habit they're spent on. */
+  merchantHabits: MerchantLinks;
   /** Follow the phone's language, or a fixed one. */
   language: LanguageSetting;
   /** Shows check-in times in the phone's time zone, or a fixed one. */
@@ -67,6 +70,7 @@ export const DEFAULT_SETTINGS: Settings = {
   habits: PRESET_HABITS,
   habitsInPrompt: false,
   showSpending: false,
+  merchantHabits: {},
   language: 'system',
   timeZone: 'system',
   appLock: false,
@@ -95,6 +99,7 @@ export function parseSettings(value: unknown): Settings {
     habits: parseHabits(stored.habits),
     habitsInPrompt: stored.habitsInPrompt === true,
     showSpending: stored.showSpending === true,
+    merchantHabits: parseMerchantLinks(stored.merchantHabits),
     language: LANGUAGE_SETTINGS.includes(stored.language as LanguageSetting)
       ? (stored.language as LanguageSetting)
       : DEFAULT_SETTINGS.language,
@@ -121,6 +126,7 @@ export const PORTABLE_SETTINGS = [
   'customQuotes',
   'habitsInPrompt',
   'showSpending',
+  'merchantHabits',
   'language',
   'timeZone',
   'backupSettings',

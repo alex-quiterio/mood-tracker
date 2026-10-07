@@ -35,7 +35,7 @@ Run lint and typecheck before declaring any task done.
 - Pure logic lives in plain `.ts` files and is covered by `npm test` (tests in `src/__tests__/`).
 - All user-facing text lives in the presentation layer, one folder per language: `src/ui/foundation/i18n/locales/en/` and `pt/`, each with `messages.ts` (the app's text), `voices.ts` (each voice's words) and `index.ts` combining them (European Portuguese: telemóvel, ecrã, registo, tu). Both catalogues are typed as `Messages` (`src/ui/foundation/i18n/messages.types.ts`), so adding an English string without its Portuguese is a type error, and a test flags Portuguese left identical to English. The domain returns values (a verdict kind, a change in points, a milestone amount) and `ui/foundation/i18n` turns them into words; infrastructure adapters receive translated text as arguments. The UI gets `{ m, locale }` from `useLocale()`. Voices get their words from the locale and their emojis and bursts from `VOICE_STYLES` in `src/ui/foundation/voices/voices.ts` (`voiceFor(id, locale)`); quotes are never translated.
 - Progress (`src/domain/progress/xp.ts`) is derived, never stored: XP only goes up, every check-in earns the same whatever the mood, and streaks forgive one missed day a week. Level titles are each voice's words (`levels` in `locales/*/voices.ts`).
-- Bank statements (`src/domain/spending/`) are imported, never typed in: only card payments, cash withdrawals and fees count, each placed with the check-in of its part of the day. Real spending sits beside the habits' estimate (doses × price) as neutral numbers, never a verdict. Days a statement doesn't cover show no real spending rather than zero.
+- Bank statements (`src/domain/spending/`) are imported, never typed in: only card payments, cash withdrawals and fees count, each placed with the check-in of its part of the day. Real spending sits beside the habits' estimate (doses × price) as neutral numbers, never a verdict. Days a statement doesn't cover show no real spending rather than zero. Statements carry no categories, so real spending only counts toward a habit through merchants the user linked (`merchantHabits` in settings); unlinked spending is one total, never guessed.
 - Habits aim for good feedback loops: lead with wins (zeros, good habits, what you did instead), never let savings go negative, never use red or blame. Habit data only goes into the Claude prompt when `habitsInPrompt` is on.
 - Voices are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and `QUOTES_LICENSE` says for each voice why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`, or originals first published by 1930, quoted in their own language, like Caeiro's Portuguese) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
@@ -62,7 +62,7 @@ src/
     practice/                breathing patterns and focus sessions
     progress/                XP and levels, worked out from saved check-ins and urges
     settings/                Settings model and parsing, theme modes, the language choice
-    spending/                payments read from a bank statement (Revolut CSV), real spending vs the habits' estimate
+    spending/                payments read from a bank statement (Revolut CSV), real spending vs the habits' estimate, merchants linked to habits
     shared/                  local dates, ids, maths
   infrastructure/            adapters to the outside world; never imports ui/. Text arrives already translated.
     storage/                 AsyncStorage repositories: entries (with migrations), settings, checkpoints
@@ -75,7 +75,7 @@ src/
       i18n/                  the Messages type (messages.types.ts), one folder per language in locales/ (messages, voices), formatting, and formatters from domain values to words
       voices/                the Voice types (voices.types.ts), each voice's emojis and bursts, voiceFor()
       theme/                 palettes, per-voice tones, fonts (fonts.ts), radii and type scale, motion tokens (motion.ts), theme and voice contexts
-    kit/                     plain reusable components that know no feature: Text and TextInput (always use these, never React Native's: they apply the fonts), Button, Card, Chip, RoundButton, Stepper, TabBar, and the motion pieces Appear, Pop, PressableScale
+    kit/                     plain reusable components that know no feature: Text and TextInput (always use these, never React Native's: they apply the fonts), Button, Card, Chip, RoundButton, Stepper, TabBar, PairedBarChart, and the motion pieces Appear, Pop, PressableScale
     state/                   app-wide state hooks: entries, settings
     features/                one folder per feature, with its own components and hooks:
                              checkin, history, habits, practice, progress, reflection (the Claude prompt),

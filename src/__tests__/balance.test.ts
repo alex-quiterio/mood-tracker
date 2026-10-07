@@ -29,12 +29,12 @@ const entry = (date: string, habits: Entry['habits'], slot: Entry['slot'] = 'mor
 describe('check-in points', () => {
   it('weigh doses as heavy and zeros, good habits and instead notes as light', () => {
     const log = {
-      doses: { cigarettes: { count: 3 }, drinks: { count: 2 }, weed: { count: 0 } },
+      doses: { cigarettes: { count: 3 }, drinks: { count: 0 } },
       did: ['walk', 'friend'],
       instead: 'called my sister',
     };
-    // heavy: 3 × 1 + 2 × 2 = 7 · light: zero weed 1 + walk 2 + friend 3 + instead 2 = 8
-    expect(checkInPoints(log, PRESET_HABITS)).toEqual({ light: 8, heavy: 7 });
+    // heavy: 3 × 1 = 3 · light: zero drinks 1 + walk 2 + friend 3 + instead 2 = 8
+    expect(checkInPoints(log, PRESET_HABITS)).toEqual({ light: 8, heavy: 3 });
     expect(ZERO_POINTS + 2 + 3 + INSTEAD_POINTS).toBe(8);
   });
 

@@ -61,8 +61,8 @@ const smoked = (count: number, approx = false) => ({
 });
 
 describe('presets', () => {
-  it('reduce cigarettes, weed and drinks, and grow water, walks and connecting with a friend', () => {
-    expect(activeHabits(PRESET_HABITS, 'reduce').map((h) => h.id)).toEqual(['cigarettes', 'weed', 'drinks']);
+  it('reduce cigarettes and drinks, and grow water, walks and connecting with a friend', () => {
+    expect(activeHabits(PRESET_HABITS, 'reduce').map((h) => h.id)).toEqual(['cigarettes', 'drinks']);
     expect(activeHabits(PRESET_HABITS, 'grow').map((h) => h.id)).toEqual([
       'water',
       'walk',
@@ -187,7 +187,9 @@ describe('weekly habit view', () => {
   ];
 
   it('leads with wins and compares moods with none and with some', () => {
-    const [cig, , , water, walk] = habitWeek(entries, [cigarettes, ...PRESET_HABITS.slice(1)], today);
+    const week = habitWeek(entries, [cigarettes, ...PRESET_HABITS.slice(1)], today);
+    const of = (id: string) => week.find((w) => w.habit.id === id)!;
+    const [cig, water, walk] = [of('cigarettes'), of('water'), of('walk')];
     expect(cig).toMatchObject({ logged: 3, wins: 2, total: 4, moodWithNone: 4, moodWithSome: 2 });
     expect(describeHabitWeek(cig)).toBe('🚬 None in 2 of 3 check-ins · 4 cigarettes in all');
     expect(walk).toMatchObject({ logged: 3, wins: 2 });
@@ -195,7 +197,8 @@ describe('weekly habit view', () => {
   });
 
   it('skips archived habits and says when nothing was logged', () => {
-    const week = habitWeek([], [{ ...cigarettes, archived: true }, PRESET_HABITS[2]], today);
+    const drinks = PRESET_HABITS.find((h) => h.id === 'drinks')!;
+    const week = habitWeek([], [{ ...cigarettes, archived: true }, drinks], today);
     expect(week).toHaveLength(1);
     expect(describeHabitWeek(week[0])).toBe('🍺 Drinks: not logged');
   });

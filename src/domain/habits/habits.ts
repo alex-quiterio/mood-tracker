@@ -38,7 +38,6 @@ export const weightOf = (h: Habit) => h.weight ?? (h.kind === 'reduce' ? 1 : 2);
 /**
  * Default prices are Dutch averages for 2026, editable per habit:
  * - a pack of 20 cigarettes is about €11.10, so €0.55 each;
- * - coffeeshop weed is about €10–16 a gram and a joint about 0.3–0.4 g, so €5;
  * - a 25 cl pils is about €3.35 in a bar and less at home, so €3.
  */
 export const PRESET_HABITS: Habit[] = [
@@ -51,7 +50,6 @@ export const PRESET_HABITS: Habit[] = [
     pricePerDose: 0.55,
     weight: 1,
   },
-  { id: 'weed', name: 'Weed', emoji: '🌿', kind: 'reduce', unit: 'joints', pricePerDose: 5, weight: 2 },
   { id: 'drinks', name: 'Drinks', emoji: '🍺', kind: 'reduce', unit: 'drinks', pricePerDose: 3, weight: 2 },
   { id: 'water', name: 'Water', emoji: '💧', kind: 'grow', unit: '', weight: 1 },
   { id: 'walk', name: 'Walk', emoji: '🚶', kind: 'grow', unit: '', weight: 2 },

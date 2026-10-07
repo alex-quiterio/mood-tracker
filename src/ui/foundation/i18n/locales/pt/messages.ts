@@ -170,15 +170,13 @@ export const messages: Omit<Messages, 'voices'> = {
   monthTotals: {
     title: 'Totais do mês',
     empty: 'Ainda não há nada registado este mês.',
-    checkIns: (count, possible, average) => `🙂 ${count} de ${possible} registos · humor ${average}`,
-    steps: (total) => `👟 ${total} passos`,
-    unlocks: (total) => `📱 ${total} desbloqueios`,
-    sleep: (hours, nights) => `😴 ${hours} por noite, em ${nights} ${nights === 1 ? 'noite' : 'noites'}`,
-    reduce: (emoji, name, zeroDays, total, unit) =>
-      `${emoji} ${name}: ${zeroDays} ${zeroDays === 1 ? 'dia' : 'dias'} sem nenhum · ${total} ${unit}`,
-    grow: (emoji, name, days) => `${emoji} ${name}: feito em ${days} ${days === 1 ? 'dia' : 'dias'}`,
-    urges: (total, passed) =>
-      `🌊 ${total} ${total === 1 ? 'vontade' : 'vontades'} · deixaste passar ${passed}`,
+    checkIns: (count, possible) => `humor · ${count}/${possible} registos`,
+    steps: 'passos',
+    unlocks: 'desbloqueios',
+    sleep: (nights) => `por noite · ${nights} ${nights === 1 ? 'noite' : 'noites'}`,
+    reduce: (name, total, unit) => `dias sem ${name} · ${total} ${unit} no total`,
+    grow: (name) => `dias com ${name}`,
+    urges: (passed) => `vontades · deixaste passar ${passed}`,
     saved: (amount) => `🫙 ${amount} poupados por teres menos`,
     hint: 'Uma barra por dia. Toca numa barra para abrir esse dia.',
   },

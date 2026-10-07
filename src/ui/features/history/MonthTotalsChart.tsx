@@ -2,9 +2,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { DaySeries, MonthTotals } from '@domain/checkins/monthTotals';
 import { Mood } from '@domain/checkins/types';
-import { formatAverage, formatEuros, formatHours, longDate } from '@ui/foundation/i18n/format';
+import { formatAverage, formatEuros, formatHours, formatInteger, longDate } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
-import { formatSteps } from '@ui/foundation/i18n/signals';
+import { formatStepsShort } from '@ui/foundation/i18n/signals';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
 
 type Props = {
@@ -13,15 +13,89 @@ type Props = {
   onSelect: (date: string) => void;
 };
 
-/** Everything logged in the month, each total over a row of small daily bars. */
+type Tile = {
+  key: string;
+  icon: string;
+  value: string;
+  caption: string;
+  values: DaySeries;
+  color?: (i: number) => string | undefined;
+};
+
+/** Everything logged in the month as small tiles, two to a row: a total over a strip of daily bars. */
 export function MonthTotalsChart({ totals, selected, onSelect }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m, locale } = useLocale();
   const t = m.monthTotals;
-  const bars = (values: DaySeries, color?: (i: number) => string | undefined) => (
-    <DayBars days={totals.days} values={values} selected={selected} onSelect={onSelect} color={color} />
-  );
+
+  const tiles: Tile[] = [
+    {
+      key: 'mood',
+      icon: '🙂',
+      value: formatAverage(totals.checkIns.average, locale),
+      caption: t.checkIns(totals.checkIns.count, totals.checkIns.possible),
+      values: totals.checkIns.perDay,
+      color: (i) => {
+        const mood = totals.moodPerDay[i];
+        return mood === null ? undefined : c.moodColors[Math.round(mood) as Mood];
+      },
+    },
+    ...(totals.steps
+      ? [
+          {
+            key: 'steps',
+            icon: '👟',
+            value: formatStepsShort(totals.steps.total, locale),
+            caption: t.steps,
+            values: totals.steps.perDay,
+          },
+        ]
+      : []),
+    ...(totals.unlocks
+      ? [
+          {
+            key: 'unlocks',
+            icon: '📱',
+            value: formatInteger(totals.unlocks.total, locale),
+            caption: t.unlocks,
+            values: totals.unlocks.perDay,
+          },
+        ]
+      : []),
+    ...(totals.sleep
+      ? [
+          {
+            key: 'sleep',
+            icon: '😴',
+            value: m.sleep.hours(formatHours(totals.sleep.averageHours, locale)),
+            caption: t.sleep(totals.sleep.nights),
+            values: totals.sleep.perDay,
+          },
+        ]
+      : []),
+    ...totals.habits.map((h) => ({
+      key: h.habit.id,
+      icon: h.habit.emoji,
+      value: String(h.winDays),
+      caption:
+        h.habit.kind === 'reduce'
+          ? t.reduce(h.habit.name.toLowerCase(), h.total, h.habit.unit)
+          : t.grow(h.habit.name.toLowerCase()),
+      values: h.perDay,
+    })),
+    ...(totals.urges
+      ? [
+          {
+            key: 'urges',
+            icon: '🌊',
+            value: String(totals.urges.total),
+            caption: t.urges(totals.urges.passed),
+            values: totals.urges.perDay,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <View style={styles.root}>
@@ -30,52 +104,33 @@ export function MonthTotalsChart({ totals, selected, onSelect }: Props) {
         <Text style={styles.muted}>{t.empty}</Text>
       ) : (
         <>
-          <Row
-            label={t.checkIns(
-              totals.checkIns.count,
-              totals.checkIns.possible,
-              formatAverage(totals.checkIns.average, locale),
-            )}
-          >
-            {bars(totals.checkIns.perDay, (i) => {
-              const mood = totals.moodPerDay[i];
-              return mood === null ? undefined : c.moodColors[Math.round(mood) as Mood];
-            })}
-          </Row>
-          {totals.steps && (
-            <Row label={t.steps(formatSteps(totals.steps.total, locale))}>{bars(totals.steps.perDay)}</Row>
+          <View style={styles.grid}>
+            {tiles.map((tile) => (
+              <View
+                key={tile.key}
+                style={styles.tile}
+                accessible
+                accessibilityLabel={`${tile.value} ${tile.caption}`}
+              >
+                <Text style={styles.value} numberOfLines={1}>
+                  {tile.icon} {tile.value}
+                </Text>
+                <Text style={styles.caption} numberOfLines={2}>
+                  {tile.caption}
+                </Text>
+                <DayBars
+                  days={totals.days}
+                  values={tile.values}
+                  selected={selected}
+                  onSelect={onSelect}
+                  color={tile.color}
+                />
+              </View>
+            ))}
+          </View>
+          {totals.saved > 0 && (
+            <Text style={styles.caption}>{t.saved(formatEuros(totals.saved, locale))}</Text>
           )}
-          {totals.unlocks && (
-            <Row label={t.unlocks(formatSteps(totals.unlocks.total, locale))}>
-              {bars(totals.unlocks.perDay)}
-            </Row>
-          )}
-          {totals.sleep && (
-            <Row
-              label={t.sleep(
-                m.sleep.hours(formatHours(totals.sleep.averageHours, locale)),
-                totals.sleep.nights,
-              )}
-            >
-              {bars(totals.sleep.perDay)}
-            </Row>
-          )}
-          {totals.habits.map((h) => (
-            <Row
-              key={h.habit.id}
-              label={
-                h.habit.kind === 'reduce'
-                  ? t.reduce(h.habit.emoji, h.habit.name, h.winDays, h.total, h.habit.unit)
-                  : t.grow(h.habit.emoji, h.habit.name, h.winDays)
-              }
-            >
-              {bars(h.perDay)}
-            </Row>
-          ))}
-          {totals.urges && (
-            <Row label={t.urges(totals.urges.total, totals.urges.passed)}>{bars(totals.urges.perDay)}</Row>
-          )}
-          {totals.saved > 0 && <Text style={styles.label}>{t.saved(formatEuros(totals.saved, locale))}</Text>}
           <Text style={styles.muted}>{t.hint}</Text>
         </>
       )}
@@ -83,17 +138,7 @@ export function MonthTotalsChart({ totals, selected, onSelect }: Props) {
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      {children}
-    </View>
-  );
-}
-
-const BAR_HEIGHT = 28;
+const BAR_HEIGHT = 18;
 
 /** One bar per day, scaled to the month's highest day. A logged zero is a thin line; nothing logged, no bar. */
 function DayBars({
@@ -114,14 +159,16 @@ function DayBars({
   const { locale } = useLocale();
   const max = Math.max(0, ...values.map((v) => v ?? 0));
   return (
-    <View style={styles.bars} importantForAccessibility="no-hide-descendants">
+    <View style={styles.bars}>
       {days.map((date, i) => {
         const v = values[i];
-        const height = v === null ? 0 : max === 0 || v === 0 ? 2 : Math.max(3, (v / max) * BAR_HEIGHT);
+        const height = v === null ? 0 : max === 0 || v === 0 ? 1 : Math.max(2, (v / max) * BAR_HEIGHT);
+        const isSelected = date === selected;
         return (
           <Pressable
             key={date}
             onPress={() => onSelect(date)}
+            accessibilityRole="button"
             accessibilityLabel={longDate(date, locale)}
             style={styles.slot}
           >
@@ -130,7 +177,7 @@ function DayBars({
                 style={[
                   styles.bar,
                   { height, backgroundColor: v === 0 ? c.border : (color?.(i) ?? c.accent) },
-                  date === selected && styles.selectedBar,
+                  !isSelected && selected.slice(0, 7) === date.slice(0, 7) && styles.notSelected,
                 ]}
               />
             )}
@@ -144,18 +191,27 @@ function DayBars({
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     root: {
-      gap: spacing(3),
+      gap: spacing(2),
       marginTop: spacing(3),
       paddingTop: spacing(3),
       borderTopWidth: 1,
       borderTopColor: c.border,
     },
     title: { fontSize: 15, fontWeight: '600', color: c.text, ...c.heading },
-    row: { gap: spacing(1) },
-    label: { color: c.text, fontSize: 13 },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
+    tile: {
+      flexBasis: '45%',
+      flexGrow: 1,
+      padding: spacing(2),
+      borderRadius: 10,
+      backgroundColor: c.background,
+      gap: 2,
+    },
+    value: { color: c.text, fontSize: 16, fontWeight: '700' },
+    caption: { color: c.muted, fontSize: 11, lineHeight: 14 },
     muted: { color: c.muted, fontSize: 12 },
-    bars: { flexDirection: 'row', alignItems: 'flex-end', height: BAR_HEIGHT, gap: 2 },
+    bars: { flexDirection: 'row', alignItems: 'flex-end', height: BAR_HEIGHT, gap: 1, marginTop: spacing(1) },
     slot: { flex: 1, height: BAR_HEIGHT, justifyContent: 'flex-end' },
-    bar: { borderTopLeftRadius: 2, borderTopRightRadius: 2 },
-    selectedBar: { borderWidth: 1, borderColor: c.text },
+    bar: { borderTopLeftRadius: 1, borderTopRightRadius: 1 },
+    notSelected: { opacity: 0.55 },
   });

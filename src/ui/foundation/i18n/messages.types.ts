@@ -198,16 +198,17 @@ export type Messages = {
     reflect: string;
     reflectHint: string;
   };
+  /** Month totals: each tile is a value with a short caption under it. */
   monthTotals: {
     title: string;
     empty: string;
-    checkIns: (count: number, possible: number, average: string) => string;
-    steps: (total: string) => string;
-    unlocks: (total: string) => string;
-    sleep: (hours: string, nights: number) => string;
-    reduce: (emoji: string, name: string, zeroDays: number, total: number, unit: string) => string;
-    grow: (emoji: string, name: string, days: number) => string;
-    urges: (total: number, passed: number) => string;
+    checkIns: (count: number, possible: number) => string;
+    steps: string;
+    unlocks: string;
+    sleep: (nights: number) => string;
+    reduce: (name: string, total: number, unit: string) => string;
+    grow: (name: string) => string;
+    urges: (passed: number) => string;
     saved: (amount: string) => string;
     hint: string;
   };

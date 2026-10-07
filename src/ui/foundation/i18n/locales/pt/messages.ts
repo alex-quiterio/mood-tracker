@@ -42,7 +42,7 @@ export const messages: Omit<Messages, 'voices'> = {
     breatheWithMe: 'Respira comigo',
     usuallyAbout: (value) => `Normalmente cerca de ${value}`,
     savedWithNext: 'Guardado com o próximo registo',
-    pause: 'pausa',
+    pause: '🫧 Pausa',
     pauseA11y: 'Faz uma pausa: respiração ou foco',
     anotherQuote: 'Mostra outra citação',
   },

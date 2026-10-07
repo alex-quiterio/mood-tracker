@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
-import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
+import { Palette, useThemedStyles } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
 /**
  * The greeting's sun or moon, gently breathing (in for 4, out for 6). Tapping it
- * opens a pause: counted breathing or a focus timer.
+ * opens a pause, like the Pause button: counted breathing or a focus timer.
  */
 export function PauseOrb({ emoji, onPress }: { emoji: string; onPress: () => void }) {
   const styles = useThemedStyles(makeStyles);
@@ -45,17 +45,16 @@ export function PauseOrb({ emoji, onPress }: { emoji: string; onPress: () => voi
     >
       <Animated.View style={[styles.halo, { transform: [{ scale }] }]} />
       <Text style={styles.emoji}>{emoji}</Text>
-      <Text style={styles.caption}>{m.checkin.pause}</Text>
     </Pressable>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
-    wrap: { alignItems: 'center', justifyContent: 'center', width: 52, paddingTop: spacing(1) },
+    // Room for the halo at its largest (40 × 1.18), so it never reaches the text beside it.
+    wrap: { alignItems: 'center', justifyContent: 'center', width: 52, height: 52 },
     halo: {
       position: 'absolute',
-      top: 0,
       width: 40,
       height: 40,
       borderRadius: 20,
@@ -63,5 +62,4 @@ const makeStyles = (c: Palette) =>
       opacity: 0.18,
     },
     emoji: { fontSize: 22, lineHeight: 32, height: 32 },
-    caption: { fontSize: 10, color: c.muted, letterSpacing: 1, marginTop: 2 },
   });

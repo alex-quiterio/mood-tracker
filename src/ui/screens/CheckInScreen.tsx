@@ -118,9 +118,16 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
         {reduceHabits.length > 0 && forecast && (
           <UrgeForecastCard forecast={forecast} onUrge={() => setUrging(true)} />
         )}
-        {reduceHabits.length > 0 && !forecast && (
-          <Button title={m.urge.button} variant="secondary" onPress={() => setUrging(true)} />
-        )}
+        <View style={styles.actions}>
+          {reduceHabits.length > 0 && !forecast && (
+            <View style={styles.grow}>
+              <Button title={m.urge.button} variant="secondary" onPress={() => setUrging(true)} />
+            </View>
+          )}
+          <View style={styles.grow}>
+            <Button title={m.checkin.pause} variant="secondary" onPress={() => setPracticing(true)} />
+          </View>
+        </View>
 
         <LiveCounts counts={liveCounts} today={today} />
 
@@ -201,5 +208,8 @@ const makeStyles = (c: Palette) =>
     streakText: { color: c.text, fontSize: 13, fontWeight: '600' },
     comfortText: { color: c.text, fontSize: 15, lineHeight: 21 },
     comfortActions: { flexDirection: 'row', gap: spacing(2) },
+    // Each button as wide as its words, sharing what's left, so neither label wraps.
+    actions: { flexDirection: 'row', gap: spacing(2) },
+    grow: { flexGrow: 1 },
     dateHeading: { ...typeScale.heading, color: c.muted, marginTop: spacing(1), ...c.heading },
   });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import { changeText } from '@ui/foundation/i18n/balance';
 
 import { parseEntry } from '@domain/checkins/entries';
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
@@ -196,7 +197,7 @@ describe('weekly habit view', () => {
   it('skips archived habits and says when nothing was logged', () => {
     const week = habitWeek([], [{ ...cigarettes, archived: true }, PRESET_HABITS[2]], today);
     expect(week).toHaveLength(1);
-    expect(describeHabitWeek(week[0])).toBe('🍺 Drinks: not logged this week');
+    expect(describeHabitWeek(week[0])).toBe('🍺 Drinks: not logged');
   });
 });
 
@@ -464,5 +465,27 @@ describe('urge forecast', () => {
       at('2026-10-03', '20:10'),
     ]);
     expect(urgeForecast(urges, now)?.feeling).toBeNull();
+  });
+});
+
+describe('an earlier week in the habit cards', () => {
+  it('counts savings only up to the end of that week', () => {
+    const drinks = { ...PRESET_HABITS.find((h) => h.id === 'drinks')!, usualPerDay: 4 };
+    const day = (date: string, count: number): Entry => ({
+      date,
+      slot: 'evening',
+      mood: 3,
+      recordedAt: `${date}T20:00:00.000Z`,
+      habits: { doses: { drinks: { count } }, did: [] },
+    });
+    const entries = [day('2026-09-29', 1), day('2026-10-06', 0)];
+    // Week of 28 September, seen from its Sunday: the later day doesn't count yet.
+    expect(totalSavings(entries, [drinks], undefined, '2026-10-04')).toBe(9);
+    expect(totalSavings(entries, [drinks])).toBe(21);
+  });
+
+  it('compares a past week with the week before', () => {
+    expect(changeText(3, 'en', true)).toBe('+3 lighter than the week before');
+    expect(changeText(3, 'en')).toBe('+3 lighter than last week');
   });
 });

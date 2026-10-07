@@ -19,7 +19,8 @@ export const balanceColors = (isDark: boolean) =>
 const HALF = 56; // px each side of the baseline
 
 /** The week's balance: a hero number, then a diverging bar per day (light up, heavy down). */
-export function BalanceBoard({ week }: { week: WeekBalance }) {
+/** `past` when the week shown isn't the current one, so the wording says "that week". */
+export function BalanceBoard({ week, past = false }: { week: WeekBalance; past?: boolean }) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const colors = balanceColors(c.isDark);
@@ -27,7 +28,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
   const scale = Math.max(1, ...week.days.map((d) => Math.max(d.light, d.heavy)));
   const { m, locale } = useLocale();
   const day = (date: string) => weekdayShort(date, locale);
-  const comparison = changeText(changeFromLastWeek(week.net, week.previousNet), locale);
+  const comparison = changeText(changeFromLastWeek(week.net, week.previousNet), locale, past);
   const picked = week.days.find((d) => d.date === selected);
 
   if (!week.days.some((d) => d.logged)) {
@@ -52,7 +53,7 @@ export function BalanceBoard({ week }: { week: WeekBalance }) {
         </View>
         <View style={styles.heroNumber}>
           <Text style={styles.hero}>{formatPoints(week.net)}</Text>
-          <Text style={styles.muted}>{m.balance.thisWeek}</Text>
+          <Text style={styles.muted}>{past ? m.balance.thatWeek : m.balance.thisWeek}</Text>
         </View>
       </View>
 

@@ -194,6 +194,7 @@ export function StatsScreen({
         urges={store.urges}
         habits={habits}
         today={shownUntil}
+        past={!isThisWeek}
         showSpending={showSpending}
       />
     </ScrollView>

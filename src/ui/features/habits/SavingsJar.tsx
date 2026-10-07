@@ -7,10 +7,17 @@ import { formatEuros } from '@ui/foundation/i18n/format';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
-type Props = { week: number; total: number; habits: Habit[] };
+type Props = {
+  week: number;
+  /** Kept up to the end of the week shown. */
+  total: number;
+  habits: Habit[];
+  /** A week before this one: past wording, and no "more for" goal. */
+  past?: boolean;
+};
 
 /** Money kept by having less than usual, as a jar filling toward something real. */
-export function SavingsJar({ week, total, habits }: Props) {
+export function SavingsJar({ week, total, habits, past = false }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const priced = habits.filter((h) => h.kind === 'reduce' && !h.archived && h.pricePerDose);
@@ -30,10 +37,13 @@ export function SavingsJar({ week, total, habits }: Props) {
           <>
             <Text style={styles.amount}>{formatEuros(total, locale)}</Text>
             <Text style={styles.body}>
-              {m.savings.thisWeek(formatEuros(week, locale))}
+              {past
+                ? m.savings.thatWeek(formatEuros(week, locale))
+                : m.savings.thisWeek(formatEuros(week, locale))}
               {reached ? m.savings.enoughFor(milestone(reached)) : ''}
             </Text>
-            {next && (
+            {past && <Text style={styles.muted}>{m.savings.byThen}</Text>}
+            {next && !past && (
               <Text style={styles.muted}>
                 {m.savings.moreFor(formatEuros(next - total, locale), milestone(next))}
               </Text>

@@ -142,6 +142,7 @@ export type Messages = {
     title: string;
     empty: string;
     thisWeek: string;
+    thatWeek: string;
     light: (n: number) => string;
     heavy: (n: number) => string;
     tapDay: string;
@@ -157,11 +158,16 @@ export type Messages = {
     lighter: (diff: number) => string;
     heavierThanLast: (diff: number) => string;
     same: string;
+    lighterThanBefore: (diff: number) => string;
+    heavierThanBefore: (diff: number) => string;
+    sameAsBefore: string;
   };
   spending: {
     title: string;
     thisWeek: (amount: string) => string;
     inAll: (amount: string) => string;
+    thatWeek: (amount: string) => string;
+    byThen: (amount: string) => string;
     perHabit: (emoji: string, amount: string) => string;
     setPrice: string;
   };
@@ -215,6 +221,8 @@ export type Messages = {
   savings: {
     title: string;
     thisWeek: (amount: string) => string;
+    thatWeek: (amount: string) => string;
+    byThen: string;
     enoughFor: (label: string) => string;
     moreFor: (amount: string, label: string) => string;
     setUsual: string;

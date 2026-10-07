@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mood Tracker",
     "slug": "mood-tracker",
-    "version": "1.16.0",
+    "version": "1.17.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.alexquiterio.moodtracker",
-      "versionCode": 28,
+      "versionCode": 29,
       "permissions": ["android.permission.USE_EXACT_ALARM", "android.permission.SCHEDULE_EXACT_ALARM"]
     },
     "web": {

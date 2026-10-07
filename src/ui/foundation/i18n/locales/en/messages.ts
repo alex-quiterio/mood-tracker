@@ -42,7 +42,7 @@ export const messages: Omit<Messages, 'voices'> = {
     breatheWithMe: 'Breathe with me',
     usuallyAbout: (value: string) => `Usually about ${value}`,
     savedWithNext: 'Saved with your next check-in',
-    pause: 'pause',
+    pause: '🫧 Pause',
     pauseA11y: 'Take a pause: breathing or focus',
     anotherQuote: 'Shows another quote',
   },

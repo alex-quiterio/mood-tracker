@@ -36,6 +36,11 @@ export type Settings = {
   habits: Habit[];
   /** Habit data is sensitive, so it only goes into the Claude prompt when you choose. */
   habitsInPrompt: boolean;
+  /**
+   * Money anywhere in the app: prices and savings in euros, and imported bank
+   * statements. Off only hides them; payments, prices and links are kept. On by default.
+   */
+  showMoney: boolean;
   /** Show what doses cost next to the savings jar. Off by default; it's optional and neutral. */
   showSpending: boolean;
   /** Merchants from bank statements linked to the habit they're spent on. */
@@ -69,6 +74,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customQuotes: {},
   habits: PRESET_HABITS,
   habitsInPrompt: false,
+  showMoney: true,
   showSpending: false,
   merchantHabits: {},
   language: 'system',
@@ -98,6 +104,7 @@ export function parseSettings(value: unknown): Settings {
     customQuotes: parseCustomQuotes(stored.customQuotes),
     habits: parseHabits(stored.habits),
     habitsInPrompt: stored.habitsInPrompt === true,
+    showMoney: stored.showMoney !== false,
     showSpending: stored.showSpending === true,
     merchantHabits: parseMerchantLinks(stored.merchantHabits),
     language: LANGUAGE_SETTINGS.includes(stored.language as LanguageSetting)
@@ -125,6 +132,7 @@ export const PORTABLE_SETTINGS = [
   'rotationVoices',
   'customQuotes',
   'habitsInPrompt',
+  'showMoney',
   'showSpending',
   'merchantHabits',
   'language',

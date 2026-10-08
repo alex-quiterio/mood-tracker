@@ -289,6 +289,17 @@ export type Messages = {
     moreFor: (amount: string, label: string) => string;
     setUsual: string;
     jarA11y: (pct: number) => string;
+    /** The jar with Money off: doses kept away instead of euros. */
+    titleDoses: string;
+    jarA11yDoses: (pct: number) => string;
+    sinceStart: string;
+    /** The tap that opens the workings, and what they say. */
+    how: string;
+    howMoney: string;
+    howDoses: string;
+    line: (emoji: string, fewer: number, usual: number, days: number) => string;
+    priced: (price: string, amount: string) => string;
+    noPrice: string;
     milestones: Record<number, string>;
   };
   practice: {
@@ -530,6 +541,7 @@ export type Messages = {
     /** Picked when adding a habit. */
     kinds: Record<HabitKind, string>;
     inPrompt: string;
+    showMoney: string;
     showSpending: string;
   };
   /** Names of the preset habits, shown while you haven't renamed them. */

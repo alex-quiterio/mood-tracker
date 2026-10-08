@@ -81,6 +81,11 @@ describe('spending', () => {
     expect(spent(entries, { ...drinks, pricePerDose: undefined })).toBe(0);
     expect(parseSettings({}).showSpending).toBe(false);
   });
+
+  it('keeps money on unless it was turned off', () => {
+    expect(parseSettings({}).showMoney).toBe(true);
+    expect(parseSettings({ showMoney: false }).showMoney).toBe(false);
+  });
 });
 
 describe('quick check-in', () => {

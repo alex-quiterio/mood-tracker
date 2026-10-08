@@ -39,6 +39,7 @@ import {
   dosesByDay,
   habitWeek,
   recentInsteadNotes,
+  keptByHabit,
   savings,
   savingsMilestone,
   totalSavings,
@@ -166,6 +167,19 @@ describe('savings', () => {
   it('need both a price and a usual amount', () => {
     expect(savings(entries, { ...cigarettes, usualPerDay: undefined })).toBe(0);
     expect(savings(entries, { ...cigarettes, pricePerDose: undefined })).toBe(0);
+  });
+
+  it('show their workings per habit, with or without a price', () => {
+    expect(keptByHabit(entries, [cigarettes])).toEqual([
+      { habit: cigarettes, days: 3, fewer: 15, saved: 8.25 },
+    ]);
+    const unpriced = { ...cigarettes, pricePerDose: undefined };
+    expect(keptByHabit(entries, [unpriced], '2026-09-30')).toEqual([
+      { habit: unpriced, days: 2, fewer: 10, saved: null },
+    ]);
+    // No usual amount, or nothing logged in the range: left out.
+    expect(keptByHabit(entries, [{ ...cigarettes, usualPerDay: undefined }])).toEqual([]);
+    expect(keptByHabit(entries, [cigarettes], '2026-10-02')).toEqual([]);
   });
 
   it('turn into something real', () => {

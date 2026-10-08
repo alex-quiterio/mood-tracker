@@ -26,6 +26,7 @@ import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/features/wid
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 import { Slot } from '@domain/checkins/types';
 import { linkMerchant } from '@domain/spending/categories';
+import { Payment } from '@domain/spending/payments';
 import { useAppLock } from '@ui/features/lock/useAppLock';
 import { setScreenPrivacy } from '@infrastructure/security/screenPrivacy';
 import { scheduleReminders } from '@infrastructure/notifications/reminders';
@@ -66,6 +67,8 @@ const TABS = [
   { key: 'settings', icon: '⚙' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
+
+const NO_PAYMENTS: Payment[] = [];
 
 /** The local date, refreshed when the app returns to the foreground (e.g. the next morning). */
 function useToday() {
@@ -177,6 +180,17 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     if (remindersEnabled) scheduleReminders(reminderTimes, reminderMessages(next, locale)).catch(() => {});
   };
   const { trackUnlocks, trackSteps } = settings.settings;
+  // With Money off, the tabs see no payments and no prices; both stay stored for when it's back on.
+  const { showMoney } = settings.settings;
+  const moneyStore = useMemo(
+    () => (showMoney ? store : { ...store, payments: NO_PAYMENTS }),
+    [store, showMoney],
+  );
+  const moneyHabits = useMemo(
+    () => (showMoney ? habits : habits.map((h) => ({ ...h, pricePerDose: undefined }))),
+    [habits, showMoney],
+  );
+  const showSpending = showMoney && settings.settings.showSpending;
 
   // Reminders are written in the app's language, so reschedule them when it changes.
   useEffect(() => {
@@ -241,11 +255,11 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
             </View>
             <View style={[styles.page, { width }]}>
               <StatsScreen
-                store={store}
+                store={moneyStore}
                 today={today}
-                habits={habits}
+                habits={moneyHabits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
-                showSpending={settings.settings.showSpending}
+                showSpending={showSpending}
                 merchantHabits={settings.settings.merchantHabits}
                 onLinkMerchant={linkMerchantTo}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
@@ -253,13 +267,13 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
             </View>
             <View style={[styles.page, { width }]}>
               <HistoryScreen
-                store={store}
+                store={moneyStore}
                 today={today}
                 tracking={tracking}
-                habits={habits}
+                habits={moneyHabits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
-                showSpending={settings.settings.showSpending}
+                showSpending={showSpending}
                 merchantHabits={settings.settings.merchantHabits}
                 onLinkMerchant={linkMerchantTo}
               />

@@ -67,7 +67,8 @@ export const messages: Omit<Messages, 'voices'> = {
     includeHabits: 'Incluir os meus hábitos',
     includeHabitsA11y: 'Incluir os hábitos no texto para o Claude',
     reflect: 'Refletir com o Claude',
-    reflectHint: 'Cria um resumo desta semana e abre o menu de partilha. Envia-o para a app do Claude.',
+    reflectHint:
+      'Cria um resumo desta semana e abre o menu de partilha. Envia-o para a app do Claude.',
     shareFailed: 'Não foi possível abrir o menu de partilha',
     habits: 'Hábitos',
     cellA11y: (date, slot, detail) => `${date} ${slot}: ${detail}`,
@@ -263,6 +264,18 @@ export const messages: Omit<Messages, 'voices'> = {
     moreFor: (amount, label) => `Mais ${amount} para ${label}`,
     setUsual: 'Define quanto costumavas consumir por dia em Definições → Hábitos para veres o que poupas.',
     jarA11y: (pct) => `Mealheiro a ${pct}% do próximo objetivo`,
+    titleDoses: 'Menos do que o habitual',
+    jarA11yDoses: (pct) => `${pct}% do teu habitual evitado esta semana`,
+    sinceStart: 'desde que começaste',
+    how: 'Como é que isto é calculado?',
+    howMoney:
+      'Em cada dia em que registas um hábito, o teu habitual menos o que consumiste, vezes o preço. Um dia acima do habitual não soma nada, e os dias em que não o registas não contam.',
+    howDoses:
+      'Em cada dia em que registas um hábito, o teu habitual menos o que consumiste. Um dia acima do habitual não soma nada, e os dias em que não o registas não contam.',
+    line: (emoji, fewer, usual, days) =>
+      `${emoji} menos ${fewer} do que os teus ${usual} habituais por dia, em ${days} ${days === 1 ? 'dia registado' : 'dias registados'}`,
+    priced: (price, amount) => ` × ${price} = ${amount}`,
+    noPrice: ' · sem preço definido',
     milestones: {
       5: 'um café fresquinho ☕',
       12: 'café e bolo para dois 🍰',
@@ -527,6 +540,7 @@ export const messages: Omit<Messages, 'voices'> = {
     habitPlaceholder: 'p. ex. Ler antes de dormir',
     kinds: { grow: '🌱 A cultivar', reduce: '🪨 A reduzir', balance: '⚖️ A equilibrar' },
     inPrompt: 'Incluir os hábitos no texto para o Claude',
+    showMoney: 'Dinheiro: preços, poupanças em euros e extratos bancários',
     showSpending: 'Mostrar quanto custam as doses (neutro, junto ao mealheiro)',
   },
   presets: {

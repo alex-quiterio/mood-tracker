@@ -36,7 +36,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
   const c = useColors();
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const { habits, habitsInPrompt, showSpending } = settings.settings;
+  const { habits, habitsInPrompt, showMoney, showSpending } = settings.settings;
   const { m, locale } = useLocale();
   const setHabits = (next: Habit[]) => settings.update({ habits: next });
   const tracked = habits.filter((h) => !h.archived);
@@ -70,6 +70,7 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
               habit={h}
               shown={localizeHabit(h, locale)}
               open={editing === h.id}
+              money={showMoney}
               onToggleOpen={() => setEditing(editing === h.id ? null : h.id)}
               onChange={(patch) => setHabits(updateHabit(habits, h.id, patch))}
               onReplace={(next) => setHabits(habits.map((x) => (x.id === h.id ? next : x)))}
@@ -88,14 +89,25 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
             />
           </View>
           <View style={styles.switchRow}>
-            <Text style={[styles.body, styles.flex]}>{m.habitSettings.showSpending}</Text>
+            <Text style={[styles.body, styles.flex]}>{m.habitSettings.showMoney}</Text>
             <Switch
-              value={showSpending}
-              onValueChange={(v) => settings.update({ showSpending: v })}
+              value={showMoney}
+              onValueChange={(v) => settings.update({ showMoney: v })}
               trackColor={{ true: c.accent, false: c.border }}
               thumbColor={c.surface}
             />
           </View>
+          {showMoney && (
+            <View style={styles.switchRow}>
+              <Text style={[styles.body, styles.flex]}>{m.habitSettings.showSpending}</Text>
+              <Switch
+                value={showSpending}
+                onValueChange={(v) => settings.update({ showSpending: v })}
+                trackColor={{ true: c.accent, false: c.border }}
+                thumbColor={c.surface}
+              />
+            </View>
+          )}
         </>
       )}
     </Card>
@@ -107,12 +119,14 @@ type RowProps = {
   /** The habit as shown, in the app's language; edits apply to `habit`. */
   shown: Habit;
   open: boolean;
+  /** Money on: prices are shown and edited. */
+  money: boolean;
   onToggleOpen: () => void;
   onChange: (patch: Partial<Omit<Habit, 'id'>>) => void;
   onReplace: (habit: Habit) => void;
 };
 
-function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: RowProps) {
+function HabitRow({ habit, shown, open, money, onToggleOpen, onChange, onReplace }: RowProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [price, setPrice] = useState(habit.pricePerDose?.toString() ?? '');
@@ -136,7 +150,7 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
             {shown.emoji} {shown.name}
           </Text>
           <Text style={styles.muted}>
-            {habitSummary(habit, locale)}
+            {habitSummary(money ? habit : { ...habit, pricePerDose: undefined }, locale)}
             {open ? '' : m.habitSettings.edit}
           </Text>
         </Pressable>
@@ -173,17 +187,19 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
           </Field>
           {reduce && (
             <>
-              <Field label={m.habitSettings.price}>
-                <TextInput
-                  style={[styles.input, styles.numberInput]}
-                  value={price}
-                  onChangeText={setPrice}
-                  onEndEditing={() => onChange({ pricePerDose: parsePrice(price) })}
-                  keyboardType="decimal-pad"
-                  placeholder="0.00"
-                  placeholderTextColor={c.muted}
-                />
-              </Field>
+              {money && (
+                <Field label={m.habitSettings.price}>
+                  <TextInput
+                    style={[styles.input, styles.numberInput]}
+                    value={price}
+                    onChangeText={setPrice}
+                    onEndEditing={() => onChange({ pricePerDose: parsePrice(price) })}
+                    keyboardType="decimal-pad"
+                    placeholder="0.00"
+                    placeholderTextColor={c.muted}
+                  />
+                </Field>
+              )}
               <Field label={m.habitSettings.usual}>
                 <Stepper
                   value={habit.usualPerDay ?? 0}

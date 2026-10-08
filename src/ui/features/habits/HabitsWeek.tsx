@@ -7,7 +7,7 @@ import { weekBalance } from '@domain/habits/balance';
 import { Habit } from '@domain/habits/habits';
 import { Urge, feelingsBefore } from '@domain/habits/urges';
 import { Payment } from '@domain/spending/payments';
-import { habitWeek, recentInsteadNotes, totalSavings } from '@domain/habits/insights';
+import { habitWeek, keptByHabit, recentInsteadNotes } from '@domain/habits/insights';
 import { describeFeelings, describeHabitWeek } from '@ui/foundation/i18n/habits';
 import { formatDecimal } from '@ui/foundation/i18n/format';
 import { weekStart } from '@domain/shared/dates';
@@ -42,8 +42,8 @@ export function HabitsWeek({ entries, urges, payments, habits, today, past = fal
     <View style={styles.root}>
       <BalanceBoard week={weekBalance(entries, habits, today, urges)} past={past} />
       <SavingsJar
-        week={totalSavings(entries, habits, weekStart(today), today)}
-        total={totalSavings(entries, habits, undefined, today)}
+        week={keptByHabit(entries, habits, weekStart(today), today)}
+        total={keptByHabit(entries, habits, undefined, today)}
         habits={habits}
         past={past}
       />

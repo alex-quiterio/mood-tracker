@@ -67,7 +67,8 @@ export const messages: Omit<Messages, 'voices'> = {
     includeHabits: 'Include my habits',
     includeHabitsA11y: 'Include habits in the Claude prompt',
     reflect: 'Reflect with Claude',
-    reflectHint: 'Builds a text summary of this week and opens the share sheet. Send it to the Claude app.',
+    reflectHint:
+      'Builds a text summary of this week and opens the share sheet. Send it to the Claude app.',
     shareFailed: 'Could not open the share sheet',
     habits: 'Habits',
     cellA11y: (date: string, slot: string, detail: string) => `${date} ${slot}: ${detail}`,
@@ -266,6 +267,18 @@ export const messages: Omit<Messages, 'voices'> = {
     moreFor: (amount: string, label: string) => `${amount} more for ${label}`,
     setUsual: 'Set how many you usually had per day in Settings → Habits to see what you keep.',
     jarA11y: (pct: number) => `Savings jar ${pct}% toward the next milestone`,
+    titleDoses: 'Fewer than usual',
+    jarA11yDoses: (pct: number) => `${pct}% of your usual kept away this week`,
+    sinceStart: 'since you started',
+    how: 'How is this worked out?',
+    howMoney:
+      'Each day you log a habit, your usual amount minus what you had, times its price. A day above usual adds nothing, and days you don’t log it don’t count.',
+    howDoses:
+      'Each day you log a habit, your usual amount minus what you had. A day above usual adds nothing, and days you don’t log it don’t count.',
+    line: (emoji: string, fewer: number, usual: number, days: number) =>
+      `${emoji} ${fewer} fewer than your usual ${usual} a day, over ${days} ${days === 1 ? 'day' : 'days'} logged`,
+    priced: (price: string, amount: string) => ` × ${price} = ${amount}`,
+    noPrice: ' · no price set',
     milestones: {
       5: 'a fresh coffee ☕',
       12: 'coffee and cake for two 🍰',
@@ -525,6 +538,7 @@ export const messages: Omit<Messages, 'voices'> = {
     habitPlaceholder: 'e.g. Read before bed',
     kinds: { grow: '🌱 To grow', reduce: '🪨 To reduce', balance: '⚖️ To balance' },
     inPrompt: 'Include habits in the Claude prompt',
+    showMoney: 'Money: prices, savings in euros and bank statements',
     showSpending: 'Show what doses cost (neutral, next to the savings jar)',
   },
   /** Names of the preset habits, shown while you haven't renamed them. */

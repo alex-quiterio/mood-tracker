@@ -46,6 +46,44 @@ export const totalSpent = (entries: Entry[], habits: Habit[], fromDate?: string,
     habits.reduce((sum, h) => sum + (h.kind === 'reduce' ? spent(entries, h, fromDate, toDate) : 0), 0) * 100,
   ) / 100;
 
+/** What one habit to reduce kept away over some days, against its usual amount. */
+export type KeptHabit = {
+  habit: Habit;
+  /** Days the habit was logged; only those count. */
+  days: number;
+  /** Doses below the usual, added up day by day; a day above usual adds nothing. */
+  fewer: number;
+  /** `fewer` × price per dose, or null when the habit has no price. */
+  saved: number | null;
+};
+
+/**
+ * Per habit to reduce with a usual amount, what was kept away between two dates
+ * (inclusive), the workings behind the savings jar. Habits not logged then are left out.
+ */
+export function keptByHabit(
+  entries: Entry[],
+  habits: Habit[],
+  fromDate?: string,
+  toDate?: string,
+): KeptHabit[] {
+  const kept: KeptHabit[] = [];
+  for (const habit of habits) {
+    if (habit.kind !== 'reduce' || !habit.usualPerDay) continue;
+    let days = 0;
+    let fewer = 0;
+    for (const [date, count] of dosesByDay(entries, habit.id)) {
+      if ((fromDate && date < fromDate) || (toDate && date > toDate)) continue;
+      days += 1;
+      fewer += Math.max(0, habit.usualPerDay - count);
+    }
+    if (days === 0) continue;
+    const saved = habit.pricePerDose ? Math.round(fewer * habit.pricePerDose * 100) / 100 : null;
+    kept.push({ habit, days, fewer, saved });
+  }
+  return kept;
+}
+
 export const totalSavings = (entries: Entry[], habits: Habit[], fromDate?: string, toDate?: string) =>
   habits.reduce((sum, h) => sum + (h.kind === 'reduce' ? savings(entries, h, fromDate, toDate) : 0), 0);
 

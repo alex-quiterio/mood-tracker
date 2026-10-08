@@ -291,11 +291,12 @@ function NewHabit({ onAdd }: { onAdd: (name: string, emoji: string, kind: HabitK
           maxLength={HABIT_NAME_MAX_LENGTH}
         />
       </View>
-      <View style={styles.row}>
+      <View style={styles.chips}>
         {HABIT_KINDS.map((k) => (
           <Chip key={k} selected={kind === k} onPress={() => setKind(k)} label={m.habitSettings.kinds[k]} />
         ))}
-        <View style={styles.flex} />
+      </View>
+      <View style={styles.addButton}>
         <Button
           title={m.common.add}
           disabled={!name.trim()}
@@ -352,4 +353,5 @@ const makeStyles = (c: Palette) =>
     options: { gap: spacing(2) },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
     newHabit: { borderTopWidth: 1, borderTopColor: c.border, paddingTop: spacing(3), gap: spacing(2) },
+    addButton: { alignSelf: 'flex-start' },
   });

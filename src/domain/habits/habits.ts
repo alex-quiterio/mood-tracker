@@ -2,11 +2,17 @@ import { uniqueId } from '@domain/shared/ids';
 
 /**
  * Habits logged with each check-in. Ones to reduce are counted in doses (possibly
- * roughly); ones to grow are ticked. The aim is a good feedback loop: a zero, a
- * habit grown, or a note on what you did instead all count as wins.
+ * roughly); ones to grow are ticked; ones to balance are counted in doses too, and
+ * a day's total inside their sweet spot (e.g. 1–2 coffees) is the win. The aim is a
+ * good feedback loop: a zero, a habit grown, a day in the sweet spot, or a note on
+ * what you did instead all count as wins.
  */
 
-export type HabitKind = 'reduce' | 'grow';
+export const HABIT_KINDS = ['grow', 'reduce', 'balance'] as const;
+export type HabitKind = (typeof HABIT_KINDS)[number];
+
+/** A day's total that feels right for a habit to balance, inclusive. */
+export type DoseRange = { min: number; max: number };
 
 /** A choice within a habit to grow, e.g. which activity you spent time on. */
 export type HabitOption = { id: string; label: string; emoji: string };
@@ -16,7 +22,7 @@ export type Habit = {
   name: string;
   emoji: string;
   kind: HabitKind;
-  /** Plural unit for doses, e.g. "cigarettes". Only for habits to reduce. */
+  /** Plural unit for doses, e.g. "cigarettes". Only for habits counted in doses (to reduce or balance). */
   unit: string;
   /** Hidden from new check-ins but kept so history stays labelled. */
   archived?: boolean;
@@ -24,16 +30,75 @@ export type Habit = {
   pricePerDose?: number;
   /** How many a day you usually had before. Savings count against this. */
   usualPerDay?: number;
+  /** The sweet spot per day of a habit to balance; DEFAULT_RANGE when unset. */
+  range?: DoseRange;
   /** Habits to grow can offer choices; doing the habit means picking at least one. */
   options?: HabitOption[];
   /**
    * Balance points: per dose for habits to reduce (heavy), per check-in done for
-   * habits to grow (light). Defaults to 1 and 2.
+   * habits to grow (light), per day in the sweet spot for habits to balance (light).
+   * Defaults to 1, 2 and 2.
    */
   weight?: number;
 };
 
-export const weightOf = (h: Habit) => h.weight ?? (h.kind === 'reduce' ? 1 : 2);
+export const DEFAULT_RANGE: DoseRange = { min: 1, max: 2 };
+export const rangeOf = (h: Habit): DoseRange => h.range ?? DEFAULT_RANGE;
+
+/** A day's total doses of a habit to balance is inside its sweet spot. */
+export function inSweetSpot(h: Habit, dayTotal: number): boolean {
+  const { min, max } = rangeOf(h);
+  return dayTotal >= min && dayTotal <= max;
+}
+
+/**
+ * What makes each kind of habit what it is, in one place. A new kind is added here
+ * (and, being a `Record`, the compiler then points at every place that must handle it).
+ */
+type KindRule = {
+  /** Logged as a number of doses (true) or ticked (false). */
+  countsDoses: boolean;
+  /** Balance points when the habit has no weight of its own. */
+  defaultWeight: number;
+  defaultEmoji: string;
+  /** Whether a day's total (doses, or 1 when a ticked habit was done) is a win. */
+  dayWin: (habit: Habit, dayTotal: number) => boolean;
+  /** Fields a new habit of this kind starts with. */
+  initial: Partial<Habit>;
+};
+
+export const KIND_RULES: Record<HabitKind, KindRule> = {
+  grow: { countsDoses: false, defaultWeight: 2, defaultEmoji: '✓', dayWin: (_, n) => n > 0, initial: {} },
+  reduce: { countsDoses: true, defaultWeight: 1, defaultEmoji: '•', dayWin: (_, n) => n === 0, initial: {} },
+  balance: {
+    countsDoses: true,
+    defaultWeight: 2,
+    defaultEmoji: '⚖️',
+    dayWin: inSweetSpot,
+    initial: { range: DEFAULT_RANGE },
+  },
+};
+
+export const weightOf = (h: Habit) => h.weight ?? KIND_RULES[h.kind].defaultWeight;
+
+/** Habits counted in doses rather than ticked. */
+export const countsDoses = (h: Habit) => KIND_RULES[h.kind].countsDoses;
+
+/** A day's total is a win for this habit: none, done, or in the sweet spot. */
+export const isDayWin = (h: Habit, dayTotal: number) => KIND_RULES[h.kind].dayWin(h, dayTotal);
+
+const isRange = (r: unknown): r is DoseRange => {
+  const v = r as DoseRange | null;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    Number.isInteger(v.min) &&
+    Number.isInteger(v.max) &&
+    v.min >= 0 &&
+    v.min <= v.max &&
+    v.max <= MAX_DOSES
+  );
+};
 
 /**
  * Default prices are Dutch averages for 2026, editable per habit:
@@ -169,12 +234,13 @@ export function parseHabits(value: unknown): Habit[] {
       h.id !== '' &&
       typeof h.name === 'string' &&
       typeof h.emoji === 'string' &&
-      (h.kind === 'reduce' || h.kind === 'grow') &&
+      HABIT_KINDS.includes(h.kind) &&
       typeof h.unit === 'string' &&
       (h.archived === undefined || typeof h.archived === 'boolean') &&
       (h.pricePerDose === undefined || (typeof h.pricePerDose === 'number' && h.pricePerDose >= 0)) &&
       (h.usualPerDay === undefined || (typeof h.usualPerDay === 'number' && h.usualPerDay >= 0)) &&
       (h.weight === undefined || (typeof h.weight === 'number' && h.weight >= 0)) &&
+      (h.range === undefined || isRange(h.range)) &&
       (h.options === undefined ||
         (Array.isArray(h.options) &&
           h.options.every(
@@ -203,9 +269,10 @@ export function createHabit(existing: Habit[], name: string, emoji: string, kind
   return {
     id,
     name: clean,
-    emoji: emoji.trim() || (kind === 'reduce' ? '•' : '✓'),
+    emoji: emoji.trim() || KIND_RULES[kind].defaultEmoji,
     kind,
-    unit: kind === 'reduce' ? clean.toLowerCase() : '',
+    unit: KIND_RULES[kind].countsDoses ? clean.toLowerCase() : '',
+    ...KIND_RULES[kind].initial,
   };
 }
 

@@ -11,6 +11,7 @@ import {
   formatMoney,
   longDate,
 } from '@ui/foundation/i18n/format';
+import { monthCaption } from '@ui/foundation/i18n/habits';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { formatStepsShort } from '@ui/foundation/i18n/signals';
 import { Palette, spacing, useColors, useThemedStyles, radius, typeScale } from '@ui/foundation/theme/theme';
@@ -86,10 +87,7 @@ export function MonthTotalsChart({ totals, selected, onSelect }: Props) {
       key: h.habit.id,
       icon: h.habit.emoji,
       value: String(h.winDays),
-      caption:
-        h.habit.kind === 'reduce'
-          ? t.reduce(h.habit.name.toLowerCase(), h.total, h.habit.unit)
-          : t.grow(h.habit.name.toLowerCase()),
+      caption: monthCaption(h.habit, h.total, locale),
       values: h.perDay,
     })),
     ...(totals.card

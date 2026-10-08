@@ -8,6 +8,8 @@ import {
   INSTEAD_MAX_LENGTH,
   MAX_DOSES,
   activeHabits,
+  countsDoses,
+  rangeOf,
   toggleOption,
 } from '@domain/habits/habits';
 import { Chip } from '@ui/kit/Chip';
@@ -24,16 +26,16 @@ type Props = {
 };
 
 /**
- * Habits for one check-in: doses of the ones to reduce (start unlogged, so 0 is a
- * real answer), good habits to tick, and what you did instead.
+ * Habits for one check-in: doses of the ones to reduce or balance (start unlogged,
+ * so 0 is a real answer), good habits to tick, and what you did instead.
  */
 export function HabitLogger({ habits, log, floors, onChange }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m } = useLocale();
-  const reduce = activeHabits(habits, 'reduce');
-  const grow = activeHabits(habits, 'grow');
-  if (reduce.length === 0 && grow.length === 0) return null;
+  const counted = activeHabits(habits).filter(countsDoses);
+  const grow = activeHabits(habits).filter((h) => !countsDoses(h));
+  if (counted.length === 0 && grow.length === 0) return null;
 
   const setDose = (id: string, count: number | null) => {
     const doses = { ...log.doses };
@@ -54,15 +56,19 @@ export function HabitLogger({ habits, log, floors, onChange }: Props) {
 
   return (
     <View style={styles.root}>
-      {reduce.length > 0 && <Text style={styles.heading}>{m.habits.sinceLastCheckIn}</Text>}
-      {reduce.map((h) => {
+      {counted.length > 0 && <Text style={styles.heading}>{m.habits.sinceLastCheckIn}</Text>}
+      {counted.map((h) => {
         const dose = log.doses[h.id];
+        const balancing = h.kind === 'balance';
         return (
           <View key={h.id} style={styles.doseRow}>
             <View style={styles.doseLabel}>
               <Text style={styles.doseName}>
                 {h.emoji} {h.name}
               </Text>
+              {balancing && (
+                <Text style={styles.floorHint}>{m.habits.sweetSpot(rangeOf(h).min, rangeOf(h).max)}</Text>
+              )}
               {floors[h.id] > 0 && <Text style={styles.floorHint}>{m.urge.floorHint(floors[h.id])}</Text>}
             </View>
             <Pressable
@@ -87,8 +93,8 @@ export function HabitLogger({ habits, log, floors, onChange }: Props) {
               }
               style={styles.countBox}
             >
-              <Text style={[styles.count, dose?.count === 0 && { color: c.accent }]}>
-                {!dose ? '–' : dose.count === 0 ? '🌱' : dose.count}
+              <Text style={[styles.count, dose?.count === 0 && !balancing && { color: c.accent }]}>
+                {!dose ? '–' : dose.count === 0 && !balancing ? '🌱' : dose.count}
               </Text>
             </Pressable>
             <RoundButton

@@ -1,4 +1,4 @@
-import { Habit } from '@domain/habits/habits';
+import { Habit, countsDoses, isDayWin } from '@domain/habits/habits';
 import { savings } from '@domain/habits/insights';
 import { Urge } from '@domain/habits/urges';
 import { average } from '@domain/shared/math';
@@ -78,14 +78,12 @@ export function monthTotals(
 
   // Archived habits too: a past month may have logged them.
   const habitMonths = habits.flatMap((habit): HabitMonth[] => {
-    const perDay =
-      habit.kind === 'reduce'
-        ? series((e) => e.habits?.doses[habit.id]?.count)
-        : series((e) => (e.habits ? (e.habits.did.includes(habit.id) ? 1 : 0) : undefined));
+    const perDay = countsDoses(habit)
+      ? series((e) => e.habits?.doses[habit.id]?.count)
+      : series((e) => (e.habits ? (e.habits.did.includes(habit.id) ? 1 : 0) : undefined));
     const logged = perDay.filter((v): v is number => v !== null);
     if (logged.length === 0) return [];
-    const winDays =
-      habit.kind === 'reduce' ? logged.filter((v) => v === 0).length : logged.filter((v) => v > 0).length;
+    const winDays = logged.filter((v) => isDayWin(habit, v)).length;
     return [{ habit, perDay, total: sum(logged), winDays }];
   });
 

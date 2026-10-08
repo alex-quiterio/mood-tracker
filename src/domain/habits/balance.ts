@@ -1,7 +1,7 @@
 import { Entry } from '@domain/checkins/types';
 import { addDays, weekOf, weekSoFar } from '@domain/shared/dates';
 
-import { Habit, HabitLog, weightOf } from './habits';
+import { Habit, HabitLog, inSweetSpot, weightOf } from './habits';
 import { URGE_POINTS, Urge, passedOn } from './urges';
 
 /**
@@ -9,7 +9,9 @@ import { URGE_POINTS, Urge, passedOn } from './urges';
  * weight, plus 1 per extra option picked, up to +2), each habit logged at zero
  * (+1), and a note on what you did instead (+2), because choosing differently is
  * the heart of the loop, and each urge that passed (+2). Heavy points: each dose
- * times its habit's weight.
+ * times its habit's weight. Habits to balance score per day, not per check-in: a
+ * day whose total is in the sweet spot earns their weight in light points, and a
+ * day outside it earns nothing and costs nothing.
  */
 export const ZERO_POINTS = 1;
 export const INSTEAD_POINTS = 2;
@@ -25,7 +27,7 @@ export function checkInPoints(log: HabitLog | undefined, habits: Habit[]): Point
   let heavy = 0;
   for (const [id, dose] of Object.entries(log.doses)) {
     const habit = byId.get(id);
-    if (!habit) continue;
+    if (!habit || habit.kind === 'balance') continue;
     if (dose.count === 0) light += ZERO_POINTS;
     else heavy += dose.count * weightOf(habit);
   }
@@ -37,6 +39,18 @@ export function checkInPoints(log: HabitLog | undefined, habits: Habit[]): Point
   }
   if (log.instead?.trim()) light += INSTEAD_POINTS;
   return { light, heavy };
+}
+
+/** Light points for one day's check-ins from the habits to balance whose total landed in the sweet spot. */
+export function sweetSpotPoints(dayLogs: HabitLog[], habits: Habit[]): number {
+  return habits
+    .filter((h) => h.kind === 'balance')
+    .reduce((sum, h) => {
+      const doses = dayLogs.map((log) => log.doses[h.id]).filter((d) => d !== undefined);
+      if (doses.length === 0) return sum;
+      const total = doses.reduce((n, d) => n + d.count, 0);
+      return inSweetSpot(h, total) ? sum + weightOf(h) : sum;
+    }, 0);
 }
 
 export type BalanceDay = Points & { date: string; net: number; logged: boolean };
@@ -57,7 +71,13 @@ export function balanceDays(
       { light: 0, heavy: 0 },
     );
     const passed = passedOn(urges, date);
-    const light = points.light + passed * URGE_POINTS;
+    const light =
+      points.light +
+      passed * URGE_POINTS +
+      sweetSpotPoints(
+        logs.map((e) => e.habits!),
+        habits,
+      );
     return {
       date,
       light,

@@ -1,3 +1,4 @@
+import type { HabitKind } from '@domain/habits/habits';
 import type { UrgeFeeling } from '@domain/habits/urges';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { VoiceId } from '@domain/voices/voices';
@@ -133,6 +134,10 @@ export type Messages = {
     notLoggedThisWeek: (emoji: string, name: string) => string;
     growWeek: (emoji: string, name: string, wins: number, logged: number) => string;
     reduceWeek: (emoji: string, wins: number, logged: number, total: number, unit: string) => string;
+    /** A habit to balance: days in the sweet spot out of the days logged. */
+    balanceWeek: (emoji: string, name: string, wins: number, days: number) => string;
+    /** Under a habit to balance in the check-in, e.g. "sweet spot 1–2 a day". */
+    sweetSpot: (min: number, max: number) => string;
     moodWithNone: (none: string, some: string) => string;
     insteadTitle: string;
     /** Feelings before this week's urges, already joined, e.g. "boredom ×3, fear". */
@@ -254,6 +259,7 @@ export type Messages = {
     sleep: (nights: number) => string;
     reduce: (name: string, total: number, unit: string) => string;
     grow: (name: string) => string;
+    balance: (min: number, max: number, total: number, unit: string) => string;
     urges: (passed: number) => string;
     saved: (amount: string) => string;
     hint: string;
@@ -483,20 +489,23 @@ export type Messages = {
     body: string;
     reduceSummary: (weight: number) => string;
     growSummary: (weight: number) => string;
+    balanceSummary: (min: number, max: number, weight: number) => string;
     edit: string;
     track: (name: string) => string;
     name: string;
     price: string;
     usual: string;
-    heavyPoints: string;
-    lightPoints: string;
+    /** The points stepper: heavy per dose, light when done, light per day in the sweet spot. */
+    points: Record<HabitKind, string>;
+    sweetSpotMin: string;
+    sweetSpotMax: string;
     options: string;
     removeOption: (label: string) => string;
     optionPlaceholder: string;
     addHabit: string;
     habitPlaceholder: string;
-    toGrow: string;
-    toReduce: string;
+    /** Picked when adding a habit. */
+    kinds: Record<HabitKind, string>;
     inPrompt: string;
     showSpending: string;
   };
@@ -527,6 +536,14 @@ export type Messages = {
     habitsTitle: string;
     habitGrow: (name: string, wins: number, logged: number) => string;
     habitReduce: (name: string, wins: number, logged: number, total: number, unit: string) => string;
+    habitBalance: (
+      name: string,
+      wins: number,
+      days: number,
+      min: number,
+      max: number,
+      unit: string,
+    ) => string;
     habitMoods: (none: string, some: string) => string;
     balance: (light: number, heavy: number) => string;
     saved: (amount: string) => string;

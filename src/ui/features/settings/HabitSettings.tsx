@@ -6,16 +6,18 @@ import { Text } from '@ui/kit/Text';
 import {
   HABIT_NAME_MAX_LENGTH,
   Habit,
+  HABIT_KINDS,
   HabitKind,
   OPTION_LABEL_MAX_LENGTH,
   addOption,
   createHabit,
   parsePrice,
+  rangeOf,
   removeOption,
   updateHabit,
   weightOf,
 } from '@domain/habits/habits';
-import { localizeHabit } from '@ui/foundation/i18n/habits';
+import { habitSummary, localizeHabit, pointsLabel } from '@ui/foundation/i18n/habits';
 import { Button } from '@ui/kit/Button';
 import { Card } from '@ui/kit/Card';
 import { Chip } from '@ui/kit/Chip';
@@ -113,7 +115,9 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
   const [optionLabel, setOptionLabel] = useState('');
   const [optionEmoji, setOptionEmoji] = useState('');
   const reduce = habit.kind === 'reduce';
-  const { m } = useLocale();
+  const balance = habit.kind === 'balance';
+  const range = rangeOf(habit);
+  const { m, locale } = useLocale();
 
   return (
     <View style={styles.habit}>
@@ -128,10 +132,7 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
             {shown.emoji} {shown.name}
           </Text>
           <Text style={styles.muted}>
-            {reduce
-              ? m.habitSettings.reduceSummary(weightOf(habit))
-              : m.habitSettings.growSummary(weightOf(habit))}
-            {reduce && habit.pricePerDose ? ` · €${habit.pricePerDose}` : ''}
+            {habitSummary(habit, locale)}
             {open ? '' : m.habitSettings.edit}
           </Text>
         </Pressable>
@@ -188,10 +189,29 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
               </Field>
             </>
           )}
-          <Field label={reduce ? m.habitSettings.heavyPoints : m.habitSettings.lightPoints}>
+          {balance && (
+            <>
+              <Field label={m.habitSettings.sweetSpotMin}>
+                <Stepper
+                  value={range.min}
+                  max={range.max}
+                  onChange={(min) => onChange({ range: { ...range, min } })}
+                />
+              </Field>
+              <Field label={m.habitSettings.sweetSpotMax}>
+                <Stepper
+                  value={range.max}
+                  min={range.min}
+                  max={60}
+                  onChange={(max) => onChange({ range: { ...range, max } })}
+                />
+              </Field>
+            </>
+          )}
+          <Field label={pointsLabel(habit, locale)}>
             <Stepper value={weightOf(habit)} max={5} onChange={(n) => onChange({ weight: n })} />
           </Field>
-          {!reduce && (
+          {habit.kind === 'grow' && (
             <View style={styles.options}>
               <Text style={styles.fieldLabel}>{m.habitSettings.options}</Text>
               <View style={styles.chips}>
@@ -272,13 +292,8 @@ function NewHabit({ onAdd }: { onAdd: (name: string, emoji: string, kind: HabitK
         />
       </View>
       <View style={styles.row}>
-        {(['grow', 'reduce'] as const).map((k) => (
-          <Chip
-            key={k}
-            selected={kind === k}
-            onPress={() => setKind(k)}
-            label={k === 'grow' ? m.habitSettings.toGrow : m.habitSettings.toReduce}
-          />
+        {HABIT_KINDS.map((k) => (
+          <Chip key={k} selected={kind === k} onPress={() => setKind(k)} label={m.habitSettings.kinds[k]} />
         ))}
         <View style={styles.flex} />
         <Button

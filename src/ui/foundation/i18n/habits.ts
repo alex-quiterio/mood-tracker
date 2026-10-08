@@ -1,4 +1,4 @@
-import { Habit, HabitLog, PRESET_HABITS } from '@domain/habits/habits';
+import { Habit, HabitKind, HabitLog, PRESET_HABITS, rangeOf, weightOf } from '@domain/habits/habits';
 import { HabitWeek } from '@domain/habits/insights';
 import { UrgeFeeling } from '@domain/habits/urges';
 import { Locale } from '@domain/settings/language';
@@ -30,21 +30,60 @@ export function localizeHabit(habit: Habit, locale: Locale): Habit {
 export const localizeHabits = (habits: Habit[], locale: Locale) =>
   habits.map((h) => localizeHabit(h, locale));
 
+/**
+ * Wording that depends on a habit's kind. Each is a `Record` over every kind, so a
+ * new kind in the domain is a type error here until it has its words.
+ */
+const byKind = <T>(habit: Habit, words: Record<HabitKind, () => T>): T => words[habit.kind]();
+
 /** One line per habit for a week, phrased around what went right. */
 export function describeHabitWeek(w: HabitWeek, locale: Locale = 'en'): string {
   const { habit } = w;
   const m = messages(locale).habits;
   if (w.logged === 0) return m.notLoggedThisWeek(habit.emoji, habit.name);
-  if (habit.kind === 'grow') return m.growWeek(habit.emoji, habit.name, w.wins, w.logged);
-  return m.reduceWeek(habit.emoji, w.wins, w.logged, w.total, habit.unit);
+  return byKind(habit, {
+    grow: () => m.growWeek(habit.emoji, habit.name, w.wins, w.logged),
+    reduce: () => m.reduceWeek(habit.emoji, w.wins, w.logged, w.total, habit.unit),
+    balance: () => m.balanceWeek(habit.emoji, habit.name, w.wins, w.logged),
+  });
 }
 
 /** One habit's week for the Claude prompt, in plain words. */
 export function promptHabitWeek(w: HabitWeek, locale: Locale = 'en'): string {
   const { habit } = w;
   const m = messages(locale).prompt;
-  if (habit.kind === 'grow') return m.habitGrow(habit.name, w.wins, w.logged);
-  return m.habitReduce(habit.name, w.wins, w.logged, w.total, habit.unit);
+  const { min, max } = rangeOf(habit);
+  return byKind(habit, {
+    grow: () => m.habitGrow(habit.name, w.wins, w.logged),
+    reduce: () => m.habitReduce(habit.name, w.wins, w.logged, w.total, habit.unit),
+    balance: () => m.habitBalance(habit.name, w.wins, w.logged, min, max, habit.unit),
+  });
+}
+
+/** Under a habit's name in Settings: its kind, points, and price or sweet spot. */
+export function habitSummary(habit: Habit, locale: Locale = 'en'): string {
+  const m = messages(locale).habitSettings;
+  const { min, max } = rangeOf(habit);
+  return byKind(habit, {
+    grow: () => m.growSummary(weightOf(habit)),
+    reduce: () => m.reduceSummary(weightOf(habit)) + (habit.pricePerDose ? ` · €${habit.pricePerDose}` : ''),
+    balance: () => m.balanceSummary(min, max, weightOf(habit)),
+  });
+}
+
+/** What the points stepper in Settings means for this habit. */
+export const pointsLabel = (habit: Habit, locale: Locale = 'en') =>
+  messages(locale).habitSettings.points[habit.kind];
+
+/** The caption of a habit's month total: what its winning days are. */
+export function monthCaption(habit: Habit, total: number, locale: Locale = 'en'): string {
+  const t = messages(locale).monthTotals;
+  const { min, max } = rangeOf(habit);
+  return byKind(habit, {
+    grow: () => t.grow(habit.name.toLowerCase()),
+    reduce: () => t.reduce(habit.name.toLowerCase(), total, habit.unit),
+    balance: () => t.balance(min, max, total, habit.unit),
+  });
 }
 
 /** Habit lines for the Claude prompt. */

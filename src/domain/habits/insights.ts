@@ -3,7 +3,7 @@ import { Entry } from '@domain/checkins/types';
 import { average } from '@domain/shared/math';
 import { weekSoFar, weekStart } from '@domain/shared/dates';
 
-import { Habit, HabitLog, activeHabits } from './habits';
+import { Habit, HabitLog, activeHabits, inSweetSpot } from './habits';
 
 /** Total doses of a habit per day, only for days where it was logged at least once. */
 export function dosesByDay(entries: Entry[], habitId: string): Map<string, number> {
@@ -51,9 +51,9 @@ export const totalSavings = (entries: Entry[], habits: Habit[], fromDate?: strin
 
 export type HabitWeek = {
   habit: Habit;
-  /** Check-ins this week that logged this habit. */
+  /** Check-ins this week that logged this habit; days, for habits to balance. */
   logged: number;
-  /** Of those, how many had none (reduce) or did it (grow). */
+  /** Of those, how many had none (reduce), did it (grow) or were in the sweet spot (balance). */
   wins: number;
   total: number;
   saved: number;
@@ -85,6 +85,18 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
         logged: logged.length,
         wins,
         total: wins,
+        saved: 0,
+        moodWithNone: null,
+        moodWithSome: null,
+      };
+    }
+    if (habit.kind === 'balance') {
+      const days = [...dosesByDay(week, habit.id)];
+      return {
+        habit,
+        logged: days.length,
+        wins: days.filter(([, total]) => inSweetSpot(habit, total)).length,
+        total: days.reduce((sum, [, total]) => sum + total, 0),
         saved: 0,
         moodWithNone: null,
         moodWithSome: null,

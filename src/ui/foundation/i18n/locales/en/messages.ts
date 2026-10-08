@@ -101,6 +101,10 @@ export const messages: Omit<Messages, 'voices'> = {
       `${emoji} ${name} in ${wins} of ${logged} check-ins`,
     reduceWeek: (emoji: string, wins: number, logged: number, total: number, unit: string) =>
       `${emoji} None in ${wins} of ${logged} check-ins · ${total} ${unit} in all`,
+    balanceWeek: (emoji: string, name: string, wins: number, days: number) =>
+      `${emoji} ${name} in your sweet spot ${wins} of ${days} ${days === 1 ? 'day' : 'days'}`,
+    sweetSpot: (min: number, max: number) =>
+      min === max ? `sweet spot ${min} a day` : `sweet spot ${min}–${max} a day`,
     moodWithNone: (none: string, some: string) => `Mood with none ${none} · with some ${some}`,
     insteadTitle: '🌱 What you did instead',
     feelingsBefore: (list: string) => `🌊 Before your urges: ${list}`,
@@ -227,6 +231,8 @@ export const messages: Omit<Messages, 'voices'> = {
     sleep: (nights: number) => `a night · ${nights} ${nights === 1 ? 'night' : 'nights'}`,
     reduce: (name: string, total: number, unit: string) => `days without ${name} · ${total} ${unit} in all`,
     grow: (name: string) => `days with ${name}`,
+    balance: (min: number, max: number, total: number, unit: string) =>
+      `days in the sweet spot (${min}–${max}) · ${total} ${unit} in all`,
     urges: (passed: number) => `urges · ${passed} let pass`,
     saved: (amount: string) => `🫙 ${amount} kept by having less`,
     hint: 'One bar per day. Tap a bar to open that day.',
@@ -474,20 +480,26 @@ export const messages: Omit<Messages, 'voices'> = {
     body: 'Logged with each check-in. Zeros, good habits and what you did instead count as light points; doses count as heavy.',
     reduceSummary: (weight: number) => `To reduce · 🪨 ${weight}/dose`,
     growSummary: (weight: number) => `To grow · 🌱 ${weight}`,
+    balanceSummary: (min: number, max: number, weight: number) =>
+      `To balance · ${min}–${max} a day · 🌱 ${weight}`,
     edit: ' · edit',
     track: (name: string) => `Track ${name}`,
     name: 'Name',
     price: 'Price per dose (€)',
     usual: 'Usually per day, before',
-    heavyPoints: 'Heavy points per dose',
-    lightPoints: 'Light points when done',
+    points: {
+      grow: 'Light points when done',
+      reduce: 'Heavy points per dose',
+      balance: 'Light points for a day in the sweet spot',
+    },
+    sweetSpotMin: 'Sweet spot per day, from',
+    sweetSpotMax: 'Sweet spot per day, up to',
     options: 'Options (optional)',
     removeOption: (label: string) => `Remove ${label}`,
     optionPlaceholder: 'Add an option, e.g. Gardening',
     addHabit: 'Add a habit',
     habitPlaceholder: 'e.g. Read before bed',
-    toGrow: '🌱 To grow',
-    toReduce: '🪨 To reduce',
+    kinds: { grow: '🌱 To grow', reduce: '🪨 To reduce', balance: '⚖️ To balance' },
     inPrompt: 'Include habits in the Claude prompt',
     showSpending: 'Show what doses cost (neutral, next to the savings jar)',
   },
@@ -551,6 +563,8 @@ export const messages: Omit<Messages, 'voices'> = {
       `${name}: done in ${wins} of ${logged} check-ins`,
     habitReduce: (name: string, wins: number, logged: number, total: number, unit: string) =>
       `${name}: none in ${wins} of ${logged} check-ins, ${total} ${unit} in all`,
+    habitBalance: (name: string, wins: number, days: number, min: number, max: number, unit: string) =>
+      `${name}: within my sweet spot of ${min}–${max} ${unit} a day on ${wins} of ${days} days`,
     habitMoods: (none: string, some: string) => ` (mood with none ${none}, with some ${some})`,
     balance: (light: number, heavy: number) =>
       `Balance: ${light} light points (good habits, zeros, doing something else instead) vs ${heavy} heavy points (doses).`,

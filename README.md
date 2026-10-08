@@ -8,7 +8,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 
 - **Check-ins**: morning, afternoon and evening; mood 1–5 plus a note, each showing the date and time it was logged. The Check-in tab is for today; the last 7 days can be edited from the History calendar.
 - **Sleep**: the morning check-in asks how you slept and for how long (in half hours). It's always part of the Claude reflection.
-- **Habits**: doses of what you want less of (🚬 🌿 🍺, "≈ roughly" for estimates), good habits to tick (💧 🚶 🤝 🛠️), and what you did instead.
+- **Habits**: doses of what you want less of (🚬 🌿 🍺, "≈ roughly" for estimates), good habits to tick (💧 🚶 🤝 🛠️), habits to balance counted against a daily sweet spot (☕ 1–2 cups: a day inside it is the win), and what you did instead.
 - **Balance and savings**: light vs heavy points per week, and money kept compared with your usual amount (Dutch prices by default).
 - **This week**: weekly table and averages, habits, and a reflection prompt for Claude. The arrows step back through earlier weeks, as far as your first check-in.
 - **Urges**: the 🌊 button names the habit and what you felt just before (restlessness, boredom, sadness, emptiness, fear…), shows the craving map's line for those feelings, then two minutes of breathing, or ten minutes of something else with a gentle bell at the end. The week shows which feelings came before your urges, and they go into backups and, with habits on, the Claude prompt.

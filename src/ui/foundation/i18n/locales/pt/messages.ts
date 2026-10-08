@@ -390,6 +390,7 @@ export const messages: Omit<Messages, 'voices'> = {
     failed: 'Não foi possível atualizar os lembretes',
   },
   settings: {
+    sections: { you: 'Tu', habits: 'Hábitos', phone: 'Telemóvel', data: 'Dados' },
     theme: 'Tema',
     themeA11y: (name) => `Tema ${name}`,
     themes: { light: 'Claro', dim: 'Suave', dark: 'Escuro' },

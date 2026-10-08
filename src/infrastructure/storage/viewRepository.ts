@@ -12,3 +12,12 @@ export const loadHistorySection = (): Promise<string | null> =>
 
 export const saveHistorySection = (section: string): Promise<void> =>
   AsyncStorage.setItem(HISTORY_SECTION_KEY, section).catch(() => {});
+
+const SETTINGS_SECTION_KEY = 'mood-tracker:settings-section:v1';
+
+/** The Settings section last open, or null when none was saved or storage failed. */
+export const loadSettingsSection = (): Promise<string | null> =>
+  AsyncStorage.getItem(SETTINGS_SECTION_KEY).catch(() => null);
+
+export const saveSettingsSection = (section: string): Promise<void> =>
+  AsyncStorage.setItem(SETTINGS_SECTION_KEY, section).catch(() => {});

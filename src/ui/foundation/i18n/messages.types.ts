@@ -397,6 +397,8 @@ export type Messages = {
     failed: string;
   };
   settings: {
+    /** The switch at the top of the Settings tab. */
+    sections: { you: string; habits: string; phone: string; data: string };
     theme: string;
     themeA11y: (name: string) => string;
     themes: {

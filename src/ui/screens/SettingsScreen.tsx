@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { useCalendars } from 'expo-localization';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
@@ -7,6 +8,8 @@ import { LANGUAGE_SETTINGS } from '@domain/settings/language';
 import { TIME_ZONES } from '@domain/settings/timeZone';
 import { Card } from '@ui/kit/Card';
 import { Chip } from '@ui/kit/Chip';
+import { Segment, Segmented } from '@ui/kit/Segmented';
+import { loadSettingsSection, saveSettingsSection } from '@infrastructure/storage/viewRepository';
 import { EntriesStore } from '@ui/state/useEntries';
 import { SettingsStore } from '@ui/state/useSettings';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
@@ -24,24 +27,65 @@ import { VoiceSettings } from '@ui/features/settings/VoiceSettings';
 
 type Props = { store: EntriesStore; settings: SettingsStore };
 
+const SECTIONS = ['you', 'habits', 'phone', 'data'] as const;
+type Section = (typeof SECTIONS)[number];
+const isSection = (s: string | null): s is Section => SECTIONS.includes(s as Section);
+
+/**
+ * Settings in four sections switched at the top: you (name, language, time zone,
+ * look and voice); habits and the bank statements priced against them; what the
+ * phone does (reminders, unlocks, steps); and your data (lock and backups). The
+ * section last open is kept on this phone.
+ */
 export function SettingsScreen({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m } = useLocale();
+  const [section, setSection] = useState<Section>('you');
+  useEffect(() => {
+    loadSettingsSection().then((s) => isSection(s) && setSection(s));
+  }, []);
+  const pick = (s: Section) => {
+    setSection(s);
+    saveSettingsSection(s);
+  };
+  const segments: Segment<Section>[] = SECTIONS.map((key) => ({ key, label: m.settings.sections[key] }));
 
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <NameSettings settings={settings} />
-      <LanguageSettings settings={settings} />
-      <TimeZoneSettings settings={settings} />
-      <ThemeSettings settings={settings} />
-      <VoiceSettings settings={settings} />
-      <HabitSettings settings={settings} />
-      <StatementSettings store={store} />
-      <ReminderSettings settings={settings} />
-      <UnlockSettings settings={settings} />
-      <StepSettings settings={settings} />
-      <LockSettings settings={settings} />
-      <BackupSettings store={store} settings={settings} />
+      <Segmented segments={segments} selected={section} onSelect={pick} />
+
+      {section === 'you' && (
+        <>
+          <NameSettings settings={settings} />
+          <LanguageSettings settings={settings} />
+          <TimeZoneSettings settings={settings} />
+          <ThemeSettings settings={settings} />
+          <VoiceSettings settings={settings} />
+        </>
+      )}
+
+      {section === 'habits' && (
+        <>
+          <HabitSettings settings={settings} />
+          <StatementSettings store={store} />
+        </>
+      )}
+
+      {section === 'phone' && (
+        <>
+          <ReminderSettings settings={settings} />
+          <UnlockSettings settings={settings} />
+          <StepSettings settings={settings} />
+        </>
+      )}
+
+      {section === 'data' && (
+        <>
+          <LockSettings settings={settings} />
+          <BackupSettings store={store} settings={settings} />
+        </>
+      )}
+
       <Text style={styles.version}>
         {m.settings.version(
           Constants.expoConfig?.version ?? '?',

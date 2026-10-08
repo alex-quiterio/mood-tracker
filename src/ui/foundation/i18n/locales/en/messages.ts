@@ -392,6 +392,7 @@ export const messages: Omit<Messages, 'voices'> = {
     failed: 'Could not update reminders',
   },
   settings: {
+    sections: { you: 'You', habits: 'Habits', phone: 'Phone', data: 'Data' },
     theme: 'Theme',
     themeA11y: (name: string) => `${name} theme`,
     themes: { light: 'Light', dim: 'Dim', dark: 'Dark' },

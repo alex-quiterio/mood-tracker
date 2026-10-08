@@ -214,6 +214,14 @@ export type Messages = {
     notAHabit: string;
     showAll: (count: number) => string;
   };
+  /** Real spending per week or month since the first check-in. */
+  overTime: {
+    title: string;
+    periods: { week: string; month: string };
+    weekOf: (day: string) => string;
+    notCovered: string;
+    hint: string;
+  };
   spending: {
     title: string;
     thisWeek: (amount: string) => string;

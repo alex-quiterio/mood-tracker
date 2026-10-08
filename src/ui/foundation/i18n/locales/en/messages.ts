@@ -188,6 +188,13 @@ export const messages: Omit<Messages, 'voices'> = {
     notAHabit: 'Not a habit',
     showAll: (count: number) => `Show all ${count}`,
   },
+  overTime: {
+    title: 'Spent over time',
+    periods: { week: 'Per week', month: 'Per month' },
+    weekOf: (day: string) => `Week of ${day}`,
+    notCovered: 'no statement',
+    hint: 'Since your first check-in, from the imported statements.',
+  },
   spending: {
     title: 'Spent on habits',
     thisWeek: (amount: string) => `${amount} this week`,

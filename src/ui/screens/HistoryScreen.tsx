@@ -15,6 +15,7 @@ import { HistoryCalendar } from '@ui/features/history/HistoryCalendar';
 import { MonthReviewCard } from '@ui/features/habits/MonthReviewCard';
 import { SpendingCard } from '@ui/features/habits/SpendingCard';
 import { EstimateVsSpentCard } from '@ui/features/spending/EstimateVsSpentCard';
+import { SpendingOverTimeCard } from '@ui/features/spending/SpendingOverTimeCard';
 import { ProgressCard } from '@ui/features/progress/ProgressCard';
 import { useProgress } from '@ui/features/progress/useProgress';
 import { EntriesStore } from '@ui/state/useEntries';
@@ -142,6 +143,9 @@ export function HistoryScreen({
               to={today}
               periodLabel={m.compare.last30}
             />
+          )}
+          {hasStatement && (
+            <SpendingOverTimeCard entries={store.entries} payments={store.payments} today={today} />
           )}
         </>
       )}

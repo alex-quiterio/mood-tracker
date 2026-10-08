@@ -187,6 +187,13 @@ export const messages: Omit<Messages, 'voices'> = {
     notAHabit: 'Não é um hábito',
     showAll: (count) => `Mostrar os ${count}`,
   },
+  overTime: {
+    title: 'Gastos ao longo do tempo',
+    periods: { week: 'Por semana', month: 'Por mês' },
+    weekOf: (day) => `Semana de ${day}`,
+    notCovered: 'sem extrato',
+    hint: 'Desde o teu primeiro registo, a partir dos extratos importados.',
+  },
   spending: {
     title: 'Gasto em hábitos',
     thisWeek: (amount) => `${amount} esta semana`,

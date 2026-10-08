@@ -197,8 +197,7 @@ export const messages: Omit<Messages, 'voices'> = {
     setPrice: 'Define um preço por dose em Definições → Hábitos para veres isto.',
   },
   history: {
-    calendar: 'Calendário',
-    money: 'Dinheiro',
+    sections: { calendar: 'Calendário', month: 'Mês', money: 'Dinheiro' },
   },
   progress: {
     title: 'O teu progresso',

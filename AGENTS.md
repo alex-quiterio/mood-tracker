@@ -77,7 +77,7 @@ src/
       i18n/                  the Messages type (messages.types.ts), one folder per language in locales/ (messages, voices), formatting, and formatters from domain values to words
       voices/                the Voice types (voices.types.ts), each voice's emojis and bursts, voiceFor()
       theme/                 palettes, per-voice tones, fonts (fonts.ts), radii and type scale, motion tokens (motion.ts), theme and voice contexts
-    kit/                     plain reusable components that know no feature: Text and TextInput (always use these, never React Native's: they apply the fonts), Button, Card, Chip, RoundButton, Stepper, TabBar, PairedBarChart, and the motion pieces Appear, Pop, PressableScale
+    kit/                     plain reusable components that know no feature: Text and TextInput (always use these, never React Native's: they apply the fonts), Button, Card, Chip, RoundButton, Segmented (sections within a tab, tapped, since swiping changes tabs), Stepper, TabBar, PairedBarChart, and the motion pieces Appear, Pop, PressableScale
     state/                   app-wide state hooks: entries, settings
     features/                one folder per feature, with its own components and hooks:
                              checkin, history, habits, practice, progress, reflection (the Claude prompt),

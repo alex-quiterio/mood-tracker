@@ -198,8 +198,7 @@ export const messages: Omit<Messages, 'voices'> = {
     setPrice: 'Set a price per dose in Settings → Habits to see this.',
   },
   history: {
-    calendar: 'Calendar',
-    money: 'Money',
+    sections: { calendar: 'Calendar', month: 'Month', money: 'Money' },
   },
   progress: {
     title: 'Your progress',

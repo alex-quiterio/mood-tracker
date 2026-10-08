@@ -224,8 +224,8 @@ export type Messages = {
     setPrice: string;
   };
   history: {
-    calendar: string;
-    money: string;
+    /** The switch at the top of the History tab. */
+    sections: { calendar: string; month: string; money: string };
   };
   progress: {
     title: string;

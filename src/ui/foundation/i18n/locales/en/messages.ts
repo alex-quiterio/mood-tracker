@@ -86,6 +86,19 @@ export const messages: Omit<Messages, 'voices'> = {
     hint: (months: number, days: number) =>
       `Shows the last ${months} months. The last ${days} days can be edited here.`,
   },
+  moon: {
+    phases: {
+      new: 'New moon',
+      waxingCrescent: 'Waxing crescent',
+      firstQuarter: 'First quarter',
+      waxingGibbous: 'Waxing gibbous',
+      full: 'Full moon',
+      waningGibbous: 'Waning gibbous',
+      lastQuarter: 'Last quarter',
+      waningCrescent: 'Waning crescent',
+    },
+    a11y: (phase: string, litPercent: number) => `Today's moon: ${phase}, ${litPercent}% lit`,
+  },
   habits: {
     sinceLastCheckIn: 'Since your last check-in',
     goodThings: 'Good things you did',

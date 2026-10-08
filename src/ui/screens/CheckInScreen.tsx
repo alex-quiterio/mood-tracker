@@ -10,6 +10,8 @@ import { Burst, MoodBurst, makeBurst } from '@ui/features/checkin/MoodBurst';
 import { LiveCount, LiveCounts } from '@ui/features/checkin/LiveCounts';
 import { localDate, slotForTime } from '@domain/shared/dates';
 import { longDate } from '@ui/foundation/i18n/format';
+import { moonA11y, moonLabel } from '@ui/foundation/i18n/moon';
+import { moonOn } from '@domain/moon/phase';
 import { entryKey, lastChangedAt } from '@domain/checkins/entries';
 import { offersBreathing } from '@domain/checkins/moments';
 import { burstEmojis } from '@ui/foundation/voices/voices';
@@ -151,7 +153,12 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
           </Card>
         )}
 
-        <Text style={styles.dateHeading}>{longDate(today, locale)}</Text>
+        <View style={styles.dateRow}>
+          <Text style={[styles.dateHeading, styles.flex]}>{longDate(today, locale)}</Text>
+          <Text style={styles.moon} accessibilityLabel={moonA11y(moonOn(today), locale)}>
+            {moonLabel(moonOn(today), locale)}
+          </Text>
+        </View>
 
         {SLOTS.map((slot) => {
           const entry = entryFor(slot);
@@ -211,5 +218,7 @@ const makeStyles = (c: Palette) =>
     // Each button as wide as its words, sharing what's left, so neither label wraps.
     actions: { flexDirection: 'row', gap: spacing(2) },
     grow: { flexGrow: 1 },
-    dateHeading: { ...typeScale.heading, color: c.muted, marginTop: spacing(1), ...c.heading },
+    dateRow: { flexDirection: 'row', alignItems: 'baseline', gap: spacing(2), marginTop: spacing(1) },
+    dateHeading: { ...typeScale.heading, color: c.muted, ...c.heading },
+    moon: { fontSize: 13, color: c.muted },
   });

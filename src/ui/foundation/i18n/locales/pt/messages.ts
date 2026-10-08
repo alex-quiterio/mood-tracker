@@ -86,6 +86,19 @@ export const messages: Omit<Messages, 'voices'> = {
     hint: (months, days) =>
       `Mostra os últimos ${months} meses. Os últimos ${days} dias podem ser editados aqui.`,
   },
+  moon: {
+    phases: {
+      new: 'Lua nova',
+      waxingCrescent: 'Lua crescente',
+      firstQuarter: 'Quarto crescente',
+      waxingGibbous: 'Crescente gibosa',
+      full: 'Lua cheia',
+      waningGibbous: 'Minguante gibosa',
+      lastQuarter: 'Quarto minguante',
+      waningCrescent: 'Lua minguante',
+    },
+    a11y: (phase, litPercent) => `Lua de hoje: ${phase}, ${litPercent}% iluminada`,
+  },
   habits: {
     sinceLastCheckIn: 'Desde o último registo',
     goodThings: 'Coisas boas que fizeste',

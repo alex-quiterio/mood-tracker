@@ -7,6 +7,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 ## Features
 
 - **Check-ins**: morning, afternoon and evening; mood 1–5 plus a note, each showing the date and time it was logged. The Check-in tab is for today; the last 7 days can be edited from the History calendar.
+- **Moon**: today's phase (🌒 Waxing crescent…) next to the date on the Check-in tab, worked out on the phone with no internet.
 - **Sleep**: the morning check-in asks how you slept and for how long (in half hours). It's always part of the Claude reflection.
 - **Habits**: doses of what you want less of (🚬 🌿 🍺, "≈ roughly" for estimates), good habits to tick (💧 🚶 🤝 🛠️), habits to balance counted against a sweet spot per day, week or month (☕ 1–2 cups a day: a day inside it is the win; 🍷 up to 3 a week: each day under the cap so far is a win), and what you did instead.
 - **Balance and savings**: light vs heavy points per week, and money kept compared with your usual amount (Dutch prices by default).

@@ -1,4 +1,5 @@
 import type { HabitKind, RangePeriod } from '@domain/habits/habits';
+import type { MoonPhase } from '@domain/moon/phase';
 import type { UrgeFeeling } from '@domain/habits/urges';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { VoiceId } from '@domain/voices/voices';
@@ -120,6 +121,11 @@ export type Messages = {
     doneEditing: string;
     readOnly: (days: number) => string;
     hint: (months: number, days: number) => string;
+  };
+  moon: {
+    phases: Record<MoonPhase, string>;
+    /** Read out for the day's moon, with how much of it is lit. */
+    a11y: (phase: string, litPercent: number) => string;
   };
   habits: {
     sinceLastCheckIn: string;

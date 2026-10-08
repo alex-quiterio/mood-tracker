@@ -60,6 +60,7 @@ src/
     signals/                 counting a signal over a check-in window
     voices/                  voice ids, default quotes and their licences, quote-of-the-day rules
     reminders/               reminder time windows
+    moon/                    the moon's phase, worked out from the date (no network)
     practice/                breathing patterns and focus sessions
     progress/                XP and levels, worked out from saved check-ins and urges
     settings/                Settings model and parsing, theme modes, the language choice

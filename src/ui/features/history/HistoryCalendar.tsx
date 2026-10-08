@@ -26,7 +26,6 @@ import { formatSteps } from '@ui/foundation/i18n/signals';
 import { longDate, monthTitle, weekdayInitials, formatMoneys } from '@ui/foundation/i18n/format';
 import { describeLoggedAt } from '@ui/foundation/i18n/loggedAt';
 import { DayEditor } from '@ui/features/checkin/DayEditor';
-import { MerchantLinks } from '@domain/spending/categories';
 import { RealVsEstimateLines } from '@ui/features/spending/RealVsEstimateLines';
 import { Tracking } from '@ui/features/checkin/SlotCard';
 import { EntriesStore } from '@ui/state/useEntries';
@@ -47,15 +46,13 @@ type Props = {
   tracking: Tracking;
   today: string;
   habits: Habit[];
-  /** Merchants linked to habits, whose payments prefill doses. */
-  links: MerchantLinks;
 };
 
 /**
  * Six months of check-ins, a month at a time. The last week can be edited right here
  * (the check-in screen is for today only); older days are read-only.
  */
-export function HistoryCalendar({ store, tracking, today, habits, links }: Props) {
+export function HistoryCalendar({ store, tracking, today, habits }: Props) {
   const { entries } = store;
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
@@ -130,7 +127,6 @@ export function HistoryCalendar({ store, tracking, today, habits, links }: Props
         date={selected}
         today={today}
         habits={habits}
-        links={links}
       />
       <Text style={styles.hint}>{m.calendar.hint(HISTORY_MONTHS, EDITABLE_DAYS)}</Text>
 
@@ -149,14 +145,12 @@ function DayDetail({
   date,
   today,
   habits,
-  links,
 }: {
   store: EntriesStore;
   tracking: Tracking;
   date: string;
   today: string;
   habits: Habit[];
-  links: MerchantLinks;
 }) {
   const styles = useThemedStyles(makeStyles);
   const { entries } = store;
@@ -181,7 +175,7 @@ function DayDetail({
     return (
       <View style={styles.detail}>
         <Text style={styles.detailTitle}>{date === today ? m.common.today : label}</Text>
-        <DayEditor date={date} store={store} tracking={tracking} habits={habits} links={links} />
+        <DayEditor date={date} store={store} tracking={tracking} habits={habits} />
         <Button title={m.calendar.doneEditing} variant="secondary" onPress={() => setEditing(false)} />
       </View>
     );

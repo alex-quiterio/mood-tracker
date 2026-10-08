@@ -146,8 +146,6 @@ export type Messages = {
     /** How a sweet spot is counted, to follow a number: "a day", "a week". */
     per: Record<RangePeriod, string>;
     sweetSpot: (min: number, max: number, per: string) => string;
-    /** Under doses suggested by payments at merchants linked to the habit. */
-    fromPayments: (payments: number) => string;
     moodWithNone: (none: string, some: string) => string;
     insteadTitle: string;
     /** Feelings before this week's urges, already joined, e.g. "boredom ×3, fear". */

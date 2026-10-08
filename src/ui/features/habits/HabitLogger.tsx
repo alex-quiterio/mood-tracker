@@ -11,7 +11,6 @@ import {
   countsDoses,
   toggleOption,
 } from '@domain/habits/habits';
-import { LinkedDoses } from '@domain/spending/linkedDoses';
 import { Chip } from '@ui/kit/Chip';
 import { RoundButton } from '@ui/kit/RoundButton';
 import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
@@ -23,8 +22,6 @@ type Props = {
   log: HabitLog;
   /** Doses that can't go lower, from urges that took the best of you. */
   floors: Record<string, number>;
-  /** Doses suggested by payments at merchants linked to a habit. */
-  fromStatement?: LinkedDoses;
   onChange: (log: HabitLog) => void;
 };
 
@@ -32,7 +29,7 @@ type Props = {
  * Habits for one check-in: doses of the ones to reduce or balance (start unlogged,
  * so 0 is a real answer), good habits to tick, and what you did instead.
  */
-export function HabitLogger({ habits, log, floors, fromStatement = {}, onChange }: Props) {
+export function HabitLogger({ habits, log, floors, onChange }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m, locale } = useLocale();
@@ -71,10 +68,6 @@ export function HabitLogger({ habits, log, floors, fromStatement = {}, onChange 
               </Text>
               {balancing && <Text style={styles.floorHint}>{sweetSpotHint(h, locale)}</Text>}
               {floors[h.id] > 0 && <Text style={styles.floorHint}>{m.urge.floorHint(floors[h.id])}</Text>}
-              {/* Only while the doses are still the statement's suggestion. */}
-              {fromStatement[h.id] && dose?.approx && dose.count === fromStatement[h.id].count && (
-                <Text style={styles.floorHint}>{m.habits.fromPayments(fromStatement[h.id].payments)}</Text>
-              )}
             </View>
             <Pressable
               accessibilityRole="button"

@@ -175,12 +175,13 @@ export const messages: Omit<Messages, 'voices'> = {
     thisWeek: (amount: string) => `${amount} this week`,
     inAll: (amount: string) => `${amount} in all`,
     thatWeek: (amount: string) => `${amount} that week`,
-    byThen: (amount: string) => `${amount} by then`,
+    last30: (amount: string) => `${amount} in the last 30 days`,
     perHabit: (emoji: string, amount: string) => `${emoji} ${amount}`,
     setPrice: 'Set a price per dose in Settings → Habits to see this.',
   },
   history: {
     calendar: 'Calendar',
+    money: 'Money',
   },
   progress: {
     title: 'Your progress',

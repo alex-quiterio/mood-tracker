@@ -135,6 +135,9 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     setTab(key);
     pager.current?.scrollTo({ x: TABS.findIndex((t) => t.key === key) * width, animated: true });
   };
+  // Merchants are linked from the week tab and from History.
+  const linkMerchantTo = (merchant: string, habitId: string | null) =>
+    settings.update({ merchantHabits: linkMerchant(settings.settings.merchantHabits, merchant, habitId) });
   const onSwiped = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     const swipedTo = TABS[Math.min(TABS.length - 1, Math.max(0, index))].key;
@@ -244,11 +247,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 showSpending={settings.settings.showSpending}
                 merchantHabits={settings.settings.merchantHabits}
-                onLinkMerchant={(merchant, habitId) =>
-                  settings.update({
-                    merchantHabits: linkMerchant(settings.settings.merchantHabits, merchant, habitId),
-                  })
-                }
+                onLinkMerchant={linkMerchantTo}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
               />
             </View>
@@ -260,6 +259,9 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 habits={habits}
                 habitsInPrompt={settings.settings.habitsInPrompt}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
+                showSpending={settings.settings.showSpending}
+                merchantHabits={settings.settings.merchantHabits}
+                onLinkMerchant={linkMerchantTo}
               />
             </View>
             <View style={[styles.page, { width }]}>

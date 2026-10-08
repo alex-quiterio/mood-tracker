@@ -48,7 +48,14 @@ export function HabitsWeek({ entries, urges, payments, habits, today, past = fal
         past={past}
       />
       {showSpending && (
-        <SpendingCard entries={entries} habits={habits} payments={payments} today={today} past={past} />
+        <SpendingCard
+          entries={entries}
+          habits={habits}
+          payments={payments}
+          today={today}
+          period="week"
+          past={past}
+        />
       )}
       <Card>
         {week.map((w) => (

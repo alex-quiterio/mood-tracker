@@ -206,12 +206,13 @@ export type Messages = {
     thisWeek: (amount: string) => string;
     inAll: (amount: string) => string;
     thatWeek: (amount: string) => string;
-    byThen: (amount: string) => string;
+    last30: (amount: string) => string;
     perHabit: (emoji: string, amount: string) => string;
     setPrice: string;
   };
   history: {
     calendar: string;
+    money: string;
   };
   progress: {
     title: string;

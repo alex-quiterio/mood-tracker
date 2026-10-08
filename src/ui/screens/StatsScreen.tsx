@@ -212,8 +212,9 @@ export function StatsScreen({
           payments={store.payments}
           links={merchantHabits}
           onLink={onLinkMerchant}
-          today={shownUntil}
-          past={!isThisWeek}
+          from={monday}
+          to={shownUntil}
+          periodLabel={isThisWeek ? m.compare.thisWeek : m.compare.thatWeek}
         />
       )}
     </ScrollView>

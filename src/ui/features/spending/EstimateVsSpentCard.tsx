@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 
 import { Entry } from '@domain/checkins/types';
 import { Habit } from '@domain/habits/habits';
-import { addDays, weekStart } from '@domain/shared/dates';
 import { MerchantLinks, spendingByCategory } from '@domain/spending/categories';
 import { Payment } from '@domain/spending/payments';
 import { formatEuros } from '@ui/foundation/i18n/format';
@@ -21,12 +20,12 @@ type Props = {
   payments: Payment[];
   links: MerchantLinks;
   onLink: (merchant: string, habitId: string | null) => void;
-  /** The last day of the week shown. */
-  today: string;
-  past: boolean;
+  /** The days compared, inclusive. */
+  from: string;
+  to: string;
+  /** Names those days: "This week", "Last 30 days"… */
+  periodLabel: string;
 };
-
-type Period = 'week' | 'last30';
 
 /** How many merchants show before "Show all". */
 const TOP_MERCHANTS = 6;
@@ -36,14 +35,21 @@ const TOP_MERCHANTS = 6;
  * the merchants linked to it. Below, the period's merchants, each one a tap away
  * from being linked to a habit.
  */
-export function EstimateVsSpentCard({ entries, habits, payments, links, onLink, today, past }: Props) {
+export function EstimateVsSpentCard({
+  entries,
+  habits,
+  payments,
+  links,
+  onLink,
+  from,
+  to,
+  periodLabel,
+}: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
-  const [period, setPeriod] = useState<Period>('week');
   const [open, setOpen] = useState<string | null>(null);
   const [all, setAll] = useState(false);
-  const from = period === 'week' ? weekStart(today) : addDays(today, -29);
-  const result = spendingByCategory(entries, habits, payments, links, from, today);
+  const result = spendingByCategory(entries, habits, payments, links, from, to);
   // A merchant goes with at most one habit, picked from every habit currently in use.
   const available = habits.filter((h) => !h.archived);
   const euros = (n: number) => formatEuros(n, locale);
@@ -52,14 +58,7 @@ export function EstimateVsSpentCard({ entries, habits, payments, links, onLink, 
   return (
     <Card>
       <Text style={styles.title}>{m.compare.title}</Text>
-      <View style={styles.chips}>
-        <Chip
-          label={past ? m.compare.thatWeek : m.compare.thisWeek}
-          selected={period === 'week'}
-          onPress={() => setPeriod('week')}
-        />
-        <Chip label={m.compare.last30} selected={period === 'last30'} onPress={() => setPeriod('last30')} />
-      </View>
+      <Text style={styles.muted}>{periodLabel}</Text>
 
       {!result ? (
         <Text style={styles.muted}>{m.compare.notCovered}</Text>

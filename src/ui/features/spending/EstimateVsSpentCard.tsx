@@ -44,7 +44,8 @@ export function EstimateVsSpentCard({ entries, habits, payments, links, onLink, 
   const [all, setAll] = useState(false);
   const from = period === 'week' ? weekStart(today) : addDays(today, -29);
   const result = spendingByCategory(entries, habits, payments, links, from, today);
-  const priced = habits.filter((h) => h.kind === 'reduce' && !h.archived && h.pricePerDose);
+  // A merchant goes with at most one habit, picked from every habit currently in use.
+  const available = habits.filter((h) => !h.archived);
   const euros = (n: number) => formatEuros(n, locale);
   const merchants = result ? (all ? result.merchants : result.merchants.slice(0, TOP_MERCHANTS)) : [];
 
@@ -71,9 +72,9 @@ export function EstimateVsSpentCard({ entries, habits, payments, links, onLink, 
               rows={result.categories.map((cat) => ({
                 key: cat.habit.id,
                 label: `${cat.habit.emoji} ${cat.habit.name}`,
-                first: cat.estimate,
+                first: cat.estimate ?? 0,
                 second: cat.spent,
-                firstText: euros(cat.estimate),
+                firstText: cat.estimate === null ? '–' : euros(cat.estimate),
                 secondText: euros(cat.spent),
               }))}
             />
@@ -89,7 +90,7 @@ export function EstimateVsSpentCard({ entries, habits, payments, links, onLink, 
               <Text style={styles.subtitle}>{m.compare.merchantsTitle}</Text>
               <Text style={styles.muted}>{m.compare.merchantsHint}</Text>
               {merchants.map((merchant) => {
-                const linked = priced.find((h) => h.id === merchant.habitId);
+                const linked = habits.find((h) => h.id === merchant.habitId);
                 return (
                   <View key={merchant.key} style={styles.merchant}>
                     <PressableScale
@@ -110,7 +111,7 @@ export function EstimateVsSpentCard({ entries, habits, payments, links, onLink, 
                     </PressableScale>
                     {open === merchant.key && (
                       <View style={styles.chips}>
-                        {priced.map((h) => (
+                        {available.map((h) => (
                           <Chip
                             key={h.id}
                             label={`${h.emoji} ${h.name}`}

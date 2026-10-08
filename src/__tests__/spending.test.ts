@@ -206,6 +206,21 @@ describe('estimated against spent, per habit', () => {
     expect(spendingByCategory(entries, PRESET_HABITS, payments, {}, '2026-09-01', '2026-09-07')).toBeNull();
   });
 
+  it('lets any habit take a merchant, with no estimate for habits without a price', () => {
+    const making = PRESET_HABITS.find((h) => h.id === 'making')!;
+    const links = linkMerchant({}, 'Albert Heijn', 'making');
+    const result = spendingByCategory(entries, PRESET_HABITS, payments, links, '2026-10-05', '2026-10-11')!;
+    expect(result.categories).toEqual([
+      { habit: making, estimate: null, spent: 42.1 },
+      { habit: drinks, estimate: 18, spent: 0 },
+    ]);
+  });
+
+  it('links a merchant to at most one habit: linking again moves it', () => {
+    const once = linkMerchant({}, 'De Republiek', 'drinks');
+    expect(linkMerchant(once, 'de republiek', 'friend')).toEqual({ 'de republiek': 'friend' });
+  });
+
   it('keeps links in the settings, and in backups', () => {
     const links = { 'de republiek': 'drinks' };
     expect(parseSettings({ merchantHabits: links }).merchantHabits).toEqual(links);

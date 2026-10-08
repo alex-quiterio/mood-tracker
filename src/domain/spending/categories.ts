@@ -5,8 +5,9 @@ import { Payment, paymentsIn, statementSpan } from './payments';
 
 /**
  * Real spending by category, next to the estimate. A statement says where money
- * went (a merchant), not why, so the categories are the user's priced habits and a
- * merchant only counts toward one once the user links it ("De Republiek" → drinks).
+ * went (a merchant), not why, so the categories are the user's habits (any of them,
+ * to reduce or to grow) and a merchant counts toward at most one, once the user
+ * links it ("De Republiek" → drinks, "Wood & Co" → making things).
  * Links are kept per merchant, so every later statement sorts itself.
  */
 
@@ -41,8 +42,8 @@ export function linkMerchant(
 
 export type CategoryComparison = {
   habit: Habit;
-  /** Euros: doses × price in the check-ins of the period. */
-  estimate: number;
+  /** Euros: doses × price in the check-ins of the period; null for habits without a price, which can't be estimated. */
+  estimate: number | null;
   /** Euros really spent at merchants linked to this habit. */
   spent: number;
 };
@@ -100,21 +101,23 @@ export function spendingByCategory(
   const checkIns = entries.filter((e) => e.date >= from && e.date <= to);
   const known = new Set(habits.map((h) => h.id));
   const categories = habits
-    .filter((h) => h.kind === 'reduce')
     .map((habit) => ({
       habit,
-      estimate: cents(
-        checkIns.reduce(
-          (sum, e) => sum + (e.habits?.doses[habit.id]?.count ?? 0) * (habit.pricePerDose ?? 0),
-          0,
-        ),
-      ),
+      estimate:
+        habit.kind === 'reduce' && habit.pricePerDose
+          ? cents(
+              checkIns.reduce(
+                (sum, e) => sum + (e.habits?.doses[habit.id]?.count ?? 0) * (habit.pricePerDose ?? 0),
+                0,
+              ),
+            )
+          : null,
       spent: cents(
         [...merchants.values()].filter((m) => m.habitId === habit.id).reduce((sum, m) => sum + m.total, 0),
       ),
     }))
-    .filter((c) => c.estimate > 0 || c.spent > 0)
-    .sort((a, b) => Math.max(b.estimate, b.spent) - Math.max(a.estimate, a.spent));
+    .filter((c) => (c.estimate ?? 0) > 0 || c.spent > 0)
+    .sort((a, b) => Math.max(b.estimate ?? 0, b.spent) - Math.max(a.estimate ?? 0, a.spent));
 
   return {
     categories,

@@ -65,10 +65,10 @@ export const messages: Omit<Messages, 'voices'> = {
     unlocksRow: '📱 Unlocks',
     stepsRow: '👟 Steps',
     includeHabits: 'Include my habits',
-    includeHabitsA11y: 'Include habits in the Claude prompt',
-    reflect: 'Reflect with Claude',
+    includeHabitsA11y: 'Include habits in the text for your AI companion',
+    reflect: 'Reflect with your AI companion',
     reflectHint:
-      'Builds a text summary of this week and opens the share sheet. Send it to the Claude app.',
+      'Builds a text summary of this week and opens the share sheet. Send it to your AI companion.',
     shareFailed: 'Could not open the share sheet',
     habits: 'Habits',
     cellA11y: (date: string, slot: string, detail: string) => `${date} ${slot}: ${detail}`,
@@ -241,7 +241,7 @@ export const messages: Omit<Messages, 'voices'> = {
       `${emoji} Mood on days with no ${name.toLowerCase()} ${none} · with some ${some}`,
     reflect: 'Reflect on my month',
     reflectHint:
-      'Builds a text summary of the last 30 days and opens the share sheet. Send it to the Claude app.',
+      'Builds a text summary of the last 30 days and opens the share sheet. Send it to your AI companion.',
   },
   monthTotals: {
     title: 'Month totals',
@@ -464,7 +464,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   voiceSettings: {
     title: 'Voice',
-    body: 'Changes how the app speaks: mood names, emojis, questions and the Claude prompt. Your data stays the same.',
+    body: 'Changes how the app speaks: mood names, emojis, questions and the text for your AI companion. Your data stays the same.',
     hide: 'Hides the voices',
     show: 'Shows all voices',
     noQuotes: 'No quotes yet for this voice.',
@@ -486,7 +486,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   unlockSettings: {
     title: 'Phone unlocks',
-    body: 'Counts how often you unlocked your phone since your last check-in, and adds it to the stats and the Claude prompt. Only check-ins saved for the current time slot get a count. The data stays on this phone.',
+    body: 'Counts how often you unlocked your phone since your last check-in, and adds it to the stats and the text for your AI companion. Only check-ins saved for the current time slot get a count. The data stays on this phone.',
     unsupported: 'Needs Android 9 or later and an installed build of the app (it does not work in Expo Go).',
     accessTitle: 'Allow usage access',
     accessBody:
@@ -496,7 +496,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   stepSettings: {
     title: 'Steps',
-    body: 'Counts your steps since your last check-in and adds them to the stats and the Claude prompt. Google Play services records the steps in the background, on this phone and without an account. Only check-ins saved for the current time slot get a count; steps are counted from when you turn this on.',
+    body: 'Counts your steps since your last check-in and adds them to the stats and the text for your AI companion. Google Play services records the steps in the background, on this phone and without an account. Only check-ins saved for the current time slot get a count; steps are counted from when you turn this on.',
     unsupported:
       'Needs an up-to-date Google Play services and an installed build of the app (it does not work in Expo Go).',
     askTitle: 'Count your steps?',
@@ -537,7 +537,7 @@ export const messages: Omit<Messages, 'voices'> = {
     addHabit: 'Add a habit',
     habitPlaceholder: 'e.g. Read before bed',
     kinds: { grow: '🌱 To grow', reduce: '🪨 To reduce', balance: '⚖️ To balance' },
-    inPrompt: 'Include habits in the Claude prompt',
+    inPrompt: 'Include habits in the text for your AI companion',
     showMoney: 'Money: prices, savings in euros and bank statements',
     showSpending: 'Show what doses cost (neutral, next to the savings jar)',
   },

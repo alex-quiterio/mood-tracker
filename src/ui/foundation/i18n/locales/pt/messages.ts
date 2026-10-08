@@ -65,10 +65,10 @@ export const messages: Omit<Messages, 'voices'> = {
     unlocksRow: '📱 Desbloq.',
     stepsRow: '👟 Passos',
     includeHabits: 'Incluir os meus hábitos',
-    includeHabitsA11y: 'Incluir os hábitos no texto para o Claude',
-    reflect: 'Refletir com o Claude',
+    includeHabitsA11y: 'Incluir os hábitos no texto para o teu companheiro de IA',
+    reflect: 'Refletir com o teu companheiro de IA',
     reflectHint:
-      'Cria um resumo desta semana e abre o menu de partilha. Envia-o para a app do Claude.',
+      'Cria um resumo desta semana e abre o menu de partilha. Envia-o para o teu companheiro de IA.',
     shareFailed: 'Não foi possível abrir o menu de partilha',
     habits: 'Hábitos',
     cellA11y: (date, slot, detail) => `${date} ${slot}: ${detail}`,
@@ -238,7 +238,7 @@ export const messages: Omit<Messages, 'voices'> = {
       `${emoji} Humor nos dias sem ${name.toLowerCase()} ${none} · com alguma ${some}`,
     reflect: 'Refletir sobre o meu mês',
     reflectHint:
-      'Cria um resumo em texto dos últimos 30 dias e abre o menu de partilha. Envia-o para a app do Claude.',
+      'Cria um resumo em texto dos últimos 30 dias e abre o menu de partilha. Envia-o para o teu companheiro de IA.',
   },
   monthTotals: {
     title: 'Totais do mês',
@@ -462,7 +462,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   voiceSettings: {
     title: 'Voz',
-    body: 'Muda a forma como a app fala: nomes dos humores, emojis, perguntas e o texto para o Claude. Os teus dados ficam iguais.',
+    body: 'Muda a forma como a app fala: nomes dos humores, emojis, perguntas e o texto para o teu companheiro de IA. Os teus dados ficam iguais.',
     hide: 'Esconde as vozes',
     show: 'Mostra todas as vozes',
     noQuotes: 'Ainda não há citações para esta voz.',
@@ -485,7 +485,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   unlockSettings: {
     title: 'Desbloqueios do telemóvel',
-    body: 'Conta quantas vezes desbloqueaste o telemóvel desde o último registo e junta isso às estatísticas e ao texto para o Claude. Só os registos guardados para o momento atual do dia ficam com contagem. Os dados ficam neste telemóvel.',
+    body: 'Conta quantas vezes desbloqueaste o telemóvel desde o último registo e junta isso às estatísticas e ao texto para o teu companheiro de IA. Só os registos guardados para o momento atual do dia ficam com contagem. Os dados ficam neste telemóvel.',
     unsupported:
       'Precisa do Android 9 ou superior e de uma versão instalada da app (não funciona no Expo Go).',
     accessTitle: 'Permitir acesso de utilização',
@@ -496,7 +496,7 @@ export const messages: Omit<Messages, 'voices'> = {
   },
   stepSettings: {
     title: 'Passos',
-    body: 'Conta os teus passos desde o último registo e junta-os às estatísticas e ao texto para o Claude. Os serviços Google Play registam os passos em segundo plano, neste telemóvel e sem conta. Só os registos guardados para o momento atual do dia ficam com contagem; os passos contam a partir do momento em que ativas isto.',
+    body: 'Conta os teus passos desde o último registo e junta-os às estatísticas e ao texto para o teu companheiro de IA. Os serviços Google Play registam os passos em segundo plano, neste telemóvel e sem conta. Só os registos guardados para o momento atual do dia ficam com contagem; os passos contam a partir do momento em que ativas isto.',
     unsupported:
       'Precisa dos serviços Google Play atualizados e de uma versão instalada da app (não funciona no Expo Go).',
     askTitle: 'Contar os teus passos?',
@@ -539,7 +539,7 @@ export const messages: Omit<Messages, 'voices'> = {
     addHabit: 'Acrescentar um hábito',
     habitPlaceholder: 'p. ex. Ler antes de dormir',
     kinds: { grow: '🌱 A cultivar', reduce: '🪨 A reduzir', balance: '⚖️ A equilibrar' },
-    inPrompt: 'Incluir os hábitos no texto para o Claude',
+    inPrompt: 'Incluir os hábitos no texto para o teu companheiro de IA',
     showMoney: 'Dinheiro: preços, poupanças em euros e extratos bancários',
     showSpending: 'Mostrar quanto custam as doses (neutro, junto ao mealheiro)',
   },

@@ -19,7 +19,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * The home-screen widget: a greeting and a pause, today's check-ins as mood-coloured
+ * The home-screen widget: a greeting, today's moon and a pause, today's check-ins as mood-coloured
  * tiles, the week as dots and the quote of the day. The app sends the state (see
  * HomeWidgetModule), including tomorrow's day and quote, so the widget can move on at
  * midnight by itself. This only draws; taps open the app on links the app chose.
@@ -120,6 +120,7 @@ class MoodWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(SLOT[i], openApp(context, slot.optString("link"), 2 + i))
       }
 
+      drawMoon(views, state.optJSONArray("week"), today)
       val showWeek = drawWeek(views, state.optJSONArray("week"), today, colors) && heightDp >= WEEK_MIN_HEIGHT
       views.setViewVisibility(R.id.mood_widget_week, if (showWeek) View.VISIBLE else View.GONE)
       views.setOnClickPendingIntent(R.id.mood_widget_week, openApp(context, state.optString("weekLink"), 5))
@@ -152,6 +153,17 @@ class MoodWidgetProvider : AppWidgetProvider() {
         views.setInt(DOT[i], "setImageAlpha", if (date > today) 90 else 255)
       }
       return true
+    }
+
+    /** Today's moon beside the greeting, from the days the app sent; hidden when today isn't among them. */
+    private fun drawMoon(views: RemoteViews, days: JSONArray?, today: String) {
+      val day = (0 until (days?.length() ?: 0))
+        .mapNotNull { days?.optJSONObject(it) }
+        .firstOrNull { it.optString("date") == today }
+      val moon = day?.optString("moon").orEmpty()
+      views.setTextViewText(R.id.mood_widget_moon, moon)
+      views.setContentDescription(R.id.mood_widget_moon, day?.optString("moonA11y").orEmpty())
+      views.setViewVisibility(R.id.mood_widget_moon, if (moon.isEmpty()) View.GONE else View.VISIBLE)
     }
 
     /** Today's quote, from the ones the app sent for today and tomorrow. False when there is none. */

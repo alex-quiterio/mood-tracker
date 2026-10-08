@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Greeting and pause, today's three check-ins as mood-coloured tiles, the week as dots
+  Greeting, today's moon and pause, today's three check-ins as mood-coloured tiles, the week as dots
   and the quote of the day. MoodWidgetProvider fills in the text and colours, and hides
   the week and quote when the widget is too short for them.
 -->
@@ -40,6 +40,13 @@
         android:textColor="@color/mood_widget_text"
         android:textSize="16sp"
         android:textStyle="bold" />
+      <TextView
+        android:id="@+id/mood_widget_moon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:textSize="16sp"
+        android:visibility="gone" />
       <TextView
         android:id="@+id/mood_widget_pause"
         android:layout_width="wrap_content"

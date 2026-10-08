@@ -15,9 +15,12 @@ const MOON_EMOJI: Record<MoonPhase, string> = {
   waningCrescent: '🌘',
 };
 
+/** "🌔" */
+export const moonEmoji = (moon: Moon) => MOON_EMOJI[moon.phase];
+
 /** "🌔 Waxing gibbous" */
 export const moonLabel = (moon: Moon, locale: Locale = 'en') =>
-  `${MOON_EMOJI[moon.phase]} ${messages(locale).moon.phases[moon.phase]}`;
+  `${moonEmoji(moon)} ${messages(locale).moon.phases[moon.phase]}`;
 
 /** "Today's moon: Waxing gibbous, 78% lit" */
 export const moonA11y = (moon: Moon, locale: Locale = 'en') => {

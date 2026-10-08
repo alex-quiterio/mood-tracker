@@ -24,8 +24,11 @@ export type HomeWidgetState = {
   colors: { surface: string; text: string; muted: string; accent: string; empty: string; onMood: string };
   /** Morning, afternoon, evening. `emoji` and `color` are empty when the slot has no check-in. */
   slots: { label: string; emoji: string; color: string; a11yDone: string; a11yEmpty: string; link: string }[];
-  /** This week and next, Monday to Sunday. `color` is the day's average mood, or empty. */
-  week: { date: string; initial: string; color: string }[];
+  /**
+   * This week and next, Monday to Sunday. `color` is the day's average mood, or empty;
+   * `moon` is the day's moon phase emoji, shown beside the greeting on that day.
+   */
+  week: { date: string; initial: string; color: string; moon: string; moonA11y: string }[];
   weekLink: string;
   /** The quote of the day for `date` and for tomorrow. */
   quotes: { date: string; text: string; source: string }[];

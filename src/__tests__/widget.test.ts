@@ -4,6 +4,8 @@ import { homeWidget } from '@modules/home-widget';
 import { Entry } from '@domain/checkins/types';
 import { moodsOn, parseWidgetLink, widgetLink } from '@domain/checkins/widget';
 import { homeWidgetState } from '@ui/features/widget/useHomeWidget';
+import { moonOn } from '@domain/moon/phase';
+import { moonEmoji } from '@ui/foundation/i18n/moon';
 import { messages } from '@ui/foundation/i18n/messages';
 import { paletteFor } from '@ui/foundation/theme/theme';
 import { activeVoice } from '@ui/foundation/voices/voices';
@@ -80,9 +82,18 @@ describe('homeWidgetState', () => {
     expect(state.week[13].date).toBe('2026-10-11');
     expect(state.week.slice(0, 7).map((d) => d.initial)).toEqual(['S', 'T', 'Q', 'Q', 'S', 'S', 'D']);
     // Wednesday 2026-09-30 has moods 2 and 4, which average to 3.
-    expect(state.week[2]).toEqual({ date: '2026-09-30', initial: 'Q', color: palette.moodColors[3] });
+    expect(state.week[2]).toMatchObject({ date: '2026-09-30', initial: 'Q', color: palette.moodColors[3] });
     expect(state.week[5].color).toBe('');
     expect(parseWidgetLink(state.weekLink)).toEqual({ kind: 'stats' });
+  });
+
+  it("sends each day's moon, so the widget keeps it right after midnight", () => {
+    for (const day of state.week) {
+      expect(day.moon).toBe(moonEmoji(moonOn(day.date)));
+      expect(day.moonA11y).toMatch(/^Lua de hoje: .+, \d+% iluminada$/);
+    }
+    // Two weeks span about half a lunar month.
+    expect(new Set(state.week.map((d) => d.moon)).size).toBeGreaterThan(2);
   });
 
   it('starts the week on Monday, also on a Sunday', () => {

@@ -7,9 +7,11 @@ import { Entry, SLOTS } from '@domain/checkins/types';
 import { WidgetTarget, moodsOn, parseWidgetLink, widgetLink } from '@domain/checkins/widget';
 import { Locale } from '@domain/settings/language';
 import { addDays, weekStart } from '@domain/shared/dates';
+import { moonOn } from '@domain/moon/phase';
 import { quoteOfTheDay } from '@domain/voices/voices';
 import { weekdayInitials } from '@ui/foundation/i18n/format';
 import { greetingFor, greetingText } from '@ui/foundation/i18n/greetings';
+import { moonA11y, moonEmoji } from '@ui/foundation/i18n/moon';
 import { Messages } from '@ui/foundation/i18n/messages';
 import { Palette } from '@ui/foundation/theme/theme';
 import { ActiveVoice } from '@ui/foundation/voices/voices';
@@ -24,7 +26,7 @@ type WidgetInput = {
   palette: Pick<Palette, 'surface' | 'background' | 'text' | 'muted' | 'accent' | 'onMood' | 'moodColors'>;
 };
 
-/** What the widget shows: today's check-ins in the current voice, the week, the quote, words and colours. */
+/** What the widget shows: today's check-ins in the current voice, the week and its moons, the quote, words and colours. */
 export function homeWidgetState({
   entries,
   today,
@@ -67,7 +69,14 @@ export function homeWidgetState({
     }),
     week: Array.from({ length: 14 }, (_, i) => addDays(monday, i)).map((date, i) => {
       const { mood } = summarizeDay(entries, date);
-      return { date, initial: initials[i % 7], color: mood ? palette.moodColors[mood] : '' };
+      const moon = moonOn(date);
+      return {
+        date,
+        initial: initials[i % 7],
+        color: mood ? palette.moodColors[mood] : '',
+        moon: moonEmoji(moon),
+        moonA11y: moonA11y(moon, locale),
+      };
     }),
     weekLink: widgetLink({ kind: 'stats' }),
     quotes: [today, tomorrow].flatMap((date) => {

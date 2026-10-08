@@ -1,4 +1,4 @@
-import { Entry } from '@domain/checkins/types';
+import { Entry, Slot } from '@domain/checkins/types';
 import { Habit } from '@domain/habits/habits';
 
 import { Payment, paymentsIn, statementSpan } from './payments';
@@ -128,4 +128,30 @@ export function spendingByCategory(
     ),
     merchants: [...merchants.values()].sort((a, b) => b.total - a.total),
   };
+}
+
+export type HabitSpend = { habit: Habit; spent: number };
+
+/**
+ * Euros spent at merchants linked to each habit between two dates (inclusive),
+ * optionally in one part of the day, biggest first. Only habits with spending.
+ */
+export function spentByHabit(
+  payments: Payment[],
+  links: MerchantLinks,
+  habits: Habit[],
+  from: string,
+  to: string,
+  slot?: Slot,
+): HabitSpend[] {
+  const spent = new Map<string, number>();
+  for (const p of paymentsIn(payments, from, to, slot)) {
+    const habitId = links[merchantKey(p.description)];
+    if (p.currency !== COMPARED_CURRENCY || !habitId) continue;
+    spent.set(habitId, cents((spent.get(habitId) ?? 0) + p.amount));
+  }
+  return habits
+    .filter((habit) => spent.has(habit.id))
+    .map((habit) => ({ habit, spent: spent.get(habit.id)! }))
+    .sort((a, b) => b.spent - a.spent);
 }

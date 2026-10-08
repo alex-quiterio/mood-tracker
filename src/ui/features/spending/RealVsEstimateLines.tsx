@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
+import { HabitSpend } from '@domain/spending/categories';
 import { RealVsEstimate } from '@domain/spending/realVsEstimate';
 import { formatEuros, formatMoneys } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
@@ -11,7 +12,14 @@ import { Text } from '@ui/kit/Text';
  * estimate. Days the statement doesn't cover show only the estimate; nothing shows
  * when there's nothing to say.
  */
-export function RealVsEstimateLines({ value }: { value: RealVsEstimate }) {
+export function RealVsEstimateLines({
+  value,
+  byHabit = [],
+}: {
+  value: RealVsEstimate;
+  /** The spending at merchants linked to each habit, as plain amounts. */
+  byHabit?: HabitSpend[];
+}) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const { real, currency, payments, estimate } = value;
@@ -21,6 +29,11 @@ export function RealVsEstimateLines({ value }: { value: RealVsEstimate }) {
     <View>
       {showReal && (
         <Text style={styles.real}>{m.statement.real(formatMoneys(real!, currency, locale), payments)}</Text>
+      )}
+      {showReal && byHabit.length > 0 && (
+        <Text style={styles.estimate}>
+          {byHabit.map(({ habit, spent }) => `${habit.emoji} ${formatEuros(spent, locale)}`).join(' · ')}
+        </Text>
       )}
       {estimate > 0 && (
         <Text style={styles.estimate}>{m.statement.estimate(formatEuros(estimate, locale))}</Text>

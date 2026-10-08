@@ -14,7 +14,12 @@ import {
 } from '@domain/spending/payments';
 import { StatementError, parseRevolutCsv } from '@domain/spending/revolut';
 import { habitEstimate, realVsEstimate } from '@domain/spending/realVsEstimate';
-import { linkMerchant, parseMerchantLinks, spendingByCategory } from '@domain/spending/categories';
+import {
+  linkMerchant,
+  parseMerchantLinks,
+  spendingByCategory,
+  spentByHabit,
+} from '@domain/spending/categories';
 import { parseSettings, settingsForBackup } from '@domain/settings/settings';
 import { formatMoneys } from '@ui/foundation/i18n/format';
 
@@ -225,5 +230,38 @@ describe('estimated against spent, per habit', () => {
     const links = { 'de republiek': 'drinks' };
     expect(parseSettings({ merchantHabits: links }).merchantHabits).toEqual(links);
     expect(settingsForBackup(parseSettings({ merchantHabits: links }))?.merchantHabits).toEqual(links);
+  });
+});
+
+describe('spending per habit in a check-in', () => {
+  const pay = (at: string, amount: number, description: string, currency = 'EUR') => ({
+    at,
+    date: at.slice(0, 10),
+    amount,
+    currency,
+    description,
+    kind: 'card' as const,
+  });
+  const byId = (id: string) => PRESET_HABITS.find((h) => h.id === id)!;
+  const [drinks, water] = [byId('drinks'), byId('water')];
+  const habits = [drinks, water];
+  let links = linkMerchant({}, 'Bar O Tasco', 'drinks');
+  links = linkMerchant(links, 'Fonte', 'water');
+  const payments = [
+    pay('2026-10-05T19:10:00', 7.5, 'Bar O Tasco'),
+    pay('2026-10-05T23:30:00', 2, 'bar  o tasco'),
+    pay('2026-10-05T20:00:00', 1.2, 'Fonte'),
+    pay('2026-10-05T21:00:00', 40, 'Supermarket'),
+    pay('2026-10-05T22:00:00', 8, 'Bar O Tasco', 'GBP'),
+    pay('2026-10-05T09:00:00', 3, 'Bar O Tasco'),
+  ];
+
+  it('adds up linked merchants per habit for the check-in, biggest first', () => {
+    expect(spentByHabit(payments, links, habits, '2026-10-05', '2026-10-05', 'evening')).toEqual([
+      { habit: drinks, spent: 9.5 },
+      { habit: water, spent: 1.2 },
+    ]);
+    expect(spentByHabit(payments, links, habits, '2026-10-05', '2026-10-05', 'afternoon')).toEqual([]);
+    expect(spentByHabit(payments, {}, habits, '2026-10-05', '2026-10-05', 'evening')).toEqual([]);
   });
 });

@@ -9,12 +9,12 @@ import {
   MAX_DOSES,
   activeHabits,
   countsDoses,
-  rangeOf,
   toggleOption,
 } from '@domain/habits/habits';
 import { Chip } from '@ui/kit/Chip';
 import { RoundButton } from '@ui/kit/RoundButton';
 import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
+import { sweetSpotHint } from '@ui/foundation/i18n/habits';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 
 type Props = {
@@ -32,7 +32,7 @@ type Props = {
 export function HabitLogger({ habits, log, floors, onChange }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
-  const { m } = useLocale();
+  const { m, locale } = useLocale();
   const counted = activeHabits(habits).filter(countsDoses);
   const grow = activeHabits(habits).filter((h) => !countsDoses(h));
   if (counted.length === 0 && grow.length === 0) return null;
@@ -66,9 +66,7 @@ export function HabitLogger({ habits, log, floors, onChange }: Props) {
               <Text style={styles.doseName}>
                 {h.emoji} {h.name}
               </Text>
-              {balancing && (
-                <Text style={styles.floorHint}>{m.habits.sweetSpot(rangeOf(h).min, rangeOf(h).max)}</Text>
-              )}
+              {balancing && <Text style={styles.floorHint}>{sweetSpotHint(h, locale)}</Text>}
               {floors[h.id] > 0 && <Text style={styles.floorHint}>{m.urge.floorHint(floors[h.id])}</Text>}
             </View>
             <Pressable

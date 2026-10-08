@@ -12,10 +12,14 @@ import {
   addOption,
   createHabit,
   parsePrice,
+  RANGE_MAX,
+  RANGE_PERIODS,
+  periodOf,
   rangeOf,
   removeOption,
   updateHabit,
   weightOf,
+  withPeriod,
 } from '@domain/habits/habits';
 import { habitSummary, localizeHabit, pointsLabel } from '@ui/foundation/i18n/habits';
 import { Button } from '@ui/kit/Button';
@@ -202,10 +206,24 @@ function HabitRow({ habit, shown, open, onToggleOpen, onChange, onReplace }: Row
                 <Stepper
                   value={range.max}
                   min={range.min}
-                  max={60}
+                  max={RANGE_MAX[periodOf(habit)]}
                   onChange={(max) => onChange({ range: { ...range, max } })}
                 />
               </Field>
+              <View style={styles.field}>
+                <Text style={styles.fieldLabel}>{m.habitSettings.sweetSpotPer}</Text>
+                <View style={styles.chips}>
+                  {RANGE_PERIODS.map((per) => (
+                    <Chip
+                      key={per}
+                      selected={periodOf(habit) === per}
+                      onPress={() => onChange({ range: withPeriod(range, per) })}
+                      label={m.habitSettings.periods[per]}
+                    />
+                  ))}
+                </View>
+                {periodOf(habit) !== 'day' && <Text style={styles.muted}>{m.habitSettings.periodHint}</Text>}
+              </View>
             </>
           )}
           <Field label={pointsLabel(habit, locale)}>

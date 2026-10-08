@@ -102,8 +102,9 @@ export const messages: Omit<Messages, 'voices'> = {
       `${emoji} Nenhum em ${wins} de ${logged} registos · ${total} ${unit} no total`,
     balanceWeek: (emoji, name, wins, days) =>
       `${emoji} ${name} na medida certa em ${wins} de ${days} ${days === 1 ? 'dia' : 'dias'}`,
-    sweetSpot: (min, max) =>
-      min === max ? `medida certa: ${min} por dia` : `medida certa: ${min}–${max} por dia`,
+    per: { day: 'por dia', week: 'por semana', month: 'por mês' },
+    sweetSpot: (min, max, per) =>
+      min === max ? `medida certa: ${min} ${per}` : `medida certa: ${min}–${max} ${per}`,
     moodWithNone: (none, some) => `Humor sem nenhum ${none} · com algum ${some}`,
     insteadTitle: '🌱 O que fizeste em vez disso',
     feelingsBefore: (list: string) => `🌊 Antes das tuas vontades: ${list}`,
@@ -228,7 +229,8 @@ export const messages: Omit<Messages, 'voices'> = {
     sleep: (nights) => `por noite · ${nights} ${nights === 1 ? 'noite' : 'noites'}`,
     reduce: (name, total, unit) => `dias sem ${name} · ${total} ${unit} no total`,
     grow: (name) => `dias com ${name}`,
-    balance: (min, max, total, unit) => `dias na medida certa (${min}–${max}) · ${total} ${unit} no total`,
+    balance: (min, max, per, total, unit) =>
+      `dias na medida certa (${min}–${max} ${per}) · ${total} ${unit} no total`,
     urges: (passed) => `vontades · deixaste passar ${passed}`,
     saved: (amount) => `🫙 ${amount} poupados por teres menos`,
     hint: 'Uma barra por dia. Toca numa barra para abrir esse dia.',
@@ -482,7 +484,7 @@ export const messages: Omit<Messages, 'voices'> = {
     body: 'Registados em cada registo. Zeros, bons hábitos e o que fizeste em vez disso contam como pontos leves; as doses contam como pesados.',
     reduceSummary: (weight) => `A reduzir · 🪨 ${weight}/dose`,
     growSummary: (weight) => `A cultivar · 🌱 ${weight}`,
-    balanceSummary: (min, max, weight) => `A equilibrar · ${min}–${max} por dia · 🌱 ${weight}`,
+    balanceSummary: (min, max, per, weight) => `A equilibrar · ${min}–${max} ${per} · 🌱 ${weight}`,
     edit: ' · editar',
     track: (name) => `Registar ${name}`,
     name: 'Nome',
@@ -493,8 +495,11 @@ export const messages: Omit<Messages, 'voices'> = {
       reduce: 'Pontos pesados por dose',
       balance: 'Pontos leves por um dia na medida certa',
     },
-    sweetSpotMin: 'Medida certa por dia, a partir de',
-    sweetSpotMax: 'Medida certa por dia, até',
+    sweetSpotMin: 'Medida certa, a partir de',
+    sweetSpotMax: 'Medida certa, até',
+    sweetSpotPer: 'Medida certa contada',
+    periods: { day: 'Por dia', week: 'Por semana', month: 'Por mês' },
+    periodHint: 'Cada dia é uma vitória enquanto o total até agora não passar do limite.',
     options: 'Opções (opcional)',
     removeOption: (label) => `Remover ${label}`,
     optionPlaceholder: 'Acrescenta uma opção, p. ex. Jardinagem',
@@ -561,8 +566,8 @@ export const messages: Omit<Messages, 'voices'> = {
     habitGrow: (name, wins, logged) => `${name}: feito em ${wins} de ${logged} registos`,
     habitReduce: (name, wins, logged, total, unit) =>
       `${name}: nenhum em ${wins} de ${logged} registos, ${total} ${unit} no total`,
-    habitBalance: (name, wins, days, min, max, unit) =>
-      `${name}: dentro da minha medida certa de ${min}–${max} ${unit} por dia em ${wins} de ${days} dias`,
+    habitBalance: (name, wins, days, min, max, unit, per) =>
+      `${name}: dentro da minha medida certa de ${min}–${max} ${unit} ${per} em ${wins} de ${days} dias`,
     habitMoods: (none, some) => ` (humor sem nenhum ${none}, com algum ${some})`,
     balance: (light, heavy) =>
       `Equilíbrio: ${light} pontos leves (bons hábitos, zeros, fazer outra coisa em vez disso) contra ${heavy} pontos pesados (doses).`,

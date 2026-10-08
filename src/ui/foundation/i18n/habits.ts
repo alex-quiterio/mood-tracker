@@ -1,4 +1,12 @@
-import { Habit, HabitKind, HabitLog, PRESET_HABITS, rangeOf, weightOf } from '@domain/habits/habits';
+import {
+  Habit,
+  HabitKind,
+  HabitLog,
+  PRESET_HABITS,
+  periodOf,
+  rangeOf,
+  weightOf,
+} from '@domain/habits/habits';
 import { HabitWeek } from '@domain/habits/insights';
 import { UrgeFeeling } from '@domain/habits/urges';
 import { Locale } from '@domain/settings/language';
@@ -48,15 +56,26 @@ export function describeHabitWeek(w: HabitWeek, locale: Locale = 'en'): string {
   });
 }
 
+/** How a habit's sweet spot is counted, to follow a number: "a day", "a week". */
+export const sweetSpotPer = (habit: Habit, locale: Locale = 'en') =>
+  messages(locale).habits.per[periodOf(habit)];
+
+/** The sweet spot shown under a habit to balance at check-in, e.g. "sweet spot 1–2 a day". */
+export function sweetSpotHint(habit: Habit, locale: Locale = 'en'): string {
+  const { min, max } = rangeOf(habit);
+  return messages(locale).habits.sweetSpot(min, max, sweetSpotPer(habit, locale));
+}
+
 /** One habit's week for the Claude prompt, in plain words. */
 export function promptHabitWeek(w: HabitWeek, locale: Locale = 'en'): string {
   const { habit } = w;
   const m = messages(locale).prompt;
   const { min, max } = rangeOf(habit);
+  const per = sweetSpotPer(habit, locale);
   return byKind(habit, {
     grow: () => m.habitGrow(habit.name, w.wins, w.logged),
     reduce: () => m.habitReduce(habit.name, w.wins, w.logged, w.total, habit.unit),
-    balance: () => m.habitBalance(habit.name, w.wins, w.logged, min, max, habit.unit),
+    balance: () => m.habitBalance(habit.name, w.wins, w.logged, min, max, habit.unit, per),
   });
 }
 
@@ -67,7 +86,7 @@ export function habitSummary(habit: Habit, locale: Locale = 'en'): string {
   return byKind(habit, {
     grow: () => m.growSummary(weightOf(habit)),
     reduce: () => m.reduceSummary(weightOf(habit)) + (habit.pricePerDose ? ` · €${habit.pricePerDose}` : ''),
-    balance: () => m.balanceSummary(min, max, weightOf(habit)),
+    balance: () => m.balanceSummary(min, max, sweetSpotPer(habit, locale), weightOf(habit)),
   });
 }
 
@@ -82,7 +101,7 @@ export function monthCaption(habit: Habit, total: number, locale: Locale = 'en')
   return byKind(habit, {
     grow: () => t.grow(habit.name.toLowerCase()),
     reduce: () => t.reduce(habit.name.toLowerCase(), total, habit.unit),
-    balance: () => t.balance(min, max, total, habit.unit),
+    balance: () => t.balance(min, max, sweetSpotPer(habit, locale), total, habit.unit),
   });
 }
 

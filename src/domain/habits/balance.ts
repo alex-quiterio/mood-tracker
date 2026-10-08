@@ -1,7 +1,8 @@
 import { Entry } from '@domain/checkins/types';
 import { addDays, weekOf, weekSoFar } from '@domain/shared/dates';
 
-import { Habit, HabitLog, inSweetSpot, weightOf } from './habits';
+import { Habit, HabitLog, inSweetSpot, periodTotal, weightOf } from './habits';
+import { dosesByDay } from './insights';
 import { URGE_POINTS, Urge, passedOn } from './urges';
 
 /**
@@ -10,8 +11,9 @@ import { URGE_POINTS, Urge, passedOn } from './urges';
  * (+1), and a note on what you did instead (+2), because choosing differently is
  * the heart of the loop, and each urge that passed (+2). Heavy points: each dose
  * times its habit's weight. Habits to balance score per day, not per check-in: a
- * day whose total is in the sweet spot earns their weight in light points, and a
- * day outside it earns nothing and costs nothing.
+ * day in the sweet spot (or, for a weekly or monthly one, still under its cap)
+ * earns their weight in light points, and a day outside it earns nothing and
+ * costs nothing.
  */
 export const ZERO_POINTS = 1;
 export const INSTEAD_POINTS = 2;
@@ -41,15 +43,15 @@ export function checkInPoints(log: HabitLog | undefined, habits: Habit[]): Point
   return { light, heavy };
 }
 
-/** Light points for one day's check-ins from the habits to balance whose total landed in the sweet spot. */
-export function sweetSpotPoints(dayLogs: HabitLog[], habits: Habit[]): number {
+/** Light points on `date` from the habits to balance logged that day and in their sweet spot. */
+export function sweetSpotPoints(entries: Entry[], habits: Habit[], date: string): number {
   return habits
     .filter((h) => h.kind === 'balance')
     .reduce((sum, h) => {
-      const doses = dayLogs.map((log) => log.doses[h.id]).filter((d) => d !== undefined);
-      if (doses.length === 0) return sum;
-      const total = doses.reduce((n, d) => n + d.count, 0);
-      return inSweetSpot(h, total) ? sum + weightOf(h) : sum;
+      const byDay = dosesByDay(entries, h.id);
+      const total = byDay.get(date);
+      if (total === undefined) return sum;
+      return inSweetSpot(h, total, periodTotal(h, byDay, date)) ? sum + weightOf(h) : sum;
     }, 0);
 }
 
@@ -71,13 +73,7 @@ export function balanceDays(
       { light: 0, heavy: 0 },
     );
     const passed = passedOn(urges, date);
-    const light =
-      points.light +
-      passed * URGE_POINTS +
-      sweetSpotPoints(
-        logs.map((e) => e.habits!),
-        habits,
-      );
+    const light = points.light + passed * URGE_POINTS + sweetSpotPoints(entries, habits, date);
     return {
       date,
       light,

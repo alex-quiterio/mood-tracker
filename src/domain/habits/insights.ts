@@ -3,7 +3,7 @@ import { Entry } from '@domain/checkins/types';
 import { average } from '@domain/shared/math';
 import { weekSoFar, weekStart } from '@domain/shared/dates';
 
-import { Habit, HabitLog, activeHabits, inSweetSpot } from './habits';
+import { Habit, HabitLog, activeHabits, inSweetSpot, periodTotal } from './habits';
 
 /** Total doses of a habit per day, only for days where it was logged at least once. */
 export function dosesByDay(entries: Entry[], habitId: string): Map<string, number> {
@@ -91,11 +91,14 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
       };
     }
     if (habit.kind === 'balance') {
+      // All entries for the totals so far: a monthly sweet spot can start before Monday.
+      const byDay = dosesByDay(entries, habit.id);
       const days = [...dosesByDay(week, habit.id)];
       return {
         habit,
         logged: days.length,
-        wins: days.filter(([, total]) => inSweetSpot(habit, total)).length,
+        wins: days.filter(([date, total]) => inSweetSpot(habit, total, periodTotal(habit, byDay, date)))
+          .length,
         total: days.reduce((sum, [, total]) => sum + total, 0),
         saved: 0,
         moodWithNone: null,

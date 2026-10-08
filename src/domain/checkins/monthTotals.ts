@@ -1,5 +1,5 @@
-import { Habit, countsDoses, isDayWin } from '@domain/habits/habits';
-import { savings } from '@domain/habits/insights';
+import { Habit, countsDoses, isDayWin, periodTotal } from '@domain/habits/habits';
+import { dosesByDay, savings } from '@domain/habits/insights';
 import { Urge } from '@domain/habits/urges';
 import { average } from '@domain/shared/math';
 import { Payment, mainCurrency, paymentsIn, statementSpan } from '@domain/spending/payments';
@@ -83,7 +83,12 @@ export function monthTotals(
       : series((e) => (e.habits ? (e.habits.did.includes(habit.id) ? 1 : 0) : undefined));
     const logged = perDay.filter((v): v is number => v !== null);
     if (logged.length === 0) return [];
-    const winDays = logged.filter((v) => isDayWin(habit, v)).length;
+    // A weekly sweet spot can start in the month before, so totals so far read all entries.
+    const byDay = dosesByDay(entries, habit.id);
+    const winDays = days.filter((d, i) => {
+      const v = perDay[i];
+      return v !== null && isDayWin(habit, v, periodTotal(habit, byDay, d));
+    }).length;
     return [{ habit, perDay, total: sum(logged), winDays }];
   });
 

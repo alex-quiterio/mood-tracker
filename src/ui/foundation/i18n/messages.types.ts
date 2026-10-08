@@ -1,4 +1,4 @@
-import type { HabitKind } from '@domain/habits/habits';
+import type { HabitKind, RangePeriod } from '@domain/habits/habits';
 import type { UrgeFeeling } from '@domain/habits/urges';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { VoiceId } from '@domain/voices/voices';
@@ -137,7 +137,9 @@ export type Messages = {
     /** A habit to balance: days in the sweet spot out of the days logged. */
     balanceWeek: (emoji: string, name: string, wins: number, days: number) => string;
     /** Under a habit to balance in the check-in, e.g. "sweet spot 1–2 a day". */
-    sweetSpot: (min: number, max: number) => string;
+    /** How a sweet spot is counted, to follow a number: "a day", "a week". */
+    per: Record<RangePeriod, string>;
+    sweetSpot: (min: number, max: number, per: string) => string;
     moodWithNone: (none: string, some: string) => string;
     insteadTitle: string;
     /** Feelings before this week's urges, already joined, e.g. "boredom ×3, fear". */
@@ -259,7 +261,7 @@ export type Messages = {
     sleep: (nights: number) => string;
     reduce: (name: string, total: number, unit: string) => string;
     grow: (name: string) => string;
-    balance: (min: number, max: number, total: number, unit: string) => string;
+    balance: (min: number, max: number, per: string, total: number, unit: string) => string;
     urges: (passed: number) => string;
     saved: (amount: string) => string;
     hint: string;
@@ -489,7 +491,7 @@ export type Messages = {
     body: string;
     reduceSummary: (weight: number) => string;
     growSummary: (weight: number) => string;
-    balanceSummary: (min: number, max: number, weight: number) => string;
+    balanceSummary: (min: number, max: number, per: string, weight: number) => string;
     edit: string;
     track: (name: string) => string;
     name: string;
@@ -499,6 +501,11 @@ export type Messages = {
     points: Record<HabitKind, string>;
     sweetSpotMin: string;
     sweetSpotMax: string;
+    sweetSpotPer: string;
+    /** Picked to count the sweet spot over a day, a week or a month. */
+    periods: Record<RangePeriod, string>;
+    /** Under the period chips, for a weekly or monthly sweet spot. */
+    periodHint: string;
     options: string;
     removeOption: (label: string) => string;
     optionPlaceholder: string;
@@ -543,6 +550,7 @@ export type Messages = {
       min: number,
       max: number,
       unit: string,
+      per: string,
     ) => string;
     habitMoods: (none: string, some: string) => string;
     balance: (light: number, heavy: number) => string;

@@ -1,3 +1,4 @@
+import { weekStart } from '@domain/shared/dates';
 import { uniqueId } from '@domain/shared/ids';
 
 /**
@@ -11,8 +12,12 @@ import { uniqueId } from '@domain/shared/ids';
 export const HABIT_KINDS = ['grow', 'reduce', 'balance'] as const;
 export type HabitKind = (typeof HABIT_KINDS)[number];
 
-/** A day's total that feels right for a habit to balance, inclusive. */
-export type DoseRange = { min: number; max: number };
+/** What a habit to balance's sweet spot is counted over. */
+export const RANGE_PERIODS = ['day', 'week', 'month'] as const;
+export type RangePeriod = (typeof RANGE_PERIODS)[number];
+
+/** The total that feels right for a habit to balance, inclusive, per day unless `per` says otherwise. */
+export type DoseRange = { min: number; max: number; per?: RangePeriod };
 
 /** A choice within a habit to grow, e.g. which activity you spent time on. */
 export type HabitOption = { id: string; label: string; emoji: string };
@@ -30,7 +35,7 @@ export type Habit = {
   pricePerDose?: number;
   /** How many a day you usually had before. Savings count against this. */
   usualPerDay?: number;
-  /** The sweet spot per day of a habit to balance; DEFAULT_RANGE when unset. */
+  /** The sweet spot of a habit to balance, per day, week or month; DEFAULT_RANGE when unset. */
   range?: DoseRange;
   /** Habits to grow can offer choices; doing the habit means picking at least one. */
   options?: HabitOption[];
@@ -44,11 +49,39 @@ export type Habit = {
 
 export const DEFAULT_RANGE: DoseRange = { min: 1, max: 2 };
 export const rangeOf = (h: Habit): DoseRange => h.range ?? DEFAULT_RANGE;
+export const periodOf = (h: Habit): RangePeriod => rangeOf(h).per ?? 'day';
 
-/** A day's total doses of a habit to balance is inside its sweet spot. */
-export function inSweetSpot(h: Habit, dayTotal: number): boolean {
+/** The first day of the day, week (from Monday) or month that `date` falls in. */
+export function periodStart(date: string, per: RangePeriod): string {
+  const starts: Record<RangePeriod, () => string> = {
+    day: () => date,
+    week: () => weekStart(date),
+    month: () => `${date.slice(0, 8)}01`,
+  };
+  return starts[per]();
+}
+
+/**
+ * A habit's doses from the start of its sweet spot's period up to and including
+ * `date`, given its total per logged day. Per day, that's just the day's total.
+ */
+export function periodTotal(h: Habit, byDay: Map<string, number>, date: string): number {
+  const from = periodStart(date, periodOf(h));
+  let total = 0;
+  for (const [day, count] of byDay) if (day >= from && day <= date) total += count;
+  return total;
+}
+
+/**
+ * A logged day of a habit to balance is a win. Per day, its total is inside the
+ * sweet spot. Per week or month, the period's total so far is still at or under
+ * the cap, so every day under it wins; the minimum is only a hint, since the
+ * period isn't over yet. Going over stops the wins until the next period and
+ * costs nothing.
+ */
+export function inSweetSpot(h: Habit, dayTotal: number, totalSoFar: number = dayTotal): boolean {
   const { min, max } = rangeOf(h);
-  return dayTotal >= min && dayTotal <= max;
+  return periodOf(h) === 'day' ? dayTotal >= min && dayTotal <= max : totalSoFar <= max;
 }
 
 /**
@@ -61,8 +94,11 @@ type KindRule = {
   /** Balance points when the habit has no weight of its own. */
   defaultWeight: number;
   defaultEmoji: string;
-  /** Whether a day's total (doses, or 1 when a ticked habit was done) is a win. */
-  dayWin: (habit: Habit, dayTotal: number) => boolean;
+  /**
+   * Whether a day's total (doses, or 1 when a ticked habit was done) is a win, with
+   * the total of the habit's period so far for habits whose goal spans more days.
+   */
+  dayWin: (habit: Habit, dayTotal: number, totalSoFar: number) => boolean;
   /** Fields a new habit of this kind starts with. */
   initial: Partial<Habit>;
 };
@@ -84,8 +120,9 @@ export const weightOf = (h: Habit) => h.weight ?? KIND_RULES[h.kind].defaultWeig
 /** Habits counted in doses rather than ticked. */
 export const countsDoses = (h: Habit) => KIND_RULES[h.kind].countsDoses;
 
-/** A day's total is a win for this habit: none, done, or in the sweet spot. */
-export const isDayWin = (h: Habit, dayTotal: number) => KIND_RULES[h.kind].dayWin(h, dayTotal);
+/** A day's total is a win for this habit: none, done, or in the sweet spot (see `periodTotal`). */
+export const isDayWin = (h: Habit, dayTotal: number, totalSoFar: number = dayTotal) =>
+  KIND_RULES[h.kind].dayWin(h, dayTotal, totalSoFar);
 
 const isRange = (r: unknown): r is DoseRange => {
   const v = r as DoseRange | null;
@@ -96,7 +133,8 @@ const isRange = (r: unknown): r is DoseRange => {
     Number.isInteger(v.max) &&
     v.min >= 0 &&
     v.min <= v.max &&
-    v.max <= MAX_DOSES
+    (v.per === undefined || RANGE_PERIODS.includes(v.per)) &&
+    v.max <= RANGE_MAX[v.per ?? 'day']
   );
 };
 
@@ -140,6 +178,14 @@ export const PRESET_HABITS: Habit[] = [
 ];
 
 export const MAX_DOSES = 99;
+/** Highest sweet spot bound per period: a month holds more doses than a day. */
+export const RANGE_MAX: Record<RangePeriod, number> = { day: 60, week: 99, month: 300 };
+
+/** The sweet spot counted over another period, its bounds brought within that period's limit. */
+export function withPeriod(range: DoseRange, per: RangePeriod): DoseRange {
+  const max = Math.min(range.max, RANGE_MAX[per]);
+  return { min: Math.min(range.min, max), max, per };
+}
 export const INSTEAD_MAX_LENGTH = 200;
 export const HABIT_NAME_MAX_LENGTH = 24;
 

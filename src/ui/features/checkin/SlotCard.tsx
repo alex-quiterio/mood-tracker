@@ -10,6 +10,8 @@ import { Entry, Mood, Slot } from '@domain/checkins/types';
 import { EMPTY_LOG, Habit, HabitLog, cleanLog, isWin, sameLog } from '@domain/habits/habits';
 import { describeLog } from '@domain/habits/insights';
 import { applyUrgeFloors, urgeFloors } from '@domain/habits/urges';
+import { MerchantLinks } from '@domain/spending/categories';
+import { linkedDoses, prefillLinkedDoses } from '@domain/spending/linkedDoses';
 import { describeSignals } from '@ui/foundation/i18n/describeSignals';
 import { withSteps } from '@infrastructure/signals/steps';
 import { withUnlocks } from '@infrastructure/signals/unlocks';
@@ -39,6 +41,8 @@ export type SlotCardProps = {
   store: EntriesStore;
   tracking: Tracking;
   habits: Habit[];
+  /** Merchants linked to habits, whose payments prefill doses. */
+  links: MerchantLinks;
   onSaved: (mood: Mood, habitWin: boolean) => void;
 };
 
@@ -55,6 +59,7 @@ export function SlotCard({
   store,
   tracking,
   habits,
+  links,
   onSaved,
 }: SlotCardProps) {
   const styles = useThemedStyles(makeStyles);
@@ -67,7 +72,11 @@ export function SlotCard({
   const [mood, setMood] = useState<Mood | null>(entry?.mood ?? null);
   const [note, setNote] = useState(entry?.note ?? '');
   const floors = urgeFloors(store.urges, date, slot);
-  const [draftLog, setHabitLog] = useState<HabitLog>(entry?.habits ?? EMPTY_LOG);
+  const fromStatement = linkedDoses(store.payments, links, habits, date, slot);
+  // Payments at linked merchants suggest doses, as rough, for habits not logged yet.
+  const [draftLog, setHabitLog] = useState<HabitLog>(() =>
+    prefillLinkedDoses(entry?.habits ?? EMPTY_LOG, fromStatement),
+  );
   // Urges that took the best of you are a minimum for the doses.
   const habitLog = applyUrgeFloors(draftLog, floors);
   // Only the morning check-in asks about last night.
@@ -178,7 +187,13 @@ export function SlotCard({
         </Text>
       )}
       {asksSleep && <SleepLogger sleep={sleep} onChange={setSleep} />}
-      <HabitLogger habits={habits} log={habitLog} floors={floors} onChange={setHabitLog} />
+      <HabitLogger
+        habits={habits}
+        log={habitLog}
+        floors={floors}
+        fromStatement={fromStatement}
+        onChange={setHabitLog}
+      />
       <Button
         title={entry ? m.common.update : m.common.save}
         onPress={save}

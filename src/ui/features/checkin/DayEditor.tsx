@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { entryKey, lastChangedAt } from '@domain/checkins/entries';
 import { SLOTS, Slot } from '@domain/checkins/types';
 import { Habit } from '@domain/habits/habits';
+import { MerchantLinks } from '@domain/spending/categories';
 import { EntriesStore } from '@ui/state/useEntries';
 
 import { SlotCard, Tracking } from './SlotCard';
@@ -12,10 +13,12 @@ type Props = {
   store: EntriesStore;
   tracking: Tracking;
   habits: Habit[];
+  /** Merchants linked to habits, whose payments prefill doses. */
+  links: MerchantLinks;
 };
 
 /** A past day's three check-ins to fill in or change, opening on its first empty slot. */
-export function DayEditor({ date, store, tracking, habits }: Props) {
+export function DayEditor({ date, store, tracking, habits, links }: Props) {
   const [openSlot, setOpenSlot] = useState<Slot>(
     () => SLOTS.find((s) => !store.entries.some((e) => e.date === date && e.slot === s)) ?? 'morning',
   );
@@ -33,6 +36,7 @@ export function DayEditor({ date, store, tracking, habits }: Props) {
         store={store}
         tracking={tracking}
         habits={habits}
+        links={links}
         onSaved={() => {}}
       />
     );

@@ -237,6 +237,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 initialSlot={checkInOpen?.slot}
                 initialPause={checkInOpen?.pause}
                 habits={habits}
+                links={settings.settings.merchantHabits}
               />
             </View>
             <View style={[styles.page, { width }]}>

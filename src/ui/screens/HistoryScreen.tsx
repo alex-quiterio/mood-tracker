@@ -104,7 +104,13 @@ export function HistoryScreen({
       )}
 
       <Text style={styles.sectionTitle}>{m.history.calendar}</Text>
-      <HistoryCalendar store={store} tracking={tracking} today={today} habits={habits} />
+      <HistoryCalendar
+        store={store}
+        tracking={tracking}
+        today={today}
+        habits={habits}
+        links={merchantHabits}
+      />
     </ScrollView>
   );
 }

@@ -35,6 +35,7 @@ import { UrgeForecastCard } from '@ui/features/habits/UrgeForecastCard';
 import { UrgeModal } from '@ui/features/habits/UrgeModal';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { SlotCard, Tracking } from '@ui/features/checkin/SlotCard';
+import { MerchantLinks } from '@domain/spending/categories';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
 type Props = {
@@ -46,9 +47,11 @@ type Props = {
   /** Opens with the pause (breathing or focus) showing. */
   initialPause?: boolean;
   habits: Habit[];
+  /** Merchants linked to habits, whose payments prefill doses. */
+  links: MerchantLinks;
 };
 
-export function CheckInScreen({ store, tracking, name, initialSlot, initialPause, habits }: Props) {
+export function CheckInScreen({ store, tracking, name, initialSlot, initialPause, habits, links }: Props) {
   const styles = useThemedStyles(makeStyles);
   // Only today can be checked in; past days are read-only in History.
   const today = localDate();
@@ -174,6 +177,7 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
               store={store}
               tracking={tracking}
               habits={habits}
+              links={links}
               onSaved={onSaved}
             />
           );

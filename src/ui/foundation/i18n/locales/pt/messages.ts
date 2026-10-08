@@ -118,6 +118,8 @@ export const messages: Omit<Messages, 'voices'> = {
     per: { day: 'por dia', week: 'por semana', month: 'por mês' },
     sweetSpot: (min, max, per) =>
       min === max ? `medida certa: ${min} ${per}` : `medida certa: ${min}–${max} ${per}`,
+    fromPayments: (payments) =>
+      `💳 ≈ de ${payments} ${payments === 1 ? 'pagamento' : 'pagamentos'} no teu extrato`,
     moodWithNone: (none, some) => `Humor sem nenhum ${none} · com algum ${some}`,
     insteadTitle: '🌱 O que fizeste em vez disso',
     feelingsBefore: (list: string) => `🌊 Antes das tuas vontades: ${list}`,

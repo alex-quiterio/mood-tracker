@@ -119,6 +119,8 @@ export const messages: Omit<Messages, 'voices'> = {
     per: { day: 'a day', week: 'a week', month: 'a month' },
     sweetSpot: (min: number, max: number, per: string) =>
       min === max ? `sweet spot ${min} ${per}` : `sweet spot ${min}–${max} ${per}`,
+    fromPayments: (payments: number) =>
+      `💳 ≈ from ${payments} ${payments === 1 ? 'payment' : 'payments'} on your statement`,
     moodWithNone: (none: string, some: string) => `Mood with none ${none} · with some ${some}`,
     insteadTitle: '🌱 What you did instead',
     feelingsBefore: (list: string) => `🌊 Before your urges: ${list}`,

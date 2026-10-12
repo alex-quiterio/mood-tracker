@@ -135,6 +135,12 @@ describe('formatting', () => {
     expect(formatSteps(1234567.4)).toBe('1,234,567');
     expect(formatStepsShort(980)).toBe('980');
     expect(formatStepsShort(12480)).toBe('12.5k');
+    expect(formatStepsShort(999.6)).toBe('1.0k');
+    expect(formatStepsShort(245_312)).toBe('245k');
+    expect(formatStepsShort(999_700)).toBe('1.00M');
+    expect(formatStepsShort(1_234_567)).toBe('1.23M');
+    expect(formatStepsShort(1_234_567, 'pt-PT')).toBe('1,23M');
+    expect(formatStepsShort(12_345_678)).toBe('12.3M');
   });
 
   it('describes signals on one line when they share a window', () => {

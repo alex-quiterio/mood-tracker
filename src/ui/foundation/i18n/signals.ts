@@ -20,6 +20,9 @@ export function formatUnlocksSince(
 /** 12,480 · 12 480 */
 export const formatSteps = (n: number, locale: Locale = 'en') => formatInteger(n, locale);
 
-/** 980 · 12.5k (12,5k), for tight spaces. */
-export const formatStepsShort = (n: number, locale: Locale = 'en') =>
-  n < 1000 ? String(Math.round(n)) : `${formatDecimal(n / 1000, 1, locale)}k`;
+/** 980 · 12.5k (12,5k) · 245k · 1.24M, for tight spaces: never more than four digits. */
+export function formatStepsShort(n: number, locale: Locale = 'en'): string {
+  if (Math.round(n) < 1000) return String(Math.round(n));
+  if (Math.round(n / 1000) < 1000) return `${formatDecimal(n / 1000, n < 99_950 ? 1 : 0, locale)}k`;
+  return `${formatDecimal(n / 1_000_000, n < 9_995_000 ? 2 : 1, locale)}M`;
+}

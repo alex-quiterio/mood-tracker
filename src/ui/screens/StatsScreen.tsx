@@ -144,7 +144,9 @@ export function StatsScreen({
                     {e ? `${voice.moodEmoji[e.mood]} ${e.mood}` : '–'}
                   </Text>
                   {e?.unlocks !== undefined && <CellSignal icon="📱" value={String(e.unlocks)} />}
-                  {e?.steps !== undefined && <CellSignal icon="👟" value={formatStepsShort(e.steps, locale)} />}
+                  {e?.steps !== undefined && (
+                    <CellSignal icon="👟" value={formatStepsShort(e.steps, locale)} />
+                  )}
                 </View>
               );
             })}

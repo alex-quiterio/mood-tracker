@@ -143,10 +143,8 @@ export function StatsScreen({
                   <Text style={e ? styles.moodText : styles.emptyText}>
                     {e ? `${voice.moodEmoji[e.mood]} ${e.mood}` : '–'}
                   </Text>
-                  {e?.unlocks !== undefined && <Text style={styles.cellSignal}>📱 {e.unlocks}</Text>}
-                  {e?.steps !== undefined && (
-                    <Text style={styles.cellSignal}>👟 {formatStepsShort(e.steps, locale)}</Text>
-                  )}
+                  {e?.unlocks !== undefined && <CellSignal icon="📱" value={String(e.unlocks)} />}
+                  {e?.steps !== undefined && <CellSignal icon="👟" value={formatStepsShort(e.steps, locale)} />}
                 </View>
               );
             })}
@@ -233,6 +231,19 @@ function SummaryTile({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** An icon and a number under the mood. The number keeps its own line so Android can't wrap it out of the cell. */
+function CellSignal({ icon, value }: { icon: string; value: string }) {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <View style={styles.signal}>
+      <Text style={styles.cellSignal}>{icon}</Text>
+      <Text style={styles.cellSignal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { padding: spacing(4), gap: spacing(4) },
@@ -271,7 +282,8 @@ const makeStyles = (c: Palette) =>
       backgroundColor: c.background,
     },
     moodText: { color: c.onMood },
-    cellSignal: { color: c.onMood, fontSize: 11, marginTop: 2, opacity: 0.8 },
+    signal: { flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 2, maxWidth: '100%' },
+    cellSignal: { color: c.onMood, fontSize: 11, opacity: 0.8, flexShrink: 1 },
     emptyText: { color: c.muted },
     averageRow: {
       marginTop: spacing(1),

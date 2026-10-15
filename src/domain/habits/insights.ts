@@ -3,7 +3,7 @@ import { Entry } from '@domain/checkins/types';
 import { average } from '@domain/shared/math';
 import { weekSoFar, weekStart } from '@domain/shared/dates';
 
-import { Habit, HabitLog, activeHabits, inSweetSpot, periodTotal } from './habits';
+import { Habit, HabitLog, activeHabits, countsDoses, inSweetSpot, periodTotal } from './habits';
 
 /** Total doses of a habit per day, only for days where it was logged at least once. */
 export function dosesByDay(entries: Entry[], habitId: string): Map<string, number> {
@@ -86,6 +86,37 @@ export function keptByHabit(
 
 export const totalSavings = (entries: Entry[], habits: Habit[], fromDate?: string, toDate?: string) =>
   habits.reduce((sum, h) => sum + (h.kind === 'reduce' ? savings(entries, h, fromDate, toDate) : 0), 0);
+
+/** One habit added up over some days: doses for habits counted in doses, check-ins done for the rest. */
+export type HabitTotal = {
+  habit: Habit;
+  /** Check-ins that logged this habit; for habits to grow, check-ins that logged any habit. */
+  checkIns: number;
+  /** Doses in all, or check-ins where it was done. */
+  total: number;
+};
+
+/**
+ * Per habit, what was tracked between two dates (inclusive). Habits never logged then
+ * are left out, and so are archived habits to grow that weren't done.
+ */
+export function habitTotals(
+  entries: Entry[],
+  habits: Habit[],
+  fromDate: string,
+  toDate: string,
+): HabitTotal[] {
+  const range = entries.filter((e) => e.habits && e.date >= fromDate && e.date <= toDate);
+  return habits.flatMap((habit) => {
+    if (countsDoses(habit)) {
+      const logged = range.filter((e) => e.habits!.doses[habit.id]);
+      const total = logged.reduce((sum, e) => sum + e.habits!.doses[habit.id].count, 0);
+      return logged.length ? [{ habit, checkIns: logged.length, total }] : [];
+    }
+    const total = range.filter((e) => e.habits!.did.includes(habit.id)).length;
+    return range.length && (total > 0 || !habit.archived) ? [{ habit, checkIns: range.length, total }] : [];
+  });
+}
 
 export type HabitWeek = {
   habit: Habit;

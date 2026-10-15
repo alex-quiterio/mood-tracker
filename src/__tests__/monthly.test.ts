@@ -61,6 +61,28 @@ describe('monthReview', () => {
     expect(buildMonthlyPrompt(review, list, undefined, null)).not.toContain('drinks');
     expect(buildMonthlyPrompt(review, list, undefined, PRESET_HABITS)).toContain('no drinks');
   });
+
+  it("shows each check-in's habits and the month's totals", () => {
+    const list = [
+      entry('2026-09-28', 'evening', 5, { doses: { drinks: { count: 0 } }, did: ['walk'] }),
+      entry('2026-09-29', 'afternoon', 3, { doses: { drinks: { count: 2, approx: true } }, did: [] }),
+      entry('2026-09-29', 'evening', 2, { doses: { drinks: { count: 3 } }, did: ['walk'] }),
+      entry('2026-08-01', 'evening', 2, { doses: { drinks: { count: 9 } }, did: [] }), // outside the 30 days
+    ];
+    const prompt = buildMonthlyPrompt(
+      monthReview(list, PRESET_HABITS, today),
+      list,
+      undefined,
+      PRESET_HABITS,
+    );
+    expect(prompt).toContain('afternoon 3/5 [habits: about 2 drinks]');
+    expect(prompt).toContain('Drinks: 5 drinks in all over 3 check-ins (1.7 per check-in)');
+    expect(prompt).toContain('Walk: done in 2 of 3 check-ins');
+    expect(prompt).not.toContain('Cigarettes:');
+    expect(buildMonthlyPrompt(monthReview(list, PRESET_HABITS, today), list, undefined, null)).not.toContain(
+      'Habit totals',
+    );
+  });
 });
 
 describe('spending', () => {

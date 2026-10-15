@@ -626,6 +626,11 @@ export const messages: Omit<Messages, 'voices'> = {
     monthLowestSlot: (slot, average) => `Altura do dia mais baixa: ${slot} (média ${average}).`,
     monthHabitMoods: (name, none, some) =>
       `Humor médio nos dias sem ${name}: ${none}; nos dias com alguma: ${some}.`,
+    monthCheckInHabits: (text) => ` [hábitos: ${text}]`,
+    monthHabitsTitle:
+      'Totais dos hábitos no mês (registo-os em cada registo; "cerca de" quer dizer de memória):',
+    monthHabitDoses: (name, total, unit, checkIns, perCheckIn) =>
+      `${name}: ${total} ${unit} no total em ${checkIns} registos (${perCheckIn} por registo)`,
     monthAsk:
       'Reflete sobre este mês, por favor. Que padrões notas (dias da semana, altura do dia, o que está nas notas)? O que parece ter ajudado e o que mudou do início para o fim do mês? Depois sugere uma coisa pequena e concreta que eu possa experimentar no próximo mês. Sê breve e gentil.',
     urgesTitle: 'Vontades (fiz uma pausa para respirar antes de escolher):',

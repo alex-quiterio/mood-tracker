@@ -600,6 +600,15 @@ export type Messages = {
     monthHardest: (weekday: string, average: string) => string;
     monthLowestSlot: (slot: string, average: string) => string;
     monthHabitMoods: (name: string, none: string, some: string) => string;
+    monthCheckInHabits: (text: string) => string;
+    monthHabitsTitle: string;
+    monthHabitDoses: (
+      name: string,
+      total: number,
+      unit: string,
+      checkIns: number,
+      perCheckIn: string,
+    ) => string;
     monthAsk: string;
     urgesTitle: string;
     urgeLine: (day: string, slot: string, habit: string, passed: boolean, feelings: string) => string;

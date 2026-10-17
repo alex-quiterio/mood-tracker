@@ -153,8 +153,8 @@ export const messages: Omit<Messages, 'voices'> = {
     importButton: 'Importar CSV do Revolut',
     covered: (count, from, to) => `${count} ${count === 1 ? 'pagamento' : 'pagamentos'}, de ${from} a ${to}`,
     importedTitle: 'Extrato importado',
-    importedBody: (added, skipped) =>
-      `${added} ${added === 1 ? 'pagamento novo adicionado' : 'pagamentos novos adicionados'}.${skipped > 0 ? ` ${skipped} ${skipped === 1 ? 'outra linha' : 'outras linhas'} (transferências, carregamentos…) ficaram de fora.` : ''}`,
+    importedBody: (added, known, skipped) =>
+      `${added} ${added === 1 ? 'pagamento novo adicionado' : 'pagamentos novos adicionados'}.${known > 0 ? ` ${known} ${known === 1 ? 'já estava importado' : 'já estavam importados'}.` : ''}${skipped > 0 ? ` ${skipped} ${skipped === 1 ? 'outra linha' : 'outras linhas'} (transferências, carregamentos…) ficaram de fora.` : ''}`,
     failed: 'Não foi possível importar',
     notRevolut:
       'Isto não parece um extrato do Revolut. No Revolut, abre a conta, escolhe Extrato, seleciona Excel (CSV) e tenta de novo.',

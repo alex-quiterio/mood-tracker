@@ -182,7 +182,8 @@ export type Messages = {
     importButton: string;
     covered: (count: number, from: string, to: string) => string;
     importedTitle: string;
-    importedBody: (added: number, skipped: number) => string;
+    /** `known`: payments in the file that were already imported. */
+    importedBody: (added: number, known: number, skipped: number) => string;
     failed: string;
     notRevolut: string;
     empty: string;

@@ -156,8 +156,8 @@ export const messages: Omit<Messages, 'voices'> = {
     covered: (count: number, from: string, to: string) =>
       `${count} ${count === 1 ? 'payment' : 'payments'}, ${from} to ${to}`,
     importedTitle: 'Statement imported',
-    importedBody: (added: number, skipped: number) =>
-      `${added} new ${added === 1 ? 'payment' : 'payments'} added.${skipped > 0 ? ` ${skipped} other ${skipped === 1 ? 'row' : 'rows'} (transfers, top-ups…) left out.` : ''}`,
+    importedBody: (added: number, known: number, skipped: number) =>
+      `${added} new ${added === 1 ? 'payment' : 'payments'} added.${known > 0 ? ` ${known} ${known === 1 ? 'was' : 'were'} already imported.` : ''}${skipped > 0 ? ` ${skipped} other ${skipped === 1 ? 'row' : 'rows'} (transfers, top-ups…) left out.` : ''}`,
     failed: 'Could not import',
     notRevolut:
       "This doesn't look like a Revolut statement. In Revolut, open the account, choose Statement, pick Excel (CSV) and try again.",

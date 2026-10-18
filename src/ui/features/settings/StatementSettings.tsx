@@ -22,7 +22,10 @@ export function StatementSettings({ store }: { store: EntriesStore }) {
       const statement = await pickRevolutStatement();
       if (!statement) return;
       const added = await store.importPayments(statement.payments);
-      Alert.alert(m.statement.importedTitle, m.statement.importedBody(added, statement.payments.length - added, statement.skipped));
+      Alert.alert(
+        m.statement.importedTitle,
+        m.statement.importedBody(added, statement.payments.length - added, statement.skipped),
+      );
     } catch (e) {
       Alert.alert(
         m.statement.failed,

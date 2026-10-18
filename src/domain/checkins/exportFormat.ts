@@ -2,6 +2,7 @@ import { Habit, parseHabits } from '@domain/habits/habits';
 import { Urge, parseUrges } from '@domain/habits/urges';
 import { PortableSettings, parsePortableSettings } from '@domain/settings/settings';
 import { Payment, parsePayments } from '@domain/spending/payments';
+import { CapturedDay, DayUnlocks, capturedFromSeries } from '@domain/signals/dailyUnlocks';
 
 import { parseEntry } from './entries';
 import { Entry } from './types';
@@ -20,8 +21,9 @@ const FORMAT = 'mood-tracker-export';
 // v2 adds habit definitions, so logged habits keep their names on another phone.
 // v3 adds urges.
 // v4 adds the portable settings.
-// v5 adds payments imported from bank statements. Older versions still import.
-const VERSION = 5;
+// v5 adds payments imported from bank statements.
+// v6 adds the daily unlock series, each day flagged when it is estimated. Older versions still import.
+const VERSION = 6;
 
 type ExportFile = {
   format: typeof FORMAT;
@@ -32,6 +34,7 @@ type ExportFile = {
   urges?: Urge[];
   settings?: Partial<PortableSettings>;
   payments?: Payment[];
+  dailyUnlocks?: DayUnlocks[];
 };
 
 export type ImportedData = {
@@ -39,6 +42,8 @@ export type ImportedData = {
   habits: Habit[];
   urges: Urge[];
   payments: Payment[];
+  /** The days read whole from the phone; estimated days are worked out again from the entries. */
+  dailyUnlocks: CapturedDay[];
   /** Present when the file carries settings (version 4, and not left out of the backup). */
   settings?: Partial<PortableSettings>;
 };
@@ -49,11 +54,12 @@ export type BackupContents = {
   habits: Habit[];
   urges?: Urge[];
   payments?: Payment[];
+  dailyUnlocks?: DayUnlocks[];
   settings?: Partial<PortableSettings>;
 };
 
 export function serializeExport(
-  { entries, habits, urges = [], payments = [], settings }: BackupContents,
+  { entries, habits, urges = [], payments = [], dailyUnlocks = [], settings }: BackupContents,
   now: Date = new Date(),
 ): string {
   const file: ExportFile = {
@@ -64,6 +70,7 @@ export function serializeExport(
     habits,
     urges,
     payments,
+    dailyUnlocks,
     ...(settings ? { settings } : {}),
   };
   return JSON.stringify(file, null, 2);
@@ -88,13 +95,14 @@ export function parseExport(text: string): ImportedData {
   if (entries.some((e) => e === null)) {
     throw new ExportError('invalid');
   }
-  // v1 files have no habit definitions, files before v3 no urges, and before v5 no payments.
+  // v1 files have no habit definitions, files before v3 no urges, before v5 no payments and before v6 no daily unlocks.
   const settings = parsePortableSettings(file.settings);
   return {
     entries: entries as Entry[],
     habits: Array.isArray(file.habits) ? parseHabits(file.habits) : [],
     urges: parseUrges(file.urges),
     payments: parsePayments(file.payments),
+    dailyUnlocks: capturedFromSeries(file.dailyUnlocks),
     ...(settings ? { settings } : {}),
   };
 }

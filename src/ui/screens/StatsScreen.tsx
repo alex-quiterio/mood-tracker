@@ -9,6 +9,8 @@ import { Habit } from '@domain/habits/habits';
 import { MerchantLinks } from '@domain/spending/categories';
 import { EstimateVsSpentCard } from '@ui/features/spending/EstimateVsSpentCard';
 import { HabitsWeek } from '@ui/features/habits/HabitsWeek';
+import { UnlockInsightCard } from '@ui/features/unlocks/UnlockInsightCard';
+import { insightUntil } from '@domain/signals/unlockBenchmarks';
 import { addDays, dayOfMonth, weekStart } from '@domain/shared/dates';
 import { dayAndMonth, weekdayShort, formatAverage, formatHours } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
@@ -190,6 +192,15 @@ export function StatsScreen({
           </View>
         )}
       </View>
+
+      {(stats.unlockAverage !== null || store.capturedDays.length > 0) && (
+        <UnlockInsightCard
+          entries={store.entries}
+          capturedDays={store.capturedDays}
+          until={insightUntil(shownUntil, today)}
+          lately={isThisWeek}
+        />
+      )}
 
       <HabitsInPromptSwitch value={habitsInPrompt} onChange={onHabitsInPromptChange} />
       <Button title={m.stats.reflect} onPress={reflect} disabled={stats.logged === 0} />

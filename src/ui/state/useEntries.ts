@@ -5,10 +5,12 @@ import { Urge, addUrge as withUrge, mergeUrges } from '@domain/habits/urges';
 import { loadUrges, saveUrges } from '@infrastructure/storage/urgesRepository';
 import { loadPayments, savePayments } from '@infrastructure/storage/paymentsRepository';
 import { Payment, mergePayments } from '@domain/spending/payments';
+import { CapturedDay, mergeCapturedDays } from '@domain/signals/dailyUnlocks';
+import { loadCapturedDays, saveCapturedDays } from '@infrastructure/storage/dailyUnlocksRepository';
 import { loadEntries, migrateEntries, saveEntries } from '@infrastructure/storage/entriesRepository';
 import { Entry, Slot } from '@domain/checkins/types';
 
-/** App-wide entry state (check-ins, urges, imported payments), persisted to AsyncStorage on every change. */
+/** App-wide entry state (check-ins, urges, imported payments, whole-day unlocks), persisted to AsyncStorage on every change. */
 export function useEntries() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -17,6 +19,8 @@ export function useEntries() {
   const latestUrges = useRef<Urge[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const latestPayments = useRef<Payment[]>([]);
+  const [capturedDays, setCapturedDays] = useState<CapturedDay[]>([]);
+  const latestCapturedDays = useRef<CapturedDay[]>([]);
 
   useEffect(() => {
     loadEntries()
@@ -34,6 +38,11 @@ export function useEntries() {
       .then((stored) => {
         latestPayments.current = stored;
         setPayments(stored);
+      })
+      .then(() => loadCapturedDays())
+      .then((stored) => {
+        latestCapturedDays.current = stored;
+        setCapturedDays(stored);
       })
       .finally(() => setLoaded(true));
   }, []);
@@ -85,10 +94,20 @@ export function useEntries() {
   );
   const clearPayments = useCallback(() => commitPayments([]), [commitPayments]);
 
+  /** Adds days read whole from the phone or from a backup; a day already known keeps its value. */
+  const addCapturedDays = useCallback(async (incoming: CapturedDay[]) => {
+    if (!incoming.length) return;
+    const next = mergeCapturedDays(latestCapturedDays.current, incoming);
+    latestCapturedDays.current = next;
+    setCapturedDays(next);
+    await saveCapturedDays(next);
+  }, []);
+
   return {
     entries,
     urges,
     payments,
+    capturedDays,
     loaded,
     save,
     remove,
@@ -97,6 +116,7 @@ export function useEntries() {
     importUrges,
     importPayments,
     clearPayments,
+    addCapturedDays,
   };
 }
 

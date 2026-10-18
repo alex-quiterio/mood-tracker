@@ -570,6 +570,33 @@ export const messages: Omit<Messages, 'voices'> = {
     moreHours: 'Mais meia hora',
     perNight: 'Sono por noite',
   },
+  unlockInsight: {
+    title: '📱 Desbloqueios e adultos em geral',
+    notEnough: 'Ainda não há dados suficientes',
+    notEnoughDetail: (complete, needed) =>
+      `${complete} de ${needed} dias completos contados esta semana. Um dia conta quando está coberto da meia-noite à meia-noite.`,
+    average: (perDay, lately) =>
+      lately ? `Cerca de ${perDay} por dia nos últimos 7 dias.` : `Cerca de ${perDay} por dia nessa semana.`,
+    typical: (median) => `Adultos em geral: ~${median}.`,
+    bands: {
+      low: 'Menos do que a maioria das pessoas.',
+      typical: 'Mais ou menos como a maioria das pessoas.',
+      above: 'Mais do que a maioria das pessoas. Vale a pena reparar no que está por trás.',
+      heavy: 'Bastante mais do que a maioria das pessoas. Vale a pena reparar no que está por trás.',
+    },
+    estimated: (days) =>
+      days === 1
+        ? 'Um destes dias é estimado a partir dos teus registos.'
+        : `${days} destes dias são estimados a partir dos teus registos.`,
+    patternTitle: 'O teu próprio padrão',
+    patternLow: (perHour) =>
+      `Nos registos de humor em baixo (1–2): cerca de ${perHour} desbloqueios por hora.`,
+    patternHigh: (perHour) => `Nos bons (4–5): cerca de ${perHour} por hora.`,
+    patternHint: 'Só durante o dia; os intervalos que atravessam a noite ficam de fora.',
+    about: 'Sobre estes números',
+    aboutBody:
+      'São desbloqueios a sério, não todas as vezes que o ecrã acende. O intervalo típico vem de estudos de 2025 com adultos dos EUA que contaram os desbloqueios no próprio telemóvel. Os inquéritos sobre “pegar no telemóvel” (110 a 190 por dia) medem outra coisa, por isso não são usados aqui.',
+  },
   lock: {
     title: 'Bloqueio da app',
     body: 'Pede a tua impressão digital, rosto ou PIN do telemóvel ao abrir a app, e de novo após um minuto fora. A app também fica escondida nas apps recentes e as capturas de ecrã são bloqueadas.',

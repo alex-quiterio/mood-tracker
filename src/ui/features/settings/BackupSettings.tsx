@@ -87,6 +87,7 @@ export function BackupSettings({ store, settings }: Props) {
       await store.importEntries(incoming.entries);
       await store.importUrges(incoming.urges);
       await store.importPayments(incoming.payments);
+      await store.addCapturedDays(incoming.dailyUnlocks);
       await settings.update({ ...incoming.settings, habits: mergeHabits(habits, incoming.habits) });
       const body = m.settings.importDoneBody(incoming.entries.length);
       Alert.alert(

@@ -1,6 +1,7 @@
 import { unlockStats } from '@modules/unlock-stats';
 import { loadUnlockCheckpoint, saveUnlockCheckpoint } from '@infrastructure/storage/checkpoints';
 import { Entry } from '@domain/checkins/types';
+import { CapturedDay, dayBounds, daysToCapture } from '@domain/signals/dailyUnlocks';
 import { WindowedCounter, previewCount, windowStart, withCount } from '@domain/signals/windowedCount';
 
 export { isLiveCheckIn } from '@domain/signals/windowedCount';
@@ -30,3 +31,26 @@ export const withUnlocks = (
   trackUnlocks: boolean,
   now: Date = new Date(),
 ) => withCount(unlockCounter, entry, existing, trackUnlocks, now);
+
+/**
+ * Reads whole days (local midnight to midnight) from the phone's usage events, for
+ * the finished days of the last week that haven't been read yet. Days it can't read
+ * (no usage access, unsupported) are skipped and tried again next time. Never throws.
+ */
+export async function captureUnlockDays(
+  captured: CapturedDay[],
+  now: Date = new Date(),
+): Promise<CapturedDay[]> {
+  const read: CapturedDay[] = [];
+  for (const date of daysToCapture(captured, now, MAX_WINDOW_MS)) {
+    const { start, end } = dayBounds(date);
+    try {
+      const unlocks = await unlockStats.countUnlocks(new Date(start), new Date(end));
+      if (unlocks === null) break;
+      read.push({ date, unlocks });
+    } catch {
+      break;
+    }
+  }
+  return read;
+}

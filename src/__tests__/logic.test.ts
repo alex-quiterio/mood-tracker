@@ -185,6 +185,7 @@ describe('export format', () => {
       habits: PRESET_HABITS,
       urges: [],
       payments: [],
+      dailyUnlocks: [],
     });
   });
 
@@ -196,7 +197,7 @@ describe('export format', () => {
       exportedAt: '2026-10-01T00:00:00Z',
       entries,
     });
-    expect(parseExport(v1)).toEqual({ entries, habits: [], urges: [], payments: [] });
+    expect(parseExport(v1)).toEqual({ entries, habits: [], urges: [], payments: [], dailyUnlocks: [] });
   });
 
   it('rejects files that are not exports', () => {

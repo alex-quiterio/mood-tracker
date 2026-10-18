@@ -2,6 +2,7 @@ import type { HabitKind, RangePeriod } from '@domain/habits/habits';
 import type { MoonPhase } from '@domain/moon/phase';
 import type { UrgeFeeling } from '@domain/habits/urges';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
+import type { UnlockBand } from '@domain/signals/unlockBenchmarks';
 import type { VoiceId } from '@domain/voices/voices';
 import type { VoiceText } from '@ui/foundation/voices/voices.types';
 
@@ -625,6 +626,22 @@ export type Messages = {
     fewerHours: string;
     moreHours: string;
     perNight: string;
+  };
+  /** Phone unlocks a day beside typical adults, on the week tab. */
+  unlockInsight: {
+    title: string;
+    notEnough: string;
+    notEnoughDetail: (complete: number, needed: number) => string;
+    average: (perDay: string, lately: boolean) => string;
+    typical: (median: number) => string;
+    bands: Record<UnlockBand, string>;
+    estimated: (days: number) => string;
+    patternTitle: string;
+    patternLow: (perHour: string) => string;
+    patternHigh: (perHour: string) => string;
+    patternHint: string;
+    about: string;
+    aboutBody: string;
   };
   lock: {
     title: string;

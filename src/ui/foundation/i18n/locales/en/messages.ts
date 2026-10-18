@@ -569,6 +569,32 @@ export const messages: Omit<Messages, 'voices'> = {
     moreHours: 'Half an hour more',
     perNight: 'Sleep per night',
   },
+  unlockInsight: {
+    title: '📱 Unlocks and typical adults',
+    notEnough: 'Not enough data yet',
+    notEnoughDetail: (complete: number, needed: number) =>
+      `${complete} of ${needed} full days counted this week. A day counts once it’s covered from midnight to midnight.`,
+    average: (perDay: string, lately: boolean) =>
+      lately ? `About ${perDay} a day over the last 7 days.` : `About ${perDay} a day that week.`,
+    typical: (median: number) => `Typical adults: ~${median}.`,
+    bands: {
+      low: 'Fewer than most people.',
+      typical: 'About the same as most people.',
+      above: 'Higher than most people. Worth noticing what’s behind it.',
+      heavy: 'Quite a bit higher than most people. Worth noticing what’s behind it.',
+    },
+    estimated: (days: number) =>
+      days === 1
+        ? 'One of these days is estimated from your check-ins.'
+        : `${days} of these days are estimated from your check-ins.`,
+    patternTitle: 'Your own pattern',
+    patternLow: (perHour: string) => `On low-mood check-ins (1–2): about ${perHour} unlocks an hour.`,
+    patternHigh: (perHour: string) => `On good ones (4–5): about ${perHour} an hour.`,
+    patternHint: 'Daytime only; windows across the night are left out.',
+    about: 'About these numbers',
+    aboutBody:
+      'These are true unlocks, not every time the screen lights up. The typical range comes from 2025 studies of US adults that counted unlocks on the phone itself. Surveys of “pickups” (110 to 190 a day) count something different, so they aren’t used here.',
+  },
   lock: {
     title: 'App lock',
     body: 'Asks for your fingerprint, face or phone PIN when you open the app, and again after a minute away. The app is also hidden in recent apps, and screenshots are blocked.',

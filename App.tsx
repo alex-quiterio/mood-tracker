@@ -22,6 +22,7 @@ import { LockScreen } from '@ui/features/lock/LockScreen';
 import { NamePrompt } from '@ui/features/settings/NamePrompt';
 import { useQuickCheckIn } from '@ui/features/checkin/useQuickCheckIn';
 import { useAutoBackup } from '@ui/features/settings/useAutoBackup';
+import { useUnlockDayCapture } from '@ui/features/unlocks/useUnlockDayCapture';
 import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/features/widget/useHomeWidget';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 import { Slot } from '@domain/checkins/types';
@@ -180,6 +181,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
     if (remindersEnabled) scheduleReminders(reminderTimes, reminderMessages(next, locale)).catch(() => {});
   };
   const { trackUnlocks, trackSteps } = settings.settings;
+  useUnlockDayCapture(store, trackUnlocks, today);
   // With Money off, the tabs see no payments and no prices; both stay stored for when it's back on.
   const { showMoney } = settings.settings;
   const moneyStore = useMemo(

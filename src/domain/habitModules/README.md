@@ -15,21 +15,21 @@ src/domain/habitModules/
   matching.ts         keyword matching, matchModules / activeModules, urgeContextFor, keywordCollisions
   availability.ts     which data sources a habit has; what a module is missing
   preferences.ts      modules off per habit, each module's state
-  triggerEcology/     the first module: definition, triggers, analysis, experiments
+  <module>/           one folder per module: its definition, analysis and any saved state
 src/domain/shared/statistics.ts      intervals, comparisons, correlation; reuse them
 src/ui/features/habitModules/
   registry.ts         MODULE_VIEWS: Record<ModuleId, Component>, ModuleViewProps
   HabitModulesModal   the host: name, tagline, missing data, then the module's view
-  triggerEcology/     the module's view, in sections
+  <module>/           each module's view
 ```
 
 ## How a module switches on
 
 `matchingKeyword(habit, module)` compares each keyword with the habit's id, name and each tag separately:
 
-- **Case and accents don't matter:** "Canábis" matches `canabis`.
-- **Whole words only:** `weed` doesn't match "tweed" or "weedkiller".
-- **Plurals match:** `joint` matches "joints". Keywords of several words match as a phrase.
+- **Case and accents don't matter:** "Café" matches `cafe`.
+- **Whole words only:** `walk` doesn't match "sidewalk" or "walkway".
+- **Plurals match:** `walk` matches "walks". Keywords of several words match as a phrase.
 - **The habit's kind must be in `module.kinds`.**
 - **Archived habits still match**, so their history can be read.
 
@@ -77,16 +77,10 @@ Say you're adding `sleep-debt` for a habit like "Late nights".
 7. **Add its words** in `src/ui/foundation/i18n`:
    - **The frame:** `modules.names` and `modules.taglines` for your id.
    - **Your own section** in `messages.types.ts`, in both `locales/en/messages.ts` and `locales/pt/messages.ts` (European Portuguese: tu, ecrã, registo).
-   - **Formatters:** turn your domain values into words in `i18n/habitModules.ts`, as `describeFinding` does.
+   - **Formatters:** turn your domain values into words in `i18n/habitModules.ts`.
 
 8. **Run the checks:** `npx tsc --noEmit`, `npx expo lint` and `npm test`. The architecture test checks the layers, and the i18n test flags Portuguese left identical to English.
 
-## The first module: Trigger ecology
+## A worked example
 
-For weed or cannabis, it shows what surrounds an urge and how urges go. It's split into five sections:
-
-- **Overview:** the findings whose interval rules out no difference, as sentences, plus a day-by-day strip.
-- **Triggers:** the share of urges let pass per trigger, with Wilson intervals, against all urges. Feelings, places and company, body and sleep, and triggers that come together. Then doses after a pause vs with no pause logged.
-- **When:** average doses per check-in, by weekday and part of the day.
-- **Effects:** days with an urge vs without, and mood and sleep after doses vs none (Welch intervals). Then sleep, steps and mood against doses, as scatter plots with Spearman's ρ.
-- **Try:** a 7- or 14-day experiment on one trigger, compared with as many days before.
+The modules already in `MODULES` are complete examples to copy from: definition, analysis with intervals, saved state with a parser, tests, a view in sections and words in both locales.

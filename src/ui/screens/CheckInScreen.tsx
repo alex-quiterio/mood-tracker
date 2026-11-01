@@ -33,6 +33,8 @@ import { Habit, activeHabits } from '@domain/habits/habits';
 import { urgeForecast } from '@domain/habits/urges';
 import { UrgeForecastCard } from '@ui/features/habits/UrgeForecastCard';
 import { UrgeModal } from '@ui/features/habits/UrgeModal';
+import { urgeContextFor } from '@domain/habitModules/matching';
+import { ModulePreferences, offFor } from '@domain/habitModules/preferences';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { SlotCard, Tracking } from '@ui/features/checkin/SlotCard';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
@@ -46,9 +48,19 @@ type Props = {
   /** Opens with the pause (breathing or focus) showing. */
   initialPause?: boolean;
   habits: Habit[];
+  /** Habit modules, for what the urge flow asks. */
+  habitModules: ModulePreferences;
 };
 
-export function CheckInScreen({ store, tracking, name, initialSlot, initialPause, habits }: Props) {
+export function CheckInScreen({
+  store,
+  tracking,
+  name,
+  initialSlot,
+  initialPause,
+  habits,
+  habitModules,
+}: Props) {
   const styles = useThemedStyles(makeStyles);
   // Only today can be checked in; past days are read-only in History.
   const today = localDate();
@@ -185,6 +197,7 @@ export function CheckInScreen({ store, tracking, name, initialSlot, initialPause
       <UrgeModal
         visible={urging}
         habits={reduceHabits}
+        contextFor={(habit) => urgeContextFor(habit, offFor(habitModules, habit.id))}
         onRecord={(urge) => store.addUrge(urge).catch(() => {})}
         onClose={() => setUrging(false)}
       />

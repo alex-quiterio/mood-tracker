@@ -11,8 +11,10 @@ import {
   URGE_POINTS,
   URGE_WAIT_MINUTES,
   Urge,
+  UrgeContext,
   UrgeFeeling,
   UrgeOutcome,
+  toggleContext,
   toggleFeeling,
 } from '@domain/habits/urges';
 import { localDate } from '@domain/shared/dates';
@@ -30,13 +32,15 @@ type Props = {
   visible: boolean;
   /** Habits to reduce that can be picked. */
   habits: Habit[];
+  /** Where and in what state to ask about, for habits a module collects it for; none skips the step. */
+  contextFor?: (habit: Habit) => UrgeContext[];
   onRecord: (urge: Urge) => void;
   onClose: () => void;
 };
 
 type Step =
   | { kind: 'pick' }
-  | { kind: 'feel' | 'map' | 'breathe' | 'wait' | 'outcome'; habit: Habit }
+  | { kind: 'feel' | 'context' | 'map' | 'breathe' | 'wait' | 'outcome'; habit: Habit }
   | { kind: 'done'; outcome: UrgeOutcome };
 
 /**
@@ -44,18 +48,20 @@ type Step =
  * those feelings, then either breathe for two minutes or give it ten minutes of
  * something else, and say whether it passed.
  */
-export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
+export function UrgeModal({ visible, habits, contextFor = () => [], onRecord, onClose }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m } = useLocale();
   const first: Step = habits.length === 1 ? { kind: 'feel', habit: habits[0] } : { kind: 'pick' };
   const [step, setStep] = useState<Step | null>(null);
   const [feelings, setFeelings] = useState<UrgeFeeling[]>([]);
+  const [context, setContext] = useState<UrgeContext[]>([]);
   const current = step ?? first;
   const mapped = feelings.filter((f): f is MappedFeeling => f in m.urge.map);
 
   const close = () => {
     setStep(null);
     setFeelings([]);
+    setContext([]);
     onClose();
   };
   const record = (habit: Habit, outcome: UrgeOutcome) => {
@@ -64,6 +70,7 @@ export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
       habitId: habit.id,
       outcome,
       ...(feelings.length > 0 ? { feelings } : {}),
+      ...(context.length > 0 ? { context } : {}),
       recordedAt: new Date().toISOString(),
     });
     setStep({ kind: 'done', outcome });
@@ -103,6 +110,33 @@ export function UrgeModal({ visible, habits, onRecord, onClose }: Props) {
             <Button
               title={feelings.length > 0 ? m.urge.feelNext : m.urge.feelSkip}
               variant={feelings.length > 0 ? 'primary' : 'secondary'}
+              onPress={() =>
+                setStep({
+                  kind: contextFor(current.habit).length > 0 ? 'context' : 'map',
+                  habit: current.habit,
+                })
+              }
+            />
+          </ScrollView>
+        )}
+        {current.kind === 'context' && (
+          <ScrollView contentContainerStyle={styles.scroll}>
+            <Text style={styles.title}>{m.urge.contextTitle}</Text>
+            <Text style={styles.body}>{m.urge.contextHint}</Text>
+            <View style={styles.chips}>
+              {contextFor(current.habit).map((c) => (
+                <Chip
+                  key={c}
+                  role="checkbox"
+                  label={m.urge.contexts[c]}
+                  selected={context.includes(c)}
+                  onPress={() => setContext((list) => toggleContext(list, c))}
+                />
+              ))}
+            </View>
+            <Button
+              title={context.length > 0 ? m.urge.feelNext : m.urge.feelSkip}
+              variant={context.length > 0 ? 'primary' : 'secondary'}
               onPress={() => setStep({ kind: 'map', habit: current.habit })}
             />
           </ScrollView>

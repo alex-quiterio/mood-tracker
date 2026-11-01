@@ -1,6 +1,8 @@
 import type { HabitKind, RangePeriod } from '@domain/habits/habits';
 import type { MoonPhase } from '@domain/moon/phase';
-import type { UrgeFeeling } from '@domain/habits/urges';
+import type { UrgeContext, UrgeFeeling } from '@domain/habits/urges';
+import type { DataSource, ModuleCapability, ModuleId } from '@domain/habitModules/modules';
+import type { TriggerGroup } from '@domain/habitModules/triggerEcology/triggers';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { UnlockBand } from '@domain/signals/unlockBenchmarks';
 import type { VoiceId } from '@domain/voices/voices';
@@ -393,6 +395,10 @@ export type Messages = {
     forecast: (count: number, from: string, to: string) => string;
     forecastFeeling: (feeling: string) => string;
     forecastAction: string;
+    /** Asked after the feelings, only for habits a module collects it for. */
+    contextTitle: string;
+    contextHint: string;
+    contexts: Record<UrgeContext, string>;
   };
   reminders: {
     title: string;
@@ -545,6 +551,71 @@ export type Messages = {
     inPrompt: string;
     showMoney: string;
     showSpending: string;
+  };
+  /** The frame around every habit module, the same whatever the module. */
+  modules: {
+    /** Under a habit with modules on, e.g. "🔍 Trigger ecology ›". */
+    open: (names: string) => string;
+    close: string;
+    names: Record<ModuleId, string>;
+    taglines: Record<ModuleId, string>;
+    dataSources: Record<DataSource, string>;
+    /** Required data missing: the module shows this instead of its analysis. */
+    needs: (list: string) => string;
+    /** Optional data missing. */
+    sharperWith: (list: string) => string;
+    capabilities: Record<ModuleCapability, string>;
+    /** In the habit settings. */
+    tags: string;
+    tagsPlaceholder: string;
+    tagsHint: string;
+    sectionTitle: string;
+    matchedBy: (keyword: string) => string;
+    switchA11y: (name: string) => string;
+  };
+  /** The Trigger ecology module. */
+  triggerEcology: {
+    window: (weeks: number) => string;
+    groups: Record<TriggerGroup, string>;
+    shortNight: string;
+    noTriggers: string;
+    triggerLine: (urges: number, passed: number) => string;
+    urgesTitle: string;
+    urgesLine: (urges: number, passed: number) => string;
+    /** Average doses on days with an urge and on days without, already formatted. */
+    urgeDays: (withUrge: string, without: string) => string;
+    pausesTitle: string;
+    pausesLine: (afterPause: number, noPause: number) => string;
+    passedLine: (passed: number) => string;
+    pausesHint: string;
+    rhythmTitle: string;
+    busiestDay: (day: string) => string;
+    busiestSlot: (slot: string) => string;
+    urgesMostIn: (slot: string) => string;
+    combinationsTitle: string;
+    combination: (a: string, b: string, urges: number, passed: number) => string;
+    afterTitle: string;
+    /** Each pair: after (or with) doses, after (or with) none, already formatted. */
+    moodWith: (some: string, none: string) => string;
+    nextMood: (some: string, none: string) => string;
+    sleepAfter: (some: string, none: string) => string;
+    experimentsTitle: string;
+    experimentsIntro: string;
+    pickTrigger: string;
+    planPlaceholder: string;
+    days: (days: number) => string;
+    start: string;
+    hypothesis: (trigger: string, plan: string) => string;
+    hypothesisNoPlan: (trigger: string) => string;
+    dayOf: (day: number, days: number) => string;
+    finished: string;
+    before: string;
+    during: string;
+    dosesPerDay: (n: string) => string;
+    notLogged: string;
+    triggerUrges: (urges: number, passed: number) => string;
+    stop: string;
+    again: string;
   };
   /** Names of the preset habits, shown while you haven't renamed them. */
   presets: Record<

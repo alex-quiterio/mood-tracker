@@ -253,6 +253,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 initialSlot={checkInOpen?.slot}
                 initialPause={checkInOpen?.pause}
                 habits={habits}
+                habitModules={settings.settings.habitModules}
               />
             </View>
             <View style={[styles.page, { width }]}>
@@ -265,6 +266,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 merchantHabits={settings.settings.merchantHabits}
                 onLinkMerchant={linkMerchantTo}
                 onHabitsInPromptChange={(include) => settings.update({ habitsInPrompt: include })}
+                habitModules={settings.settings.habitModules}
+                onHabitModulesChange={(habitModules) => settings.update({ habitModules })}
               />
             </View>
             <View style={[styles.page, { width }]}>

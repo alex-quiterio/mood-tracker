@@ -17,6 +17,9 @@ import {
   periodOf,
   rangeOf,
   removeOption,
+  parseTags,
+  TAG_MAX_LENGTH,
+  TAGS_MAX,
   updateHabit,
   weightOf,
   withPeriod,
@@ -27,16 +30,23 @@ import { Card } from '@ui/kit/Card';
 import { Chip } from '@ui/kit/Chip';
 import { Stepper } from '@ui/kit/Stepper';
 import { SettingsStore } from '@ui/state/useSettings';
+import { EntriesStore } from '@ui/state/useEntries';
+import { ModuleMatch, matchModules } from '@domain/habitModules/matching';
+import { ModuleId } from '@domain/habitModules/modules';
+import { offFor, switchModule } from '@domain/habitModules/preferences';
+import { localDate } from '@domain/shared/dates';
+import { HabitModulesModal } from '@ui/features/habitModules/HabitModulesModal';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 
 /** Which habits to log, their prices, usual amounts, weights and options. Collapsed by default. */
-export function HabitSettings({ settings }: { settings: SettingsStore }) {
+export function HabitSettings({ settings, store }: { settings: SettingsStore; store: EntriesStore }) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const { habits, habitsInPrompt, showMoney, showSpending } = settings.settings;
+  const [modulesOf, setModulesOf] = useState<Habit | null>(null);
+  const { habits, habitsInPrompt, showMoney, showSpending, habitModules } = settings.settings;
   const { m, locale } = useLocale();
   const setHabits = (next: Habit[]) => settings.update({ habits: next });
   const tracked = habits.filter((h) => !h.archived);
@@ -74,6 +84,11 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
               onToggleOpen={() => setEditing(editing === h.id ? null : h.id)}
               onChange={(patch) => setHabits(updateHabit(habits, h.id, patch))}
               onReplace={(next) => setHabits(habits.map((x) => (x.id === h.id ? next : x)))}
+              modules={matchModules(h, offFor(habitModules, h.id))}
+              onSwitchModule={(id, on) =>
+                settings.update({ habitModules: switchModule(habitModules, h.id, id, on) })
+              }
+              onOpenModules={() => setModulesOf(h)}
             />
           ))}
           <NewHabit
@@ -110,6 +125,15 @@ export function HabitSettings({ settings }: { settings: SettingsStore }) {
           )}
         </>
       )}
+      <HabitModulesModal
+        habit={modulesOf}
+        entries={store.entries}
+        urges={store.urges}
+        today={localDate()}
+        preferences={habitModules}
+        onPreferencesChange={(next) => settings.update({ habitModules: next })}
+        onClose={() => setModulesOf(null)}
+      />
     </Card>
   );
 }
@@ -124,9 +148,24 @@ type RowProps = {
   onToggleOpen: () => void;
   onChange: (patch: Partial<Omit<Habit, 'id'>>) => void;
   onReplace: (habit: Habit) => void;
+  /** Insight modules whose keywords match this habit, on or switched off. */
+  modules: ModuleMatch[];
+  onSwitchModule: (id: ModuleId, on: boolean) => void;
+  onOpenModules: () => void;
 };
 
-function HabitRow({ habit, shown, open, money, onToggleOpen, onChange, onReplace }: RowProps) {
+function HabitRow({
+  habit,
+  shown,
+  open,
+  money,
+  onToggleOpen,
+  onChange,
+  onReplace,
+  modules,
+  onSwitchModule,
+  onOpenModules,
+}: RowProps) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const [price, setPrice] = useState(habit.pricePerDose?.toString() ?? '');
@@ -185,6 +224,53 @@ function HabitRow({ habit, shown, open, money, onToggleOpen, onChange, onReplace
               }
             />
           </Field>
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>{m.modules.tags}</Text>
+            <TextInput
+              style={styles.input}
+              defaultValue={(habit.tags ?? []).join(', ')}
+              placeholder={m.modules.tagsPlaceholder}
+              placeholderTextColor={c.muted}
+              maxLength={(TAG_MAX_LENGTH + 2) * TAGS_MAX}
+              onEndEditing={(e) => {
+                const tags = parseTags(e.nativeEvent.text);
+                onChange({ tags: tags.length > 0 ? tags : undefined });
+              }}
+            />
+            <Text style={styles.muted}>{m.modules.tagsHint}</Text>
+          </View>
+          {modules.length > 0 && (
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel}>{m.modules.sectionTitle}</Text>
+              {modules.map(({ module, keyword, on }) => (
+                <View key={module.id} style={styles.switchRow}>
+                  <View style={styles.flex}>
+                    <Text style={styles.body}>{m.modules.names[module.id]}</Text>
+                    <Text style={styles.muted}>{m.modules.matchedBy(keyword)}</Text>
+                  </View>
+                  <Switch
+                    value={on}
+                    onValueChange={(v) => onSwitchModule(module.id, v)}
+                    trackColor={{ true: c.accent, false: c.border }}
+                    thumbColor={c.surface}
+                    accessibilityLabel={m.modules.switchA11y(m.modules.names[module.id])}
+                  />
+                </View>
+              ))}
+              {modules.some((x) => x.on) && (
+                <Button
+                  title={m.modules.open(
+                    modules
+                      .filter((x) => x.on)
+                      .map((x) => m.modules.names[x.module.id])
+                      .join(' · '),
+                  )}
+                  variant="secondary"
+                  onPress={onOpenModules}
+                />
+              )}
+            </View>
+          )}
           {reduce && (
             <>
               {money && (

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
 import { Card } from '@ui/kit/Card';
@@ -13,6 +13,9 @@ import { formatDecimal } from '@ui/foundation/i18n/format';
 import { weekStart } from '@domain/shared/dates';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
+import { activeModules } from '@domain/habitModules/matching';
+import { ModulePreferences, offFor } from '@domain/habitModules/preferences';
+import { moduleNames } from '@ui/foundation/i18n/habitModules';
 
 import { BalanceBoard } from './BalanceBoard';
 import { SavingsJar } from './SavingsJar';
@@ -29,9 +32,22 @@ type Props = {
   /** The week shown is an earlier one. */
   past?: boolean;
   showSpending: boolean;
+  /** Insight modules: habits with any on get a link to open them. */
+  modules?: ModulePreferences;
+  onOpenModules?: (habit: Habit) => void;
 };
 
-export function HabitsWeek({ entries, urges, payments, habits, today, past = false, showSpending }: Props) {
+export function HabitsWeek({
+  entries,
+  urges,
+  payments,
+  habits,
+  today,
+  past = false,
+  showSpending,
+  modules,
+  onOpenModules,
+}: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
   const week = habitWeek(entries, habits, today);
@@ -69,6 +85,9 @@ export function HabitsWeek({ entries, urges, payments, habits, today, past = fal
                 )}
               </Text>
             )}
+            {modules && onOpenModules && (
+              <ModulesLink habit={w.habit} modules={modules} onOpen={onOpenModules} />
+            )}
           </View>
         ))}
         {feelings.length > 0 && (
@@ -91,11 +110,33 @@ export function HabitsWeek({ entries, urges, payments, habits, today, past = fal
   );
 }
 
+/** "🔍 Trigger ecology ›" under a habit with modules on; nothing for any other habit. */
+function ModulesLink({
+  habit,
+  modules,
+  onOpen,
+}: {
+  habit: Habit;
+  modules: ModulePreferences;
+  onOpen: (habit: Habit) => void;
+}) {
+  const styles = useThemedStyles(makeStyles);
+  const { m, locale } = useLocale();
+  const ids = activeModules(habit, offFor(modules, habit.id)).map((x) => x.id);
+  if (ids.length === 0) return null;
+  return (
+    <Pressable accessibilityRole="button" onPress={() => onOpen(habit)} hitSlop={6}>
+      <Text style={styles.link}>{m.modules.open(moduleNames(ids, locale))}</Text>
+    </Pressable>
+  );
+}
+
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     root: { gap: spacing(3) },
     line: { gap: 2 },
     text: { color: c.text, fontSize: 14 },
     muted: { color: c.muted, fontSize: 12 },
+    link: { color: c.accent, fontSize: 13, fontWeight: '600', paddingVertical: 2 },
     instead: { color: c.accent, fontSize: 13, fontStyle: 'italic' },
   });

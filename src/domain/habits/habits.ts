@@ -45,6 +45,11 @@ export type Habit = {
    * Defaults to 1, 2 and 2.
    */
   weight?: number;
+  /**
+   * Other words the habit goes by ("cannabis", "erva"). Part of the habit's own
+   * vocabulary; other contexts (habit modules) may read it, the habit never knows them.
+   */
+  tags?: string[];
 };
 
 export const DEFAULT_RANGE: DoseRange = { min: 1, max: 2 };
@@ -292,10 +297,29 @@ export function parseHabits(value: unknown): Habit[] {
           h.options.every(
             (o: HabitOption) =>
               typeof o?.id === 'string' && typeof o.label === 'string' && typeof o.emoji === 'string',
-          ))),
+          ))) &&
+      (h.tags === undefined || isStringList(h.tags)),
   );
   const unique = habits.filter((h, i) => habits.findIndex((x) => x.id === h.id) === i);
   return unique.length > 0 ? unique : PRESET_HABITS;
+}
+
+const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) => typeof x === 'string');
+
+export const TAG_MAX_LENGTH = 24;
+export const TAGS_MAX = 8;
+
+/** Tags typed in the settings, separated by commas: trimmed, deduplicated, at most TAGS_MAX. */
+export function parseTags(text: string): string[] {
+  const seen = new Set<string>();
+  const tags: string[] = [];
+  for (const raw of text.split(',')) {
+    const tag = raw.trim().slice(0, TAG_MAX_LENGTH);
+    if (!tag || seen.has(tag.toLowerCase())) continue;
+    seen.add(tag.toLowerCase());
+    tags.push(tag);
+  }
+  return tags.slice(0, TAGS_MAX);
 }
 
 /** Adds habits from a backup that aren't known yet; existing definitions win. */

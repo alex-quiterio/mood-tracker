@@ -4,6 +4,11 @@ import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
 import { TimeZoneSetting, parseTimeZone } from '@domain/settings/timeZone';
 import { isValidDate } from '@domain/shared/dates';
 import { MerchantLinks, parseMerchantLinks } from '@domain/spending/categories';
+import {
+  EMPTY_PREFERENCES,
+  ModulePreferences,
+  parseModulePreferences,
+} from '@domain/habitModules/preferences';
 import { DEFAULT_ROTATION_VOICES, VOICE_ROTATIONS, VoiceRotation } from '@domain/voices/rotation';
 import { Quote, VOICE_IDS, VoiceId } from '@domain/voices/voices';
 
@@ -45,6 +50,8 @@ export type Settings = {
   showSpending: boolean;
   /** Merchants from bank statements linked to the habit they're spent on. */
   merchantHabits: MerchantLinks;
+  /** Habit modules switched off per habit, and each module's own state (e.g. experiments). */
+  habitModules: ModulePreferences;
   /** Follow the phone's language, or a fixed one. */
   language: LanguageSetting;
   /** Shows check-in times in the phone's time zone, or a fixed one. */
@@ -77,6 +84,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showMoney: true,
   showSpending: false,
   merchantHabits: {},
+  habitModules: EMPTY_PREFERENCES,
   language: 'system',
   timeZone: 'system',
   appLock: false,
@@ -107,6 +115,7 @@ export function parseSettings(value: unknown): Settings {
     showMoney: stored.showMoney !== false,
     showSpending: stored.showSpending === true,
     merchantHabits: parseMerchantLinks(stored.merchantHabits),
+    habitModules: parseModulePreferences(stored.habitModules),
     language: LANGUAGE_SETTINGS.includes(stored.language as LanguageSetting)
       ? (stored.language as LanguageSetting)
       : DEFAULT_SETTINGS.language,
@@ -135,6 +144,7 @@ export const PORTABLE_SETTINGS = [
   'showMoney',
   'showSpending',
   'merchantHabits',
+  'habitModules',
   'language',
   'timeZone',
   'backupSettings',

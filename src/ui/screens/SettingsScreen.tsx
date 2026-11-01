@@ -66,7 +66,7 @@ export function SettingsScreen({ store, settings }: Props) {
 
       {section === 'habits' && (
         <>
-          <HabitSettings settings={settings} />
+          <HabitSettings settings={settings} store={store} />
           {settings.settings.showMoney && <StatementSettings store={store} />}
         </>
       )}

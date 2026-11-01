@@ -7,6 +7,8 @@ import { Button } from '@ui/kit/Button';
 import { HabitsInPromptSwitch } from '@ui/features/habits/HabitsInPromptSwitch';
 import { Habit } from '@domain/habits/habits';
 import { MerchantLinks } from '@domain/spending/categories';
+import { ModulePreferences } from '@domain/habitModules/preferences';
+import { HabitModulesModal } from '@ui/features/habitModules/HabitModulesModal';
 import { EstimateVsSpentCard } from '@ui/features/spending/EstimateVsSpentCard';
 import { HabitsWeek } from '@ui/features/habits/HabitsWeek';
 import { UnlockInsightCard } from '@ui/features/unlocks/UnlockInsightCard';
@@ -32,6 +34,8 @@ type Props = {
   showSpending: boolean;
   merchantHabits: MerchantLinks;
   onLinkMerchant: (merchant: string, habitId: string | null) => void;
+  habitModules: ModulePreferences;
+  onHabitModulesChange: (next: ModulePreferences) => void;
 };
 
 export function StatsScreen({
@@ -43,6 +47,8 @@ export function StatsScreen({
   showSpending,
   merchantHabits,
   onLinkMerchant,
+  habitModules,
+  onHabitModulesChange,
 }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
@@ -50,6 +56,7 @@ export function StatsScreen({
   const { m, locale } = useLocale();
   // Weeks back from this one, as far as the week of the first check-in.
   const [weeksBack, setWeeksBack] = useState(0);
+  const [modulesOf, setModulesOf] = useState<Habit | null>(null);
   const monday = addDays(weekStart(today), -7 * weeksBack);
   const canGoBack = addDays(monday, -7) >= firstWeekStart(store.entries, today);
   const shownUntil = weekShownUntil(monday, today);
@@ -215,6 +222,17 @@ export function StatsScreen({
         today={shownUntil}
         past={!isThisWeek}
         showSpending={showSpending}
+        modules={habitModules}
+        onOpenModules={setModulesOf}
+      />
+      <HabitModulesModal
+        habit={modulesOf}
+        entries={store.entries}
+        urges={store.urges}
+        today={today}
+        preferences={habitModules}
+        onPreferencesChange={onHabitModulesChange}
+        onClose={() => setModulesOf(null)}
       />
       {store.payments.length > 0 && (
         <EstimateVsSpentCard

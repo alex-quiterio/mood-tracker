@@ -30,6 +30,23 @@ export const URGE_FEELINGS = [
 
 export type UrgeFeeling = (typeof URGE_FEELINGS)[number];
 
+/**
+ * Where the urge came and in what state: the place, the company, the body. Only
+ * asked when a habit module collects it (see `urgeContextFor` in `@domain/habitModules`).
+ */
+export const URGE_CONTEXTS = [
+  'alone',
+  'withOthers',
+  'home',
+  'out',
+  'work',
+  'screens',
+  'hungry',
+  'inPain',
+] as const;
+
+export type UrgeContext = (typeof URGE_CONTEXTS)[number];
+
 export type Urge = {
   /** Local calendar date, YYYY-MM-DD. */
   date: string;
@@ -37,6 +54,8 @@ export type Urge = {
   outcome: UrgeOutcome;
   /** What was felt before the urge; left out when none was picked (and on urges saved before 1.14). */
   feelings?: UrgeFeeling[];
+  /** Where and in what state it came; only asked when a habit module collects it (1.21). */
+  context?: UrgeContext[];
   /** ISO 8601 timestamp; with the habit it identifies the urge. */
   recordedAt: string;
 };
@@ -72,11 +91,15 @@ export function parseUrge(value: unknown): Urge | null {
   const feelings = Array.isArray(v.feelings)
     ? URGE_FEELINGS.filter((f) => (v.feelings as unknown[]).includes(f))
     : [];
+  const context = Array.isArray(v.context)
+    ? URGE_CONTEXTS.filter((c) => (v.context as unknown[]).includes(c))
+    : [];
   return {
     date: v.date,
     habitId: v.habitId,
     outcome: v.outcome,
     ...(feelings.length > 0 ? { feelings } : {}),
+    ...(context.length > 0 ? { context } : {}),
     recordedAt: v.recordedAt,
   };
 }
@@ -84,6 +107,10 @@ export function parseUrge(value: unknown): Urge | null {
 /** Adds or removes a feeling, keeping them in the order of URGE_FEELINGS. */
 export const toggleFeeling = (feelings: UrgeFeeling[], feeling: UrgeFeeling): UrgeFeeling[] =>
   URGE_FEELINGS.filter((f) => (f === feeling ? !feelings.includes(f) : feelings.includes(f)));
+
+/** Adds or removes a context, keeping them in the order of URGE_CONTEXTS. */
+export const toggleContext = (context: UrgeContext[], item: UrgeContext): UrgeContext[] =>
+  URGE_CONTEXTS.filter((c) => (c === item ? !context.includes(c) : context.includes(c)));
 
 /** How often each feeling came before an urge between two dates (inclusive), most frequent first. */
 export function feelingsBefore(

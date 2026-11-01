@@ -596,33 +596,13 @@ export const messages: Omit<Messages, 'voices'> = {
     groups: { emotional: 'Sentimentos', environmental: 'Lugares e companhia', physiological: 'Corpo e sono' },
     shortNight: 'Depois de uma noite curta',
     noTriggers: 'Nomeia sentimentos e lugares quando carregas no botão da vontade, e eles juntam-se aqui.',
-    triggerLine: (urges: number, passed: number) =>
-      `${urges} ${urges === 1 ? 'vontade' : 'vontades'} · ${passed} passaram`,
-    urgesTitle: 'Vontades e doses',
-    urgesLine: (urges: number, passed: number) =>
-      `${urges} ${urges === 1 ? 'vontade registada' : 'vontades registadas'}, ${passed} deixaste passar.`,
-    urgeDays: (withUrge: string, without: string) =>
-      `Em dias com vontade: ${withUrge} por dia. Em dias sem: ${without}.`,
     pausesTitle: 'Com pausa ou automático',
-    pausesLine: (afterPause: number, noPause: number) =>
-      `${afterPause} depois de uma pausa, ${noPause} sem pausa registada.`,
-    passedLine: (passed: number) => `E ${passed} que passaram depois de uma pausa 🌱`,
     pausesHint:
       'Uma pausa transforma um reflexo numa escolha. Cada uma conta, seja o que for que veio a seguir.',
-    rhythmTitle: 'Quando',
     busiestDay: (day: string) => `Mais doses à ${day}.`,
     busiestSlot: (slot: string) => `Mais doses de ${slot.toLowerCase()}.`,
-    urgesMostIn: (slot: string) => `As vontades vêm mais de ${slot.toLowerCase()}.`,
     combinationsTitle: 'Gatilhos que vêm juntos',
-    combination: (a: string, b: string, urges: number, passed: number) =>
-      `${a} + ${b}: ${urges} vezes, ${passed} passaram`,
     afterTitle: 'Antes e depois',
-    moodWith: (some: string, none: string) =>
-      `Humor nos check-ins com alguma: ${some}, sem nenhuma: ${none}.`,
-    nextMood: (some: string, none: string) =>
-      `Humor do check-in seguinte: ${some} depois de alguma, ${none} depois de nenhuma.`,
-    sleepAfter: (some: string, none: string) =>
-      `Sono nessa noite: ${some} h depois de alguma, ${none} h depois de nenhuma.`,
     experimentsTitle: 'Experimenta algo',
     experimentsIntro:
       'Escolhe um gatilho, diz o que vais tentar quando ele chegar, e vê como correm as vontades.',
@@ -636,11 +616,85 @@ export const messages: Omit<Messages, 'voices'> = {
     finished: 'Terminada',
     before: 'Os dias antes',
     during: 'Durante',
-    dosesPerDay: (n: string) => `${n} por dia`,
-    notLogged: 'sem registo',
-    triggerUrges: (urges: number, passed: number) => `${urges} com este gatilho, ${passed} passaram`,
     stop: 'Parar',
     again: 'Tentar outra',
+    dailyTitle: 'Dia a dia',
+    dosesStrip: 'Doses',
+    urgesStrip: 'Vontades',
+    passedSeries: 'Deixaste passar',
+    notPassedSeries: 'Desta vez não',
+    tapDay: 'Toca num dia para o ver',
+    dayDetail: (day: string, doses: number, urges: number, passed: number) =>
+      `${day}: ${doses} ${doses === 1 ? 'dose' : 'doses'} · ${urges} ${urges === 1 ? 'vontade' : 'vontades'}, ${passed} passaram`,
+    dayNotLogged: (day: string, urges: number, passed: number) =>
+      `${day}: sem registo · ${urges} ${urges === 1 ? 'vontade' : 'vontades'}, ${passed} passaram`,
+    urgeDayRow: 'Dias com vontade',
+    otherDayRow: 'Dias sem',
+    afterPauseRow: 'Doses depois de uma pausa',
+    noPauseRow: 'Doses sem pausa registada',
+    someSeries: 'Com alguma',
+    noneSeries: 'Sem nenhuma',
+    moodRow: 'Humor nesse check-in',
+    nextMoodRow: 'Humor no check-in seguinte',
+    sleepRow: 'Horas dormidas nessa noite',
+    dosesRow: 'Doses por dia',
+    triggerPassedRow: 'Vontades com este gatilho que passaram',
+    howToRead:
+      'Os pontos são as tuas médias ou taxas. As linhas são intervalos de 95%: onde o valor verdadeiro provavelmente está, dado o número de dias. n é quantos. Poucos dias dão linhas longas, e não faz mal.',
+    evidence: {
+      tooFew: 'Ainda é cedo para dizer',
+      unclear: 'Ainda sem diferença clara',
+      clear: 'Uma diferença clara',
+    },
+    linkEvidence: {
+      tooFew: 'Ainda poucos dias',
+      unclear: 'Ainda sem ligação clara',
+      clear: 'Uma ligação clara',
+    },
+    rateText: (percent: number, hits: number, n: number) => `${percent}% · ${hits}/${n}`,
+    meanText: (mean: string, n: number) => `${mean} · n ${n}`,
+    difference: (estimate: string, low: string, high: string) => `Diferença ${estimate} (${low} a ${high})`,
+    passRateTitle: 'Quantas vontades passaram',
+    passRateHint:
+      'A parte das vontades que deixaste passar, por gatilho. A linha tracejada são todas as vontades.',
+    allUrges: (percent: number) => `Todas as vontades: ${percent}% passaram`,
+    heatmapTitle: 'Quando acontecem as doses',
+    heatmapHint: 'Média de doses por check-in, mais escuro é mais. Toca num quadrado.',
+    heatmapCell: (weekday: string, slot: string, mean: string, n: number) =>
+      `${weekday}, ${slot.toLowerCase()}: ${mean} por check-in, em ${n}`,
+    heatmapEmpty: (weekday: string, slot: string) => `${weekday}, ${slot.toLowerCase()}: ainda sem registo`,
+    linksTitle: 'O que varia com as doses',
+    linksHint:
+      'Cada ponto é um dia. ρ vai de −1 (quando um sobe, o outro desce) a +1 (sobem juntos). Uma ligação não é uma causa.',
+    sleepLink: 'Horas dormidas na noite anterior',
+    stepsLink: 'Passos nesse dia',
+    moodLink: 'Humor médio nesse dia',
+    dosesAxis: 'Doses nesse dia',
+    rho: (rho: string, low: string, high: string, n: number) => `ρ ${rho} (${low} a ${high}) · ${n} dias`,
+    scatterA11y: (x: string, n: number, rho: string, evidence: string) =>
+      `${x} face às doses nesse dia, em ${n} dias: rho ${rho}. ${evidence}.`,
+    sections: {
+      overview: 'Resumo',
+      triggers: 'Gatilhos',
+      when: 'Quando',
+      effects: 'Efeitos',
+      experiment: 'Testar',
+    },
+    findingsTitle: 'O que se destaca',
+    noFindings: 'Ainda nada se destaca com clareza. Os padrões precisam de umas semanas de registos.',
+    howToggle: 'ⓘ Como ler estes gráficos',
+    triggerPassedMore: (trigger: string, points: number) =>
+      `As vontades com «${trigger.toLowerCase()}» passaram ${points}% mais vezes do que as outras 🌱`,
+    triggerPassedLess: (trigger: string, points: number) =>
+      `As vontades com «${trigger.toLowerCase()}» passaram ${points}% menos vezes do que as outras`,
+    urgeDaysMore: (doses: string) => `Os dias com vontade tiveram mais ${doses} doses do que os dias sem`,
+    urgeDaysFewer: (doses: string) => `Os dias com vontade tiveram menos ${doses} doses do que os dias sem`,
+    afterHigher: (measure: string, by: string) => `${measure}: mais ${by} com doses do que sem`,
+    afterLower: (measure: string, by: string) => `${measure}: menos ${by} com doses do que sem`,
+    linkUp: (signal: string, rho: string) =>
+      `Mais ${signal.toLowerCase()} andou a par de mais doses (ρ ${rho})`,
+    linkDown: (signal: string, rho: string) =>
+      `Mais ${signal.toLowerCase()} andou a par de menos doses (ρ ${rho})`,
   },
   presets: {
     cigarettes: { name: 'Cigarros', unit: 'cigarros' },

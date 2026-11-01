@@ -36,6 +36,7 @@ import { ModuleId } from '@domain/habitModules/modules';
 import { offFor, switchModule } from '@domain/habitModules/preferences';
 import { localDate } from '@domain/shared/dates';
 import { HabitModulesModal } from '@ui/features/habitModules/HabitModulesModal';
+import { moduleNames } from '@ui/foundation/i18n/habitModules';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles, radius } from '@ui/foundation/theme/theme';
 
@@ -190,6 +191,12 @@ function HabitRow({
           </Text>
           <Text style={styles.muted}>
             {habitSummary(money ? habit : { ...habit, pricePerDose: undefined }, locale)}
+            {modules.some((x) => x.on)
+              ? ` · 🔍 ${moduleNames(
+                  modules.filter((x) => x.on).map((x) => x.module.id),
+                  locale,
+                )}`
+              : ''}
             {open ? '' : m.habitSettings.edit}
           </Text>
         </Pressable>
@@ -260,10 +267,10 @@ function HabitRow({
               {modules.some((x) => x.on) && (
                 <Button
                   title={m.modules.open(
-                    modules
-                      .filter((x) => x.on)
-                      .map((x) => m.modules.names[x.module.id])
-                      .join(' · '),
+                    moduleNames(
+                      modules.filter((x) => x.on).map((x) => x.module.id),
+                      locale,
+                    ),
                   )}
                   variant="secondary"
                   onPress={onOpenModules}

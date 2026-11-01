@@ -21,7 +21,7 @@ import {
   withState,
 } from '@domain/habitModules/preferences';
 import { MODULES } from '@domain/habitModules/registry';
-import { triggerEcology } from '@domain/habitModules/triggerEcology/analysis';
+import { keyFindings, triggerEcology } from '@domain/habitModules/triggerEcology/analysis';
 import {
   EMPTY_STATE,
   experimentResult,
@@ -31,6 +31,7 @@ import {
 } from '@domain/habitModules/triggerEcology/experiments';
 import { groupOf } from '@domain/habitModules/triggerEcology/triggers';
 import { parseSettings, settingsForBackup } from '@domain/settings/settings';
+import { compareMeans, compareRates, correlation, rate, sample } from '@domain/shared/statistics';
 
 const habit = (over: Partial<Habit> = {}): Habit => ({
   id: 'weed',
@@ -218,8 +219,14 @@ describe('trigger ecology', () => {
     expect(groupOf('context:alone')).toBe('environmental');
     expect(groupOf('feeling:tiredness')).toBe('physiological');
     expect(groupOf('sleep:shortNight')).toBe('physiological');
-    expect(report.triggers.emotional).toEqual([{ key: 'feeling:boredom', urges: 3, passed: 1 }]);
-    expect(report.triggers.environmental[0]).toEqual({ key: 'context:alone', urges: 2, passed: 0 });
+    expect(report.triggers.emotional.map((t) => [t.key, t.passed.hits, t.passed.n])).toEqual([
+      ['feeling:boredom', 1, 3],
+    ]);
+    const alone = report.triggers.environmental[0];
+    expect([alone.key, alone.passed.hits, alone.passed.n]).toEqual(['context:alone', 0, 2]);
+    // Read against the one urge without it, which passed.
+    expect(alone.versusOthers.b).toMatchObject({ hits: 1, n: 1 });
+    expect(alone.versusOthers.evidence).toBe('tooFew');
     // The 30th followed a 5-hour night.
     expect(report.triggers.physiological.map((t) => t.key).sort()).toEqual([
       'feeling:tiredness',
@@ -228,11 +235,15 @@ describe('trigger ecology', () => {
   });
 
   it('only reads urges for its own habit', () => {
-    expect(report.urgesAndDoses?.urges).toBe(3);
+    expect(report.overall).toMatchObject({ hits: 1, n: 3 });
   });
 
   it('finds triggers that come together', () => {
-    expect(report.combinations[0]).toEqual({ a: 'context:alone', b: 'feeling:boredom', urges: 2, passed: 0 });
+    expect(report.combinations[0]).toMatchObject({
+      a: 'context:alone',
+      b: 'feeling:boredom',
+      passed: { hits: 0, n: 2 },
+    });
   });
 
   it('tells doses after a pause from doses with none', () => {
@@ -241,32 +252,71 @@ describe('trigger ecology', () => {
   });
 
   it('compares days with urges and days without', () => {
-    expect(report.urgesAndDoses).toMatchObject({ onUrgeDays: 2.5, onOtherDays: 0 });
+    expect(report.urgeDays.a).toMatchObject({ n: 2, mean: 2.5 });
+    expect(report.urgeDays.b).toMatchObject({ n: 1, mean: 0 });
+    expect(report.urgeDays.evidence).toBe('tooFew');
   });
 
   it('finds the busiest weekday and part of the day', () => {
     expect(report.rhythm?.busiestWeekday).toBe(4); // Friday
     expect(report.rhythm?.busiestSlot).toBe('evening');
     expect(report.rhythm?.urgesBySlot).toEqual({ morning: 0, afternoon: 1, evening: 2 });
+    expect(report.rhythm?.grid[4][2]).toEqual({ mean: 3, n: 1 }); // Friday evening
+    expect(report.rhythm?.grid[0][0]).toEqual({ mean: null, n: 0 });
   });
 
   it('compares mood and sleep after check-ins with doses and with none', () => {
-    expect(report.beforeAfter).toMatchObject({
-      moodWithSome: 3,
-      nextMoodAfterSome: 2.5, // the next mornings: 2 and 3
-      sleepAfterSome: 5.75, // nights after the 29th and 30th
-    });
+    expect(report.after?.mood.a.mean).toBe(3);
+    expect(report.after?.nextMood.a.mean).toBe(2.5); // the next mornings: 2 and 3
+    expect(report.after?.sleep.a.mean).toBe(5.75); // nights after the 29th and 30th
+  });
+
+  it('pairs doses with the sleep before and the mood of the day', () => {
+    expect(report.links.sleep.points).toEqual([
+      { x: 8, y: 2 },
+      { x: 5, y: 3 },
+      { x: 6.5, y: 0 },
+    ]);
+    expect(report.links.sleep.evidence).toBe('tooFew');
+    expect(report.links.steps.n).toBe(0);
+    expect(report.links.mood.n).toBe(3);
+  });
+
+  it('keeps only clear findings for the overview, biggest first', () => {
+    expect(keyFindings(report)).toEqual([]); // three urges can't show anything clearly
+    const many: Urge[] = [
+      ...Array.from({ length: 8 }, (_, i) =>
+        urge(`2026-10-${10 + i}`, 20, 'gaveIn', { feelings: ['boredom'] }),
+      ),
+      ...Array.from({ length: 8 }, (_, i) =>
+        urge(`2026-10-${10 + i}`, 10, 'passed', { feelings: ['anxiety'] }),
+      ),
+    ];
+    const found = keyFindings(triggerEcology({ habit: habit(), entries: [], urges: many, today }));
+    expect(found.map((f) => f.kind === 'trigger' && [f.key, Math.sign(f.difference)])).toEqual([
+      ['feeling:boredom', -1],
+      ['feeling:anxiety', 1],
+    ]);
+  });
+
+  it('gives every day of the window, logged or not', () => {
+    expect(report.daily).toHaveLength(56);
+    expect(report.daily.at(-1)).toEqual({ date: today, doses: 0, urges: 0, passed: 0 });
+    expect(report.daily.at(-2)).toEqual({ date: '2026-10-30', doses: 3, urges: 2, passed: 1 });
+    expect(report.daily[0]).toEqual({ date: '2026-09-06', doses: null, urges: 0, passed: 0 });
   });
 
   it('degrades to empty parts with no data', () => {
     const empty = triggerEcology({ habit: habit(), entries: [], urges: [], today });
     expect(empty).toMatchObject({
-      urgesAndDoses: null,
       pauses: null,
       rhythm: null,
-      beforeAfter: null,
+      after: null,
       combinations: [],
     });
+    expect(empty.urgeDays.evidence).toBe('tooFew');
+    expect(empty.overall.interval).toBeNull();
+    expect(empty.links.sleep).toMatchObject({ n: 0, rho: null, evidence: 'tooFew' });
     expect(empty.triggers).toEqual({ emotional: [], environmental: [], physiological: [] });
   });
 });
@@ -312,5 +362,57 @@ describe('experiments', () => {
       triggerPassed: 1,
     });
     expect(experimentResult(x, { habit: habit(), entries, urges, today: '2026-11-05' }).finished).toBe(true);
+  });
+});
+
+describe('statistics', () => {
+  const close = (x: number | undefined, y: number) => expect(x).toBeCloseTo(y, 3);
+
+  it('gives a mean its t interval', () => {
+    const s = sample([2, 4, 6]);
+    expect(s.mean).toBe(4);
+    close(s.interval?.low, 4 - 4.303 * (2 / Math.sqrt(3)));
+    expect(sample([5]).interval).toBeNull();
+  });
+
+  it("compares two means with Welch's interval", () => {
+    const c = compareMeans([1, 2, 3], [4, 5, 6]);
+    close(c.difference?.estimate, -3);
+    close(c.difference?.low, -3 - 2.776 * Math.sqrt(2 / 3)); // 4 degrees of freedom
+    expect(c.evidence).toBe('clear');
+    expect(compareMeans([1, 3, 5], [2, 3, 4]).evidence).toBe('unclear');
+    expect(compareMeans([1, 2], [4, 5, 6]).evidence).toBe('tooFew');
+  });
+
+  it("gives a rate Wilson's interval, inside 0–1 even at 0%", () => {
+    const r = rate(2, 5);
+    close(r.interval?.low, 0.1176);
+    close(r.interval?.high, 0.7693);
+    expect(rate(0, 4).interval?.low).toBe(0);
+    expect(rate(0, 0).interval).toBeNull();
+  });
+
+  it("compares two rates with Newcombe's interval", () => {
+    expect(compareRates(rate(9, 10), rate(1, 10)).evidence).toBe('clear');
+    expect(compareRates(rate(3, 5), rate(2, 5)).evidence).toBe('unclear');
+  });
+
+  it("measures rank correlation with Spearman's ρ", () => {
+    const c = correlation([2, 1, 4, 3, 6, 5].map((y, i) => ({ x: i + 1, y })));
+    close(c.rho?.estimate, 1 - (6 * 6) / (6 * 35));
+    expect(c.evidence).toBe('clear'); // 0.83 over six days just clears zero
+    const weak = correlation([3, 1, 5, 2, 6, 4].map((y, i) => ({ x: i + 1, y })));
+    close(weak.rho?.estimate, 1 - (6 * 18) / (6 * 35));
+    expect(weak.evidence).toBe('unclear');
+    const strong = correlation(Array.from({ length: 12 }, (_, i) => ({ x: i, y: 20 - i })));
+    close(strong.rho?.estimate, -1);
+    expect(strong.evidence).toBe('clear');
+    expect(
+      correlation([
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 1, y: 3 },
+      ]).rho,
+    ).toBeNull();
   });
 });

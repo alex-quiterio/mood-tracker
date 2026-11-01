@@ -86,6 +86,9 @@ describe('the Portuguese catalogue', () => {
     'streak',
     'prompt.answerIn',
     'stats.cellA11y',
+    'triggerEcology.dosesStrip',
+    'triggerEcology.rateText',
+    'triggerEcology.meanText',
   ]);
 
   it('has every entry English has', () => {

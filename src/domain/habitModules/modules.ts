@@ -13,6 +13,7 @@ import type { Urge, UrgeContext } from '@domain/habits/urges';
  * 2. write its definition (keywords, kinds, data, capabilities) and its analysis
  *    in its own folder here, and list it in MODULES (./registry);
  * 3. give it a view in `@ui/features/habitModules/registry` and its words in both locales.
+ * The full guide is ./README.md.
  * Steps 2 and 3 are `Record<ModuleId, …>`, so a missing piece is a type error.
  */
 export const MODULE_IDS = ['trigger-ecology'] as const;

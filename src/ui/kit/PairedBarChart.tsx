@@ -19,6 +19,8 @@ type Props = {
   /** Legend names for the two series, e.g. "Estimated" and "Spent". */
   firstName: string;
   secondName: string;
+  /** Hide the legend when the chart sits right under another with the same two series. */
+  legend?: boolean;
 };
 
 const BAR = 10;
@@ -28,7 +30,7 @@ const BAR = 10;
  * the accent. Every bar is labelled with its value, and the legend names both, so
  * colour is never the only cue.
  */
-export function PairedBarChart({ rows, firstName, secondName }: Props) {
+export function PairedBarChart({ rows, firstName, secondName, legend = true }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const colors = { first: withAlpha(c.accent, 0.35), second: c.accent };
@@ -37,10 +39,12 @@ export function PairedBarChart({ rows, firstName, secondName }: Props) {
 
   return (
     <View style={styles.root}>
-      <View style={styles.legend}>
-        <Swatch color={colors.first} label={firstName} />
-        <Swatch color={colors.second} label={secondName} />
-      </View>
+      {legend && (
+        <View style={styles.legend}>
+          <Swatch color={colors.first} label={firstName} />
+          <Swatch color={colors.second} label={secondName} />
+        </View>
+      )}
       {rows.map((r) => (
         <View
           key={r.key}

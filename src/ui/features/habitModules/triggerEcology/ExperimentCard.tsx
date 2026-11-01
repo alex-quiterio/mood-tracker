@@ -5,7 +5,6 @@ import type { ModuleInput } from '@domain/habitModules/modules';
 import {
   EXPERIMENT_LENGTHS,
   PLAN_MAX_LENGTH,
-  type PeriodResult,
   type TriggerEcologyState,
   experimentResult,
   latestExperiment,
@@ -13,7 +12,6 @@ import {
   startExperiment,
 } from '@domain/habitModules/triggerEcology/experiments';
 import type { TriggerKey } from '@domain/habitModules/triggerEcology/triggers';
-import { formatDecimal } from '@ui/foundation/i18n/format';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { triggerLabel } from '@ui/foundation/i18n/habitModules';
 import { Palette, spacing, typeScale, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
@@ -22,6 +20,8 @@ import { Card } from '@ui/kit/Card';
 import { Chip } from '@ui/kit/Chip';
 import { Text } from '@ui/kit/Text';
 import { TextInput } from '@ui/kit/TextInput';
+
+import { ComparisonChart, RateComparisonChart } from './StatCharts';
 
 /** Offered before any trigger has been named, so an experiment can start on day one. */
 const STARTERS: TriggerKey[] = [
@@ -64,10 +64,18 @@ export function ExperimentCard({ input, state, triggers, onStateChange }: Props)
           {shown.plan ? t.hypothesis(name, shown.plan) : t.hypothesisNoPlan(name)}
         </Text>
         <Text style={styles.muted}>{result.finished ? t.finished : t.dayOf(result.day, shown.days)}</Text>
-        <View style={styles.compare}>
-          <Period title={t.before} period={result.before} />
-          <Period title={t.during} period={result.during} />
-        </View>
+        {result.doses.a.n > 0 && result.doses.b.n > 0 && (
+          <View style={styles.group}>
+            <Text style={styles.label}>{t.dosesRow}</Text>
+            <ComparisonChart comparison={result.doses} labels={[t.during, t.before]} domain={null} />
+          </View>
+        )}
+        {result.passed.a.n + result.passed.b.n > 0 && (
+          <View style={styles.group}>
+            <Text style={styles.label}>{t.triggerPassedRow}</Text>
+            <RateComparisonChart comparison={result.passed} labels={[t.during, t.before]} />
+          </View>
+        )}
         <Button
           title={result.finished ? t.again : t.stop}
           variant="secondary"
@@ -122,32 +130,14 @@ export function ExperimentCard({ input, state, triggers, onStateChange }: Props)
   );
 }
 
-function Period({ title, period }: { title: string; period: PeriodResult }) {
-  const styles = useThemedStyles(makeStyles);
-  const { m, locale } = useLocale();
-  const t = m.triggerEcology;
-  return (
-    <View style={styles.period}>
-      <Text style={styles.label}>{title}</Text>
-      <Text style={styles.text}>
-        {period.dosesPerDay === null
-          ? t.notLogged
-          : t.dosesPerDay(formatDecimal(period.dosesPerDay, 1, locale))}
-      </Text>
-      <Text style={styles.muted}>{t.triggerUrges(period.triggerUrges, period.triggerPassed)}</Text>
-    </View>
-  );
-}
-
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     heading: { ...typeScale.heading, color: c.text, ...c.heading },
     text: { color: c.text, fontSize: 14, lineHeight: 20 },
     muted: { color: c.muted, fontSize: 13, lineHeight: 18 },
     label: { color: c.muted, fontSize: 12, fontWeight: '600' },
+    group: { gap: spacing(2) },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
-    compare: { flexDirection: 'row', gap: spacing(3) },
-    period: { flex: 1, gap: 2 },
     input: {
       borderWidth: 1,
       borderColor: c.border,

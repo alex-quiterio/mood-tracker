@@ -2,6 +2,7 @@ import type { HabitKind, RangePeriod } from '@domain/habits/habits';
 import type { MoonPhase } from '@domain/moon/phase';
 import type { UrgeContext, UrgeFeeling } from '@domain/habits/urges';
 import type { DataSource, ModuleCapability, ModuleId } from '@domain/habitModules/modules';
+import type { Evidence } from '@domain/shared/statistics';
 import type { TriggerGroup } from '@domain/habitModules/triggerEcology/triggers';
 import type { QuickMood } from '@domain/reminders/quickCheckIn';
 import type { UnlockBand } from '@domain/signals/unlockBenchmarks';
@@ -579,26 +580,12 @@ export type Messages = {
     groups: Record<TriggerGroup, string>;
     shortNight: string;
     noTriggers: string;
-    triggerLine: (urges: number, passed: number) => string;
-    urgesTitle: string;
-    urgesLine: (urges: number, passed: number) => string;
-    /** Average doses on days with an urge and on days without, already formatted. */
-    urgeDays: (withUrge: string, without: string) => string;
     pausesTitle: string;
-    pausesLine: (afterPause: number, noPause: number) => string;
-    passedLine: (passed: number) => string;
     pausesHint: string;
-    rhythmTitle: string;
     busiestDay: (day: string) => string;
     busiestSlot: (slot: string) => string;
-    urgesMostIn: (slot: string) => string;
     combinationsTitle: string;
-    combination: (a: string, b: string, urges: number, passed: number) => string;
     afterTitle: string;
-    /** Each pair: after (or with) doses, after (or with) none, already formatted. */
-    moodWith: (some: string, none: string) => string;
-    nextMood: (some: string, none: string) => string;
-    sleepAfter: (some: string, none: string) => string;
     experimentsTitle: string;
     experimentsIntro: string;
     pickTrigger: string;
@@ -611,11 +598,66 @@ export type Messages = {
     finished: string;
     before: string;
     during: string;
-    dosesPerDay: (n: string) => string;
-    notLogged: string;
-    triggerUrges: (urges: number, passed: number) => string;
     stop: string;
     again: string;
+    dailyTitle: string;
+    dosesStrip: string;
+    urgesStrip: string;
+    passedSeries: string;
+    notPassedSeries: string;
+    tapDay: string;
+    /** One day of the strip; `day` is already formatted. */
+    dayDetail: (day: string, doses: number, urges: number, passed: number) => string;
+    dayNotLogged: (day: string, urges: number, passed: number) => string;
+    urgeDayRow: string;
+    otherDayRow: string;
+    afterPauseRow: string;
+    noPauseRow: string;
+    someSeries: string;
+    noneSeries: string;
+    moodRow: string;
+    nextMoodRow: string;
+    sleepRow: string;
+    dosesRow: string;
+    triggerPassedRow: string;
+    howToRead: string;
+    evidence: Record<Evidence, string>;
+    linkEvidence: Record<Evidence, string>;
+    /** A rate: percentage, hits and out of how many. */
+    rateText: (percent: number, hits: number, n: number) => string;
+    /** A mean and how many it's over; `mean` already formatted. */
+    meanText: (mean: string, n: number) => string;
+    /** A difference with its interval, already formatted with a sign. */
+    difference: (estimate: string, low: string, high: string) => string;
+    passRateTitle: string;
+    passRateHint: string;
+    allUrges: (percent: number) => string;
+    heatmapTitle: string;
+    heatmapHint: string;
+    heatmapCell: (weekday: string, slot: string, mean: string, n: number) => string;
+    heatmapEmpty: (weekday: string, slot: string) => string;
+    linksTitle: string;
+    linksHint: string;
+    sleepLink: string;
+    stepsLink: string;
+    moodLink: string;
+    dosesAxis: string;
+    rho: (rho: string, low: string, high: string, n: number) => string;
+    /** Spoken for a scatter plot instead of its dots. */
+    scatterA11y: (x: string, n: number, rho: string, evidence: string) => string;
+    sections: { overview: string; triggers: string; when: string; effects: string; experiment: string };
+    findingsTitle: string;
+    noFindings: string;
+    howToggle: string;
+    /** Findings: the trigger or measure is already in words, the amount already formatted. */
+    triggerPassedMore: (trigger: string, points: number) => string;
+    triggerPassedLess: (trigger: string, points: number) => string;
+    urgeDaysMore: (doses: string) => string;
+    urgeDaysFewer: (doses: string) => string;
+    afterHigher: (measure: string, by: string) => string;
+    afterLower: (measure: string, by: string) => string;
+    linkUp: (signal: string, rho: string) => string;
+    linkDown: (signal: string, rho: string) => string;
   };
   /** Names of the preset habits, shown while you haven't renamed them. */
   presets: Record<

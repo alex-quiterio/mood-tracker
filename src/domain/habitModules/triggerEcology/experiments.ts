@@ -1,6 +1,13 @@
 import { dosesByDay } from '@domain/habits/insights';
 import { addDays, isValidDate } from '@domain/shared/dates';
 import { average } from '@domain/shared/math';
+import {
+  type Comparison,
+  type RateComparison,
+  compareMeans,
+  compareRates,
+  rate,
+} from '@domain/shared/statistics';
 
 import type { ModuleInput } from '@domain/habitModules/modules';
 
@@ -91,6 +98,10 @@ export type ExperimentResult = {
   finished: boolean;
   before: PeriodResult;
   during: PeriodResult;
+  /** Doses per logged day, during (a) against before (b). */
+  doses: Comparison;
+  /** Urges with the trigger let pass, during (a) against before (b). */
+  passed: RateComparison;
 };
 
 /** The experiment so far against the same number of days just before it. */
@@ -101,6 +112,7 @@ export function experimentResult(
   const end = lastDay(x) < today ? lastDay(x) : today;
   const short = shortNights(entries);
   const byDay = [...dosesByDay(entries, habit.id)];
+  const dosesIn = (from: string, to: string) => byDay.filter(([d]) => d >= from && d <= to).map(([, n]) => n);
   const period = (from: string, to: string): PeriodResult => {
     const days = byDay.filter(([d]) => d >= from && d <= to);
     const withTrigger = urges.filter(
@@ -119,10 +131,19 @@ export function experimentResult(
   const elapsed = Math.round(
     (Date.parse(`${end}T12:00:00`) - Date.parse(`${x.startedOn}T12:00:00`)) / 86_400_000,
   );
+  const beforeFrom = addDays(x.startedOn, -x.days);
+  const beforeTo = addDays(x.startedOn, -1);
+  const before = period(beforeFrom, beforeTo);
+  const during = period(x.startedOn, end);
   return {
     day: Math.min(x.days, Math.max(1, elapsed + 1)),
     finished: today > lastDay(x),
-    before: period(addDays(x.startedOn, -x.days), addDays(x.startedOn, -1)),
-    during: period(x.startedOn, end),
+    before,
+    during,
+    doses: compareMeans(dosesIn(x.startedOn, end), dosesIn(beforeFrom, beforeTo)),
+    passed: compareRates(
+      rate(during.triggerPassed, during.triggerUrges),
+      rate(before.triggerPassed, before.triggerUrges),
+    ),
   };
 }

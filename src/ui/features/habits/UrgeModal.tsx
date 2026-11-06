@@ -16,6 +16,7 @@ import {
   UrgeOutcome,
   toggleContext,
   toggleFeeling,
+  urgeTiming,
 } from '@domain/habits/urges';
 import { localDate } from '@domain/shared/dates';
 import { Button } from '@ui/kit/Button';
@@ -29,7 +30,8 @@ import { Palette, spacing, useThemedStyles, typeScale } from '@ui/foundation/the
 import { UrgeWait } from './UrgeWait';
 
 type Props = {
-  visible: boolean;
+  /** When the urge was signalled (ISO 8601); the modal shows while it is set. */
+  signalledAt: string | null;
   /** Habits to reduce that can be picked. */
   habits: Habit[];
   /** Where and in what state to ask about, for habits a module collects it for; none skips the step. */
@@ -48,7 +50,7 @@ type Step =
  * those feelings, then either breathe for two minutes or give it ten minutes of
  * something else, and say whether it passed.
  */
-export function UrgeModal({ visible, habits, contextFor = () => [], onRecord, onClose }: Props) {
+export function UrgeModal({ signalledAt, habits, contextFor = () => [], onRecord, onClose }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m } = useLocale();
   const first: Step = habits.length === 1 ? { kind: 'feel', habit: habits[0] } : { kind: 'pick' };
@@ -71,13 +73,13 @@ export function UrgeModal({ visible, habits, contextFor = () => [], onRecord, on
       outcome,
       ...(feelings.length > 0 ? { feelings } : {}),
       ...(context.length > 0 ? { context } : {}),
-      recordedAt: new Date().toISOString(),
+      ...urgeTiming(signalledAt, new Date().toISOString()),
     });
     setStep({ kind: 'done', outcome });
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={close}>
+    <Modal visible={signalledAt !== null} animationType="slide" onRequestClose={close}>
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         {current.kind === 'pick' && (
           <View style={styles.page}>

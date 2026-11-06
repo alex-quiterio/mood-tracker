@@ -47,6 +47,29 @@ export const URGE_CONTEXTS = [
 
 export type UrgeContext = (typeof URGE_CONTEXTS)[number];
 
+/**
+ * How long it took from signalling the urge to saying how it went:
+ * - `quick`: under URGE_QUICK_SECONDS, so it was most likely noted once it was already over;
+ * - `worked`: up to URGE_WORKED_SECONDS, time spent working through it;
+ * - `long`: longer than that, like the ten minutes of something else.
+ */
+export type UrgePause = 'quick' | 'worked' | 'long';
+export const URGE_PAUSES: readonly UrgePause[] = ['quick', 'worked', 'long'];
+
+export const URGE_QUICK_SECONDS = 10;
+export const URGE_WORKED_SECONDS = 5 * 60;
+
+/** Whole seconds between signalling the urge and saying how it went, never negative. */
+export const urgePauseSeconds = (signalledAt: string, recordedAt: string): number =>
+  Math.max(0, Math.floor((Date.parse(recordedAt) - Date.parse(signalledAt)) / 1000));
+
+export function urgePause(signalledAt: string, recordedAt: string): UrgePause {
+  const seconds = urgePauseSeconds(signalledAt, recordedAt);
+  if (seconds < URGE_QUICK_SECONDS) return 'quick';
+  if (seconds <= URGE_WORKED_SECONDS) return 'worked';
+  return 'long';
+}
+
 export type Urge = {
   /** Local calendar date, YYYY-MM-DD. */
   date: string;
@@ -56,9 +79,22 @@ export type Urge = {
   feelings?: UrgeFeeling[];
   /** Where and in what state it came; only asked when a habit module collects it (1.21). */
   context?: UrgeContext[];
-  /** ISO 8601 timestamp; with the habit it identifies the urge. */
+  /** ISO 8601 timestamp of the moment the urge was signalled; left out on urges saved before 1.23. */
+  signalledAt?: string;
+  /** How long it took from `signalledAt` to the answer, kept as recorded (1.23). */
+  pause?: UrgePause;
+  /** ISO 8601 timestamp of the answer (let it pass or had one); with the habit it identifies the urge. */
   recordedAt: string;
 };
+
+/** The urge's two timestamps and how long lay between them; signalled now when the moment is unknown. */
+export function urgeTiming(
+  signalledAt: string | null,
+  recordedAt: string,
+): Pick<Urge, 'signalledAt' | 'pause' | 'recordedAt'> {
+  const signalled = signalledAt ?? recordedAt;
+  return { signalledAt: signalled, pause: urgePause(signalled, recordedAt), recordedAt };
+}
 
 /** Light points for an urge that passed: like a zero, plus the effort of the pause. */
 export const URGE_POINTS = 2;
@@ -94,12 +130,20 @@ export function parseUrge(value: unknown): Urge | null {
   const context = Array.isArray(v.context)
     ? URGE_CONTEXTS.filter((c) => (v.context as unknown[]).includes(c))
     : [];
+  const signalledAt =
+    typeof v.signalledAt === 'string' &&
+    !Number.isNaN(Date.parse(v.signalledAt)) &&
+    Date.parse(v.signalledAt) <= Date.parse(v.recordedAt)
+      ? v.signalledAt
+      : null;
+  const pause = URGE_PAUSES.find((p) => p === v.pause);
   return {
     date: v.date,
     habitId: v.habitId,
     outcome: v.outcome,
     ...(feelings.length > 0 ? { feelings } : {}),
     ...(context.length > 0 ? { context } : {}),
+    ...(signalledAt ? { signalledAt, pause: pause ?? urgePause(signalledAt, v.recordedAt) } : {}),
     recordedAt: v.recordedAt,
   };
 }

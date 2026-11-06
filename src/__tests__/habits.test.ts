@@ -14,6 +14,9 @@ import {
   toggleFeeling,
   urgeFloors,
   urgeForecast,
+  urgePause,
+  urgePauseSeconds,
+  urgeTiming,
 } from '@domain/habits/urges';
 import { Entry } from '@domain/checkins/types';
 import {
@@ -373,8 +376,39 @@ describe('urges', () => {
     expect(parseUrges(undefined)).toEqual([]);
   });
 
+  it('keep when the urge was signalled and how long the answer took', () => {
+    const at = (s: string) => `2026-10-01T09:${s}.000Z`;
+    expect(urgePause(at('00:00'), at('00:09'))).toBe('quick');
+    expect(urgePause(at('00:00'), at('00:10'))).toBe('worked');
+    expect(urgePause(at('00:00'), at('05:00'))).toBe('worked');
+    expect(urgePause(at('00:00'), at('05:01'))).toBe('long');
+    expect(urgePauseSeconds(at('00:30'), at('00:00'))).toBe(0);
+    expect(urgeTiming(at('00:00'), at('02:00'))).toEqual({
+      signalledAt: at('00:00'),
+      pause: 'worked',
+      recordedAt: at('02:00'),
+    });
+    expect(urgeTiming(null, at('02:00')).pause).toBe('quick');
+  });
+
+  it('parse the signal moment, keeping the pause as recorded', () => {
+    const a = urge('passed', '09:02:00');
+    const signalled = '2026-10-01T09:00:00.000Z';
+    expect(parseUrges([{ ...a, signalledAt: signalled, pause: 'long' }])[0]).toEqual({
+      ...a,
+      signalledAt: signalled,
+      pause: 'long',
+    });
+    expect(parseUrges([{ ...a, signalledAt: signalled }])[0].pause).toBe('worked');
+    expect(parseUrges([{ ...a, signalledAt: '2026-10-01T10:00:00.000Z', pause: 'quick' }])[0]).toEqual(a);
+    expect(parseUrges([{ ...a, signalledAt: 'nope' }])[0]).toEqual(a);
+  });
+
   it('survive an export round trip, and older files import without them', () => {
-    const a = urge('passed', '09:00:00');
+    const a = {
+      ...urge('passed', '09:00:00'),
+      ...urgeTiming('2026-10-01T08:59:50.000Z', urge('passed', '09:00:00').recordedAt),
+    };
     expect(parseExport(serializeExport({ entries: [], habits: PRESET_HABITS, urges: [a] })).urges).toEqual([
       a,
     ]);

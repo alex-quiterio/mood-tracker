@@ -69,7 +69,9 @@ export function CheckInScreen({
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
   const [practicing, setPracticing] = useState(initialPause ?? false);
-  const [urging, setUrging] = useState(false);
+  // When the urge was signalled; the urge modal is open while it is set.
+  const [urgingSince, setUrgingSince] = useState<string | null>(null);
+  const signalUrge = () => setUrgingSince(new Date().toISOString());
   const reduceHabits = activeHabits(habits, 'reduce');
   const liveUnlocks = useLivePreview(previewUnlocks, tracking.unlocks, store.entries);
   const liveSteps = useLivePreview(previewSteps, tracking.steps, store.entries);
@@ -129,13 +131,11 @@ export function CheckInScreen({
 
         <QuoteCard date={today} />
 
-        {reduceHabits.length > 0 && forecast && (
-          <UrgeForecastCard forecast={forecast} onUrge={() => setUrging(true)} />
-        )}
+        {reduceHabits.length > 0 && forecast && <UrgeForecastCard forecast={forecast} onUrge={signalUrge} />}
         <View style={styles.actions}>
           {reduceHabits.length > 0 && !forecast && (
             <View style={styles.grow}>
-              <Button title={m.urge.button} variant="secondary" onPress={() => setUrging(true)} />
+              <Button title={m.urge.button} variant="secondary" onPress={signalUrge} />
             </View>
           )}
           <View style={styles.grow}>
@@ -195,11 +195,11 @@ export function CheckInScreen({
       <BreathingModal visible={breathing} onClose={() => setBreathing(false)} />
       <PracticeModal visible={practicing} onClose={() => setPracticing(false)} />
       <UrgeModal
-        visible={urging}
+        signalledAt={urgingSince}
         habits={reduceHabits}
         contextFor={(habit) => urgeContextFor(habit, offFor(habitModules, habit.id))}
         onRecord={(urge) => store.addUrge(urge).catch(() => {})}
-        onClose={() => setUrging(false)}
+        onClose={() => setUrgingSince(null)}
       />
     </View>
   );

@@ -39,12 +39,12 @@ export type UnlockBand = 'low' | 'typical' | 'above' | 'heavy';
 /** Upper bounds (inclusive) of each band, for a day's average rounded to a whole number. */
 const BANDS: readonly [UnlockBand, number][] = [
   ['low', 24],
-  ['typical', 55],
+  ['typical', 60],
   ['above', 100],
   ['heavy', Infinity],
 ];
 
-/** Under 25 low, 25 to 55 typical, 56 to 100 above typical, over 100 heavy. Banded on the rounded average, the number shown. */
+/** Under 25 low, 25 to 60 typical (about the middle half in the PNAS study, 26 to 60), 61 to 100 above typical, over 100 heavy. Banded on the rounded average, the number shown. */
 export function unlockBand(averagePerDay: number): UnlockBand {
   const rounded = Math.round(averagePerDay);
   return BANDS.find(([, max]) => rounded <= max)![0];

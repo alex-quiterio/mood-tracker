@@ -173,8 +173,8 @@ describe('unlock bands', () => {
   it.each([
     [24, 'low'],
     [25, 'typical'],
-    [55, 'typical'],
-    [56, 'above'],
+    [60, 'typical'],
+    [61, 'above'],
     [100, 'above'],
     [101, 'heavy'],
     [24.4, 'low'],

@@ -41,6 +41,13 @@ describe('unlock window', () => {
     expect(isLiveCheckIn('2026-09-30', 'morning', now)).toBe(false);
   });
 
+  it('counts a 2 am check-in for the night of the previous day', () => {
+    const night = new Date(2026, 9, 1, 2, 0);
+    expect(isLiveCheckIn('2026-09-30', 'evening', night)).toBe(true);
+    expect(isLiveCheckIn('2026-10-01', 'morning', night)).toBe(false);
+    expect(unlockWindowStart(null, night)).toEqual(new Date(2026, 8, 30));
+  });
+
   it('starts at the checkpoint, start of today without one, and gives up past 7 days', () => {
     const yesterday = new Date(2026, 8, 30, 21, 0);
     expect(unlockWindowStart(yesterday, now)).toEqual(yesterday);

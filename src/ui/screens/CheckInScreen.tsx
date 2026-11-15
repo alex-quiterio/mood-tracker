@@ -8,7 +8,7 @@ import { QuoteCard } from '@ui/features/checkin/QuoteCard';
 import { Button } from '@ui/kit/Button';
 import { Burst, MoodBurst, makeBurst } from '@ui/features/checkin/MoodBurst';
 import { LiveCount, LiveCounts } from '@ui/features/checkin/LiveCounts';
-import { localDate, slotForTime } from '@domain/shared/dates';
+import { checkInMoment } from '@domain/shared/dates';
 import { longDate } from '@ui/foundation/i18n/format';
 import { moonA11y, moonLabel } from '@ui/foundation/i18n/moon';
 import { moonOn } from '@domain/moon/phase';
@@ -62,9 +62,10 @@ export function CheckInScreen({
   habitModules,
 }: Props) {
   const styles = useThemedStyles(makeStyles);
-  // Only today can be checked in; past days are read-only in History.
-  const today = localDate();
-  const [openSlot, setOpenSlot] = useState<Slot>(initialSlot ?? slotForTime());
+  // Only today can be checked in (the small hours still belong to last night);
+  // other past days are edited in History.
+  const { date: today, slot: currentSlot } = checkInMoment();
+  const [openSlot, setOpenSlot] = useState<Slot>(initialSlot ?? currentSlot);
   const [burst, setBurst] = useState<Burst>({ key: 0, particles: [] });
   const [offerBreath, setOfferBreath] = useState(false);
   const [breathing, setBreathing] = useState(false);
@@ -82,7 +83,7 @@ export function CheckInScreen({
     pruneDrafts(today).catch(() => {});
   }, [today]);
 
-  const greeting = greetingFor(slotForTime(), locale);
+  const greeting = greetingFor(currentSlot, locale);
   const streak = streakLabel(currentStreak(store.entries, today), locale);
   const progress = useProgress(store.entries, store.urges, today);
   const week = weeklyStats(store.entries, today);
@@ -120,7 +121,7 @@ export function CheckInScreen({
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.greetingRow}>
           <PauseOrb emoji={greeting.emoji} onPress={() => setPracticing(true)} />
-          <Text style={styles.greeting}>{greetingText(slotForTime(), name, locale)}</Text>
+          <Text style={styles.greeting}>{greetingText(currentSlot, name, locale)}</Text>
           {streak && (
             <View style={styles.streak}>
               <Text style={styles.streakText}>{streak}</Text>

@@ -1,4 +1,4 @@
-import { localDate, slotForTime } from '@domain/shared/dates';
+import { checkInMoment, parseLocalDate } from '@domain/shared/dates';
 import { Entry, Slot } from '@domain/checkins/types';
 
 /**
@@ -19,17 +19,21 @@ export type WindowedCounter = {
 
 export type CountPreview = { count: number; from: Date };
 
-/** A live check-in is today's entry for the slot matching the current time. Only those get counts. */
+/** A live check-in is the entry for the day and slot matching the current time (small hours count as last night). Only those get counts. */
 export function isLiveCheckIn(date: string, slot: Slot, now: Date): boolean {
-  return date === localDate(now) && slot === slotForTime(now);
+  const moment = checkInMoment(now);
+  return date === moment.date && slot === moment.slot;
 }
 
 /**
- * Where the window starts: the last checkpoint, or the start of today when there
- * is none. Null when the checkpoint is too old for the phone's data to cover.
+ * Where the window starts: the last checkpoint, or the start of the check-in day
+ * (yesterday during the small hours) when there is none. Null when the checkpoint is too old for the phone's data to cover.
  */
 export function windowStart(checkpoint: Date | null, now: Date, maxWindowMs: number): Date | null {
-  if (!checkpoint) return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (!checkpoint) {
+    const day = parseLocalDate(checkInMoment(now).date);
+    return new Date(day.getFullYear(), day.getMonth(), day.getDate());
+  }
   if (now.getTime() - checkpoint.getTime() > maxWindowMs) return null;
   return checkpoint;
 }

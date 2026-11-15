@@ -44,6 +44,22 @@ export function slotForTime(d: Date = new Date()): Slot {
   return 'evening';
 }
 
+/** Small hours before this still belong to the night of the previous day. */
+export const NIGHT_ENDS_HOUR = 4;
+
+/**
+ * The day and slot a check-in made at `d` belongs to. Between midnight and
+ * `NIGHT_ENDS_HOUR` it is the previous day's evening (the night), so a 2 am
+ * check-in closes yesterday instead of opening today.
+ */
+export function checkInMoment(d: Date = new Date()): { date: string; slot: Slot } {
+  if (d.getHours() < NIGHT_ENDS_HOUR) {
+    const before = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1, 12);
+    return { date: localDate(before), slot: 'evening' };
+  }
+  return { date: localDate(d), slot: slotForTime(d) };
+}
+
 export function dayOfMonth(date: string): number {
   return parseLocalDate(date).getDate();
 }

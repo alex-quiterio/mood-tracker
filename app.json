@@ -19,10 +19,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.alexquiterio.moodtracker",
       "versionCode": 45,
-      "permissions": [
-        "android.permission.USE_EXACT_ALARM",
-        "android.permission.SCHEDULE_EXACT_ALARM"
-      ]
+      "permissions": ["android.permission.USE_EXACT_ALARM", "android.permission.SCHEDULE_EXACT_ALARM"]
     },
     "web": {
       "favicon": "./assets/favicon.png"

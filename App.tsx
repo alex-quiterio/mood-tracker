@@ -122,7 +122,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const c = useColors();
   const today = useToday();
   useQuickCheckIn(store);
-  useAutoBackup(store, settings, today);
+  useAutoBackup(store, settings);
   const [tab, setTab] = useState<TabKey>('checkin');
   // The tabs sit side by side in a pager: swipe between them, or tap one in the tab bar.
   const { width } = useWindowDimensions();

@@ -64,6 +64,8 @@ export type Settings = {
   autoBackup: boolean;
   /** Local date of the last backup to the folder, empty when there hasn't been one. */
   lastBackup: string;
+  /** When the last backup to the folder was saved (ms since epoch), 0 when unknown or never. */
+  lastBackupAt: number;
   /** Put the settings in backups and exports too. On by default. */
   backupSettings: boolean;
 };
@@ -91,6 +93,7 @@ export const DEFAULT_SETTINGS: Settings = {
   backupFolder: '',
   autoBackup: false,
   lastBackup: '',
+  lastBackupAt: 0,
   backupSettings: true,
 };
 
@@ -124,6 +127,12 @@ export function parseSettings(value: unknown): Settings {
     backupFolder: typeof stored.backupFolder === 'string' ? stored.backupFolder : '',
     autoBackup: stored.autoBackup === true,
     lastBackup: isValidDate(stored.lastBackup) ? stored.lastBackup : '',
+    lastBackupAt:
+      typeof stored.lastBackupAt === 'number' &&
+      Number.isFinite(stored.lastBackupAt) &&
+      stored.lastBackupAt > 0
+        ? stored.lastBackupAt
+        : 0,
     backupSettings: stored.backupSettings !== false,
   };
 }

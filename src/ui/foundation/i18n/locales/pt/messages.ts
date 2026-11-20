@@ -456,9 +456,9 @@ export const messages: Omit<Messages, 'voices'> = {
     doneBody: (file, folder) => `${file} guardado em ${folder}.`,
     failed: 'A cópia falhou',
     failedBody: 'Não foi possível escrever na pasta. Escolhe-a outra vez e tenta de novo.',
-    auto: 'Cópia automática semanal',
+    auto: 'Cópia automática a cada 12 horas',
     autoBody:
-      'Quando abres a app e a última cópia tem uma semana, é guardada uma nova na pasta. As cópias antigas ficam.',
+      'Quando abres a app e a última cópia tem 12 horas, é guardada uma nova na pasta. Um ficheiro por dia: uma cópia mais tarde substitui a anterior desse dia, e os dias antigos ficam.',
     includeSettings: 'Incluir definições',
     includeSettingsBody:
       'As cópias e exportações levam também o teu nome, tema, voz, idioma e citações. Os lembretes, o bloqueio e a pasta das cópias ficam neste telemóvel.',

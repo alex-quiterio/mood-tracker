@@ -29,17 +29,18 @@ export function BackupSettings({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m, locale } = useLocale();
-  const { backupFolder, autoBackup, lastBackup, habits, backupSettings } = settings.settings;
+  const { backupFolder, autoBackup, lastBackup, lastBackupAt, habits, backupSettings } = settings.settings;
   const hasEntries = store.entries.length > 0;
   const errorText = (e: unknown) =>
     e instanceof ExportError ? m.backupErrors[e.code] : e instanceof Error ? e.message : String(e);
 
   /** Writes today's backup to `folder`. True when it worked. */
   const backUp = async (folder: string, confirm: boolean) => {
-    const today = localDate();
+    const now = new Date();
+    const today = localDate(now);
     try {
       writeBackup(folder, backupContents(store, settings.settings), today);
-      await settings.update({ lastBackup: today });
+      await settings.update({ lastBackup: today, lastBackupAt: now.getTime() });
       if (confirm) {
         Alert.alert(
           m.backupSettings.done,
@@ -66,7 +67,7 @@ export function BackupSettings({ store, settings }: Props) {
 
   const toggleAuto = async (on: boolean) => {
     await settings.update({ autoBackup: on });
-    if (on && hasEntries && isBackupDue(lastBackup || null, localDate())) await backUp(backupFolder, false);
+    if (on && hasEntries && isBackupDue(lastBackupAt, Date.now())) await backUp(backupFolder, false);
   };
 
   const doExport = async () => {

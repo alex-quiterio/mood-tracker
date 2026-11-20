@@ -458,9 +458,9 @@ export const messages: Omit<Messages, 'voices'> = {
     doneBody: (file, folder) => `Saved ${file} in ${folder}.`,
     failed: 'Backup failed',
     failedBody: 'The folder couldn’t be written to. Choose it again and try once more.',
-    auto: 'Weekly automatic backup',
+    auto: 'Automatic backup every 12 hours',
     autoBody:
-      'When you open the app and the last backup is a week old, a new one is saved to the folder. Older backups are kept.',
+      'When you open the app and the last backup is 12 hours old, a new one is saved to the folder. One file per day: a later backup replaces that day’s earlier one, and older days are kept.',
     includeSettings: 'Include settings',
     includeSettingsBody:
       'Backups and exports also carry your name, theme, voice, language and quotes. Reminders, the lock and the backup folder stay on this phone.',

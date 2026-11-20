@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { BACKUP_INTERVAL_DAYS, backupFileName, isBackupDue } from '@domain/checkins/backups';
+import { BACKUP_INTERVAL_HOURS, backupFileName, isBackupDue } from '@domain/checkins/backups';
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import {
   DEFAULT_SETTINGS,
@@ -10,21 +10,23 @@ import {
 } from '@domain/settings/settings';
 
 describe('isBackupDue', () => {
+  const at = (iso: string) => new Date(iso).getTime();
+
   it('is due when there has never been a backup', () => {
-    expect(isBackupDue(null, '2026-10-02')).toBe(true);
+    expect(isBackupDue(0, at('2026-10-02T09:00:00Z'))).toBe(true);
   });
 
-  it('waits a full week', () => {
-    expect(BACKUP_INTERVAL_DAYS).toBe(7);
-    expect(isBackupDue('2026-10-02', '2026-10-02')).toBe(false);
-    expect(isBackupDue('2026-09-26', '2026-10-02')).toBe(false);
-    expect(isBackupDue('2026-09-25', '2026-10-02')).toBe(true);
-    expect(isBackupDue('2026-08-01', '2026-10-02')).toBe(true);
+  it('waits 12 hours', () => {
+    expect(BACKUP_INTERVAL_HOURS).toBe(12);
+    const last = at('2026-10-02T09:00:00Z');
+    expect(isBackupDue(last, last)).toBe(false);
+    expect(isBackupDue(last, at('2026-10-02T20:59:59Z'))).toBe(false);
+    expect(isBackupDue(last, at('2026-10-02T21:00:00Z'))).toBe(true);
+    expect(isBackupDue(last, at('2026-10-09T09:00:00Z'))).toBe(true);
   });
 
-  it('counts across month and year ends', () => {
-    expect(isBackupDue('2026-12-28', '2027-01-03')).toBe(false);
-    expect(isBackupDue('2026-12-28', '2027-01-04')).toBe(true);
+  it('is due when the clock went backwards', () => {
+    expect(isBackupDue(at('2026-10-02T09:00:00Z'), at('2026-10-01T09:00:00Z'))).toBe(true);
   });
 });
 
@@ -40,22 +42,32 @@ describe('backup settings', () => {
     expect(s.backupFolder).toBe('');
     expect(s.autoBackup).toBe(false);
     expect(s.lastBackup).toBe('');
+    expect(s.lastBackupAt).toBe(0);
     expect(DEFAULT_SETTINGS.autoBackup).toBe(false);
   });
 
   it('keep valid values and drop invalid ones', () => {
     const folder = 'content://com.android.externalstorage.documents/tree/primary%3ADocuments';
-    expect(parseSettings({ backupFolder: folder, autoBackup: true, lastBackup: '2026-09-30' })).toMatchObject(
-      {
+    expect(
+      parseSettings({
         backupFolder: folder,
         autoBackup: true,
         lastBackup: '2026-09-30',
-      },
-    );
-    expect(parseSettings({ backupFolder: 3, autoBackup: 'yes', lastBackup: '2026-02-30' })).toMatchObject({
+        lastBackupAt: 1_790_000_000_000,
+      }),
+    ).toMatchObject({
+      backupFolder: folder,
+      autoBackup: true,
+      lastBackup: '2026-09-30',
+      lastBackupAt: 1_790_000_000_000,
+    });
+    expect(
+      parseSettings({ backupFolder: 3, autoBackup: 'yes', lastBackup: '2026-02-30', lastBackupAt: 'x' }),
+    ).toMatchObject({
       backupFolder: '',
       autoBackup: false,
       lastBackup: '',
+      lastBackupAt: 0,
     });
   });
 });
@@ -75,7 +87,15 @@ describe('settings in backups', () => {
     expect(parseSettings({ backupSettings: false }).backupSettings).toBe(false);
     const portable = settingsForBackup(custom);
     expect(portable).toMatchObject({ name: 'Ana', theme: 'dark', language: 'pt-PT' });
-    for (const key of ['appLock', 'remindersEnabled', 'backupFolder', 'autoBackup', 'habits', 'trackSteps']) {
+    for (const key of [
+      'appLock',
+      'remindersEnabled',
+      'backupFolder',
+      'autoBackup',
+      'lastBackupAt',
+      'habits',
+      'trackSteps',
+    ]) {
       expect(portable).not.toHaveProperty(key);
     }
   });

@@ -29,7 +29,7 @@ A personal Android app for logging your mood three times a day, growing good hab
 - **Home-screen widget**: a greeting, today's three check-ins as mood-coloured tiles, the week as dots and (when it's tall enough) the quote of the day, in your voice and theme. Tap a slot to check in, the week for stats, or Pause to breathe.
 - **Optional**: reminders, phone unlock counts (needs Usage access), and steps (needs Physical activity).
 - **App lock** (optional): fingerprint, face or phone PIN on opening and after a minute away. The app is hidden in recent apps while it's on.
-- **Backup**: choose a folder on the phone once, then "Back up now" saves a dated JSON file there, and the weekly automatic backup saves one when you open the app and the last is a week old. Old backups are kept. You can still export through the share sheet or import a file. Uninstalling deletes the app's data but not the folder.
+- **Backup**: choose a folder on the phone once, then "Back up now" saves a dated JSON file there, and the automatic backup saves one when you open the app and the last is 12 hours old. One file per day (a later backup replaces that day's earlier one); older days are kept. You can still export through the share sheet or import a file. Uninstalling deletes the app's data but not the folder.
 
 ## Development
 

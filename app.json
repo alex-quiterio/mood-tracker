@@ -19,7 +19,10 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.alexquiterio.moodtracker",
       "versionCode": 44,
-      "permissions": ["android.permission.USE_EXACT_ALARM", "android.permission.SCHEDULE_EXACT_ALARM"]
+      "permissions": [
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -45,7 +48,8 @@
             "./assets/fonts/Fraunces-SemiBoldItalic.ttf"
           ]
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }

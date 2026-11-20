@@ -480,6 +480,15 @@ export const messages: Omit<Messages, 'voices'> = {
     autoBody:
       'When you open the app and the last backup is 12 hours old, a new one is saved to the folder. One file per day: a later backup replaces that day’s earlier one, and older days are kept.',
     includeSettings: 'Include settings',
+    encrypt: 'Encrypt backups',
+    encryptBody:
+      'Locks backup and export files with a passphrase, since they hold your notes and spending. Automatic backups keep working without asking.',
+    encryptOnBody:
+      'New backups and exports are encrypted. Without the passphrase they can’t be opened, not even by you, so keep it somewhere safe. Backups made before stay as they were.',
+    encryptOffTitle: 'Stop encrypting backups?',
+    encryptOffBody:
+      'New backups and exports will be plain files again. Encrypted ones still open with their passphrase.',
+    encryptOff: 'Stop encrypting',
     includeSettingsBody:
       'Backups and exports also carry your name, theme, voice, language and quotes. Reminders, the lock and the backup folder stay on this phone.',
     keep: 'Keep in the folder',
@@ -495,7 +504,22 @@ export const messages: Omit<Messages, 'voices'> = {
     notExport: 'This is not a Mood Tracker export file.',
     newer: 'This export was made by a newer version of the app.',
     invalid: 'The file contains invalid entries; nothing was imported.',
+    wrongPassphrase: 'That passphrase doesn’t open this backup. Check it and try again.',
     unavailable: 'Sharing is not available on this device.',
+  },
+  passphrase: {
+    setTitle: 'Choose a passphrase',
+    setBody:
+      'Backups will need it to be opened on another phone or after reinstalling. It can’t be recovered, so write it down somewhere safe.',
+    enterTitle: 'This backup is encrypted',
+    enterBody: 'Enter the passphrase it was made with.',
+    placeholder: 'Passphrase',
+    repeatPlaceholder: 'Passphrase again',
+    tooShort: (min) => `Use at least ${min} characters.`,
+    mismatch: 'The two passphrases aren’t the same yet.',
+    working: 'Working on it…',
+    save: 'Encrypt backups',
+    unlock: 'Open backup',
   },
   voiceSettings: {
     title: 'Voice',

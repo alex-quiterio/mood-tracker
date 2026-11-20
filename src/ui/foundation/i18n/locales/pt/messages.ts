@@ -478,6 +478,15 @@ export const messages: Omit<Messages, 'voices'> = {
     autoBody:
       'Quando abres a app e a última cópia tem 12 horas, é guardada uma nova na pasta. Um ficheiro por dia: uma cópia mais tarde substitui a anterior desse dia, e os dias antigos ficam.',
     includeSettings: 'Incluir definições',
+    encrypt: 'Encriptar cópias',
+    encryptBody:
+      'Protege as cópias e exportações com uma frase-passe, já que guardam as tuas notas e gastos. As cópias automáticas continuam sem te perguntar nada.',
+    encryptOnBody:
+      'As novas cópias e exportações são encriptadas. Sem a frase-passe não se abrem, nem por ti, por isso guarda-a num sítio seguro. As cópias feitas antes ficam como estavam.',
+    encryptOffTitle: 'Deixar de encriptar as cópias?',
+    encryptOffBody:
+      'As novas cópias e exportações voltam a ser ficheiros normais. As encriptadas continuam a abrir com a sua frase-passe.',
+    encryptOff: 'Deixar de encriptar',
     includeSettingsBody:
       'As cópias e exportações levam também o teu nome, tema, voz, idioma e citações. Os lembretes, o bloqueio e a pasta das cópias ficam neste telemóvel.',
     keep: 'Guardar na pasta',
@@ -493,7 +502,22 @@ export const messages: Omit<Messages, 'voices'> = {
     notExport: 'Este ficheiro não é uma cópia de segurança do Mood Tracker.',
     newer: 'Esta cópia foi feita por uma versão mais recente da app.',
     invalid: 'O ficheiro tem registos inválidos; nada foi importado.',
+    wrongPassphrase: 'Essa frase-passe não abre esta cópia. Confirma-a e tenta de novo.',
     unavailable: 'A partilha não está disponível neste dispositivo.',
+  },
+  passphrase: {
+    setTitle: 'Escolhe uma frase-passe',
+    setBody:
+      'Vais precisar dela para abrir as cópias noutro telemóvel ou depois de reinstalares a app. Não pode ser recuperada, por isso aponta-a num sítio seguro.',
+    enterTitle: 'Esta cópia está encriptada',
+    enterBody: 'Escreve a frase-passe com que foi feita.',
+    placeholder: 'Frase-passe',
+    repeatPlaceholder: 'Frase-passe outra vez',
+    tooShort: (min) => `Usa pelo menos ${min} caracteres.`,
+    mismatch: 'As duas frases-passe ainda não são iguais.',
+    working: 'A tratar disso…',
+    save: 'Encriptar cópias',
+    unlock: 'Abrir cópia',
   },
   voiceSettings: {
     title: 'Voz',

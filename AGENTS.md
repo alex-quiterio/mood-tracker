@@ -42,6 +42,7 @@ Run lint and typecheck before declaring any task done.
 - Voices are presentation only: never store voice-specific values in entries. Default quotes (`src/domain/voices/quotes.ts`) are verbatim, never from memory, and `QUOTES_LICENSE` says for each voice why they may be used: `public-domain` (translations from 1930 or earlier, with chapter and translator in `source`, or originals first published by 1930, quoted in their own language, like Caeiro's Portuguese) or `short-quotation` (brief lines from copyrighted books, only if Wikiquote lists them as sourced and they match a scan of the book; cite work, year and page).
 - `modules/unlock-stats` is a local Expo module (Kotlin, Android only) that counts unlocks from `UsageStatsManager` `KEYGUARD_HIDDEN` events. JS loads it with `requireOptionalNativeModule`, so it must keep working when the module is missing (Expo Go, tests).
 - `modules/step-counter` (Kotlin, Android only) reads steps from Google Play services' Recording API on mobile (`play-services-fitness`, `LocalRecordingClient`). Don't use the raw `TYPE_STEP_COUNTER` sensor: it only counts while an app keeps listening, which is why 1.2.0 always saved 0. Unlocks and steps share the window logic in `src/domain/signals/windowedCount.ts`. Same optional-module rule as above.
+- `modules/backup-crypto` (Kotlin, Android only) does PBKDF2-HMAC-SHA512 and AES-256-GCM for encrypted backups (`src/infrastructure/backup/encryption.ts`), because Hermes has no JIT and the key derivation in JS takes minutes. Without it the same maths runs in JS (`@noble`), and a test pins the JS path to Node's standard crypto byte for byte. The derived key (never the passphrase) sits in `expo-secure-store`; encryption is on exactly when one is saved. Encrypted files wrap an ordinary export (`src/domain/checkins/encryptedFormat.ts`, versioned too). Same optional-module rule as above.
 - `modules/home-widget` (Kotlin, Android only) is the home-screen widget, an `AppWidgetProvider` drawn with `RemoteViews`. It only draws: JS sends the whole state (words, emojis, colours, tap links) as JSON through `homeWidget.update`, built by `homeWidgetState` in `src/ui/features/widget/useHomeWidget.ts`. The state carries this week and next, tomorrow's quote and all three greetings, so the widget's 30-minute update moves on by itself; it shows the week and the quote only when it's tall enough. Taps open the app with a `moodtracker://widget/…` link (`src/domain/checkins/widget.ts`). The Android string resources are only for the widget picker and the first draw. Same optional-module rule as above.
 
 ## Project layout
@@ -52,7 +53,7 @@ Import across areas with the path aliases `@domain/…`, `@infrastructure/…`, 
 
 ```
 App.tsx                      composition root: providers, the four tabs, name prompt
-modules/                     local native modules (Kotlin): unlock-stats, step-counter, home-widget
+modules/                     local native modules (Kotlin): unlock-stats, step-counter, home-widget, backup-crypto
 src/
   domain/                    the model and its rules; returns values, never sentences.
                              No React, React Native, Expo, storage, UI or i18n imports.

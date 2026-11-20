@@ -485,6 +485,12 @@ export type Messages = {
     autoBody: string;
     includeSettings: string;
     includeSettingsBody: string;
+    encrypt: string;
+    encryptBody: string;
+    encryptOnBody: string;
+    encryptOffTitle: string;
+    encryptOffBody: string;
+    encryptOff: string;
     keep: string;
     keepDays: (days: number) => string;
     keepAll: string;
@@ -497,7 +503,21 @@ export type Messages = {
     notExport: string;
     newer: string;
     invalid: string;
+    wrongPassphrase: string;
     unavailable: string;
+  };
+  passphrase: {
+    setTitle: string;
+    setBody: string;
+    enterTitle: string;
+    enterBody: string;
+    placeholder: string;
+    repeatPlaceholder: string;
+    tooShort: (min: number) => string;
+    mismatch: string;
+    working: string;
+    save: string;
+    unlock: string;
   };
   voiceSettings: {
     title: string;

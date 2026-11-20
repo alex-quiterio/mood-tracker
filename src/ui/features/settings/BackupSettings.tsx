@@ -1,17 +1,22 @@
+import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
 import { BACKUP_KEEP_OPTIONS, backupFileName, isBackupDue } from '@domain/checkins/backups';
-import { ExportError } from '@domain/checkins/exportFormat';
+import { parseEncryptedFile } from '@domain/checkins/encryptedFormat';
+import { ExportError, parseExport } from '@domain/checkins/exportFormat';
 import { mergeHabits } from '@domain/habits/habits';
 import { localDate } from '@domain/shared/dates';
 import {
   exportEntries,
   folderLabel,
+  newBackupKey,
   pickBackupFolder,
   pickImportFile,
   writeBackup,
 } from '@infrastructure/backup/backupFiles';
+import { BackupKey, decryptBackup, unlockBackup } from '@infrastructure/backup/encryption';
+import { deleteBackupKey, loadBackupKey, saveBackupKey } from '@infrastructure/storage/backupKeyRepository';
 import { Button } from '@ui/kit/Button';
 import { Card } from '@ui/kit/Card';
 import { Chip } from '@ui/kit/Chip';
@@ -22,6 +27,7 @@ import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { Palette, spacing, useColors, useThemedStyles } from '@ui/foundation/theme/theme';
 
 import { backupContents } from './backupContents';
+import { usePassphrasePrompt } from './PassphrasePrompt';
 
 type Props = { store: EntriesStore; settings: SettingsStore };
 
@@ -33,6 +39,14 @@ export function BackupSettings({ store, settings }: Props) {
   const { backupFolder, autoBackup, lastBackup, lastBackupAt, keepBackups, habits, backupSettings } =
     settings.settings;
   const hasEntries = store.entries.length > 0;
+  // Backups are encrypted exactly when a key is saved in secure storage.
+  const [backupKey, setBackupKey] = useState<BackupKey | null>(null);
+  useEffect(() => {
+    loadBackupKey()
+      .then(setBackupKey)
+      .catch(() => {});
+  }, []);
+  const passphrase = usePassphrasePrompt();
   const errorText = (e: unknown) =>
     e instanceof ExportError ? m.backupErrors[e.code] : e instanceof Error ? e.message : String(e);
 
@@ -41,7 +55,13 @@ export function BackupSettings({ store, settings }: Props) {
     const now = new Date();
     const today = localDate(now);
     try {
-      writeBackup(folder, backupContents(store, settings.settings), today, settings.settings.keepBackups);
+      await writeBackup(
+        folder,
+        backupContents(store, settings.settings),
+        today,
+        settings.settings.keepBackups,
+        backupKey,
+      );
       await settings.update({ lastBackup: today, lastBackupAt: now.getTime() });
       if (confirm) {
         Alert.alert(
@@ -74,19 +94,71 @@ export function BackupSettings({ store, settings }: Props) {
 
   const doExport = async () => {
     try {
-      await exportEntries(backupContents(store, settings.settings), {
-        dialogTitle: m.settings.shareDialog,
-        unavailable: m.backupErrors.unavailable,
-      });
+      await exportEntries(
+        backupContents(store, settings.settings),
+        {
+          dialogTitle: m.settings.shareDialog,
+          unavailable: m.backupErrors.unavailable,
+        },
+        backupKey,
+      );
     } catch (e) {
       Alert.alert(m.settings.exportFailed, errorText(e));
     }
   };
 
+  /** The export inside a picked file: as is, opened with the saved key, or after asking for its passphrase. Null when cancelled. */
+  const openBackup = async (text: string): Promise<string | null> => {
+    const file = parseEncryptedFile(text);
+    if (!file) return text;
+    if (backupKey) {
+      try {
+        return await decryptBackup(file, backupKey);
+      } catch {
+        // Made with another passphrase (an older one, or another phone): ask for it.
+      }
+    }
+    let plain: string | null = null;
+    const ok = await passphrase.ask('enter', async (entered) => {
+      try {
+        plain = await unlockBackup(file, entered);
+        return null;
+      } catch {
+        return m.backupErrors.wrongPassphrase;
+      }
+    });
+    return ok ? plain : null;
+  };
+
+  const toggleEncryption = async (on: boolean) => {
+    if (on) {
+      await passphrase.ask('set', async (chosen) => {
+        const key = await newBackupKey(chosen);
+        await saveBackupKey(key);
+        setBackupKey(key);
+        return null;
+      });
+      return;
+    }
+    Alert.alert(m.backupSettings.encryptOffTitle, m.backupSettings.encryptOffBody, [
+      { text: m.common.cancel, style: 'cancel' },
+      {
+        text: m.backupSettings.encryptOff,
+        onPress: async () => {
+          await deleteBackupKey();
+          setBackupKey(null);
+        },
+      },
+    ]);
+  };
+
   const doImport = async () => {
     try {
-      const incoming = await pickImportFile();
-      if (!incoming) return;
+      const text = await pickImportFile();
+      if (!text) return;
+      const plain = await openBackup(text);
+      if (plain === null) return;
+      const incoming = parseExport(plain);
       await store.importEntries(incoming.entries);
       await store.importUrges(incoming.urges);
       await store.importPayments(incoming.payments);
@@ -161,6 +233,20 @@ export function BackupSettings({ store, settings }: Props) {
         />
       </View>
       <Text style={styles.body}>{m.backupSettings.includeSettingsBody}</Text>
+
+      <View style={styles.switchRow}>
+        <Text style={styles.label}>{m.backupSettings.encrypt}</Text>
+        <Switch
+          value={!!backupKey}
+          onValueChange={toggleEncryption}
+          trackColor={{ true: c.accent, false: c.border }}
+          thumbColor={c.surface}
+        />
+      </View>
+      <Text style={styles.body}>
+        {backupKey ? m.backupSettings.encryptOnBody : m.backupSettings.encryptBody}
+      </Text>
+      {passphrase.modal}
 
       <View style={styles.divider} />
       <Button title={m.settings.export} variant="secondary" onPress={doExport} disabled={!hasEntries} />

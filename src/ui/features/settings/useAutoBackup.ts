@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 import { isBackupDue } from '@domain/checkins/backups';
 import { localDate } from '@domain/shared/dates';
 import { writeBackup } from '@infrastructure/backup/backupFiles';
+import { loadBackupKey } from '@infrastructure/storage/backupKeyRepository';
 
 import { EntriesStore } from '@ui/state/useEntries';
 
@@ -29,14 +30,16 @@ export function useAutoBackup(store: EntriesStore, settings: SettingsStore) {
 
   useEffect(() => {
     if (!loaded || !autoBackup || !backupFolder || entries.length === 0) return;
-    const run = () => {
+    const run = async () => {
       const now = Date.now();
       const { store: s, settings: st } = latest.current;
       if (!isBackupDue(st.settings.lastBackupAt, now) || now - lastTry.current < RETRY_MS) return;
       lastTry.current = now;
       const today = localDate(new Date(now));
       try {
-        writeBackup(backupFolder, backupContents(s, st.settings), today, st.settings.keepBackups);
+        // Encrypted when a key is saved; with none, the backup is a plain file as before.
+        const key = await loadBackupKey();
+        await writeBackup(backupFolder, backupContents(s, st.settings), today, st.settings.keepBackups, key);
         st.update({ lastBackup: today, lastBackupAt: now }).catch(() => {});
       } catch {
         // The folder may be gone or its permission revoked; Settings shows the last good backup.

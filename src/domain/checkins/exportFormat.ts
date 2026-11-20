@@ -8,7 +8,7 @@ import { parseEntry } from './entries';
 import { Entry } from './types';
 
 /** Why a file couldn't be imported; the UI shows the matching message. */
-export type ExportErrorCode = 'notJson' | 'notExport' | 'newer' | 'invalid';
+export type ExportErrorCode = 'notJson' | 'notExport' | 'newer' | 'invalid' | 'wrongPassphrase';
 
 export class ExportError extends Error {
   constructor(readonly code: ExportErrorCode) {

@@ -1,7 +1,7 @@
 import { Alert, StyleSheet, Switch, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
-import { backupFileName, isBackupDue } from '@domain/checkins/backups';
+import { BACKUP_KEEP_OPTIONS, backupFileName, isBackupDue } from '@domain/checkins/backups';
 import { ExportError } from '@domain/checkins/exportFormat';
 import { mergeHabits } from '@domain/habits/habits';
 import { localDate } from '@domain/shared/dates';
@@ -14,6 +14,7 @@ import {
 } from '@infrastructure/backup/backupFiles';
 import { Button } from '@ui/kit/Button';
 import { Card } from '@ui/kit/Card';
+import { Chip } from '@ui/kit/Chip';
 import { EntriesStore } from '@ui/state/useEntries';
 import { SettingsStore } from '@ui/state/useSettings';
 import { longDate } from '@ui/foundation/i18n/format';
@@ -29,7 +30,8 @@ export function BackupSettings({ store, settings }: Props) {
   const styles = useThemedStyles(makeStyles);
   const c = useColors();
   const { m, locale } = useLocale();
-  const { backupFolder, autoBackup, lastBackup, lastBackupAt, habits, backupSettings } = settings.settings;
+  const { backupFolder, autoBackup, lastBackup, lastBackupAt, keepBackups, habits, backupSettings } =
+    settings.settings;
   const hasEntries = store.entries.length > 0;
   const errorText = (e: unknown) =>
     e instanceof ExportError ? m.backupErrors[e.code] : e instanceof Error ? e.message : String(e);
@@ -39,7 +41,7 @@ export function BackupSettings({ store, settings }: Props) {
     const now = new Date();
     const today = localDate(now);
     try {
-      writeBackup(folder, backupContents(store, settings.settings), today);
+      writeBackup(folder, backupContents(store, settings.settings), today, settings.settings.keepBackups);
       await settings.update({ lastBackup: today, lastBackupAt: now.getTime() });
       if (confirm) {
         Alert.alert(
@@ -131,6 +133,18 @@ export function BackupSettings({ store, settings }: Props) {
             />
           </View>
           <Text style={styles.body}>{m.backupSettings.autoBody}</Text>
+          <Text style={styles.label}>{m.backupSettings.keep}</Text>
+          <View style={styles.chips}>
+            {BACKUP_KEEP_OPTIONS.map((n) => (
+              <Chip
+                key={n}
+                label={n ? m.backupSettings.keepDays(n) : m.backupSettings.keepAll}
+                selected={keepBackups === n}
+                onPress={() => settings.update({ keepBackups: n })}
+              />
+            ))}
+          </View>
+          <Text style={styles.body}>{m.backupSettings.keepBody}</Text>
           <Text style={styles.body}>
             {lastBackup ? m.backupSettings.last(longDate(lastBackup, locale)) : m.backupSettings.never}
           </Text>
@@ -163,6 +177,7 @@ const makeStyles = (c: Palette) =>
     folder: { color: c.text, fontWeight: '500' },
     label: { fontSize: 16, color: c.text, flexShrink: 1 },
     hint: { color: c.muted, fontSize: 13, textAlign: 'center' },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(1) },
     switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     divider: { height: 1, backgroundColor: c.border, marginVertical: spacing(1) },
   });

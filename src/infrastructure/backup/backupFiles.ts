@@ -3,7 +3,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import { localDate } from '@domain/shared/dates';
-import { backupFileName } from '@domain/checkins/backups';
+import { backupFileName, backupsToPrune } from '@domain/checkins/backups';
 import { BackupContents, ImportedData, parseExport, serializeExport } from '@domain/checkins/exportFormat';
 
 /** Writes a backup (entries, habit definitions, urges, payments, portable settings) to a JSON file and opens the share sheet to save it elsewhere. */
@@ -44,7 +44,12 @@ export async function pickBackupFolder(): Promise<string | null> {
 }
 
 /** Writes today's backup into the chosen folder. A second backup on the same day replaces the first. */
-export function writeBackup(folderUri: string, contents: BackupContents, date: string = localDate()): void {
+export function writeBackup(
+  folderUri: string,
+  contents: BackupContents,
+  date: string = localDate(),
+  keep = 0,
+): void {
   const folder = new Directory(folderUri);
   const name = backupFileName(date);
   // Delete rather than overwrite: SAF's "w" mode doesn't always truncate, which could leave a broken file.
@@ -53,6 +58,24 @@ export function writeBackup(folderUri: string, contents: BackupContents, date: s
     .find((item) => item instanceof File && item.name === name)
     ?.delete();
   folder.createFile(name, 'application/json').write(serializeExport(contents));
+  pruneBackups(folder, keep);
+}
+
+/** Deletes the oldest backup files beyond `keep`. Quiet on failure: the new backup is already saved. */
+function pruneBackups(folder: Directory, keep: number): void {
+  if (keep <= 0) return;
+  try {
+    const files = folder.list().filter((item): item is File => item instanceof File);
+    const stale = new Set(
+      backupsToPrune(
+        files.map((f) => f.name),
+        keep,
+      ),
+    );
+    for (const file of files) if (stale.has(file.name)) file.delete();
+  } catch {
+    // Left for the next backup to try again.
+  }
 }
 
 /** A readable name for a picked folder, e.g. "Documents/Mood" from a content://…/tree/primary%3ADocuments%2FMood URI. */

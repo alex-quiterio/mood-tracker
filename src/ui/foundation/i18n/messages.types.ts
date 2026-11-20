@@ -468,6 +468,10 @@ export type Messages = {
     autoBody: string;
     includeSettings: string;
     includeSettingsBody: string;
+    keep: string;
+    keepDays: (days: number) => string;
+    keepAll: string;
+    keepBody: string;
     last: (date: string) => string;
     never: string;
   };

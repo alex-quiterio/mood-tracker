@@ -462,6 +462,11 @@ export const messages: Omit<Messages, 'voices'> = {
     includeSettings: 'Incluir definições',
     includeSettingsBody:
       'As cópias e exportações levam também o teu nome, tema, voz, idioma e citações. Os lembretes, o bloqueio e a pasta das cópias ficam neste telemóvel.',
+    keep: 'Guardar na pasta',
+    keepDays: (days) => `${days} dias`,
+    keepAll: 'Todas',
+    keepBody:
+      'Depois de cada cópia, os ficheiros diários mais antigos além deste número são apagados. Cada ficheiro tem tudo, por isso basta o mais recente para restaurar.',
     last: (date) => `Última cópia: ${date}`,
     never: 'Ainda não há cópias na pasta.',
   },

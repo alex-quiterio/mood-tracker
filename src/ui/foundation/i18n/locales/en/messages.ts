@@ -464,6 +464,11 @@ export const messages: Omit<Messages, 'voices'> = {
     includeSettings: 'Include settings',
     includeSettingsBody:
       'Backups and exports also carry your name, theme, voice, language and quotes. Reminders, the lock and the backup folder stay on this phone.',
+    keep: 'Keep in the folder',
+    keepDays: (days) => `${days} days`,
+    keepAll: 'All',
+    keepBody:
+      'After each backup, the oldest daily files beyond this are deleted. Each file holds everything, so the newest is all you need to restore.',
     last: (date) => `Last backup: ${date}`,
     never: 'Nothing backed up to the folder yet.',
   },

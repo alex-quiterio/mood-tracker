@@ -36,7 +36,7 @@ export function useAutoBackup(store: EntriesStore, settings: SettingsStore) {
       lastTry.current = now;
       const today = localDate(new Date(now));
       try {
-        writeBackup(backupFolder, backupContents(s, st.settings), today);
+        writeBackup(backupFolder, backupContents(s, st.settings), today, st.settings.keepBackups);
         st.update({ lastBackup: today, lastBackupAt: now }).catch(() => {});
       } catch {
         // The folder may be gone or its permission revoked; Settings shows the last good backup.

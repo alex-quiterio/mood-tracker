@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { BACKUP_INTERVAL_HOURS, backupFileName, isBackupDue } from '@domain/checkins/backups';
+import { BACKUP_INTERVAL_HOURS, backupFileName, backupsToPrune, isBackupDue } from '@domain/checkins/backups';
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import {
   DEFAULT_SETTINGS,
@@ -36,6 +36,29 @@ describe('backupFileName', () => {
   });
 });
 
+describe('backupsToPrune', () => {
+  const files = [
+    'mood-tracker-2026-10-03.json',
+    'notes.txt',
+    'mood-tracker-2026-10-01.json',
+    'mood-tracker-2026-10-02.json',
+    'mood-tracker-2026-10-02 (1).json',
+  ];
+
+  it('keeps everything at 0', () => {
+    expect(backupsToPrune(files, 0)).toEqual([]);
+  });
+
+  it('deletes only the oldest backups beyond the limit, never other files', () => {
+    expect(backupsToPrune(files, 2)).toEqual(['mood-tracker-2026-10-01.json']);
+    expect(backupsToPrune(files, 1)).toEqual([
+      'mood-tracker-2026-10-02.json',
+      'mood-tracker-2026-10-01.json',
+    ]);
+    expect(backupsToPrune(files, 30)).toEqual([]);
+  });
+});
+
 describe('backup settings', () => {
   it('default to no folder, off and never backed up', () => {
     const s = parseSettings({});
@@ -43,6 +66,9 @@ describe('backup settings', () => {
     expect(s.autoBackup).toBe(false);
     expect(s.lastBackup).toBe('');
     expect(s.lastBackupAt).toBe(0);
+    expect(s.keepBackups).toBe(0);
+    expect(parseSettings({ keepBackups: 30 }).keepBackups).toBe(30);
+    expect(parseSettings({ keepBackups: 12 }).keepBackups).toBe(0);
     expect(DEFAULT_SETTINGS.autoBackup).toBe(false);
   });
 
@@ -93,6 +119,7 @@ describe('settings in backups', () => {
       'backupFolder',
       'autoBackup',
       'lastBackupAt',
+      'keepBackups',
       'habits',
       'trackSteps',
     ]) {

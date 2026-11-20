@@ -1,4 +1,5 @@
 import { DEFAULT_REMINDER_TIMES, ReminderTimes, parseReminderTimes } from '@domain/reminders/times';
+import { BACKUP_KEEP_OPTIONS, BackupKeep } from '@domain/checkins/backups';
 import { Habit, PRESET_HABITS, parseHabits } from '@domain/habits/habits';
 import { LANGUAGE_SETTINGS, LanguageSetting } from '@domain/settings/language';
 import { TimeZoneSetting, parseTimeZone } from '@domain/settings/timeZone';
@@ -66,6 +67,8 @@ export type Settings = {
   lastBackup: string;
   /** When the last backup to the folder was saved (ms since epoch), 0 when unknown or never. */
   lastBackupAt: number;
+  /** How many daily backup files the folder keeps (the newest ones); 0 keeps them all. */
+  keepBackups: BackupKeep;
   /** Put the settings in backups and exports too. On by default. */
   backupSettings: boolean;
 };
@@ -94,6 +97,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoBackup: false,
   lastBackup: '',
   lastBackupAt: 0,
+  keepBackups: 0,
   backupSettings: true,
 };
 
@@ -133,6 +137,9 @@ export function parseSettings(value: unknown): Settings {
       stored.lastBackupAt > 0
         ? stored.lastBackupAt
         : 0,
+    keepBackups: BACKUP_KEEP_OPTIONS.includes(stored.keepBackups as BackupKeep)
+      ? (stored.keepBackups as BackupKeep)
+      : DEFAULT_SETTINGS.keepBackups,
     backupSettings: stored.backupSettings !== false,
   };
 }

@@ -1,10 +1,12 @@
 import { average } from '@domain/shared/math';
-import { lastNDays, parseLocalDate } from '@domain/shared/dates';
+import { addDays, daysFrom, parseLocalDate } from '@domain/shared/dates';
 import { Habit, activeHabits } from '@domain/habits/habits';
 
 import { Entry, SLOTS, Slot } from './types';
 
 export const MONTH_DAYS = 30;
+/** The longest range a reflection can cover, so the prompt stays readable. */
+export const MAX_RANGE_DAYS = 366;
 /** A weekday or slot needs this many check-ins before it's called best or hardest. */
 const MIN_SAMPLES = 2;
 
@@ -24,8 +26,32 @@ export type MonthReview = {
 };
 
 /** Simple patterns over the last 30 days, built to be read kindly (what helps, not what fails). */
-export function monthReview(entries: Entry[], habits: Habit[], today: string): MonthReview {
-  const days = lastNDays(MONTH_DAYS, today);
+export const monthReview = (entries: Entry[], habits: Habit[], today: string): MonthReview =>
+  periodReview(entries, habits, addDays(today, -(MONTH_DAYS - 1)), today);
+
+/**
+ * A reflection range kept sensible: it ends by `today`, starts on or before its end, and spans at
+ * most `MAX_RANGE_DAYS`. When it's too long, the end that wasn't just moved (`keep`) stays put.
+ */
+export function clampRange(
+  from: string,
+  to: string,
+  today: string,
+  keep: 'from' | 'to' = 'to',
+): { from: string; to: string } {
+  let f = from > today ? today : from;
+  let t = to > today ? today : to;
+  if (f > t) [f, t] = keep === 'from' ? [f, f] : [t, t];
+  if (addDays(f, MAX_RANGE_DAYS - 1) < t) {
+    if (keep === 'from') t = addDays(f, MAX_RANGE_DAYS - 1);
+    else f = addDays(t, -(MAX_RANGE_DAYS - 1));
+  }
+  return { from: f, to: t };
+}
+
+/** The same patterns as `monthReview`, over any range of days (both ends included). */
+export function periodReview(entries: Entry[], habits: Habit[], from: string, to: string): MonthReview {
+  const days = daysFrom(from, to);
   const inMonth = new Set(days);
   const month = entries.filter((e) => inMonth.has(e.date));
 

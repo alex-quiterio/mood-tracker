@@ -21,6 +21,7 @@ import { useProgress } from '@ui/features/progress/useProgress';
 import { EntriesStore } from '@ui/state/useEntries';
 import { useLocale } from '@ui/foundation/i18n/LocaleContext';
 import { buildMonthlyPrompt } from '@ui/features/reflection/monthPrompt';
+import { RangeReflectionCard } from '@ui/features/reflection/RangeReflectionCard';
 import { Palette, spacing, useThemedStyles } from '@ui/foundation/theme/theme';
 import { useVoice } from '@ui/foundation/theme/voiceContext';
 
@@ -118,6 +119,7 @@ export function HistoryScreen({
           <HabitsInPromptSwitch value={habitsInPrompt} onChange={onHabitsInPromptChange} />
           <Button title={m.month.reflect} onPress={reflectMonth} disabled={month.logged === 0} />
           <Text style={styles.hint}>{m.month.reflectHint}</Text>
+          <RangeReflectionCard store={store} habits={habits} habitsInPrompt={habitsInPrompt} today={today} />
         </>
       )}
 

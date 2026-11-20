@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { monthReview } from '@domain/checkins/monthly';
+import { MAX_RANGE_DAYS, clampRange, monthReview, periodReview } from '@domain/checkins/monthly';
+import { daysFrom } from '@domain/shared/dates';
 import { Entry } from '@domain/checkins/types';
 import { PRESET_HABITS } from '@domain/habits/habits';
 import { spent, totalSpent } from '@domain/habits/insights';
@@ -82,6 +83,59 @@ describe('monthReview', () => {
     expect(buildMonthlyPrompt(monthReview(list, PRESET_HABITS, today), list, undefined, null)).not.toContain(
       'Habit totals',
     );
+  });
+});
+
+describe('periodReview', () => {
+  const entries = [
+    entry('2026-07-31', 'morning', 1),
+    entry('2026-08-01', 'morning', 4),
+    entry('2026-08-03', 'evening', 3),
+    entry('2026-08-04', 'morning', 5),
+  ];
+
+  it('covers exactly the days picked, both ends included', () => {
+    const review = periodReview(entries, [], '2026-08-01', '2026-08-03');
+    expect(review.days).toEqual(['2026-08-01', '2026-08-02', '2026-08-03']);
+    expect(review.logged).toBe(2);
+    expect(review.possible).toBe(9);
+    expect(review.overallAverage).toBe(3.5);
+  });
+
+  it('matches monthReview over the last 30 days', () => {
+    expect(periodReview(entries, [], '2026-09-02', today)).toEqual(monthReview(entries, [], today));
+  });
+
+  it('gets its own intro and question in the prompt', () => {
+    const review = periodReview(entries, [], '2026-08-01', '2026-08-03');
+    const prompt = buildMonthlyPrompt(review, entries, undefined, null, 'en', [], 'range');
+    expect(prompt).toContain('2026-08-01 to 2026-08-03, 3 days');
+    expect(prompt).toContain('reflect on this stretch of time');
+    expect(prompt).not.toContain('past month');
+    expect(prompt).not.toContain('2026-07-31');
+  });
+});
+
+describe('clampRange', () => {
+  it('ends by today and never runs backwards', () => {
+    expect(clampRange('2026-09-20', '2026-10-05', today)).toEqual({ from: '2026-09-20', to: today });
+    expect(clampRange('2026-09-25', '2026-09-20', today, 'to')).toEqual({
+      from: '2026-09-20',
+      to: '2026-09-20',
+    });
+    expect(clampRange('2026-09-25', '2026-09-20', today, 'from')).toEqual({
+      from: '2026-09-25',
+      to: '2026-09-25',
+    });
+  });
+
+  it('spans at most a year, keeping the end that was moved', () => {
+    const long = clampRange('2024-01-01', today, today, 'to');
+    expect(daysFrom(long.from, long.to)).toHaveLength(MAX_RANGE_DAYS);
+    expect(long.to).toBe(today);
+    const fromKept = clampRange('2024-01-01', today, today, 'from');
+    expect(fromKept.from).toBe('2024-01-01');
+    expect(daysFrom(fromKept.from, fromKept.to)).toHaveLength(MAX_RANGE_DAYS);
   });
 });
 

@@ -240,6 +240,24 @@ export const messages: Omit<Messages, 'voices'> = {
     reflectHint:
       'Cria um resumo em texto dos últimos 30 dias e abre o menu de partilha. Envia-o para o teu companheiro de IA.',
   },
+  range: {
+    title: 'Rever qualquer período',
+    hint: 'Umas férias, um mês difícil, um emprego novo: escolhe os dias, até um ano.',
+    from: 'De',
+    to: 'Até',
+    days: (count) => `${count} ${count === 1 ? 'dia' : 'dias'}`,
+    checkIns: (count) => `${count} ${count === 1 ? 'registo' : 'registos'}`,
+    weekEarlier: 'Uma semana antes',
+    dayEarlier: 'Um dia antes',
+    dayLater: 'Um dia depois',
+    weekLater: 'Uma semana depois',
+    last7: 'Últimos 7 dias',
+    last90: 'Últimos 90 dias',
+    thisYear: 'Este ano',
+    reflect: 'Refletir sobre estes dias',
+    reflectHint:
+      'Cria um resumo em texto destes dias e abre o menu de partilha. Envia-o para o teu companheiro de IA.',
+  },
   monthTotals: {
     title: 'Totais do mês',
     empty: 'Ainda não há nada registado este mês.',
@@ -818,6 +836,10 @@ export const messages: Omit<Messages, 'voices'> = {
       `${name}: ${total} ${unit} no total em ${checkIns} registos (${perCheckIn} por registo)`,
     monthAsk:
       'Reflete sobre este mês, por favor. Que padrões notas (dias da semana, altura do dia, o que está nas notas)? O que parece ter ajudado e o que mudou do início para o fim do mês? Depois sugere uma coisa pequena e concreta que eu possa experimentar no próximo mês. Sê breve e gentil.',
+    rangeIntro: (first, last, days) =>
+      `Aqui estão os meus registos de humor de um período que quero rever (${first} a ${last}, ${days} ${days === 1 ? 'dia' : 'dias'}).`,
+    rangeAsk:
+      'Reflete sobre este período, por favor. Que padrões notas (dias da semana, altura do dia, o que está nas notas)? O que parece ter ajudado e o que mudou do início para o fim? Depois sugere uma coisa pequena e concreta que eu possa levar daqui para os próximos dias. Sê breve e gentil.',
     urgesTitle: 'Vontades (fiz uma pausa para respirar antes de escolher):',
     urgeLine: (day, slot, habit, passed, feelings) =>
       `- ${day}, ${slot}, ${habit}: ${passed ? 'deixei passar' : 'cedi'}${feelings ? `; antes senti: ${feelings}` : ''}`,

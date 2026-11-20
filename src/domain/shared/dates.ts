@@ -24,6 +24,13 @@ export function lastNDays(count: number, end: string = localDate()): string[] {
   return Array.from({ length: count }, (_, i) => addDays(end, i - (count - 1)));
 }
 
+/** Every day from `from` to `to` (both included), oldest first; empty when `to` is before `from`. */
+export function daysFrom(from: string, to: string): string[] {
+  const days: string[] = [];
+  for (let d = from; d <= to; d = addDays(d, 1)) days.push(d);
+  return days;
+}
+
 /** The Monday of the week `date` falls in; weeks start on Monday. */
 export function weekStart(date: string): string {
   return addDays(date, -((parseLocalDate(date).getDay() + 6) % 7));

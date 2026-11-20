@@ -243,6 +243,24 @@ export const messages: Omit<Messages, 'voices'> = {
     reflectHint:
       'Builds a text summary of the last 30 days and opens the share sheet. Send it to your AI companion.',
   },
+  range: {
+    title: 'Look back on any stretch',
+    hint: 'A holiday, a hard month, a new job: pick the days, up to a year.',
+    from: 'From',
+    to: 'To',
+    days: (count) => `${count} ${count === 1 ? 'day' : 'days'}`,
+    checkIns: (count) => `${count} ${count === 1 ? 'check-in' : 'check-ins'}`,
+    weekEarlier: 'A week earlier',
+    dayEarlier: 'A day earlier',
+    dayLater: 'A day later',
+    weekLater: 'A week later',
+    last7: 'Last 7 days',
+    last90: 'Last 90 days',
+    thisYear: 'This year',
+    reflect: 'Reflect on these days',
+    reflectHint:
+      'Builds a text summary of these days and opens the share sheet. Send it to your AI companion.',
+  },
   monthTotals: {
     title: 'Month totals',
     empty: 'Nothing logged this month yet.',
@@ -818,6 +836,10 @@ export const messages: Omit<Messages, 'voices'> = {
       `${name}: ${total} ${unit} in all over ${checkIns} check-ins (${perCheckIn} per check-in)`,
     monthAsk:
       'Please reflect on this month. What patterns do you notice (days of the week, time of day, anything in the notes)? What seemed to help, and what changed from the start of the month to the end? Then suggest one small, concrete thing I could try next month. Keep it short and kind.',
+    rangeIntro: (first, last, days) =>
+      `Here are my mood check-ins for a stretch of time I want to look back on (${first} to ${last}, ${days} ${days === 1 ? 'day' : 'days'}).`,
+    rangeAsk:
+      'Please reflect on this stretch of time. What patterns do you notice (days of the week, time of day, anything in the notes)? What seemed to help, and what changed from its start to its end? Then suggest one small, concrete thing I could take from it into the days ahead. Keep it short and kind.',
     urgesTitle: 'Urges (I paused to breathe before choosing):',
     urgeLine: (day: string, slot: string, habit: string, passed: boolean, feelings: string) =>
       `- ${day}, ${slot}, ${habit}: ${passed ? 'let it pass' : 'had one'}${feelings ? `; felt before: ${feelings}` : ''}`,

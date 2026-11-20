@@ -270,6 +270,23 @@ export type Messages = {
     reflect: string;
     reflectHint: string;
   };
+  range: {
+    title: string;
+    hint: string;
+    from: string;
+    to: string;
+    days: (count: number) => string;
+    checkIns: (count: number) => string;
+    weekEarlier: string;
+    dayEarlier: string;
+    dayLater: string;
+    weekLater: string;
+    last7: string;
+    last90: string;
+    thisYear: string;
+    reflect: string;
+    reflectHint: string;
+  };
   /** Month totals: each tile is a value with a short caption under it. */
   monthTotals: {
     title: string;
@@ -729,6 +746,8 @@ export type Messages = {
       perCheckIn: string,
     ) => string;
     monthAsk: string;
+    rangeIntro: (first: string, last: string, days: number) => string;
+    rangeAsk: string;
     urgesTitle: string;
     urgeLine: (day: string, slot: string, habit: string, passed: boolean, feelings: string) => string;
     urgeCount: (total: number, passed: number) => string;

@@ -12,7 +12,7 @@ import { VOICES, Voice } from '@ui/foundation/voices/voices';
 import { urgeLines } from './urgeLines';
 
 /**
- * Plain-text prompt for the Claude app covering the last 30 days: one line per day that has
+ * Plain-text prompt for the Claude app covering the last 30 days (or a range the user picked): one line per day that has
  * check-ins, the patterns the app found, and a request to reflect. Habit data (what each
  * check-in logged and each habit's totals) is only included when `habits` is given (the
  * user turned it on).
@@ -25,6 +25,8 @@ export function buildMonthlyPrompt(
   locale: Locale = 'en',
   /** The month's urges join the habits, so they need `habits` too. */
   urges: Urge[] = [],
+  /** The last 30 days, or a range the user picked (it gets its own intro and question). */
+  span: 'month' | 'range' = 'month',
 ): string {
   const m = messages(locale);
   const p = m.prompt;
@@ -74,7 +76,7 @@ export function buildMonthlyPrompt(
 
   return [
     ...(voice.claude.intro ? [voice.claude.intro, ''] : []),
-    p.monthIntro(first, last),
+    span === 'month' ? p.monthIntro(first, last) : p.rangeIntro(first, last, review.days.length),
     p.scale,
     '',
     ...dayLines,
@@ -88,7 +90,7 @@ export function buildMonthlyPrompt(
     ...(patterns.length ? ['', p.monthPatterns, ...patterns.map((line) => `- ${line}`)] : []),
     ...(habits ? urgeLines(urges, habits, first, last, locale, false) : []),
     '',
-    p.monthAsk,
+    span === 'month' ? p.monthAsk : p.rangeAsk,
     ...(p.answerIn ? [p.answerIn] : []),
   ].join('\n');
 }

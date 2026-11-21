@@ -116,6 +116,17 @@
         color: var(--accent-text);
         cursor: pointer;
       }
+      a.button {
+        display: inline-block;
+        text-decoration: none;
+        border-radius: 10px;
+        padding: 10px 16px;
+        background: var(--accent);
+        color: var(--accent-text);
+      }
+      a {
+        color: var(--accent);
+      }
       button:disabled {
         opacity: 0.6;
         cursor: progress;
@@ -205,6 +216,12 @@
       <p class="muted">
         Open a Mood Tracker backup, encrypted or not. The file is read and decrypted in this browser tab;
         nothing is uploaded.
+      </p>
+      <p class="row" style="margin-top: 0">
+        <a class="button" id="latestApk" href="https://github.com/alex-quiterio/mood-tracker/releases/latest"
+          >Get the latest app</a
+        >
+        <span class="muted" id="latestInfo"></span>
       </p>
 
       <section class="card">
@@ -510,6 +527,24 @@
         } else {
           $('footer').append('Development copy (not built by the Pages workflow).');
         }
+
+        // The latest release's APK. Its file name carries the version, so ask GitHub which one it is;
+        // the button already points at the latest release page if this fails.
+        const repoName = repo ?? 'alex-quiterio/mood-tracker';
+        fetch(`https://api.github.com/repos/${repoName}/releases/latest`)
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then((release) => {
+            const apk = release.assets?.find((a) => a.name.endsWith('.apk'));
+            if (apk) {
+              $('latestApk').href = apk.browser_download_url;
+              $('latestApk').textContent = `Download ${release.tag_name} (APK)`;
+            }
+            const date = new Date(release.published_at).toLocaleDateString();
+            const newer = version && release.tag_name !== `v${version}`;
+            $('latestInfo').textContent =
+              `Released ${date}` + (newer ? ` · newer than this page (${version})` : '');
+          })
+          .catch(() => {});
       }
     </script>
   </body>

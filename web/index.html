@@ -303,101 +303,75 @@
         margin-top: 14px;
       }
 
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 10px;
-        margin: 16px 0;
-      }
-      .stat {
+      .tree {
+        font: 13px/1.6 var(--mono);
         background: var(--background);
         border-radius: var(--r-md);
         padding: 12px 14px;
+        margin-top: 16px;
+        overflow-x: auto;
       }
-      .stat b {
-        display: block;
-        font-size: 22px;
-        font-weight: 700;
-        letter-spacing: -0.3px;
+      .tree details > .kids {
+        padding-left: 18px;
+        border-left: 1px solid var(--border);
+        margin-left: 5px;
       }
-      .stat.mood {
-        color: var(--on-mood);
-      }
-      .stat.mood .caption {
-        color: var(--on-mood);
-        opacity: 0.75;
-      }
-      dl {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: 4px 16px;
-        margin: 0 0 16px;
-      }
-      dt {
-        color: var(--muted);
-      }
-      dd {
-        margin: 0;
-      }
-
-      .days {
-        margin-top: 20px;
-        display: grid;
-        gap: 8px;
-      }
-      .day {
-        display: grid;
-        grid-template-columns: 88px repeat(3, 1fr);
-        gap: 6px;
-        align-items: center;
-      }
-      .day-label {
-        font-weight: 600;
-        font-size: 14px;
-        line-height: 1.2;
-      }
-      .day-label .caption {
-        display: block;
-        font-weight: 400;
-      }
-      .slot {
-        height: 40px;
-        border-radius: var(--r-sm);
-        display: grid;
-        place-items: center;
-        font-size: 20px;
-        color: var(--on-mood);
-      }
-      .slot.empty {
-        border: 1.5px dashed var(--border);
-      }
-      .notes {
-        grid-column: 2 / -1;
-        display: grid;
-        gap: 2px;
-        margin: -2px 0 4px;
-      }
-      .notes p {
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .slot-head {
-        text-align: center;
-      }
-
-      details summary {
+      .tree summary {
         cursor: pointer;
+        list-style: none;
+        white-space: nowrap;
+        border-radius: 6px;
+      }
+      .tree summary::-webkit-details-marker {
+        display: none;
+      }
+      .tree summary::before {
+        content: '▸';
+        display: inline-block;
+        width: 14px;
+        color: var(--muted);
+        transition: transform 120ms ease;
+      }
+      .tree details[open] > summary::before {
+        transform: rotate(90deg);
+      }
+      .tree summary:hover {
+        background: var(--accent-soft);
+      }
+      .leaf {
+        padding-left: 14px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .k {
         color: var(--accent);
         font-weight: 600;
-        margin-top: 16px;
       }
-      pre {
-        font: 12px/1.5 var(--mono);
-        background: var(--background);
-        border-radius: var(--r-md);
-        padding: 12px;
-        max-height: 420px;
-        overflow: auto;
+      .count {
+        display: inline-block;
+        font: 600 11px/18px var(--sans);
+        padding: 0 7px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        margin-left: 4px;
+      }
+      .preview {
+        color: var(--muted);
+        margin-left: 6px;
+      }
+      .s {
+        color: var(--text);
+      }
+      .n,
+      .b,
+      .z {
+        color: var(--notice);
+      }
+      .tree .more {
+        margin: 4px 0 4px 14px;
+        min-height: 32px;
+        font-size: 13px;
       }
 
       footer {
@@ -473,21 +447,14 @@
       <section class="card appear" id="result" hidden>
         <h2>Here's what was inside ✨</h2>
         <p class="caption" id="resultSub"></p>
-        <div class="stats" id="stats"></div>
-        <dl id="summary"></dl>
-        <div class="row">
+        <div class="row" style="margin-top: 14px">
           <button class="button" id="download">Download as plain JSON</button>
           <button class="button ghost" id="reset">Open another</button>
         </div>
         <p class="caption" id="downloadNote" style="margin-top: 8px" hidden>
           The download isn't encrypted. Keep it somewhere private.
         </p>
-        <div class="days" id="days"></div>
-        <button class="button ghost" id="more" style="margin-top: 12px" hidden></button>
-        <details>
-          <summary>Raw JSON</summary>
-          <pre id="raw"></pre>
-        </details>
+        <div class="tree" id="tree"></div>
       </section>
 
       <section class="card appear">
@@ -593,28 +560,11 @@
           node.append(...children);
           return node;
         };
-        const MOOD_EMOJI = { 1: '😞', 2: '🙁', 3: '😐', 4: '🙂', 5: '😄' };
-        const SLOTS = ['morning', 'afternoon', 'evening'];
-        const SLOT_LABEL = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' };
-        const PAGE = 60;
+        const PAGE = 100;
 
         let encrypted = null;
         let plainText = null;
         let sourceName = 'backup.json';
-        let dayList = [];
-        let dayMap = new Map();
-        let shown = 0;
-
-        const localDate = (iso) => {
-          const [y, m, d] = iso.split('-').map(Number);
-          return new Date(y, m - 1, d);
-        };
-        const fmtDay = (iso) =>
-          localDate(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-        const fmtWeekday = (iso) => localDate(iso).toLocaleDateString(undefined, { weekday: 'short' });
-        const fmtYear = (iso) =>
-          localDate(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-        const moodVar = (mood) => `var(--mood-${Math.min(5, Math.max(1, Math.round(mood)))})`;
 
         function showError(message) {
           $('error').textContent = message;
@@ -672,108 +622,88 @@
             return showError("The backup opened, but what's inside isn't a Mood Tracker export.");
           }
           plainText = text;
-          const entries = Array.isArray(data.entries) ? data.entries.filter((e) => e?.date) : [];
-          const count = (list) => (Array.isArray(list) ? list.length : 0);
-
-          const byDay = new Map();
-          for (const e of entries) {
-            if (!byDay.has(e.date)) byDay.set(e.date, {});
-            byDay.get(e.date)[e.slot] = e;
-          }
-          dayMap = byDay;
-          dayList = [...byDay.keys()].sort().reverse();
-          const avg = entries.length
-            ? entries.reduce((s, e) => s + Number(e.mood || 0), 0) / entries.length
-            : 0;
-
-          $('resultSub').textContent = dayList.length
-            ? `${fmtYear(dayList[dayList.length - 1])} → ${fmtYear(dayList[0])}`
-            : 'No check-ins yet';
-
-          const stat = (value, label, mood) =>
-            el(
-              'div',
-              { className: mood ? 'stat mood' : 'stat', style: mood ? `background:${moodVar(mood)}` : '' },
-              el('b', { textContent: value }),
-              el('span', { className: 'caption', textContent: label }),
-            );
-          $('stats').replaceChildren(
-            stat(entries.length, 'check-ins'),
-            stat(dayList.length, 'days'),
-            ...(entries.length
-              ? [stat(`${MOOD_EMOJI[Math.round(avg)]} ${avg.toFixed(1)}`, 'average mood', avg)]
-              : []),
-            stat(count(data.habits), 'habits'),
-          );
-
-          const rows = [
-            ['Format', `v${data.version}${data.version > EXPORT_VERSION ? ' (newer than this page)' : ''}`],
-            [
-              'Encrypted',
-              wasEncrypted ? `yes · ${encrypted.kdf.iterations.toLocaleString()} PBKDF2 rounds` : 'no',
-            ],
-            ['Exported', data.exportedAt ? new Date(data.exportedAt).toLocaleString() : '—'],
-            ['Urges', count(data.urges)],
-            ['Payments', count(data.payments)],
-            ['Settings', data.settings ? 'included' : 'not included'],
-          ];
-          $('summary').replaceChildren(
-            ...rows.flatMap(([k, v]) => [el('dt', { textContent: k }), el('dd', { textContent: String(v) })]),
-          );
-
-          const head = el('div', { className: 'day' }, el('span'));
-          for (const s of SLOTS)
-            head.append(el('span', { className: 'caption slot-head', textContent: SLOT_LABEL[s] }));
-          $('days').replaceChildren(...(dayList.length ? [head] : []));
-          shown = 0;
-          renderMore();
-
-          $('raw').textContent = text;
+          const newer = data.version > EXPORT_VERSION ? ' (newer than this page)' : '';
+          $('resultSub').textContent =
+            `Export format v${data.version}${newer}` +
+            (wasEncrypted ? ` · was encrypted (v${encrypted.version})` : '') +
+            ` · ${(text.length / 1024).toFixed(0)} KB`;
+          $('tree').replaceChildren(...children(data, 1));
           $('downloadNote').hidden = !wasEncrypted;
           $('unlock').hidden = true;
           reveal('result');
         }
 
-        function renderMore() {
-          const next = dayList.slice(shown, shown + PAGE);
-          for (const date of next) {
-            const slots = dayMap.get(date) ?? {};
-            const row = el(
-              'div',
-              { className: 'day' },
-              el(
-                'div',
-                { className: 'day-label' },
-                fmtDay(date),
-                el('span', { className: 'caption', textContent: fmtWeekday(date) }),
-              ),
-            );
-            for (const s of SLOTS) {
-              const e = slots[s];
-              row.append(
-                e
-                  ? el('div', {
-                      className: 'slot',
-                      style: `background:${moodVar(e.mood)}`,
-                      textContent: MOOD_EMOJI[e.mood] ?? e.mood,
-                      title: `${SLOT_LABEL[s]}: ${e.mood}/5`,
-                    })
-                  : el('div', { className: 'slot empty', title: `${SLOT_LABEL[s]}: no check-in` }),
-              );
-            }
-            const notes = SLOTS.filter((s) => slots[s]?.note).map((s) =>
-              el('p', { textContent: `${MOOD_EMOJI[slots[s].mood] ?? ''} ${slots[s].note}` }),
-            );
-            if (notes.length) row.append(el('div', { className: 'notes' }, ...notes));
-            $('days').append(row);
-          }
-          shown += next.length;
-          const left = dayList.length - shown;
-          $('more').hidden = left <= 0;
-          $('more').textContent = `Show ${Math.min(PAGE, left)} more days`;
+        // A collapsible JSON tree. Each object and array shows how many children it has;
+        // children are only built when a branch is opened, a page at a time.
+        const isBranch = (v) => v !== null && typeof v === 'object';
+        const countOf = (v) => (Array.isArray(v) ? v.length : Object.keys(v).length);
+
+        function leafValue(v) {
+          if (v === null) return el('span', { className: 'z', textContent: 'null' });
+          if (typeof v === 'string') return el('span', { className: 's', textContent: JSON.stringify(v) });
+          return el('span', { className: typeof v === 'number' ? 'n' : 'b', textContent: String(v) });
         }
 
-        $('more').addEventListener('click', renderMore);
+        /** A one-line hint for a collapsed object: its first few plain values. */
+        function preview(v) {
+          if (Array.isArray(v)) return '';
+          const bits = Object.entries(v)
+            .filter(([, x]) => !isBranch(x))
+            .slice(0, 3)
+            .map(([k, x]) => `${k}: ${typeof x === 'string' ? x.slice(0, 24) : x}`);
+          return bits.join(' · ');
+        }
+
+        function node(key, value, depth) {
+          if (!isBranch(value))
+            return el(
+              'div',
+              { className: 'leaf' },
+              el('span', { className: 'k', textContent: key }),
+              ': ',
+              leafValue(value),
+            );
+          const array = Array.isArray(value);
+          const n = countOf(value);
+          const summary = el(
+            'summary',
+            {},
+            el('span', { className: 'k', textContent: key }),
+            el('span', { className: 'count', textContent: array ? `[${n.toLocaleString()}]` : `{${n}}` }),
+          );
+          const hint = preview(value);
+          if (hint) summary.append(el('span', { className: 'preview', textContent: hint }));
+          const kids = el('div', { className: 'kids' });
+          const details = el('details', {}, summary, kids);
+          let built = false;
+          details.addEventListener('toggle', () => {
+            if (details.open && !built) {
+              built = true;
+              kids.append(...children(value, depth + 1));
+            }
+          });
+          if (depth <= 1 && n > 0 && n <= 20) {
+            details.open = true;
+          }
+          return details;
+        }
+
+        function children(value, depth, from = 0) {
+          const entries = Array.isArray(value) ? value.map((v, i) => [String(i), v]) : Object.entries(value);
+          if (entries.length === 0) return [el('div', { className: 'leaf caption', textContent: 'empty' })];
+          const out = entries.slice(from, from + PAGE).map(([k, v]) => node(k, v, depth));
+          const left = entries.length - from - PAGE;
+          if (left > 0) {
+            const more = el('button', {
+              className: 'button ghost more',
+              textContent: `Show ${Math.min(PAGE, left)} more of ${left.toLocaleString()}`,
+            });
+            more.addEventListener('click', () => more.replaceWith(...children(value, depth, from + PAGE)));
+            out.push(more);
+          }
+          return out;
+        }
+
         $('file').addEventListener('change', (e) => e.target.files[0] && openFile(e.target.files[0]));
         const drop = $('drop');
         drop.addEventListener('dragover', (e) => {

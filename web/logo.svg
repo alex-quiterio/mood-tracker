@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Feelings Unboxed: a smiling mood face popping out of an open box. -->
+  <rect width="512" height="512" rx="112" fill="#5B4FCF"/>
+  <!-- sparkles -->
+  <g fill="#F3E7A1">
+    <path d="M118 120 l10 26 26 10 -26 10 -10 26 -10 -26 -26 -10 26 -10z"/>
+    <path d="M392 96 l7 18 18 7 -18 7 -7 18 -7 -18 -18 -7 18 -7z"/>
+    <path d="M420 170 l5 13 13 5 -13 5 -5 13 -5 -13 -13 -5 13 -5z"/>
+  </g>
+  <!-- inside of the box, behind the face -->
+  <path d="M224 236 H288 L256 290z" fill="#C98E55"/>
+  <!-- face -->
+  <circle cx="256" cy="166" r="86" fill="#9FD9A9"/>
+  <circle cx="225" cy="152" r="11" fill="#1F1D1A"/>
+  <circle cx="287" cy="152" r="11" fill="#1F1D1A"/>
+  <path d="M214 184 q42 40 84 0" fill="none" stroke="#1F1D1A" stroke-width="12" stroke-linecap="round"/>
+  <!-- open flaps -->
+  <path d="M120 290 L80 236 L224 236 L256 290z" fill="#E9B97E"/>
+  <path d="M392 290 L432 236 L288 236 L256 290z" fill="#E9B97E"/>
+  <!-- box -->
+  <path d="M120 290 H392 V412 a20 20 0 0 1 -20 20 H140 a20 20 0 0 1 -20 -20z" fill="#F8D3A6"/>
+  <path d="M120 290 H392 V316 H120z" fill="#E9B97E"/>
+  <rect x="236" y="290" width="40" height="142" fill="#F4B5AE"/>
+</svg>

@@ -7,6 +7,7 @@ const SHELL = [
   'icon.png',
   'icon-512.png',
   'favicon.png',
+  'logo.svg',
   'fonts/Figtree-Regular.ttf',
   'fonts/Figtree-SemiBold.ttf',
   'fonts/Figtree-Bold.ttf',

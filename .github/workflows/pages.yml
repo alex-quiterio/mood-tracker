@@ -1,0 +1,55 @@
+name: Feelings Unboxed (Pages)
+
+# Publishes web/ (Feelings Unboxed, the backup reader) to GitHub Pages. Not tied to releases: it runs
+# on pushes to main that touch the page or the formats it mirrors, and on demand.
+# The page shows which app version and format versions it was built from.
+on:
+  push:
+    branches: [main]
+    paths:
+      - web/**
+      - app.json
+      - src/domain/checkins/exportFormat.ts
+      - src/domain/checkins/encryptedFormat.ts
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Stamp versions into the page
+        run: |
+          APP_VERSION="$(node -p 'require("./app.json").expo.version')"
+          EXPORT_VERSION="$(sed -n 's/^const VERSION = \([0-9]*\);/\1/p' src/domain/checkins/exportFormat.ts)"
+          ENCRYPTED_VERSION="$(sed -n 's/^const VERSION = \([0-9]*\);/\1/p' src/domain/checkins/encryptedFormat.ts)"
+          test -n "$EXPORT_VERSION" && test -n "$ENCRYPTED_VERSION"
+          mkdir -p _site
+          sed -e "s/__APP_VERSION__/$APP_VERSION/" \
+              -e "s/__EXPORT_VERSION__/$EXPORT_VERSION/" \
+              -e "s/__ENCRYPTED_VERSION__/$ENCRYPTED_VERSION/" \
+              -e "s/__COMMIT__/$GITHUB_SHA/" \
+              -e "s#__REPO__#$GITHUB_REPOSITORY#" \
+              web/index.html > _site/index.html
+          echo "Built for app $APP_VERSION (export v$EXPORT_VERSION, encrypted v$ENCRYPTED_VERSION)" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Feelings Unboxed</title>
+    <meta
+      name="description"
+      content="Open a Mood Tracker backup, encrypted or not, in your browser. Nothing leaves your device."
+    />
+    <style>
+      :root {
+        --bg: #f7f5f0;
+        --surface: #ffffff;
+        --text: #1f1d1a;
+        --muted: #6b665d;
+        --border: #e3ded3;
+        --accent: #4f6d5a;
+        --accent-text: #ffffff;
+        --notice: #8a6a1f;
+        --notice-bg: #fbf3df;
+        --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --bg: #161513;
+          --surface: #201f1c;
+          --text: #ece8e0;
+          --muted: #a39d92;
+          --border: #34322d;
+          --accent: #8fb39b;
+          --accent-text: #13201a;
+          --notice: #e2c27a;
+          --notice-bg: #2c2618;
+        }
+      }
+      :root[data-theme='dark'] {
+        --bg: #161513;
+        --surface: #201f1c;
+        --text: #ece8e0;
+        --muted: #a39d92;
+        --border: #34322d;
+        --accent: #8fb39b;
+        --accent-text: #13201a;
+        --notice: #e2c27a;
+        --notice-bg: #2c2618;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.5 system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 16px 64px;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 1.1rem;
+        margin: 0 0 12px;
+      }
+      p {
+        margin: 0 0 12px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+      .drop {
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        padding: 28px 16px;
+        text-align: center;
+        cursor: pointer;
+      }
+      .drop.over {
+        border-color: var(--accent);
+      }
+      input[type='file'] {
+        display: none;
+      }
+      input[type='password'] {
+        width: 100%;
+        font: inherit;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+      }
+      button {
+        font: inherit;
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 16px;
+        background: var(--accent);
+        color: var(--accent-text);
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: progress;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--border);
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 12px;
+      }
+      .notice {
+        background: var(--notice-bg);
+        color: var(--notice);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-top: 12px;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 4px 16px;
+        margin: 0;
+      }
+      dt {
+        color: var(--muted);
+      }
+      dd {
+        margin: 0;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 12px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      pre {
+        font: 0.82rem/1.45 var(--mono);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        max-height: 420px;
+        overflow: auto;
+        white-space: pre;
+      }
+      details summary {
+        cursor: pointer;
+        color: var(--accent);
+        margin-top: 12px;
+      }
+      footer {
+        margin-top: 28px;
+        font-size: 0.88rem;
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.9em;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Feelings Unboxed 📦</h1>
+      <p class="muted">
+        Open a Mood Tracker backup, encrypted or not. The file is read and decrypted in this browser tab;
+        nothing is uploaded.
+      </p>
+
+      <section class="card">
+        <label class="drop" id="drop" for="file">
+          <strong>Choose a backup file</strong><br />
+          <span class="muted">or drop a <code>.json</code> file here</span>
+        </label>
+        <input type="file" id="file" accept=".json,application/json,text/plain" />
+        <p id="fileName" class="muted" style="margin-top: 12px" hidden></p>
+        <div id="error" class="notice" role="alert" hidden></div>
+      </section>
+
+      <section class="card" id="unlock" hidden>
+        <h2>This backup is encrypted</h2>
+        <p class="muted">Enter the passphrase you set in the app. Opening it can take a few seconds.</p>
+        <form id="unlockForm">
+          <input type="password" id="passphrase" autocomplete="current-password" placeholder="Passphrase" />
+          <div class="row">
+            <button type="submit" id="unlockButton">Open</button>
+            <span id="unlockStatus" class="muted"></span>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" id="result" hidden>
+        <h2>What's inside</h2>
+        <dl id="summary"></dl>
+        <div class="row">
+          <button id="download">Download as plain JSON</button>
+          <button class="secondary" id="reset">Open another file</button>
+        </div>
+        <p class="muted" id="downloadNote" style="margin-top: 8px" hidden>
+          The download is not encrypted. Keep it somewhere private.
+        </p>
+        <div class="table-wrap" id="entriesWrap" hidden>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Part of day</th>
+                <th>Mood</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody id="entries"></tbody>
+          </table>
+        </div>
+        <details>
+          <summary>Raw JSON</summary>
+          <pre id="raw"></pre>
+        </details>
+      </section>
+
+      <footer class="muted" id="footer"></footer>
+    </main>
+
+    <script>
+      // Filled in by .github/workflows/pages.yml from app.json and the format files.
+      // Left as placeholders when the page is opened straight from the repo.
+      const BUILD = {
+        appVersion: '__APP_VERSION__',
+        exportVersion: '__EXPORT_VERSION__',
+        encryptedVersion: '__ENCRYPTED_VERSION__',
+        commit: '__COMMIT__',
+        repo: '__REPO__',
+      };
+      const filled = (v) => (v.startsWith('__') ? null : v);
+      // Must mirror src/domain/checkins/encryptedFormat.ts and src/infrastructure/backup/encryption.ts.
+      const ENCRYPTED_FORMAT = 'mood-tracker-encrypted';
+      const EXPORT_FORMAT = 'mood-tracker-export';
+      const ENCRYPTED_SINCE = '1.24.2';
+      const ENCRYPTED_VERSION = Number(filled(BUILD.encryptedVersion) ?? 1);
+      const EXPORT_VERSION = Number(filled(BUILD.exportVersion) ?? 6);
+
+      const fromBase64 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+      /** Mirrors the app: PBKDF2-HMAC-SHA512 → AES-256-GCM, ciphertext with its 16-byte tag appended. */
+      async function decryptBackup(file, passphrase) {
+        const material = await crypto.subtle.importKey(
+          'raw',
+          new TextEncoder().encode(passphrase),
+          'PBKDF2',
+          false,
+          ['deriveKey'],
+        );
+        const key = await crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            hash: 'SHA-512',
+            salt: fromBase64(file.kdf.salt),
+            iterations: file.kdf.iterations,
+          },
+          material,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['decrypt'],
+        );
+        let plain;
+        try {
+          plain = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: fromBase64(file.cipher.nonce) },
+            key,
+            fromBase64(file.data),
+          );
+        } catch {
+          throw new Error('That passphrase does not open this backup.');
+        }
+        return new TextDecoder().decode(plain);
+      }
+
+      /** 'encrypted' | 'export', or throws with a message for the reader. */
+      function classify(data) {
+        if (data?.format === ENCRYPTED_FORMAT) {
+          if (typeof data.version !== 'number' || data.version > ENCRYPTED_VERSION)
+            throw new Error(
+              `This encrypted backup is format v${data.version}; this page reads up to v${ENCRYPTED_VERSION}. It may be out of date.`,
+            );
+          const ok =
+            data.kdf?.name === 'pbkdf2-sha512' &&
+            Number.isInteger(data.kdf.iterations) &&
+            data.kdf.iterations > 0 &&
+            typeof data.kdf.salt === 'string' &&
+            data.cipher?.name === 'aes-256-gcm' &&
+            typeof data.cipher.nonce === 'string' &&
+            typeof data.data === 'string';
+          if (!ok) throw new Error('This encrypted backup is damaged.');
+          return 'encrypted';
+        }
+        if (data?.format === EXPORT_FORMAT) return 'export';
+        throw new Error('This is not a Mood Tracker backup.');
+      }
+
+      if (typeof module !== 'undefined') module.exports = { decryptBackup, classify };
+    </script>
+    <script>
+      if (typeof document !== 'undefined') {
+        const $ = (id) => document.getElementById(id);
+        let encrypted = null;
+        let plainText = null;
+        let sourceName = 'backup.json';
+
+        function showError(message) {
+          $('error').textContent = message;
+          $('error').hidden = !message;
+        }
+
+        function reset() {
+          encrypted = plainText = null;
+          $('file').value = '';
+          $('passphrase').value = '';
+          $('unlockStatus').textContent = '';
+          for (const id of ['unlock', 'result', 'fileName', 'downloadNote']) $(id).hidden = true;
+          showError('');
+        }
+
+        async function openFile(file) {
+          reset();
+          sourceName = file.name;
+          $('fileName').textContent = file.name;
+          $('fileName').hidden = false;
+          let data;
+          try {
+            data = JSON.parse(await file.text());
+          } catch {
+            return showError('This file is not JSON.');
+          }
+          try {
+            if (classify(data) === 'encrypted') {
+              encrypted = data;
+              $('unlock').hidden = false;
+              $('passphrase').focus();
+            } else {
+              showExport(JSON.stringify(data, null, 2), false);
+            }
+          } catch (e) {
+            showError(e.message);
+          }
+        }
+
+        function showExport(text, wasEncrypted) {
+          let data;
+          try {
+            data = JSON.parse(text);
+            if (data?.format !== EXPORT_FORMAT) throw new Error();
+          } catch {
+            return showError('The backup opened, but what is inside is not a Mood Tracker export.');
+          }
+          plainText = text;
+          const entries = Array.isArray(data.entries) ? data.entries : [];
+          const dates = entries
+            .map((e) => e.date)
+            .filter(Boolean)
+            .sort();
+          const count = (list) => (Array.isArray(list) ? list.length : 0);
+          const rows = [
+            [
+              'Export format',
+              `v${data.version}${data.version > EXPORT_VERSION ? ' (newer than this page knows)' : ''}`,
+            ],
+            [
+              'Encrypted',
+              wasEncrypted
+                ? `yes (v${encrypted.version}, ${encrypted.kdf.iterations.toLocaleString()} PBKDF2 rounds)`
+                : 'no',
+            ],
+            ['Exported', data.exportedAt ? new Date(data.exportedAt).toLocaleString() : '—'],
+            ['Check-ins', entries.length],
+            ['Days', dates.length ? `${dates[0]} → ${dates[dates.length - 1]}` : '—'],
+            ['Habits', count(data.habits)],
+            ['Urges', count(data.urges)],
+            ['Payments', count(data.payments)],
+            ['Settings', data.settings ? 'included' : 'not included'],
+          ];
+          $('summary').replaceChildren(
+            ...rows.flatMap(([k, v]) => {
+              const dt = document.createElement('dt');
+              const dd = document.createElement('dd');
+              dt.textContent = k;
+              dd.textContent = String(v);
+              return [dt, dd];
+            }),
+          );
+          const slotOrder = { morning: 0, afternoon: 1, evening: 2 };
+          const sorted = [...entries].sort(
+            (a, b) => b.date.localeCompare(a.date) || (slotOrder[b.slot] ?? 0) - (slotOrder[a.slot] ?? 0),
+          );
+          $('entries').replaceChildren(
+            ...sorted.map((e) => {
+              const tr = document.createElement('tr');
+              for (const v of [e.date, e.slot, e.mood, e.note ?? '']) {
+                const td = document.createElement('td');
+                td.textContent = v;
+                tr.append(td);
+              }
+              return tr;
+            }),
+          );
+          $('entriesWrap').hidden = entries.length === 0;
+          $('raw').textContent = text;
+          $('downloadNote').hidden = !wasEncrypted;
+          $('unlock').hidden = true;
+          $('result').hidden = false;
+        }
+
+        $('file').addEventListener('change', (e) => e.target.files[0] && openFile(e.target.files[0]));
+        const drop = $('drop');
+        drop.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          drop.classList.add('over');
+        });
+        drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+        drop.addEventListener('drop', (e) => {
+          e.preventDefault();
+          drop.classList.remove('over');
+          const file = e.dataTransfer.files[0];
+          if (file) openFile(file);
+        });
+
+        $('unlockForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const passphrase = $('passphrase').value;
+          if (!passphrase) return;
+          showError('');
+          $('unlockButton').disabled = true;
+          $('unlockStatus').textContent = 'Deriving the key…';
+          try {
+            showExport(await decryptBackup(encrypted, passphrase), true);
+          } catch (err) {
+            showError(err.message);
+          } finally {
+            $('unlockButton').disabled = false;
+            $('unlockStatus').textContent = '';
+          }
+        });
+
+        $('download').addEventListener('click', () => {
+          const blob = new Blob([plainText], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = sourceName.replace(/(\.json)?$/i, '-decrypted.json');
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        });
+        $('reset').addEventListener('click', reset);
+
+        // Which app release this page matches.
+        const version = filled(BUILD.appVersion);
+        const repo = filled(BUILD.repo);
+        const commit = filled(BUILD.commit);
+        const parts = [
+          `Reads plain exports up to v${EXPORT_VERSION} and encrypted backups v${ENCRYPTED_VERSION} (from app ${ENCRYPTED_SINCE} on).`,
+        ];
+        $('footer').textContent = parts.join(' ') + ' ';
+        if (version) {
+          const span = document.createElement('span');
+          span.append('Built from ');
+          const a = document.createElement('a');
+          a.textContent = `release ${version}`;
+          if (repo) a.href = `https://github.com/${repo}/releases/tag/v${version}`;
+          span.append(a);
+          if (commit) span.append(` (commit ${commit.slice(0, 7)}).`);
+          $('footer').append(span);
+        } else {
+          $('footer').append('Development copy (not built by the Pages workflow).');
+        }
+      }
+    </script>
+  </body>
+</html>

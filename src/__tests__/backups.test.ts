@@ -1,6 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { BACKUP_INTERVAL_HOURS, backupFileName, backupsToPrune, isBackupDue } from '@domain/checkins/backups';
+import {
+  BACKUP_INTERVAL_HOURS,
+  backupFileName,
+  backupsToPrune,
+  isBackupDue,
+  isBackupOverdue,
+} from '@domain/checkins/backups';
 import { parseExport, serializeExport } from '@domain/checkins/exportFormat';
 import {
   DEFAULT_SETTINGS,
@@ -8,6 +14,20 @@ import {
   parseSettings,
   settingsForBackup,
 } from '@domain/settings/settings';
+
+describe('isBackupOverdue', () => {
+  const last = new Date('2026-10-02T09:00:00Z').getTime();
+  const day = 24 * 60 * 60 * 1000;
+
+  it('stays quiet for three days, then speaks', () => {
+    expect(isBackupOverdue(last, last + 3 * day - 1)).toBe(false);
+    expect(isBackupOverdue(last, last + 3 * day)).toBe(true);
+  });
+
+  it('has nothing to say when there has been no backup yet', () => {
+    expect(isBackupOverdue(0, last)).toBe(false);
+  });
+});
 
 describe('isBackupDue', () => {
   const at = (iso: string) => new Date(iso).getTime();

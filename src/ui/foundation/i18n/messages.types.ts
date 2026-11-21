@@ -497,6 +497,8 @@ export type Messages = {
     keepBody: string;
     last: (date: string) => string;
     never: string;
+    noticeBody: string;
+    noticeAction: string;
   };
   backupErrors: {
     notJson: string;

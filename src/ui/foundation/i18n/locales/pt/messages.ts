@@ -496,6 +496,9 @@ export const messages: Omit<Messages, 'voices'> = {
       'Depois de cada cópia, os ficheiros diários mais antigos além deste número são apagados. Cada ficheiro tem tudo, por isso basta o mais recente para restaurar.',
     last: (date) => `Última cópia: ${date}`,
     never: 'Ainda não há cópias na pasta.',
+    noticeBody:
+      'A cópia automática não funciona há alguns dias. A pasta pode ter desaparecido ou já não ter permissão.',
+    noticeAction: 'Escolher a pasta outra vez',
   },
   backupErrors: {
     notJson: 'Este ficheiro não é um JSON válido.',

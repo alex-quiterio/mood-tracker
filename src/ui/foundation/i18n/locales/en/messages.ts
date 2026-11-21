@@ -498,6 +498,9 @@ export const messages: Omit<Messages, 'voices'> = {
       'After each backup, the oldest daily files beyond this are deleted. Each file holds everything, so the newest is all you need to restore.',
     last: (date) => `Last backup: ${date}`,
     never: 'Nothing backed up to the folder yet.',
+    noticeBody:
+      'Your automatic backup hasn’t worked for a few days. The folder may be gone or no longer allowed.',
+    noticeAction: 'Choose the folder again',
   },
   backupErrors: {
     notJson: 'This file is not valid JSON.',

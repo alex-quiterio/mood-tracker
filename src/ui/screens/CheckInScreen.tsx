@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '@ui/kit/Text';
 
+import { BackupNotice } from '@ui/features/checkin/BackupNotice';
 import { Card } from '@ui/kit/Card';
 import { BreathingModal } from '@ui/features/practice/BreathingModal';
 import { QuoteCard } from '@ui/features/checkin/QuoteCard';
@@ -50,6 +51,10 @@ type Props = {
   habits: Habit[];
   /** Habit modules, for what the urge flow asks. */
   habitModules: ModulePreferences;
+  /** Automatic backups look stuck: show a notice. */
+  backupStuck?: boolean;
+  /** Opens Settings, where the backup folder is chosen. */
+  onFixBackup?: () => void;
 };
 
 export function CheckInScreen({
@@ -60,6 +65,8 @@ export function CheckInScreen({
   initialPause,
   habits,
   habitModules,
+  backupStuck,
+  onFixBackup,
 }: Props) {
   const styles = useThemedStyles(makeStyles);
   // Only today can be checked in (the small hours still belong to last night);
@@ -129,6 +136,8 @@ export function CheckInScreen({
           )}
         </View>
         <LevelBar progress={progress} />
+
+        {backupStuck && onFixBackup && <BackupNotice onFix={onFixBackup} />}
 
         <QuoteCard date={today} />
 

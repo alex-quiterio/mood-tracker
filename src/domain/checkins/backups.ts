@@ -3,6 +3,16 @@ export const BACKUP_INTERVAL_HOURS = 12;
 
 const INTERVAL_MS = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
 
+/** How long a still-missing backup goes unmentioned: a few retries first. */
+export const BACKUP_GRACE_DAYS = 3;
+
+/**
+ * Whether automatic backups look stuck: the last good one (0 when there has been none) is older
+ * than the grace period. The app retries whenever it opens, so this means the folder can't be written to.
+ */
+export const isBackupOverdue = (lastBackupAt: number, now: number): boolean =>
+  lastBackupAt > 0 && now - lastBackupAt >= BACKUP_GRACE_DAYS * 24 * 60 * 60 * 1000;
+
 /**
  * Whether an automatic backup is due: never backed up (0), or the last one is 12 hours old or more.
  * A clock that went backwards (last backup in the future) counts as due, so backups never stall.

@@ -21,6 +21,7 @@ import { configureNotificationHandler } from '@infrastructure/notifications/hand
 import { LockScreen } from '@ui/features/lock/LockScreen';
 import { NamePrompt } from '@ui/features/settings/NamePrompt';
 import { useQuickCheckIn } from '@ui/features/checkin/useQuickCheckIn';
+import { isBackupOverdue } from '@domain/checkins/backups';
 import { useAutoBackup } from '@ui/features/settings/useAutoBackup';
 import { useUnlockDayCapture } from '@ui/features/unlocks/useUnlockDayCapture';
 import { homeWidgetState, useHomeWidget, useWidgetLinks } from '@ui/features/widget/useHomeWidget';
@@ -123,6 +124,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const today = useToday();
   useQuickCheckIn(store);
   useAutoBackup(store, settings);
+  const { autoBackup, backupFolder, lastBackupAt } = settings.settings;
+  const backupStuck = autoBackup && !!backupFolder && isBackupOverdue(lastBackupAt, Date.now());
   const [tab, setTab] = useState<TabKey>('checkin');
   // The tabs sit side by side in a pager: swipe between them, or tap one in the tab bar.
   const { width } = useWindowDimensions();
@@ -254,6 +257,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
                 initialPause={checkInOpen?.pause}
                 habits={habits}
                 habitModules={settings.settings.habitModules}
+                backupStuck={backupStuck}
+                onFixBackup={() => showTab('settings')}
               />
             </View>
             <View style={[styles.page, { width }]}>

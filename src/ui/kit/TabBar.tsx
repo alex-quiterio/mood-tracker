@@ -13,7 +13,7 @@ type Props = {
   selected: string;
   onSelect: (key: string) => void;
   /** Where the pager is, in tabs (0 for the first, 1.5 halfway to the third…); the highlight follows it. */
-  position: Animated.AnimatedInterpolation<number> | Animated.Value;
+  position: Animated.AnimatedInterpolation<number>;
 };
 
 const PAD = spacing(2);

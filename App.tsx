@@ -1,6 +1,6 @@
 import { useCalendars, useLocales } from 'expo-localization';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ComponentRef, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -129,7 +129,7 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   const [tab, setTab] = useState<TabKey>('checkin');
   // The tabs sit side by side in a pager: swipe between them, or tap one in the tab bar.
   const { width } = useWindowDimensions();
-  const pager = useRef<ScrollView>(null);
+  const pager = useRef<ComponentRef<typeof ScrollView>>(null);
   const tabIndex = TABS.findIndex((t) => t.key === tab);
   // The pager's scroll, in tabs, so the tab bar's highlight slides along with a swipe.
   const [pagerX] = useState(() => new Animated.Value(tabIndex * width));

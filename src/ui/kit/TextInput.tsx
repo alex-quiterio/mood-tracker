@@ -1,10 +1,10 @@
-import { forwardRef } from 'react';
+import { ComponentRef, forwardRef } from 'react';
 import { TextInput as NativeTextInput, StyleSheet, TextInputProps } from 'react-native';
 
 import { fontFor } from '@ui/foundation/theme/fonts';
 
 /** React Native's TextInput in the app's typefaces, like Text. */
-export const TextInput = forwardRef<NativeTextInput, TextInputProps>(function TextInput(
+export const TextInput = forwardRef<ComponentRef<typeof NativeTextInput>, TextInputProps>(function TextInput(
   { style, ...props },
   ref,
 ) {

@@ -62,7 +62,9 @@ function PassphraseModal({ request, onClose }: { request: Request; onClose: (ok:
       visible
       transparent
       animationType="fade"
-      onRequestClose={() => !busy && onClose(false)}
+      onRequestClose={() => {
+        if (!busy) onClose(false);
+      }}
       statusBarTranslucent
     >
       <KeyboardAvoidingView style={styles.backdrop} behavior="padding">

@@ -27,7 +27,7 @@ export async function exportEntries(
   const file = new File(Paths.cache, backupFileName(localDate()));
   if (file.exists) file.delete();
   file.create();
-  file.write(await backupText(contents, key));
+  await file.write(await backupText(contents, key));
 
   if (!(await Sharing.isAvailableAsync())) throw new Error(text.unavailable);
   await Sharing.shareAsync(file.uri, {
@@ -72,7 +72,7 @@ export async function writeBackup(
     .list()
     .find((item) => item instanceof File && item.name === name)
     ?.delete();
-  folder.createFile(name, 'application/json').write(text);
+  await folder.createFile(name, 'application/json').write(text);
   pruneBackups(folder, keep);
 }
 

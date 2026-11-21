@@ -104,7 +104,7 @@ export function useWidgetLinks(onOpen: (target: WidgetTarget) => void) {
   });
 
   useEffect(() => {
-    const open = (url: string | null) => {
+    const open = (url: string | null | undefined) => {
       const target = parseWidgetLink(url);
       if (target) handler.current(target);
     };

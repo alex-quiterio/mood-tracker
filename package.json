@@ -66,7 +66,20 @@
     "xcode": {
       "uuid": "^11.1.1"
     },
-    "glob@^13": "^14.0.2",
-    "minimatch@^10": "^11.0.1"
+    "@jest/reporters": {
+      "glob": "^14.0.2"
+    },
+    "jest-config": {
+      "glob": "^14.0.2"
+    },
+    "jest-runtime": {
+      "glob": "^14.0.2"
+    },
+    "test-exclude": {
+      "minimatch": "^11.0.1"
+    },
+    "@expo/fingerprint": {
+      "minimatch": "^11.0.1"
+    }
   }
 }

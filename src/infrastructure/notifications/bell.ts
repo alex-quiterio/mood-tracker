@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+import { AndroidImportance } from 'expo-notifications';
 import { Platform, Vibration } from 'react-native';
 
 export const BELL_KIND = 'practice-bell';
@@ -20,7 +21,7 @@ export async function scheduleBell(
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
         name: text.channel,
-        importance: Notifications.AndroidImportance.HIGH,
+        importance: AndroidImportance.HIGH,
         sound: 'default',
         vibrationPattern: [0, 300, 150, 300],
       });

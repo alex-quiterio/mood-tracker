@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { createCipheriv, pbkdf2Sync } from 'node:crypto';
 
 import { describe, expect, it } from '@jest/globals';

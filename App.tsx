@@ -125,7 +125,8 @@ function Shell({ store, settings }: { store: EntriesStore; settings: SettingsSto
   useQuickCheckIn(store);
   useAutoBackup(store, settings);
   const { autoBackup, backupFolder, lastBackupAt } = settings.settings;
-  const backupStuck = autoBackup && !!backupFolder && isBackupOverdue(lastBackupAt, Date.now());
+  const backupStuck =
+    autoBackup && !!backupFolder && isBackupOverdue(lastBackupAt, new Date(`${today}T00:00:00`).getTime());
   const [tab, setTab] = useState<TabKey>('checkin');
   // The tabs sit side by side in a pager: swipe between them, or tap one in the tab bar.
   const { width } = useWindowDimensions();

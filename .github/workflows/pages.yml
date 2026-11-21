@@ -9,6 +9,8 @@ on:
     paths:
       - web/**
       - app.json
+      - assets/fonts/**
+      - assets/icon.png
       - src/domain/checkins/exportFormat.ts
       - src/domain/checkins/encryptedFormat.ts
       - .github/workflows/pages.yml
@@ -38,13 +40,15 @@ jobs:
           EXPORT_VERSION="$(sed -n 's/^const VERSION = \([0-9]*\);/\1/p' src/domain/checkins/exportFormat.ts)"
           ENCRYPTED_VERSION="$(sed -n 's/^const VERSION = \([0-9]*\);/\1/p' src/domain/checkins/encryptedFormat.ts)"
           test -n "$EXPORT_VERSION" && test -n "$ENCRYPTED_VERSION"
-          mkdir -p _site
-          sed -e "s/__APP_VERSION__/$APP_VERSION/" \
-              -e "s/__EXPORT_VERSION__/$EXPORT_VERSION/" \
-              -e "s/__ENCRYPTED_VERSION__/$ENCRYPTED_VERSION/" \
-              -e "s/__COMMIT__/$GITHUB_SHA/" \
-              -e "s#__REPO__#$GITHUB_REPOSITORY#" \
-              web/index.html > _site/index.html
+          mkdir -p _site/fonts
+          cp -R web/. _site/
+          cp assets/fonts/{Figtree-Regular,Figtree-SemiBold,Figtree-Bold,Fraunces-SemiBold}.ttf assets/fonts/*-OFL.txt _site/fonts/
+          sed -i -e "s/__APP_VERSION__/$APP_VERSION/" \
+                 -e "s/__EXPORT_VERSION__/$EXPORT_VERSION/" \
+                 -e "s/__ENCRYPTED_VERSION__/$ENCRYPTED_VERSION/" \
+                 -e "s/__COMMIT__/$GITHUB_SHA/" \
+                 -e "s#__REPO__#$GITHUB_REPOSITORY#" \
+                 _site/index.html _site/sw.js
           echo "Built for app $APP_VERSION (export v$EXPORT_VERSION, encrypted v$ENCRYPTED_VERSION)" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/configure-pages@v5

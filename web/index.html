@@ -2,159 +2,336 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Feelings Unboxed</title>
     <meta
       name="description"
       content="Open a Mood Tracker backup, encrypted or not, in your browser. Nothing leaves your device."
     />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    <meta name="theme-color" content="#F7F5F2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
     <style>
+      /* The app's own fonts (assets/fonts), copied next to the page by the Pages workflow. */
+      @font-face {
+        font-family: Figtree;
+        src: url(fonts/Figtree-Regular.ttf);
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: Figtree;
+        src: url(fonts/Figtree-SemiBold.ttf);
+        font-weight: 600;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: Figtree;
+        src: url(fonts/Figtree-Bold.ttf);
+        font-weight: 700;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: Fraunces;
+        src: url(fonts/Fraunces-SemiBold.ttf);
+        font-weight: 600;
+        font-display: swap;
+      }
+
+      /* The plain voice's palettes and mood colours (src/ui/foundation/theme/theme.ts). */
       :root {
-        --bg: #f7f5f0;
+        --background: #f7f5f2;
         --surface: #ffffff;
         --text: #1f1d1a;
-        --muted: #6b665d;
-        --border: #e3ded3;
-        --accent: #4f6d5a;
+        --muted: #77716a;
+        --border: #e4dfd8;
+        --accent: #5b4fcf;
         --accent-text: #ffffff;
-        --notice: #8a6a1f;
-        --notice-bg: #fbf3df;
+        --accent-soft: #5b4fcf1a;
+        --notice: #8a5a00;
+        --notice-bg: #f8d3a640;
+        --mood-1: #f4b5ae;
+        --mood-2: #f8d3a6;
+        --mood-3: #f3e7a1;
+        --mood-4: #c9e6a8;
+        --mood-5: #9fd9a9;
+        --on-mood: #1f1d1a;
+        --shadow: 0 1px 2px #1f1d1a0a, 0 8px 24px #1f1d1a0d;
+        --r-sm: 10px;
+        --r-md: 14px;
+        --r-lg: 22px;
+        --sans: Figtree, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        --serif: Fraunces, Georgia, 'Times New Roman', serif;
         --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+        color-scheme: light;
       }
       @media (prefers-color-scheme: dark) {
         :root:not([data-theme='light']) {
-          --bg: #161513;
-          --surface: #201f1c;
-          --text: #ece8e0;
-          --muted: #a39d92;
-          --border: #34322d;
-          --accent: #8fb39b;
-          --accent-text: #13201a;
-          --notice: #e2c27a;
-          --notice-bg: #2c2618;
+          --background: #121212;
+          --surface: #1e1e1e;
+          --text: #eceae6;
+          --muted: #9a958e;
+          --border: #2f2f2f;
+          --accent: #9c93f0;
+          --accent-text: #121212;
+          --accent-soft: #9c93f01f;
+          --notice: #f8d3a6;
+          --notice-bg: #f8d3a614;
+          --shadow: none;
+          color-scheme: dark;
         }
       }
       :root[data-theme='dark'] {
-        --bg: #161513;
-        --surface: #201f1c;
-        --text: #ece8e0;
-        --muted: #a39d92;
-        --border: #34322d;
-        --accent: #8fb39b;
-        --accent-text: #13201a;
-        --notice: #e2c27a;
-        --notice-bg: #2c2618;
+        --background: #121212;
+        --surface: #1e1e1e;
+        --text: #eceae6;
+        --muted: #9a958e;
+        --border: #2f2f2f;
+        --accent: #9c93f0;
+        --accent-text: #121212;
+        --accent-soft: #9c93f01f;
+        --notice: #f8d3a6;
+        --notice-bg: #f8d3a614;
+        --shadow: none;
+        color-scheme: dark;
       }
+
       * {
         box-sizing: border-box;
       }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
       body {
         margin: 0;
-        background: var(--bg);
+        background: var(--background);
         color: var(--text);
-        font:
-          16px/1.5 system-ui,
-          -apple-system,
-          'Segoe UI',
-          Roboto,
-          sans-serif;
+        font: 15px/1.45 var(--sans);
+        -webkit-font-smoothing: antialiased;
       }
       main {
-        max-width: 760px;
+        max-width: 720px;
         margin: 0 auto;
-        padding: 32px 16px 64px;
+        padding: max(28px, env(safe-area-inset-top)) 16px max(56px, env(safe-area-inset-bottom));
+      }
+      h1,
+      h2 {
+        font-family: var(--serif);
+        font-weight: 600;
+        margin: 0;
       }
       h1 {
-        font-size: 1.6rem;
-        margin: 0 0 4px;
+        font-size: 32px;
+        letter-spacing: -0.6px;
+        line-height: 1.1;
       }
       h2 {
-        font-size: 1.1rem;
-        margin: 0 0 12px;
+        font-size: 22px;
+        letter-spacing: -0.3px;
+        margin-bottom: 4px;
       }
       p {
-        margin: 0 0 12px;
-      }
-      .muted {
-        color: var(--muted);
-      }
-      .card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 20px;
-        margin-top: 20px;
-      }
-      .drop {
-        border: 2px dashed var(--border);
-        border-radius: 12px;
-        padding: 28px 16px;
-        text-align: center;
-        cursor: pointer;
-      }
-      .drop.over {
-        border-color: var(--accent);
-      }
-      input[type='file'] {
-        display: none;
-      }
-      input[type='password'] {
-        width: 100%;
-        font: inherit;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: var(--bg);
-        color: var(--text);
-      }
-      button {
-        font: inherit;
-        border: 0;
-        border-radius: 10px;
-        padding: 10px 16px;
-        background: var(--accent);
-        color: var(--accent-text);
-        cursor: pointer;
-      }
-      a.button {
-        display: inline-block;
-        text-decoration: none;
-        border-radius: 10px;
-        padding: 10px 16px;
-        background: var(--accent);
-        color: var(--accent-text);
+        margin: 0;
       }
       a {
         color: var(--accent);
       }
-      button:disabled {
+      .muted {
+        color: var(--muted);
+      }
+      .caption {
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--muted);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 8px;
+      }
+      header img {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+      }
+      header .grow {
+        flex: 1;
+        min-width: 0;
+      }
+      .lede {
+        margin: 6px 0 20px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 20px;
+        margin-top: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font: 600 15px/1 var(--sans);
+        min-height: 44px;
+        padding: 0 20px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--accent-text);
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          transform 120ms ease,
+          opacity 120ms ease;
+      }
+      .button:active {
+        transform: scale(0.97);
+      }
+      .button:disabled {
         opacity: 0.6;
         cursor: progress;
       }
-      button.secondary {
-        background: transparent;
+      .button.ghost {
+        background: var(--accent-soft);
         color: var(--accent);
-        border: 1px solid var(--border);
       }
       .row {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
         align-items: center;
-        margin-top: 12px;
       }
+
+      .drop {
+        display: block;
+        border: 2px dashed var(--border);
+        border-radius: var(--r-md);
+        padding: 28px 16px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 150ms ease,
+          background 150ms ease;
+      }
+      .drop:hover,
+      .drop.over {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .faces {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .face {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--r-sm);
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        color: var(--on-mood);
+      }
+      .drop .face {
+        animation: bob 2.4s ease-in-out infinite;
+      }
+      .drop .face:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .drop .face:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .drop .face:nth-child(4) {
+        animation-delay: 0.45s;
+      }
+      .drop .face:nth-child(5) {
+        animation-delay: 0.6s;
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+      .drop strong {
+        font-size: 17px;
+        font-weight: 600;
+      }
+      input[type='file'] {
+        display: none;
+      }
+      .file-name {
+        margin-top: 12px;
+        text-align: center;
+      }
+
+      input[type='password'] {
+        width: 100%;
+        font: 15px var(--sans);
+        min-height: 48px;
+        padding: 0 14px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--border);
+        background: var(--background);
+        color: var(--text);
+        margin: 14px 0 12px;
+      }
+      input[type='password']:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
       .notice {
         background: var(--notice-bg);
         color: var(--notice);
-        border-radius: 10px;
-        padding: 10px 12px;
-        margin-top: 12px;
+        border-radius: var(--r-md);
+        padding: 12px 14px;
+        margin-top: 14px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px;
+        margin: 16px 0;
+      }
+      .stat {
+        background: var(--background);
+        border-radius: var(--r-md);
+        padding: 12px 14px;
+      }
+      .stat b {
+        display: block;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+      }
+      .stat.mood {
+        color: var(--on-mood);
+      }
+      .stat.mood .caption {
+        color: var(--on-mood);
+        opacity: 0.75;
       }
       dl {
         display: grid;
         grid-template-columns: max-content 1fr;
         gap: 4px 16px;
-        margin: 0;
+        margin: 0 0 16px;
       }
       dt {
         color: var(--muted);
@@ -162,48 +339,88 @@
       dd {
         margin: 0;
       }
-      .table-wrap {
-        overflow-x: auto;
-        margin-top: 12px;
+
+      .days {
+        margin-top: 20px;
+        display: grid;
+        gap: 8px;
       }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        font-size: 0.92rem;
+      .day {
+        display: grid;
+        grid-template-columns: 88px repeat(3, 1fr);
+        gap: 6px;
+        align-items: center;
       }
-      th,
-      td {
-        text-align: left;
-        padding: 6px 8px;
-        border-bottom: 1px solid var(--border);
-        vertical-align: top;
-      }
-      th {
-        color: var(--muted);
+      .day-label {
         font-weight: 600;
+        font-size: 14px;
+        line-height: 1.2;
       }
-      pre {
-        font: 0.82rem/1.45 var(--mono);
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 12px;
-        max-height: 420px;
-        overflow: auto;
-        white-space: pre;
+      .day-label .caption {
+        display: block;
+        font-weight: 400;
       }
+      .slot {
+        height: 40px;
+        border-radius: var(--r-sm);
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+        color: var(--on-mood);
+      }
+      .slot.empty {
+        border: 1.5px dashed var(--border);
+      }
+      .notes {
+        grid-column: 2 / -1;
+        display: grid;
+        gap: 2px;
+        margin: -2px 0 4px;
+      }
+      .notes p {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .slot-head {
+        text-align: center;
+      }
+
       details summary {
         cursor: pointer;
         color: var(--accent);
-        margin-top: 12px;
+        font-weight: 600;
+        margin-top: 16px;
       }
+      pre {
+        font: 12px/1.5 var(--mono);
+        background: var(--background);
+        border-radius: var(--r-md);
+        padding: 12px;
+        max-height: 420px;
+        overflow: auto;
+      }
+
       footer {
         margin-top: 28px;
-        font-size: 0.88rem;
+        text-align: center;
       }
-      code {
-        font-family: var(--mono);
-        font-size: 0.9em;
+
+      .appear {
+        animation: appear 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      @keyframes appear {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
       }
       [hidden] {
         display: none !important;
@@ -212,70 +429,82 @@
   </head>
   <body>
     <main>
-      <h1>Feelings Unboxed 📦</h1>
-      <p class="muted">
-        Open a Mood Tracker backup, encrypted or not. The file is read and decrypted in this browser tab;
+      <header>
+        <img src="icon.png" alt="" width="56" height="56" />
+        <div class="grow">
+          <h1>Feelings Unboxed</h1>
+        </div>
+        <button class="button ghost" id="install" hidden>Install</button>
+      </header>
+      <p class="muted lede">
+        Open a Mood Tracker backup, encrypted or not. It's read and decrypted right here on your device;
         nothing is uploaded.
       </p>
-      <p class="row" style="margin-top: 0">
-        <a class="button" id="latestApk" href="https://github.com/alex-quiterio/mood-tracker/releases/latest"
-          >Get the latest app</a
-        >
-        <span class="muted" id="latestInfo"></span>
-      </p>
 
-      <section class="card">
+      <section class="card appear">
         <label class="drop" id="drop" for="file">
-          <strong>Choose a backup file</strong><br />
+          <div class="faces" aria-hidden="true">
+            <span class="face" style="background: var(--mood-1)">😞</span>
+            <span class="face" style="background: var(--mood-2)">🙁</span>
+            <span class="face" style="background: var(--mood-3)">😐</span>
+            <span class="face" style="background: var(--mood-4)">🙂</span>
+            <span class="face" style="background: var(--mood-5)">😄</span>
+          </div>
+          <strong>Choose a backup</strong><br />
           <span class="muted">or drop a <code>.json</code> file here</span>
         </label>
         <input type="file" id="file" accept=".json,application/json,text/plain" />
-        <p id="fileName" class="muted" style="margin-top: 12px" hidden></p>
+        <p id="fileName" class="caption file-name" hidden></p>
         <div id="error" class="notice" role="alert" hidden></div>
       </section>
 
-      <section class="card" id="unlock" hidden>
-        <h2>This backup is encrypted</h2>
-        <p class="muted">Enter the passphrase you set in the app. Opening it can take a few seconds.</p>
+      <section class="card appear" id="unlock" hidden>
+        <h2>🔒 Locked with a passphrase</h2>
+        <p class="muted">Type the passphrase you set in the app. Opening takes a few seconds.</p>
         <form id="unlockForm">
           <input type="password" id="passphrase" autocomplete="current-password" placeholder="Passphrase" />
           <div class="row">
-            <button type="submit" id="unlockButton">Open</button>
-            <span id="unlockStatus" class="muted"></span>
+            <button class="button" type="submit" id="unlockButton">Unbox it</button>
+            <span id="unlockStatus" class="caption"></span>
           </div>
         </form>
       </section>
 
-      <section class="card" id="result" hidden>
-        <h2>What's inside</h2>
+      <section class="card appear" id="result" hidden>
+        <h2>Here's what was inside ✨</h2>
+        <p class="caption" id="resultSub"></p>
+        <div class="stats" id="stats"></div>
         <dl id="summary"></dl>
         <div class="row">
-          <button id="download">Download as plain JSON</button>
-          <button class="secondary" id="reset">Open another file</button>
+          <button class="button" id="download">Download as plain JSON</button>
+          <button class="button ghost" id="reset">Open another</button>
         </div>
-        <p class="muted" id="downloadNote" style="margin-top: 8px" hidden>
-          The download is not encrypted. Keep it somewhere private.
+        <p class="caption" id="downloadNote" style="margin-top: 8px" hidden>
+          The download isn't encrypted. Keep it somewhere private.
         </p>
-        <div class="table-wrap" id="entriesWrap" hidden>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Part of day</th>
-                <th>Mood</th>
-                <th>Note</th>
-              </tr>
-            </thead>
-            <tbody id="entries"></tbody>
-          </table>
-        </div>
+        <div class="days" id="days"></div>
+        <button class="button ghost" id="more" style="margin-top: 12px" hidden></button>
         <details>
           <summary>Raw JSON</summary>
           <pre id="raw"></pre>
         </details>
       </section>
 
-      <footer class="muted" id="footer"></footer>
+      <section class="card appear">
+        <h2>Get the app</h2>
+        <p class="muted" style="margin-bottom: 14px">The Android app, signed and ready to sideload.</p>
+        <div class="row">
+          <a
+            class="button"
+            id="latestApk"
+            href="https://github.com/alex-quiterio/mood-tracker/releases/latest"
+            >Latest release</a
+          >
+          <span class="caption" id="latestInfo"></span>
+        </div>
+      </section>
+
+      <footer class="caption" id="footer"></footer>
     </main>
 
     <script>
@@ -327,7 +556,7 @@
             fromBase64(file.data),
           );
         } catch {
-          throw new Error('That passphrase does not open this backup.');
+          throw new Error("That passphrase doesn't open this backup.");
         }
         return new TextDecoder().decode(plain);
       }
@@ -351,7 +580,7 @@
           return 'encrypted';
         }
         if (data?.format === EXPORT_FORMAT) return 'export';
-        throw new Error('This is not a Mood Tracker backup.');
+        throw new Error("This isn't a Mood Tracker backup.");
       }
 
       if (typeof module !== 'undefined') module.exports = { decryptBackup, classify };
@@ -359,13 +588,45 @@
     <script>
       if (typeof document !== 'undefined') {
         const $ = (id) => document.getElementById(id);
+        const el = (tag, props = {}, ...children) => {
+          const node = Object.assign(document.createElement(tag), props);
+          node.append(...children);
+          return node;
+        };
+        const MOOD_EMOJI = { 1: '😞', 2: '🙁', 3: '😐', 4: '🙂', 5: '😄' };
+        const SLOTS = ['morning', 'afternoon', 'evening'];
+        const SLOT_LABEL = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' };
+        const PAGE = 60;
+
         let encrypted = null;
         let plainText = null;
         let sourceName = 'backup.json';
+        let dayList = [];
+        let dayMap = new Map();
+        let shown = 0;
+
+        const localDate = (iso) => {
+          const [y, m, d] = iso.split('-').map(Number);
+          return new Date(y, m - 1, d);
+        };
+        const fmtDay = (iso) =>
+          localDate(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+        const fmtWeekday = (iso) => localDate(iso).toLocaleDateString(undefined, { weekday: 'short' });
+        const fmtYear = (iso) =>
+          localDate(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+        const moodVar = (mood) => `var(--mood-${Math.min(5, Math.max(1, Math.round(mood)))})`;
 
         function showError(message) {
           $('error').textContent = message;
           $('error').hidden = !message;
+        }
+
+        function reveal(id) {
+          const node = $(id);
+          node.hidden = false;
+          node.classList.remove('appear');
+          void node.offsetWidth;
+          node.classList.add('appear');
         }
 
         function reset() {
@@ -377,21 +638,21 @@
           showError('');
         }
 
-        async function openFile(file) {
+        async function openText(name, text) {
           reset();
-          sourceName = file.name;
-          $('fileName').textContent = file.name;
+          sourceName = name;
+          $('fileName').textContent = name;
           $('fileName').hidden = false;
           let data;
           try {
-            data = JSON.parse(await file.text());
+            data = JSON.parse(text);
           } catch {
-            return showError('This file is not JSON.');
+            return showError("This file isn't JSON.");
           }
           try {
             if (classify(data) === 'encrypted') {
               encrypted = data;
-              $('unlock').hidden = false;
+              reveal('unlock');
               $('passphrase').focus();
             } else {
               showExport(JSON.stringify(data, null, 2), false);
@@ -400,6 +661,7 @@
             showError(e.message);
           }
         }
+        const openFile = async (file) => openText(file.name, await file.text());
 
         function showExport(text, wasEncrypted) {
           let data;
@@ -407,65 +669,111 @@
             data = JSON.parse(text);
             if (data?.format !== EXPORT_FORMAT) throw new Error();
           } catch {
-            return showError('The backup opened, but what is inside is not a Mood Tracker export.');
+            return showError("The backup opened, but what's inside isn't a Mood Tracker export.");
           }
           plainText = text;
-          const entries = Array.isArray(data.entries) ? data.entries : [];
-          const dates = entries
-            .map((e) => e.date)
-            .filter(Boolean)
-            .sort();
+          const entries = Array.isArray(data.entries) ? data.entries.filter((e) => e?.date) : [];
           const count = (list) => (Array.isArray(list) ? list.length : 0);
+
+          const byDay = new Map();
+          for (const e of entries) {
+            if (!byDay.has(e.date)) byDay.set(e.date, {});
+            byDay.get(e.date)[e.slot] = e;
+          }
+          dayMap = byDay;
+          dayList = [...byDay.keys()].sort().reverse();
+          const avg = entries.length
+            ? entries.reduce((s, e) => s + Number(e.mood || 0), 0) / entries.length
+            : 0;
+
+          $('resultSub').textContent = dayList.length
+            ? `${fmtYear(dayList[dayList.length - 1])} → ${fmtYear(dayList[0])}`
+            : 'No check-ins yet';
+
+          const stat = (value, label, mood) =>
+            el(
+              'div',
+              { className: mood ? 'stat mood' : 'stat', style: mood ? `background:${moodVar(mood)}` : '' },
+              el('b', { textContent: value }),
+              el('span', { className: 'caption', textContent: label }),
+            );
+          $('stats').replaceChildren(
+            stat(entries.length, 'check-ins'),
+            stat(dayList.length, 'days'),
+            ...(entries.length
+              ? [stat(`${MOOD_EMOJI[Math.round(avg)]} ${avg.toFixed(1)}`, 'average mood', avg)]
+              : []),
+            stat(count(data.habits), 'habits'),
+          );
+
           const rows = [
-            [
-              'Export format',
-              `v${data.version}${data.version > EXPORT_VERSION ? ' (newer than this page knows)' : ''}`,
-            ],
+            ['Format', `v${data.version}${data.version > EXPORT_VERSION ? ' (newer than this page)' : ''}`],
             [
               'Encrypted',
-              wasEncrypted
-                ? `yes (v${encrypted.version}, ${encrypted.kdf.iterations.toLocaleString()} PBKDF2 rounds)`
-                : 'no',
+              wasEncrypted ? `yes · ${encrypted.kdf.iterations.toLocaleString()} PBKDF2 rounds` : 'no',
             ],
             ['Exported', data.exportedAt ? new Date(data.exportedAt).toLocaleString() : '—'],
-            ['Check-ins', entries.length],
-            ['Days', dates.length ? `${dates[0]} → ${dates[dates.length - 1]}` : '—'],
-            ['Habits', count(data.habits)],
             ['Urges', count(data.urges)],
             ['Payments', count(data.payments)],
             ['Settings', data.settings ? 'included' : 'not included'],
           ];
           $('summary').replaceChildren(
-            ...rows.flatMap(([k, v]) => {
-              const dt = document.createElement('dt');
-              const dd = document.createElement('dd');
-              dt.textContent = k;
-              dd.textContent = String(v);
-              return [dt, dd];
-            }),
+            ...rows.flatMap(([k, v]) => [el('dt', { textContent: k }), el('dd', { textContent: String(v) })]),
           );
-          const slotOrder = { morning: 0, afternoon: 1, evening: 2 };
-          const sorted = [...entries].sort(
-            (a, b) => b.date.localeCompare(a.date) || (slotOrder[b.slot] ?? 0) - (slotOrder[a.slot] ?? 0),
-          );
-          $('entries').replaceChildren(
-            ...sorted.map((e) => {
-              const tr = document.createElement('tr');
-              for (const v of [e.date, e.slot, e.mood, e.note ?? '']) {
-                const td = document.createElement('td');
-                td.textContent = v;
-                tr.append(td);
-              }
-              return tr;
-            }),
-          );
-          $('entriesWrap').hidden = entries.length === 0;
+
+          const head = el('div', { className: 'day' }, el('span'));
+          for (const s of SLOTS)
+            head.append(el('span', { className: 'caption slot-head', textContent: SLOT_LABEL[s] }));
+          $('days').replaceChildren(...(dayList.length ? [head] : []));
+          shown = 0;
+          renderMore();
+
           $('raw').textContent = text;
           $('downloadNote').hidden = !wasEncrypted;
           $('unlock').hidden = true;
-          $('result').hidden = false;
+          reveal('result');
         }
 
+        function renderMore() {
+          const next = dayList.slice(shown, shown + PAGE);
+          for (const date of next) {
+            const slots = dayMap.get(date) ?? {};
+            const row = el(
+              'div',
+              { className: 'day' },
+              el(
+                'div',
+                { className: 'day-label' },
+                fmtDay(date),
+                el('span', { className: 'caption', textContent: fmtWeekday(date) }),
+              ),
+            );
+            for (const s of SLOTS) {
+              const e = slots[s];
+              row.append(
+                e
+                  ? el('div', {
+                      className: 'slot',
+                      style: `background:${moodVar(e.mood)}`,
+                      textContent: MOOD_EMOJI[e.mood] ?? e.mood,
+                      title: `${SLOT_LABEL[s]}: ${e.mood}/5`,
+                    })
+                  : el('div', { className: 'slot empty', title: `${SLOT_LABEL[s]}: no check-in` }),
+              );
+            }
+            const notes = SLOTS.filter((s) => slots[s]?.note).map((s) =>
+              el('p', { textContent: `${MOOD_EMOJI[slots[s].mood] ?? ''} ${slots[s].note}` }),
+            );
+            if (notes.length) row.append(el('div', { className: 'notes' }, ...notes));
+            $('days').append(row);
+          }
+          shown += next.length;
+          const left = dayList.length - shown;
+          $('more').hidden = left <= 0;
+          $('more').textContent = `Show ${Math.min(PAGE, left)} more days`;
+        }
+
+        $('more').addEventListener('click', renderMore);
         $('file').addEventListener('change', (e) => e.target.files[0] && openFile(e.target.files[0]));
         const drop = $('drop');
         drop.addEventListener('dragover', (e) => {
@@ -486,7 +794,7 @@
           if (!passphrase) return;
           showError('');
           $('unlockButton').disabled = true;
-          $('unlockStatus').textContent = 'Deriving the key…';
+          $('unlockStatus').textContent = 'Unboxing…';
           try {
             showExport(await decryptBackup(encrypted, passphrase), true);
           } catch (err) {
@@ -499,9 +807,10 @@
 
         $('download').addEventListener('click', () => {
           const blob = new Blob([plainText], { type: 'application/json' });
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = sourceName.replace(/(\.json)?$/i, '-decrypted.json');
+          const a = el('a', {
+            href: URL.createObjectURL(blob),
+            download: sourceName.replace(/(\.json)?$/i, '-unboxed.json'),
+          });
           a.click();
           setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         });
@@ -509,42 +818,81 @@
 
         // Which app release this page matches.
         const version = filled(BUILD.appVersion);
-        const repo = filled(BUILD.repo);
+        const repo = filled(BUILD.repo) ?? 'alex-quiterio/mood-tracker';
         const commit = filled(BUILD.commit);
-        const parts = [
-          `Reads plain exports up to v${EXPORT_VERSION} and encrypted backups v${ENCRYPTED_VERSION} (from app ${ENCRYPTED_SINCE} on).`,
-        ];
-        $('footer').textContent = parts.join(' ') + ' ';
+        $('footer').append(
+          `Reads plain exports up to v${EXPORT_VERSION} and encrypted backups v${ENCRYPTED_VERSION} (app ${ENCRYPTED_SINCE} on).`,
+          el('br'),
+        );
         if (version) {
-          const span = document.createElement('span');
-          span.append('Built from ');
-          const a = document.createElement('a');
-          a.textContent = `release ${version}`;
-          if (repo) a.href = `https://github.com/${repo}/releases/tag/v${version}`;
-          span.append(a);
-          if (commit) span.append(` (commit ${commit.slice(0, 7)}).`);
-          $('footer').append(span);
+          $('footer').append(
+            'Built from ',
+            el('a', {
+              textContent: `release ${version}`,
+              href: `https://github.com/${repo}/releases/tag/v${version}`,
+            }),
+            commit ? ` · ${commit.slice(0, 7)}` : '',
+          );
         } else {
           $('footer').append('Development copy (not built by the Pages workflow).');
         }
 
         // The latest release's APK. Its file name carries the version, so ask GitHub which one it is;
         // the button already points at the latest release page if this fails.
-        const repoName = repo ?? 'alex-quiterio/mood-tracker';
-        fetch(`https://api.github.com/repos/${repoName}/releases/latest`)
+        fetch(`https://api.github.com/repos/${repo}/releases/latest`)
           .then((r) => (r.ok ? r.json() : Promise.reject()))
           .then((release) => {
             const apk = release.assets?.find((a) => a.name.endsWith('.apk'));
             if (apk) {
               $('latestApk').href = apk.browser_download_url;
-              $('latestApk').textContent = `Download ${release.tag_name} (APK)`;
+              $('latestApk').textContent = `Download ${release.tag_name}`;
             }
             const date = new Date(release.published_at).toLocaleDateString();
             const newer = version && release.tag_name !== `v${version}`;
             $('latestInfo').textContent =
-              `Released ${date}` + (newer ? ` · newer than this page (${version})` : '');
+              `APK · released ${date}` + (newer ? ` · newer than this page (${version})` : '');
           })
           .catch(() => {});
+
+        // Installable app: offline cache, the Install button, and files opened or shared into it.
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+        let installPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          installPrompt = e;
+          $('install').hidden = false;
+        });
+        window.addEventListener('appinstalled', () => ($('install').hidden = true));
+        $('install').addEventListener('click', async () => {
+          if (!installPrompt) return;
+          installPrompt.prompt();
+          await installPrompt.userChoice;
+          installPrompt = null;
+          $('install').hidden = true;
+        });
+
+        // Desktop Chrome: "Open with Feelings Unboxed" on a .json file (manifest file_handlers).
+        if ('launchQueue' in window) {
+          window.launchQueue.setConsumer(async (params) => {
+            const handle = params.files?.[0];
+            if (handle) openFile(await handle.getFile());
+          });
+        }
+
+        // Android: a backup shared from the Mood Tracker app (manifest share_target, kept by sw.js).
+        if (new URLSearchParams(location.search).has('shared') && 'caches' in window) {
+          history.replaceState(null, '', location.pathname);
+          caches
+            .open('shared-file')
+            .then(async (cache) => {
+              const res = await cache.match('shared');
+              if (!res) return;
+              await cache.delete('shared');
+              openText(decodeURIComponent(res.headers.get('x-name') || 'shared.json'), await res.text());
+            })
+            .catch(() => {});
+        }
       }
     </script>
   </body>

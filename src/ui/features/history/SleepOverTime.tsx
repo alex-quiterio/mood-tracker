@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { SLEEP_HOURS_MAX, sleepOverTime } from '@domain/checkins/sleep';
 import { Entry } from '@domain/checkins/types';
@@ -15,46 +16,59 @@ type Props = { entries: Entry[]; today: string };
 export function SleepOverTime({ entries, today }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { m, locale } = useLocale();
+  // Folded to its title and the one comparison; the nights open on a tap.
+  const [open, setOpen] = useState(false);
   const { nights, moodAfterGood, moodAfterShorter } = sleepOverTime(entries, today);
   if (nights.length === 0) return null;
 
   return (
     <Card>
-      <Text style={styles.title}>{m.sleep.overTimeTitle}</Text>
-      <Text style={styles.muted}>{m.sleep.overTimeHint}</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        onPress={() => setOpen((v) => !v)}
+        style={styles.header}
+      >
+        <Text style={styles.title}>{m.sleep.overTimeTitle}</Text>
+        <Text style={styles.chevron}>{open ? '⌃' : '⌄'}</Text>
+      </Pressable>
+      {open && <Text style={styles.muted}>{m.sleep.overTimeHint}</Text>}
       {moodAfterGood !== null && moodAfterShorter !== null && (
         <Text style={styles.text}>
           {m.sleep.moodAfter(formatAverage(moodAfterGood, locale), formatAverage(moodAfterShorter, locale))}
         </Text>
       )}
-      {nights.map((n) => {
-        const day = `${weekdayShort(n.date, locale)} ${dayOfMonth(n.date)}`;
-        const hours = n.hours === null ? '' : formatHours(n.hours, locale);
-        return (
-          <View
-            key={n.date}
-            style={styles.row}
-            accessible
-            accessibilityLabel={m.sleep.nightA11y(day, n.bedtime ?? '', hours, n.mood)}
-          >
-            <Text style={styles.day}>{day}</Text>
-            <Text style={styles.bed}>{n.bedtime ?? '–'}</Text>
-            <View style={styles.track}>
-              {n.hours !== null && (
-                <View style={[styles.bar, { width: `${(n.hours / SLEEP_HOURS_MAX) * 100}%` }]} />
-              )}
+      {open &&
+        nights.map((n) => {
+          const day = `${weekdayShort(n.date, locale)} ${dayOfMonth(n.date)}`;
+          const hours = n.hours === null ? '' : formatHours(n.hours, locale);
+          return (
+            <View
+              key={n.date}
+              style={styles.row}
+              accessible
+              accessibilityLabel={m.sleep.nightA11y(day, n.bedtime ?? '', hours, n.mood)}
+            >
+              <Text style={styles.day}>{day}</Text>
+              <Text style={styles.bed}>{n.bedtime ?? '–'}</Text>
+              <View style={styles.track}>
+                {n.hours !== null && (
+                  <View style={[styles.bar, { width: `${(n.hours / SLEEP_HOURS_MAX) * 100}%` }]} />
+                )}
+              </View>
+              <Text style={styles.hours}>{hours ? m.sleep.hours(hours) : '–'}</Text>
+              <Text style={styles.mood}>{n.mood}</Text>
             </View>
-            <Text style={styles.hours}>{hours ? m.sleep.hours(hours) : '–'}</Text>
-            <Text style={styles.mood}>{n.mood}</Text>
-          </View>
-        );
-      })}
+          );
+        })}
     </Card>
   );
 }
 
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    chevron: { color: c.muted, fontSize: 16 },
     title: { color: c.text, fontSize: 15, fontWeight: '700' },
     muted: { color: c.muted, fontSize: 12 },
     text: { color: c.text, fontSize: 14 },

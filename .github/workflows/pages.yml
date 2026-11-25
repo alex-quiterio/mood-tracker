@@ -51,9 +51,9 @@ jobs:
                  _site/index.html _site/sw.js
           echo "Built for app $APP_VERSION (export v$EXPORT_VERSION, encrypted v$ENCRYPTED_VERSION)" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

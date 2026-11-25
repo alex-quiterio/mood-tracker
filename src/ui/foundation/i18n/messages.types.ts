@@ -150,7 +150,8 @@ export type Messages = {
     /** How a sweet spot is counted, to follow a number: "a day", "a week". */
     per: Record<RangePeriod, string>;
     sweetSpot: (min: number, max: number, per: string) => string;
-    moodWithNone: (none: string, some: string) => string;
+    /** Mood on days a habit was a win vs the other days, e.g. "Mood on 💧 days 3.8 · other days 3.2". */
+    moodOnDays: (emoji: string, wins: string, others: string) => string;
     insteadTitle: string;
     /** Feelings before this week's urges, already joined, e.g. "boredom ×3, fear". */
     feelingsBefore: (list: string) => string;
@@ -747,6 +748,7 @@ export type Messages = {
     did: (what: string) => string;
     insteadNote: (note: string) => string;
     sleep: (text: string) => string;
+    sleepBedtime: (time: string) => string;
     sleepHours: (hours: string) => string;
     sleepQuality: (quality: number) => string;
     sleepWeek: (hours: string, quality: string) => string;
@@ -784,6 +786,16 @@ export type Messages = {
     fewerHours: string;
     moreHours: string;
     perNight: string;
+    bedtimeLabel: string;
+    /** "23:30" shown as the bedtime. */
+    bedtime: (time: string) => string;
+    earlierBedtime: string;
+    laterBedtime: string;
+    overTimeTitle: string;
+    overTimeHint: string;
+    /** Mean mood the morning after good nights and after shorter ones, already formatted. */
+    moodAfter: (good: string, shorter: string) => string;
+    nightA11y: (day: string, bedtime: string, hours: string, mood: number) => string;
   };
   /** Phone unlocks a day beside typical adults, on the week tab. */
   unlockInsight: {

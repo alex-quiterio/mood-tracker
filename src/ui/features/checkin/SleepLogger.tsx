@@ -4,9 +4,11 @@ import { Text } from '@ui/kit/Text';
 import {
   SLEEP_HOURS_MAX,
   SLEEP_HOURS_START,
+  BEDTIME_STEP_MINUTES,
   SLEEP_HOURS_STEP,
   Sleep,
   clampSleepHours,
+  shiftBedtime,
 } from '@domain/checkins/sleep';
 import { MOODS } from '@domain/checkins/types';
 import { Chip } from '@ui/kit/Chip';
@@ -25,6 +27,9 @@ export function SleepLogger({ sleep, onChange }: Props) {
   const step = (delta: number) =>
     onChange({ ...sleep, hours: clampSleepHours((sleep.hours ?? SLEEP_HOURS_START - delta) + delta) });
 
+  const moveBedtime = (minutes: number) =>
+    onChange({ ...sleep, bedtime: shiftBedtime(sleep.bedtime, minutes) });
+
   return (
     <View style={styles.root}>
       <Text style={styles.heading}>{m.sleep.title}</Text>
@@ -37,6 +42,21 @@ export function SleepLogger({ sleep, onChange }: Props) {
             onPress={() => onChange({ ...sleep, quality: sleep.quality === q ? undefined : q })}
           />
         ))}
+      </View>
+      <View style={styles.hoursRow}>
+        <Text style={styles.label}>{m.sleep.bedtimeLabel}</Text>
+        <RoundButton
+          label="−"
+          accessibilityLabel={m.sleep.earlierBedtime}
+          // The first tap starts from a typical bedtime and then moves it.
+          onPress={() => moveBedtime(sleep.bedtime === undefined ? 0 : -BEDTIME_STEP_MINUTES)}
+        />
+        <Text style={styles.hours}>{sleep.bedtime ?? '–'}</Text>
+        <RoundButton
+          label="+"
+          accessibilityLabel={m.sleep.laterBedtime}
+          onPress={() => moveBedtime(sleep.bedtime === undefined ? 0 : BEDTIME_STEP_MINUTES)}
+        />
       </View>
       <View style={styles.hoursRow}>
         <Text style={styles.label}>{m.sleep.hoursLabel}</Text>

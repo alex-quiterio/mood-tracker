@@ -10,6 +10,7 @@ import { MerchantLinks } from '@domain/spending/categories';
 import { ModulePreferences } from '@domain/habitModules/preferences';
 import { HabitModulesModal } from '@ui/features/habitModules/HabitModulesModal';
 import { EstimateVsSpentCard } from '@ui/features/spending/EstimateVsSpentCard';
+import { SleepOverTime } from '@ui/features/history/SleepOverTime';
 import { HabitsWeek } from '@ui/features/habits/HabitsWeek';
 import { UnlockInsightCard } from '@ui/features/unlocks/UnlockInsightCard';
 import { insightUntil } from '@domain/signals/unlockBenchmarks';
@@ -113,6 +114,8 @@ export function StatsScreen({
           />
         )}
       </View>
+
+      <SleepOverTime entries={store.entries} today={shownUntil} />
 
       <View style={styles.table}>
         <View style={styles.row}>

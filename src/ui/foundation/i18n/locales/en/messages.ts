@@ -120,7 +120,8 @@ export const messages: Omit<Messages, 'voices'> = {
     per: { day: 'a day', week: 'a week', month: 'a month' },
     sweetSpot: (min: number, max: number, per: string) =>
       min === max ? `sweet spot ${min} ${per}` : `sweet spot ${min}–${max} ${per}`,
-    moodWithNone: (none: string, some: string) => `Mood with none ${none} · with some ${some}`,
+    moodOnDays: (emoji: string, wins: string, others: string) =>
+      `Mood on ${emoji} days ${wins} · other days ${others}`,
     insteadTitle: '🌱 What you did instead',
     feelingsBefore: (list: string) => `🌊 Before your urges: ${list}`,
   },
@@ -763,6 +764,15 @@ export const messages: Omit<Messages, 'voices'> = {
     fewerHours: 'Half an hour less',
     moreHours: 'Half an hour more',
     perNight: 'Sleep per night',
+    bedtimeLabel: 'Bedtime',
+    bedtime: (time) => `bed ${time}`,
+    earlierBedtime: 'Half an hour earlier',
+    laterBedtime: 'Half an hour later',
+    overTimeTitle: '😴 Sleep, last two weeks',
+    overTimeHint: 'Bedtime, hours slept and the mood of the morning after.',
+    moodAfter: (good, shorter) => `Morning mood after 7 h or more ${good} · after shorter nights ${shorter}`,
+    nightA11y: (day, bedtime, hours, mood) =>
+      `${day}: ${bedtime ? `bed ${bedtime}, ` : ''}${hours ? `${hours} h, ` : ''}morning mood ${mood}`,
   },
   unlockInsight: {
     title: '📱 Unlocks and typical adults',
@@ -831,7 +841,7 @@ export const messages: Omit<Messages, 'voices'> = {
       unit: string,
       per: string,
     ) => `${name}: within my sweet spot of ${min}–${max} ${unit} ${per} on ${wins} of ${days} days`,
-    habitMoods: (none: string, some: string) => ` (mood with none ${none}, with some ${some})`,
+    habitMoods: (none: string, some: string) => ` (mood on its good days ${none}, on the others ${some})`,
     balance: (light: number, heavy: number) =>
       `Balance: ${light} light points (good habits, zeros, doing something else instead) vs ${heavy} heavy points (doses).`,
     saved: (amount: string) => `Money kept by having less than usual: ${amount}.`,
@@ -842,6 +852,7 @@ export const messages: Omit<Messages, 'voices'> = {
     did: (what: string) => `did: ${what}`,
     insteadNote: (note: string) => `instead: "${note}"`,
     sleep: (text) => `; slept ${text}`,
+    sleepBedtime: (time) => `bed ${time}`,
     sleepHours: (hours) => `${hours}h`,
     sleepQuality: (quality) => `sleep ${quality}/5`,
     sleepWeek: (hours, quality) => `Sleep this week: ${hours} a night on average, quality ${quality}/5.`,

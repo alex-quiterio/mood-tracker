@@ -109,8 +109,8 @@ function habitSummary(
     .filter((w) => w.logged > 0)
     .map((w) => {
       const moods =
-        w.moodWithNone !== null && w.moodWithSome !== null
-          ? p.habitMoods(formatDecimal(w.moodWithNone, 1, locale), formatDecimal(w.moodWithSome, 1, locale))
+        w.moodOnWins !== null && w.moodOnOthers !== null
+          ? p.habitMoods(formatDecimal(w.moodOnWins, 1, locale), formatDecimal(w.moodOnOthers, 1, locale))
           : '';
       return `- ${promptHabitWeek(w, locale)}${moods}`;
     });

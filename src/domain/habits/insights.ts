@@ -126,10 +126,20 @@ export type HabitWeek = {
   wins: number;
   total: number;
   saved: number;
-  /** Average mood in check-ins with none vs some (reduce habits only). */
-  moodWithNone: number | null;
-  moodWithSome: number | null;
+  /** Average mood on win days (none, done, in the sweet spot) vs other logged days; null if either has none. */
+  moodOnWins: number | null;
+  moodOnOthers: number | null;
 };
+
+/** Mood on win check-ins vs the others, as neutral numbers; null unless both kinds exist. */
+function moodSplit(checkIns: { mood: number; win: boolean }[]) {
+  const on = (win: boolean) => average(checkIns.filter((c) => c.win === win).map((c) => c.mood));
+  const moodOnWins = on(true);
+  const moodOnOthers = on(false);
+  return moodOnWins !== null && moodOnOthers !== null
+    ? { moodOnWins, moodOnOthers }
+    : { moodOnWins: null, moodOnOthers: null };
+}
 
 /** The latest "what you did instead" notes this week, most recently written first. */
 export function recentInsteadNotes(entries: Entry[], today: string, count = 3): string[] {
@@ -155,14 +165,14 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
         wins,
         total: wins,
         saved: 0,
-        moodWithNone: null,
-        moodWithSome: null,
+        ...moodSplit(logged.map((e) => ({ mood: e.mood, win: e.habits!.did.includes(habit.id) }))),
       };
     }
     if (habit.kind === 'balance') {
       // All entries for the totals so far: a monthly sweet spot can start before Monday.
       const byDay = dosesByDay(entries, habit.id);
-      const days = [...dosesByDay(week, habit.id)];
+      const weekByDay = dosesByDay(week, habit.id);
+      const days = [...weekByDay];
       return {
         habit,
         logged: days.length,
@@ -170,8 +180,14 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
           .length,
         total: days.reduce((sum, [, total]) => sum + total, 0),
         saved: 0,
-        moodWithNone: null,
-        moodWithSome: null,
+        ...moodSplit(
+          week.flatMap((e) => {
+            const day = weekByDay.get(e.date);
+            return day === undefined
+              ? []
+              : [{ mood: e.mood, win: inSweetSpot(habit, day, periodTotal(habit, byDay, e.date)) }];
+          }),
+        ),
       };
     }
     const logged = week.filter((e) => e.habits?.doses[habit.id]);
@@ -183,8 +199,10 @@ export function habitWeek(entries: Entry[], habits: Habit[], today: string): Hab
       wins: none.length,
       total: logged.reduce((sum, e) => sum + e.habits!.doses[habit.id].count, 0),
       saved: savings(entries, habit, weekStart(today), today),
-      moodWithNone: average(none.map((e) => e.mood)),
-      moodWithSome: average(some.map((e) => e.mood)),
+      ...moodSplit([
+        ...none.map((e) => ({ mood: e.mood, win: true })),
+        ...some.map((e) => ({ mood: e.mood, win: false })),
+      ]),
     };
   });
 }

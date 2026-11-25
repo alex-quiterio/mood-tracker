@@ -1,10 +1,29 @@
-import { weekSoFar } from '@domain/shared/dates';
+import { addDays, weekSoFar } from '@domain/shared/dates';
 import { average } from '@domain/shared/math';
 
 import { Entry, MOODS, Mood } from './types';
 
 /** Last night's sleep, logged with the morning check-in. Either part may be missing. */
-export type Sleep = { quality?: Mood; hours?: number };
+export type Sleep = {
+  quality?: Mood;
+  hours?: number;
+  /** When you went to bed, local "HH:MM" on the half hour (a bedtime after midnight belongs to the night before). */
+  bedtime?: string;
+};
+
+/** Bedtimes are picked on the half hour; the stepper starts at 23:00 and wraps around midnight. */
+export const BEDTIME_STEP_MINUTES = 30;
+export const BEDTIME_START = '23:00';
+const BEDTIME_PATTERN = /^([01]\d|2[0-3]):(00|30)$/;
+export const isBedtime = (value: unknown): value is string =>
+  typeof value === 'string' && BEDTIME_PATTERN.test(value);
+
+/** A bedtime moved by some minutes, wrapping around midnight. */
+export function shiftBedtime(bedtime: string | undefined, minutes: number): string {
+  const [h, m] = (bedtime ?? BEDTIME_START).split(':').map(Number);
+  const total = (((h * 60 + m + minutes) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
 
 export const SLEEP_HOURS_STEP = 0.5;
 export const SLEEP_HOURS_MAX = 14;
@@ -24,17 +43,21 @@ export function parseSleep(value: unknown): Sleep | undefined | null {
   const v = value as Record<string, unknown>;
   if (v.quality !== undefined && !MOODS.includes(v.quality as Mood)) return null;
   if (v.hours !== undefined && (typeof v.hours !== 'number' || !Number.isFinite(v.hours))) return null;
+  if (v.bedtime !== undefined && !isBedtime(v.bedtime)) return null;
   const sleep: Sleep = {};
+  if (v.bedtime !== undefined) sleep.bedtime = v.bedtime as string;
   if (v.quality !== undefined) sleep.quality = v.quality as Mood;
   if (v.hours !== undefined) sleep.hours = clampSleepHours(v.hours as number);
   return isEmptySleep(sleep) ? undefined : sleep;
 }
 
 export const isEmptySleep = (sleep: Sleep | undefined) =>
-  !sleep || (sleep.quality === undefined && sleep.hours === undefined);
+  !sleep || (sleep.quality === undefined && sleep.hours === undefined && sleep.bedtime === undefined);
 
 export const sameSleep = (a: Sleep | undefined, b: Sleep | undefined) =>
-  (a?.quality ?? null) === (b?.quality ?? null) && (a?.hours ?? null) === (b?.hours ?? null);
+  (a?.quality ?? null) === (b?.quality ?? null) &&
+  (a?.hours ?? null) === (b?.hours ?? null) &&
+  (a?.bedtime ?? null) === (b?.bedtime ?? null);
 
 export type SleepWeek = {
   nights: number;
@@ -65,5 +88,43 @@ export function sleepWeek(entries: Entry[], today: string): SleepWeek {
     averageHours: average(nights.flatMap((e) => (e.sleep!.hours !== undefined ? [e.sleep!.hours] : []))),
     moodAfterGood: moodsAfter((h) => h >= GOOD_NIGHT_HOURS),
     moodAfterShort: moodsAfter((h) => h < SHORT_NIGHT_HOURS),
+  };
+}
+
+/** One night's sleep beside the mood of the morning check-in it was logged with. */
+export type SleepNight = {
+  date: string;
+  hours: number | null;
+  bedtime: string | null;
+  /** The mood of that morning's check-in. */
+  mood: Mood;
+};
+
+export type SleepOverTime = {
+  /** Nights with something logged, oldest first. */
+  nights: SleepNight[];
+  /** Mean mood the morning after a night of at least GOOD_NIGHT_HOURS, and after a shorter one. */
+  moodAfterGood: number | null;
+  moodAfterShorter: number | null;
+};
+
+/** Sleep over the `days` days up to `today`, and how the morning after went (good nights lead). */
+export function sleepOverTime(entries: Entry[], today: string, days = 14): SleepOverTime {
+  const from = addDays(today, -(days - 1));
+  const nights = entries
+    .filter((e) => e.slot === 'morning' && e.date >= from && e.date <= today && !isEmptySleep(e.sleep))
+    .sort((a, b) => (a.date < b.date ? -1 : 1))
+    .map((e) => ({
+      date: e.date,
+      hours: e.sleep!.hours ?? null,
+      bedtime: e.sleep!.bedtime ?? null,
+      mood: e.mood,
+    }));
+  const meanMood = (keep: (hours: number) => boolean) =>
+    average(nights.filter((n) => n.hours !== null && keep(n.hours)).map((n) => n.mood));
+  return {
+    nights,
+    moodAfterGood: meanMood((h) => h >= GOOD_NIGHT_HOURS),
+    moodAfterShorter: meanMood((h) => h < GOOD_NIGHT_HOURS),
   };
 }

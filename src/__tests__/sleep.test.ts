@@ -1,7 +1,15 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { parseEntry } from '@domain/checkins/entries';
-import { clampSleepHours, isEmptySleep, parseSleep, sameSleep, sleepWeek } from '@domain/checkins/sleep';
+import {
+  clampSleepHours,
+  isEmptySleep,
+  parseSleep,
+  sameSleep,
+  shiftBedtime,
+  sleepOverTime,
+  sleepWeek,
+} from '@domain/checkins/sleep';
 import { weeklyStats } from '@domain/checkins/stats';
 import { Entry } from '@domain/checkins/types';
 import { LOCK_AFTER_MS, shouldLockOnReturn } from '@domain/settings/lock';
@@ -109,5 +117,33 @@ describe('app lock', () => {
     expect(shouldLockOnReturn(false, away, away + 10 * LOCK_AFTER_MS)).toBe(false);
     expect(shouldLockOnReturn(true, null, away)).toBe(false);
     expect(LOCK_AFTER_MS).toBe(60_000);
+  });
+});
+
+describe('bedtime and sleep over time', () => {
+  it('keeps bedtimes on the half hour and wraps around midnight', () => {
+    expect(parseSleep({ bedtime: '23:30', hours: 7 })).toEqual({ bedtime: '23:30', hours: 7 });
+    expect(parseSleep({ bedtime: '23:10' })).toBeNull();
+    expect(parseSleep({ bedtime: 2330 })).toBeNull();
+    expect(isEmptySleep({ bedtime: '23:00' })).toBe(false);
+    expect(sameSleep({ bedtime: '23:00' }, {})).toBe(false);
+    expect(shiftBedtime(undefined, 0)).toBe('23:00');
+    expect(shiftBedtime('23:30', 30)).toBe('00:00');
+    expect(shiftBedtime('00:00', -30)).toBe('23:30');
+  });
+
+  it('lines nights up with the morning mood and compares good nights with shorter ones', () => {
+    const entries = [
+      entry('2026-09-28', 'morning', 4, { hours: 8, bedtime: '22:30' }),
+      entry('2026-09-29', 'morning', 2, { hours: 5, bedtime: '01:00' }),
+      entry('2026-09-30', 'morning', 3, { hours: 7 }),
+      entry('2026-09-30', 'evening', 1),
+      entry('2026-08-01', 'morning', 5, { hours: 9 }), // too long ago
+    ];
+    const r = sleepOverTime(entries, today);
+    expect(r.nights.map((n) => n.date)).toEqual(['2026-09-28', '2026-09-29', '2026-09-30']);
+    expect(r.nights[0]).toEqual({ date: '2026-09-28', hours: 8, bedtime: '22:30', mood: 4 });
+    expect(r.moodAfterGood).toBe(3.5);
+    expect(r.moodAfterShorter).toBe(2);
   });
 });

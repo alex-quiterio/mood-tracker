@@ -119,7 +119,7 @@ export const messages: Omit<Messages, 'voices'> = {
     per: { day: 'por dia', week: 'por semana', month: 'por mês' },
     sweetSpot: (min, max, per) =>
       min === max ? `medida certa: ${min} ${per}` : `medida certa: ${min}–${max} ${per}`,
-    moodWithNone: (none, some) => `Humor sem nenhum ${none} · com algum ${some}`,
+    moodOnDays: (emoji, wins, others) => `Humor nos dias de ${emoji} ${wins} · outros dias ${others}`,
     insteadTitle: '🌱 O que fizeste em vez disso',
     feelingsBefore: (list: string) => `🌊 Antes das tuas vontades: ${list}`,
   },
@@ -772,6 +772,16 @@ export const messages: Omit<Messages, 'voices'> = {
     fewerHours: 'Menos meia hora',
     moreHours: 'Mais meia hora',
     perNight: 'Sono por noite',
+    bedtimeLabel: 'Hora de deitar',
+    bedtime: (time) => `deitar ${time}`,
+    earlierBedtime: 'Meia hora mais cedo',
+    laterBedtime: 'Meia hora mais tarde',
+    overTimeTitle: '😴 Sono, últimas duas semanas',
+    overTimeHint: 'Hora de deitar, horas dormidas e o humor da manhã seguinte.',
+    moodAfter: (good, shorter) =>
+      `Humor de manhã após 7 h ou mais ${good} · após noites mais curtas ${shorter}`,
+    nightA11y: (day, bedtime, hours, mood) =>
+      `${day}: ${bedtime ? `deitar ${bedtime}, ` : ''}${hours ? `${hours} h, ` : ''}humor da manhã ${mood}`,
   },
   unlockInsight: {
     title: '📱 Desbloqueios e adultos em geral',
@@ -832,7 +842,7 @@ export const messages: Omit<Messages, 'voices'> = {
       `${name}: nenhum em ${wins} de ${logged} registos, ${total} ${unit} no total`,
     habitBalance: (name, wins, days, min, max, unit, per) =>
       `${name}: dentro da minha medida certa de ${min}–${max} ${unit} ${per} em ${wins} de ${days} dias`,
-    habitMoods: (none, some) => ` (humor sem nenhum ${none}, com algum ${some})`,
+    habitMoods: (none, some) => ` (humor nos seus bons dias ${none}, nos outros ${some})`,
     balance: (light, heavy) =>
       `Equilíbrio: ${light} pontos leves (bons hábitos, zeros, fazer outra coisa em vez disso) contra ${heavy} pontos pesados (doses).`,
     saved: (amount) => `Dinheiro poupado por consumir menos do que o habitual: ${amount}.`,
@@ -843,6 +853,7 @@ export const messages: Omit<Messages, 'voices'> = {
     did: (what) => `fiz: ${what}`,
     insteadNote: (note) => `em vez disso: "${note}"`,
     sleep: (text) => `; dormi ${text}`,
+    sleepBedtime: (time) => `deitar ${time}`,
     sleepHours: (hours) => `${hours} h`,
     sleepQuality: (quality) => `sono ${quality}/5`,
     sleepWeek: (hours, quality) => `Sono desta semana: ${hours} por noite em média, qualidade ${quality}/5.`,

@@ -9,6 +9,7 @@ export function describeSleep(sleep: Sleep | undefined, locale: Locale = 'en'): 
   if (!sleep) return '';
   const m = messages(locale).sleep;
   const parts = [
+    ...(sleep.bedtime ? [m.bedtime(sleep.bedtime)] : []),
     ...(sleep.hours !== undefined ? [m.hours(formatHours(sleep.hours, locale))] : []),
     ...(sleep.quality ? [m.quality[sleep.quality]] : []),
   ];
@@ -19,6 +20,7 @@ export function describeSleep(sleep: Sleep | undefined, locale: Locale = 'en'): 
 export function promptSleepText(sleep: Sleep, locale: Locale = 'en'): string {
   const p = messages(locale).prompt;
   return [
+    ...(sleep.bedtime ? [p.sleepBedtime(sleep.bedtime)] : []),
     ...(sleep.hours !== undefined ? [p.sleepHours(formatHours(sleep.hours, locale))] : []),
     ...(sleep.quality ? [p.sleepQuality(sleep.quality)] : []),
   ].join(', ');

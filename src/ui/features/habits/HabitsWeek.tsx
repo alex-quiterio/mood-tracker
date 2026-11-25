@@ -77,11 +77,12 @@ export function HabitsWeek({
         {week.map((w) => (
           <View key={w.habit.id} style={styles.line}>
             <Text style={styles.text}>{describeHabitWeek(w, locale)}</Text>
-            {w.moodWithNone !== null && w.moodWithSome !== null && (
+            {w.moodOnWins !== null && w.moodOnOthers !== null && (
               <Text style={styles.muted}>
-                {m.habits.moodWithNone(
-                  formatDecimal(w.moodWithNone, 1, locale),
-                  formatDecimal(w.moodWithSome, 1, locale),
+                {m.habits.moodOnDays(
+                  w.habit.emoji,
+                  formatDecimal(w.moodOnWins, 1, locale),
+                  formatDecimal(w.moodOnOthers, 1, locale),
                 )}
               </Text>
             )}

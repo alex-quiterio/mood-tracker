@@ -207,9 +207,10 @@ describe('weekly habit view', () => {
     const week = habitWeek(entries, [cigarettes, ...PRESET_HABITS.slice(1)], today);
     const of = (id: string) => week.find((w) => w.habit.id === id)!;
     const [cig, water, walk] = [of('cigarettes'), of('water'), of('walk')];
-    expect(cig).toMatchObject({ logged: 3, wins: 2, total: 4, moodWithNone: 4, moodWithSome: 2 });
+    expect(cig).toMatchObject({ logged: 3, wins: 2, total: 4, moodOnWins: 4, moodOnOthers: 2 });
     expect(describeHabitWeek(cig)).toBe('🚬 None in 2 of 3 check-ins · 4 cigarettes in all');
-    expect(walk).toMatchObject({ logged: 3, wins: 2 });
+    expect(walk).toMatchObject({ logged: 3, wins: 2, moodOnWins: 4, moodOnOthers: 2 });
+    expect(of('friend')).toMatchObject({ moodOnWins: null, moodOnOthers: null });
     expect(describeHabitWeek(water)).toBe('💧 Water in 1 of 3 check-ins');
   });
 
